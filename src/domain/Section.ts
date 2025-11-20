@@ -13,56 +13,74 @@ export const Section = {
 export type Section = typeof Section[keyof typeof Section];
 
 /**
- * Determine which section a hex coordinate belongs to for a given player position.
+ * Check if a hex coordinate belongs to a specific section for a given player position.
+ *
+ * Some hexes straddle section boundaries and belong to multiple sections:
+ * - Left-Center boundary: 3,1 | 2,3 | 1,5 | 0,7
+ * - Center-Right boundary: 8,1 | 7,3 | 6,5 | 5,7
+ *
  * Sections shift horizontally based on row due to offset coordinate system.
- *
- * The visual board has dividing lines that shift with each pair of rows:
- * - Rows 0-1: Left = 0-3,   Center = 4-8,   Right = 9-12
- * - Rows 2-3: Left = -1-2,  Center = 3-7,   Right = 8-11
- * - Rows 4-5: Left = -2-1,  Center = 2-6,   Right = 7-10
- * - Rows 6-8: Left = -3-0,  Center = 1-5,   Right = 6-9
- *
- * Pattern: offset = -Math.floor(r / 2)
+ * The visual board has diagonal dividing lines between sections.
  *
  * For BOTTOM player, sections are based on visual left/center/right from bottom perspective.
  * For TOP player, sections are flipped (screen-left becomes RIGHT, screen-right becomes LEFT).
  */
-export function getSection(coord: HexCoord, playerPosition: Position): Section {
+export function isHexInSection(coord: HexCoord, section: Section, playerPosition: Position): boolean {
   const { q, r } = coord;
-  //
-  // const boundaries = {
-  //   0: [[0, 4], [4, 9], [9, 13]],
-  //   1: [[0, 4], [3, 9], [9, 12]],
-  //   2: [[-1, 3], [3, 8], [8, 11]],
-  //   3: [[-1, 3], [3, 8], [8, 11]],
-  //   4: [[-1, 3], [3, 8], [8, 11]],
-  //   5: [[-1, 3], [3, 8], [8, 11]],
-  //   6: [[-1, 3], [3, 8], [8, 11]],
-  //   7: [[-1, 3], [3, 8], [8, 11]],
-  //   8: [[-1, 3], [3, 8], [8, 11]],
-  // }
 
-  // Calculate row-based offset (shifts left as row increases)
-  const offset = -Math.floor(r / 2);
+  // Calculate the left-center and center-right boundary columns for this row
+  // These boundaries shift diagonally across the board
+  const leftCenterBoundary = 3 - Math.floor(r / 2);
+  const centerRightBoundary = 8 - Math.floor(r / 2);
 
-  // Define section boundaries with offset applied
-  const leftMin = 0 + offset;
-  const leftMax = 3 + offset;
-  const centerMin = 4 + offset;
-  const centerMax = 8 + offset;
-  const rightMin = 9 + offset;
-  const rightMax = 12 + offset;
+  // Determine which section(s) this hex belongs to from BOTTOM player perspective
+  let isLeft = false;
+  let isCenter = false;
+  let isRight = false;
 
-  if (playerPosition === Position.BOTTOM) {
-    if (q >= leftMin && q <= leftMax) return Section.LEFT;
-    if (q >= centerMin && q <= centerMax) return Section.CENTER;
-    if (q >= rightMin && q <= rightMax) return Section.RIGHT;
+  if (q < leftCenterBoundary) {
+    isLeft = true;
+  } else if (q === leftCenterBoundary) {
+    // Boundary hex - belongs to both left and center
+    isLeft = true;
+    isCenter = true;
+  } else if (q > leftCenterBoundary && q < centerRightBoundary) {
+    isCenter = true;
+  } else if (q === centerRightBoundary) {
+    // Boundary hex - belongs to both center and right
+    isCenter = true;
+    isRight = true;
   } else {
-    // TOP player - perspective is flipped
-    if (q >= leftMin && q <= leftMax) return Section.RIGHT;
-    if (q >= centerMin && q <= centerMax) return Section.CENTER;
-    if (q >= rightMin && q <= rightMax) return Section.LEFT;
+    isRight = true;
   }
 
-  throw new Error(`Invalid coordinate q=${q}, r=${r} does not fall into any section`);
+  // Apply player perspective
+  if (playerPosition === Position.BOTTOM) {
+    if (section === Section.LEFT) return isLeft;
+    if (section === Section.CENTER) return isCenter;
+    if (section === Section.RIGHT) return isRight;
+  } else {
+    // TOP player - perspective is flipped
+    if (section === Section.LEFT) return isRight;
+    if (section === Section.CENTER) return isCenter;
+    if (section === Section.RIGHT) return isLeft;
+  }
+
+  return false;
+}
+
+/**
+ * Get the primary section for a hex (for display purposes).
+ * Boundary hexes return their left-most section.
+ * @deprecated Use isHexInSection for game logic
+ */
+export function getSection(coord: HexCoord, playerPosition: Position): Section {
+  // For display, prefer LEFT over CENTER, and CENTER over RIGHT for boundary hexes
+  if (isHexInSection(coord, Section.LEFT, playerPosition)) {
+    return Section.LEFT;
+  }
+  if (isHexInSection(coord, Section.CENTER, playerPosition)) {
+    return Section.CENTER;
+  }
+  return Section.RIGHT;
 }
