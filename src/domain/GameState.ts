@@ -1,7 +1,7 @@
 // ABOUTME: Main game state with GameState pattern implementation
 // ABOUTME: All game logic flows through legalMoves() and executeMove()
 
-import { Player } from "./Player";
+import {createPlayer, Player, Position, Side} from "./Player";
 import { Deck } from "./Deck";
 import {Move, SelectCard} from "./Move";
 import { Unit, coordToKey, keyToCoord } from "./Unit";
@@ -22,7 +22,7 @@ export class GameState {
     activePlayerIndex: 0 | 1,
     deck: Deck,
   ) {
-    this.players = players;
+    this.players = [createPlayer(Side.ALLIES, Position.BOTTOM), createPlayer(Side.AXIS, Position.TOP)];
     this.activePlayerIndex = activePlayerIndex;
     this.deck = deck;
     this.unitPositions = new Map<string, Unit>();

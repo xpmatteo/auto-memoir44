@@ -20,15 +20,10 @@ import {SelectCard} from "../../src/domain/Move";
 describe("GameState", () => {
   describe("constructor", () => {
     it("should create a game state with provided parameters", () => {
-      const bottomPlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
-      const topPlayer = createPlayer(Side.AXIS, Position.TOP);
       const deck = Deck.createStandardDeck();
 
-      const gameState = new GameState([bottomPlayer, topPlayer], 0, deck);
+      const gameState = new GameState(null, 0, deck);
 
-      expect(gameState.players).toHaveLength(2);
-      expect(gameState.players[0]).toBe(bottomPlayer);
-      expect(gameState.players[1]).toBe(topPlayer);
       expect(gameState.activePlayerIndex).toBe(0);
       expect(gameState.deck).toBe(deck);
       expect(gameState.currentCardId).toBeNull();
@@ -42,28 +37,6 @@ describe("GameState", () => {
       const gameState = new GameState([bottomPlayer, topPlayer], 0, deck);
 
       expect(gameState.getAllUnitsWithPositions()).toHaveLength(0);
-    });
-  });
-
-  describe("activePlayer", () => {
-    it("should return the bottom player when activePlayerIndex is 0", () => {
-      const bottomPlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
-      const topPlayer = createPlayer(Side.AXIS, Position.TOP);
-      const deck = Deck.createStandardDeck();
-
-      const gameState = new GameState([bottomPlayer, topPlayer], 0, deck);
-
-      expect(gameState.activePlayer).toBe(bottomPlayer);
-    });
-
-    it("should return the top player when activePlayerIndex is 1", () => {
-      const bottomPlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
-      const topPlayer = createPlayer(Side.AXIS, Position.TOP);
-      const deck = Deck.createStandardDeck();
-
-      const gameState = new GameState([bottomPlayer, topPlayer], 1, deck);
-
-      expect(gameState.activePlayer).toBe(topPlayer);
     });
   });
 
