@@ -36,11 +36,27 @@ export abstract class Unit {
   abstract readonly type: UnitType;
   strength: number; // Number of figures remaining
   owner: Side;
+  private ordered: boolean; // Whether unit has been ordered this turn
 
   constructor(strength: number, owner: Side) {
     this.id = `unit-${nextUnitId++}`;
     this.strength = strength;
     this.owner = owner;
+    this.ordered = false;
+  }
+
+  /**
+   * Check if this unit has been ordered this turn
+   */
+  isOrdered(): boolean {
+    return this.ordered;
+  }
+
+  /**
+   * Mark this unit as ordered
+   */
+  setOrdered(ordered: boolean): void {
+    this.ordered = ordered;
   }
 }
 

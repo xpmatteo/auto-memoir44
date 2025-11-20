@@ -3,9 +3,11 @@
 
 import { Player } from "./Player";
 import { Deck } from "./Deck";
-import { Move } from "./Move";
+import {Move, SelectCard} from "./Move";
 import { Unit, coordToKey, keyToCoord } from "./Unit";
 import type { HexCoord } from "../utils/hex";
+import {CardLocation} from "./CommandCard";
+import { getSection, Section } from "./Section";
 
 export class GameState {
   players: [Player, Player];
@@ -93,6 +95,7 @@ export class GameState {
 
   /**
    * Set the current card. Throws if a card is already selected.
+   * Orders units based on the card type and section.
    */
   setCurrentCard(cardId: string): void {
     if (this.currentCardId !== null) {
@@ -101,6 +104,48 @@ export class GameState {
       );
     }
     this.currentCardId = cardId;
+
+    // Get the card from the deck
+    const card = this.deck.getCard(cardId);
+    if (!card) {
+      throw new Error(`Card ${cardId} not found in deck`);
+    }
+
+    // Determine which section to order based on card name
+    let targetSection: Section | null = null;
+    if (card.name.includes("Left")) {
+      targetSection = Section.LEFT;
+    } else if (card.name.includes("Center")) {
+      targetSection = Section.CENTER;
+    } else if (card.name.includes("Right")) {
+      targetSection = Section.RIGHT;
+    }
+
+    // If this is a section card, order units in that section
+    if (targetSection !== null) {
+      this.orderUnitsInSection(targetSection);
+    }
+  }
+
+  /**
+   * Order all friendly units in the specified section
+   */
+  private orderUnitsInSection(section: Section): void {
+    const activePlayer = this.activePlayer;
+    const allUnitsWithPositions = this.getAllUnitsWithPositions();
+
+    for (const { coord, unit } of allUnitsWithPositions) {
+      // Only order units owned by the active player
+      if (unit.owner !== activePlayer.side) {
+        continue;
+      }
+
+      // Check if unit is in the target section
+      const unitSection = getSection(coord, activePlayer.position);
+      if (unitSection === section) {
+        unit.setOrdered(true);
+      }
+    }
   }
 
   /**
@@ -122,7 +167,9 @@ export class GameState {
    * TODO: Implement actual move generation logic
    */
   legalMoves(): Move[] {
-    return [];
+    let location = (this.activePlayerIndex == 0) ? CardLocation.BOTTOM_PLAYER_HAND : CardLocation.TOP_PLAYER_HAND;
+    return this.deck.getCardsInLocation(location).
+        map(card => new SelectCard(card));
   }
 
   /**

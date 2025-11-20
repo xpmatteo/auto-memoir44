@@ -7,6 +7,15 @@ import { createPlayer, Side, Position } from "../../src/domain/Player";
 import { Deck } from "../../src/domain/Deck";
 import { Infantry } from "../../src/domain/Unit";
 import type { HexCoord } from "../../src/utils/hex";
+import {
+  AssaultCenter,
+  AssaultLeft,
+  AssaultRight,
+  AttackCenter,
+  AttackLeft, AttackRight,
+  CardLocation, ProbeCenter, ProbeLeft, ProbeRight, ReconCenter, ReconLeft, ReconRight
+} from "../../src/domain/CommandCard";
+import {SelectCard} from "../../src/domain/Move";
 
 describe("GameState", () => {
   describe("constructor", () => {
@@ -81,9 +90,13 @@ describe("GameState", () => {
       const deck = Deck.createStandardDeck();
       const gameState = new GameState([bottomPlayer, topPlayer], 0, deck);
 
-      gameState.setCurrentCard("card-123");
+      // Get a real card from the deck
+      const cards = deck.getCardsInLocation(CardLocation.DECK);
+      const cardId = cards[0].id;
 
-      expect(gameState.currentCardId).toBe("card-123");
+      gameState.setCurrentCard(cardId);
+
+      expect(gameState.currentCardId).toBe(cardId);
     });
 
     it("should throw error when a card is already selected", () => {
@@ -92,10 +105,15 @@ describe("GameState", () => {
       const deck = Deck.createStandardDeck();
       const gameState = new GameState([bottomPlayer, topPlayer], 0, deck);
 
-      gameState.setCurrentCard("card-123");
+      // Get real cards from the deck
+      const cards = deck.getCardsInLocation(CardLocation.DECK);
+      const cardId1 = cards[0].id;
+      const cardId2 = cards[1].id;
 
-      expect(() => gameState.setCurrentCard("card-456")).toThrow(
-        "Cannot select card: a card is already selected (card-123). Clear the current card first."
+      gameState.setCurrentCard(cardId1);
+
+      expect(() => gameState.setCurrentCard(cardId2)).toThrow(
+        `Cannot select card: a card is already selected (${cardId1}). Clear the current card first.`
       );
     });
 
@@ -105,11 +123,14 @@ describe("GameState", () => {
       const deck = Deck.createStandardDeck();
       const gameState = new GameState([bottomPlayer, topPlayer], 0, deck);
 
-      gameState.setCurrentCard("my-special-card");
+      // Get real cards from the deck
+      const cards = deck.getCardsInLocation(CardLocation.DECK);
+      const cardId1 = cards[0].id;
+      const cardId2 = cards[1].id;
 
-      expect(() => gameState.setCurrentCard("another-card")).toThrow(
-        "my-special-card"
-      );
+      gameState.setCurrentCard(cardId1);
+
+      expect(() => gameState.setCurrentCard(cardId2)).toThrow(cardId1);
     });
   });
 
@@ -129,9 +150,13 @@ describe("GameState", () => {
       const deck = Deck.createStandardDeck();
       const gameState = new GameState([bottomPlayer, topPlayer], 0, deck);
 
-      gameState.setCurrentCard("card-789");
+      // Get a real card from the deck
+      const cards = deck.getCardsInLocation(CardLocation.DECK);
+      const cardId = cards[0].id;
 
-      expect(gameState.getCurrentCard()).toBe("card-789");
+      gameState.setCurrentCard(cardId);
+
+      expect(gameState.getCurrentCard()).toBe(cardId);
     });
   });
 
@@ -142,7 +167,11 @@ describe("GameState", () => {
       const deck = Deck.createStandardDeck();
       const gameState = new GameState([bottomPlayer, topPlayer], 0, deck);
 
-      gameState.setCurrentCard("card-123");
+      // Get a real card from the deck
+      const cards = deck.getCardsInLocation(CardLocation.DECK);
+      const cardId = cards[0].id;
+
+      gameState.setCurrentCard(cardId);
       gameState.clearCurrentCard();
 
       expect(gameState.getCurrentCard()).toBeNull();
@@ -154,11 +183,16 @@ describe("GameState", () => {
       const deck = Deck.createStandardDeck();
       const gameState = new GameState([bottomPlayer, topPlayer], 0, deck);
 
-      gameState.setCurrentCard("card-123");
-      gameState.clearCurrentCard();
-      gameState.setCurrentCard("card-456");
+      // Get real cards from the deck
+      const cards = deck.getCardsInLocation(CardLocation.DECK);
+      const cardId1 = cards[0].id;
+      const cardId2 = cards[1].id;
 
-      expect(gameState.getCurrentCard()).toBe("card-456");
+      gameState.setCurrentCard(cardId1);
+      gameState.clearCurrentCard();
+      gameState.setCurrentCard(cardId2);
+
+      expect(gameState.getCurrentCard()).toBe(cardId2);
     });
 
     it("should do nothing when no card is selected", () => {
@@ -428,23 +462,29 @@ describe("GameState", () => {
       const deck = Deck.createStandardDeck();
       const gameState = new GameState([bottomPlayer, topPlayer], 0, deck);
 
+      // Get real cards from the deck
+      const cards = deck.getCardsInLocation(CardLocation.DECK);
+      const cardId1 = cards[0].id;
+      const cardId2 = cards[1].id;
+      const cardId3 = cards[2].id;
+
       // Initially no card selected
       expect(gameState.getCurrentCard()).toBeNull();
 
       // Select a card
-      gameState.setCurrentCard("card-123");
-      expect(gameState.getCurrentCard()).toBe("card-123");
+      gameState.setCurrentCard(cardId1);
+      expect(gameState.getCurrentCard()).toBe(cardId1);
 
       // Cannot select another card
-      expect(() => gameState.setCurrentCard("card-456")).toThrow();
+      expect(() => gameState.setCurrentCard(cardId2)).toThrow();
 
       // Clear selection
       gameState.clearCurrentCard();
       expect(gameState.getCurrentCard()).toBeNull();
 
       // Can now select a different card
-      gameState.setCurrentCard("card-789");
-      expect(gameState.getCurrentCard()).toBe("card-789");
+      gameState.setCurrentCard(cardId3);
+      expect(gameState.getCurrentCard()).toBe(cardId3);
     });
   });
 
@@ -477,5 +517,38 @@ describe("GameState", () => {
 
       expect(gameState.getAllUnitsWithPositions()).toHaveLength(2);
     });
+  });
+
+  describe("Available actions at the beginning of the game", () => {
+    const bottomPlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
+    const topPlayer = createPlayer(Side.AXIS, Position.TOP);
+
+
+    it("should allow playing the cards in the hand", () => {
+      const deck = Deck.createStandardDeck();
+      const gameState = new GameState([bottomPlayer, topPlayer], 0, deck);
+      gameState.deck.drawCard(CardLocation.BOTTOM_PLAYER_HAND);
+      gameState.deck.drawCard(CardLocation.BOTTOM_PLAYER_HAND);
+      gameState.deck.drawCard(CardLocation.BOTTOM_PLAYER_HAND);
+      let [card1, card2, card3] = deck.getCardsInLocation(CardLocation.BOTTOM_PLAYER_HAND)
+
+      let moves = gameState.legalMoves();
+
+      expect(moves).toEqual([new SelectCard(card1), new SelectCard(card2), new SelectCard(card3)]);
+    });
+
+    it("should allow playing the cards in the hand", () => {
+      const deck = Deck.createStandardDeck();
+      const gameState = new GameState([bottomPlayer, topPlayer], 1, deck);
+      gameState.deck.drawCard(CardLocation.TOP_PLAYER_HAND);
+      gameState.deck.drawCard(CardLocation.TOP_PLAYER_HAND);
+      gameState.deck.drawCard(CardLocation.TOP_PLAYER_HAND);
+      let [card1, card2, card3] = deck.getCardsInLocation(CardLocation.TOP_PLAYER_HAND)
+
+      let moves = gameState.legalMoves();
+
+      expect(moves).toEqual([new SelectCard(card1), new SelectCard(card2), new SelectCard(card3)]);
+    });
+
   });
 });

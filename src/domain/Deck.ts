@@ -92,6 +92,33 @@ export class Deck {
    * Create a standard deck with all command cards
    */
   static createStandardDeck(): Deck {
+    /*
+    To be added later:
+
+    General Advance (1)
+    Recon In Force (3)
+    Pincer Move (1)
+    Their Finest Hour (1)
+
+    Armor Assault (2)
+
+    Artillery Bombard (1)
+    Barrage (1)
+    Behind Enemy Lines (1)
+
+    Close Assault (1)
+    Counter-Attack (2)
+    Dig-In (1)
+
+    Direct From HQ (2)
+    Firefight (1)
+    Infantry Assault (2)
+    Medics & Mechanics (1)
+    Move Out! (2)
+
+    Total: 60 cards
+     */
+
     return Deck.createFromComposition([
       // Assault cards (2 each)
       [AssaultCenter, 2],
