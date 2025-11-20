@@ -135,6 +135,8 @@ async function start() {
     drawBoard(context, image);
     drawGrid(context, defaultGrid);
     await drawUnits(context, gameState.getAllUnitsWithPositions(), defaultGrid);
+    // Draw grid labels on top of units for clarity
+    drawGrid(context, { ...defaultGrid, strokeStyle: "transparent", lineWidth: 0 });
   } catch (error) {
     context.fillStyle = "#b22222";
     context.font = "16px sans-serif";
