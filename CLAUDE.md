@@ -50,6 +50,81 @@ Board is 13×9 hex grid using offset coordinates (q, r) with pointy-top orientat
 2. **Incremental demos**: Each feature increment should be demonstrable through the UI, even if special UI is needed just for the demo
 3. **No test skipping**: Follow the global ATDD policy
 
+## Directory Structure
+
+```
+memoir/
+├── src/
+│   ├── main.ts                      # Entry point, bootstraps the game
+│   ├── style.css                    # Global styles
+│   │
+│   ├── domain/                      # Game domain models & core logic
+│   │   ├── GameState.ts            # Main state with legalMoves/executeMove
+│   │   ├── Move.ts                 # Move types and definitions
+│   │   ├── Unit.ts                 # Unit class (type, strength, location)
+│   │   ├── Terrain.ts              # Terrain types and effects
+│   │   ├── CommandCard.ts          # Command card model
+│   │   ├── Section.ts              # Board section logic (left/center/right)
+│   │   └── Player.ts               # Player model (hand, units, etc)
+│   │
+│   ├── adapters/                    # External system adapters
+│   │   ├── RNG.ts                  # Seeded random number generator
+│   │   └── storage.ts              # Browser storage persistence
+│   │
+│   ├── scenarios/                   # Scenario definitions
+│   │   ├── Scenario.ts             # Scenario interface/type
+│   │   ├── ST02.ts                 # Sainte-Mère-Église scenario
+│   │   └── index.ts                # Scenario registry
+│   │
+│   ├── ai/                          # AI player implementation
+│   │   ├── AIPlayer.ts             # Main AI interface
+│   │   └── strategies/             # AI strategy implementations
+│   │       └── basic.ts            # Basic AI strategy
+│   │
+│   ├── ui/                          # UI components and rendering
+│   │   ├── canvas/                 # Canvas-based rendering
+│   │   │   ├── CanvasRenderer.ts   # Main rendering coordinator
+│   │   │   ├── BoardRenderer.ts    # Board and terrain rendering
+│   │   │   ├── UnitRenderer.ts     # Unit sprite rendering
+│   │   │   ├── HexGrid.ts          # Hex grid overlay
+│   │   │   └── coordinates.ts      # Coordinate conversions
+│   │   │
+│   │   ├── components/             # Non-canvas UI components
+│   │   │   ├── HandDisplay.ts      # Command card hand display
+│   │   │   ├── Controls.ts         # Game controls (undo, reset, etc)
+│   │   │   └── StatusDisplay.ts    # Turn/phase status
+│   │   │
+│   │   └── input/                  # Input handling
+│   │       ├── MouseHandler.ts     # Mouse events
+│   │       └── KeyboardHandler.ts  # Keyboard shortcuts
+│   │
+│   ├── rules/                       # Game rules engine
+│   │   ├── movement.ts             # Movement rules
+│   │   ├── combat.ts               # Combat resolution
+│   │   ├── cards.ts                # Card effect rules
+│   │   └── validation.ts           # Move validation logic
+│   │
+│   └── utils/                       # Shared utilities
+│       ├── hex.ts                  # Hex math utilities
+│       ├── geometry.ts             # Canvas geometry helpers
+│       └── assets.ts               # Asset loading utilities
+│
+├── tests/                           # Test suite (ATDD workflow)
+│   ├── acceptance/                 # Acceptance tests
+│   ├── integration/                # Integration tests
+│   └── unit/                       # Unit tests
+│
+├── public/images/                   # Static assets
+└── [config files]
+```
+
+**Key principles:**
+- `domain/` contains pure game logic (GameState, Move, Unit, etc.)
+- `adapters/` contains external system integrations (RNG, storage)
+- `ui/` handles all rendering and user interaction
+- `rules/` implements game mechanics used by GameState
+- Build incrementally as features are added
+
 ## Key Architectural Constraints
 
 - Scenarios are selected via query parameter: `?scenario=ST02`

@@ -1,21 +1,15 @@
+// ABOUTME: Entry point for Memoir '44 browser game
+// ABOUTME: Bootstraps canvas, rendering, and event handling
+
 import "./style.css";
+import type { GridConfig } from "./utils/hex.js";
+import { toCanvasCoords, pixelToHex } from "./utils/hex.js";
+import { loadBoardImage, drawBoard } from "./ui/canvas/BoardRenderer.js";
+import { drawGrid } from "./ui/canvas/HexGrid.js";
 
 const BOARD_IMAGE_PATH = "/images/boards/memoir-desert-map.jpg";
 const BOARD_WIDTH = 2007;
 const BOARD_HEIGHT = 1417;
-const SQRT3 = Math.sqrt(3);
-
-type GridConfig = {
-  cols: number;
-  rows: number;
-  hexRadius: number;
-  originX: number;
-  originY: number;
-  lineWidth: number;
-  strokeStyle: string;
-  showCoords: boolean;
-  coordColor: string;
-};
 
 const defaultGrid: GridConfig = {
   cols: 13,
@@ -45,71 +39,6 @@ function createBoardWrapper(canvas: HTMLCanvasElement, overlay: HTMLDivElement):
   return wrapper;
 }
 
-function drawBoard(context: CanvasRenderingContext2D, image: HTMLImageElement) {
-  context.clearRect(0, 0, context.canvas.width, context.canvas.height);
-  context.drawImage(image, 0, 0, context.canvas.width, context.canvas.height);
-}
-
-function drawGrid(context: CanvasRenderingContext2D, grid: GridConfig) {
-  const { cols, rows, hexRadius, originX, originY, lineWidth, strokeStyle, showCoords, coordColor } = grid;
-  const hexHeight = SQRT3 * hexRadius; // pointy-top height
-  const horizStep = SQRT3 * hexRadius; // width of a column offset
-  const vertStep = hexRadius * 1.5; // vertical spacing for pointy-top
-
-  context.save();
-  context.lineWidth = lineWidth;
-  context.strokeStyle = strokeStyle;
-  context.shadowColor = "rgba(0, 0, 0, 0.35)";
-  context.shadowBlur = 1.5;
-  context.font = `${Math.floor(hexRadius * 0.36)}px sans-serif`;
-  context.textAlign = "center";
-  context.textBaseline = "middle";
-
-  for (let q = 0; q < cols; q += 1) {
-    for (let r = 0; r < rows; r += 1) {
-      const centerX = originX + horizStep * (q + r / 2);
-      const centerY = originY + vertStep * r;
-      drawHex(context, centerX, centerY, hexRadius);
-      if (showCoords) {
-        const label = `${q},${r}`;
-        context.fillStyle = "rgba(255, 255, 255, 0.92)";
-        context.strokeStyle = coordColor;
-        context.lineWidth = 0.8;
-        context.strokeText(label, centerX, centerY);
-        context.fillText(label, centerX, centerY);
-        context.strokeStyle = strokeStyle;
-        context.lineWidth = lineWidth;
-      }
-    }
-  }
-
-  context.restore();
-}
-
-function drawHex(context: CanvasRenderingContext2D, cx: number, cy: number, radius: number) {
-  const corners = Array.from({ length: 6 }, (_, i) => {
-    const angle = (Math.PI / 180) * (60 * i - 30); // pointy-top orientation
-    return {
-      x: cx + radius * Math.cos(angle),
-      y: cy + radius * Math.sin(angle)
-    };
-  });
-
-  context.beginPath();
-  context.moveTo(corners[0].x, corners[0].y);
-  corners.slice(1).forEach((corner) => context.lineTo(corner.x, corner.y));
-  context.closePath();
-  context.stroke();
-}
-
-function loadBoardImage(): Promise<HTMLImageElement> {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.onload = () => resolve(img);
-    img.onerror = () => reject(new Error("Failed to load board image"));
-    img.src = BOARD_IMAGE_PATH;
-  });
-}
 
 async function start() {
   const app = document.querySelector<HTMLDivElement>("#app");
@@ -134,7 +63,7 @@ async function start() {
   attachHoverDisplay(canvas, overlay, defaultGrid);
 
   try {
-    const image = await loadBoardImage();
+    const image = await loadBoardImage(BOARD_IMAGE_PATH);
     drawBoard(context, image);
     drawGrid(context, defaultGrid);
   } catch (error) {
@@ -171,44 +100,6 @@ function attachHoverDisplay(
   });
 }
 
-function toCanvasCoords(event: MouseEvent, canvas: HTMLCanvasElement): { x: number; y: number } {
-  const rect = canvas.getBoundingClientRect();
-  const scaleX = canvas.width / rect.width;
-  const scaleY = canvas.height / rect.height;
-  return {
-    x: (event.clientX - rect.left) * scaleX,
-    y: (event.clientY - rect.top) * scaleY
-  };
-}
-
-function pixelToHex(x: number, y: number, grid: GridConfig): { q: number; r: number } {
-  const px = x - grid.originX;
-  const py = y - grid.originY;
-  const q = (SQRT3 / 3 * px - py / 3) / grid.hexRadius;
-  const r = ((2 / 3) * py) / grid.hexRadius;
-  return axialRound(q, r);
-}
-
-function axialRound(q: number, r: number): { q: number; r: number } {
-  const s = -q - r;
-  let rq = Math.round(q);
-  let rr = Math.round(r);
-  let rs = Math.round(s);
-
-  const qDiff = Math.abs(rq - q);
-  const rDiff = Math.abs(rr - r);
-  const sDiff = Math.abs(rs - s);
-
-  if (qDiff > rDiff && qDiff > sDiff) {
-    rq = -rr - rs;
-  } else if (rDiff > sDiff) {
-    rr = -rq - rs;
-  } else {
-    rs = -rq - rr;
-  }
-
-  return { q: rq, r: rr };
-}
 
 function createCaption(): HTMLDivElement {
   const caption = document.createElement("div");
