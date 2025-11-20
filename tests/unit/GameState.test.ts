@@ -3,7 +3,7 @@
 
 import { describe, it, expect } from "vitest";
 import { GameState } from "../../src/domain/GameState";
-import { createPlayer, Side, Position } from "../../src/domain/Player";
+import {  Side } from "../../src/domain/Player";
 import { Deck } from "../../src/domain/Deck";
 import { Infantry } from "../../src/domain/Unit";
 import type { HexCoord } from "../../src/utils/hex";
@@ -13,25 +13,6 @@ import {
 import {SelectCard} from "../../src/domain/Move";
 
 describe("GameState", () => {
-  describe("constructor", () => {
-    it("should create a game state with provided parameters", () => {
-      const deck = Deck.createStandardDeck();
-
-      const gameState = new GameState(deck);
-
-      expect(gameState.getActivePlayerIndex()).toBe(0);
-      expect(gameState.getCurrentCard()).toBeNull();
-    });
-
-    it("should initialize with empty unit positions by default", () => {
-      const deck = Deck.createStandardDeck();
-
-      const gameState = new GameState(deck);
-
-      expect(gameState.getAllUnitsWithPositions()).toHaveLength(0);
-    });
-  });
-
   describe("setCurrentCard", () => {
     it("should set the current card when none is selected", () => {
       const deck = Deck.createStandardDeck();

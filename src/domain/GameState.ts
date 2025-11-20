@@ -33,13 +33,6 @@ export class GameState {
     }
 
     /**
-     * Get the active player index
-     */
-    getActivePlayerIndex(): 0 | 1 {
-        return this.activePlayerIndex;
-    }
-
-    /**
      * Get the unit at a specific coordinate, or undefined if empty
      */
     getUnitAt(coord: HexCoord): Unit | undefined {
