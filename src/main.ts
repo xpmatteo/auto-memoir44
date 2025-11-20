@@ -6,6 +6,9 @@ import type { GridConfig } from "./utils/hex.js";
 import { toCanvasCoords, pixelToHex } from "./utils/hex.js";
 import { loadBoardImage, drawBoard } from "./ui/canvas/BoardRenderer.js";
 import { drawGrid } from "./ui/canvas/HexGrid.js";
+import { loadScenario, getDefaultScenario } from "./scenarios/index.js";
+import { HandDisplay } from "./ui/components/HandDisplay.js";
+import type { GameState } from "./domain/GameState.js";
 
 const BOARD_IMAGE_PATH = "/images/boards/memoir-desert-map.jpg";
 const BOARD_WIDTH = 2007;
@@ -39,6 +42,22 @@ function createBoardWrapper(canvas: HTMLCanvasElement, overlay: HTMLDivElement):
   return wrapper;
 }
 
+function loadScenarioFromURL(): GameState {
+  const params = new URLSearchParams(window.location.search);
+  const scenarioCode = params.get("scenario");
+
+  if (scenarioCode) {
+    try {
+      return loadScenario(scenarioCode);
+    } catch (error) {
+      console.warn(`Failed to load scenario '${scenarioCode}':`, error);
+      console.warn("Falling back to default scenario");
+    }
+  }
+
+  return getDefaultScenario();
+}
+
 
 async function start() {
   const app = document.querySelector<HTMLDivElement>("#app");
@@ -47,11 +66,20 @@ async function start() {
     throw new Error("App root not found");
   }
 
+  // Load scenario from query parameter or use default
+  const gameState = loadScenarioFromURL();
+
   const canvas = createCanvas();
   const overlay = createOverlay();
   const wrapper = createBoardWrapper(canvas, overlay);
   app.appendChild(wrapper);
   app.appendChild(createCaption());
+
+  // Create and mount hand display
+  const handDisplay = new HandDisplay(gameState.deck);
+  handDisplay.render();
+  app.appendChild(handDisplay.getElement());
+
   applyResponsiveSizing(canvas);
   window.addEventListener("resize", () => applyResponsiveSizing(canvas));
 
