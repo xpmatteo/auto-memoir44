@@ -3,7 +3,7 @@
 
 import { describe, it, expect } from "vitest";
 import { GameState } from "../../src/domain/GameState";
-import { createPlayer, Side, Position } from "../../src/domain/Player";
+import { Side } from "../../src/domain/Player";
 import { Deck } from "../../src/domain/Deck";
 import { Infantry } from "../../src/domain/Unit";
 import { AssaultLeft } from "../../src/domain/CommandCard";
@@ -97,10 +97,6 @@ describe("Ordering Units with Command Cards", () => {
     });
 
     it("should not order enemy units when Assault Left is played", () => {
-      // Setup
-      const bottomPlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
-      const topPlayer = createPlayer(Side.AXIS, Position.TOP);
-
       // Create an Assault Left card
       const card = new AssaultLeft(CardLocation.BOTTOM_PLAYER_HAND);
 
