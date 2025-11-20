@@ -2,6 +2,8 @@
 // ABOUTME: Draws pointy-top hexagon grid on canvas with optional coordinate labels
 
 import type { GridConfig } from "../../utils/hex.js";
+import { getSection, Section } from "../../domain/Section.js";
+import { Position } from "../../domain/Player.js";
 
 const SQRT3 = Math.sqrt(3);
 
@@ -29,11 +31,11 @@ export function drawGrid(context: CanvasRenderingContext2D, grid: GridConfig) {
       const centerY = originY + vertStep * r;
       drawHex(context, centerX, centerY, hexRadius);
       if (showCoords) {
-        const label = `${q},${r}`;
-        context.fillStyle = "rgba(255, 255, 255, 0.92)";
-        context.strokeStyle = coordColor;
-        context.lineWidth = 0.8;
-        context.strokeText(label, centerX, centerY);
+        // Get section for this hex from bottom player's perspective
+        const section = getSection({ q, r }, Position.BOTTOM);
+        const sectionLabel = section === Section.LEFT ? "L" : section === Section.CENTER ? "C" : "R";
+        const label = `${q},${r} ${sectionLabel}`;
+        context.fillStyle = "black";
         context.fillText(label, centerX, centerY);
         context.strokeStyle = strokeStyle;
         context.lineWidth = lineWidth;
