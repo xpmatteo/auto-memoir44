@@ -24,23 +24,28 @@ describe("Ordering Units with Command Cards", () => {
       const gameState = new GameState([bottomPlayer, topPlayer], 0, deck);
 
       // Place units in different sections for bottom player (Allies)
-      // Bottom player's left section: q = 0-3
+      // Bottom player's left section
       const leftUnit1 = new Infantry(Side.ALLIES);
       const leftUnit2 = new Infantry(Side.ALLIES);
-      gameState.placeUnit({ q: 0, r: 7 }, leftUnit1);
-      gameState.placeUnit({ q: 3, r: 7 }, leftUnit2);
+      gameState.placeUnit({ q: -2, r: 7 }, leftUnit1);
+      gameState.placeUnit({ q: -1, r: 7 }, leftUnit2);
 
-      // Center section: q = 4-8
+      // This hex is both left and right
+      const straddlingUnit = new Infantry(Side.ALLIES);
+      gameState.placeUnit({ q: 0, r: 7 }, straddlingUnit);
+
+      // Center section
       const centerUnit = new Infantry(Side.ALLIES);
-      gameState.placeUnit({ q: 5, r: 7 }, centerUnit);
+      gameState.placeUnit({ q: 2, r: 7 }, centerUnit);
 
       // Right section: q = 9-12
       const rightUnit = new Infantry(Side.ALLIES);
-      gameState.placeUnit({ q: 10, r: 7 }, rightUnit);
+      gameState.placeUnit({ q: 7, r: 7 }, rightUnit);
 
       // Initially, no units should be ordered
       expect(gameState.isUnitOrdered(leftUnit1)).toBe(false);
       expect(gameState.isUnitOrdered(leftUnit2)).toBe(false);
+      expect(gameState.isUnitOrdered(straddlingUnit)).toBe(false);
       expect(gameState.isUnitOrdered(centerUnit)).toBe(false);
       expect(gameState.isUnitOrdered(rightUnit)).toBe(false);
 
@@ -50,6 +55,7 @@ describe("Ordering Units with Command Cards", () => {
       // Assert: Only left section units should be ordered
       expect(gameState.isUnitOrdered(leftUnit1)).toBe(true);
       expect(gameState.isUnitOrdered(leftUnit2)).toBe(true);
+      expect(gameState.isUnitOrdered(straddlingUnit)).toBe(true);
       expect(gameState.isUnitOrdered(centerUnit)).toBe(false);
       expect(gameState.isUnitOrdered(rightUnit)).toBe(false);
     });
@@ -67,17 +73,17 @@ describe("Ordering Units with Command Cards", () => {
       const gameState = new GameState([bottomPlayer, topPlayer], 1, deck); // Top player active
 
       // Place units in different sections for top player (Axis)
-      // Top player's left section is FLIPPED: q = 9-12 (screen-right)
+      // Top player's left section is FLIPPED: screen-right
       const leftUnit1 = new Infantry(Side.AXIS);
       const leftUnit2 = new Infantry(Side.AXIS);
       gameState.placeUnit({ q: 9, r: 1 }, leftUnit1);
-      gameState.placeUnit({ q: 12, r: 1 }, leftUnit2);
+      gameState.placeUnit({ q: 10, r: 1 }, leftUnit2);
 
-      // Center section: q = 4-8
+      // Center section
       const centerUnit = new Infantry(Side.AXIS);
-      gameState.placeUnit({ q: 5, r: 1 }, centerUnit);
+      gameState.placeUnit({ q: 6, r: 1 }, centerUnit);
 
-      // Right section for top player: q = 0-3 (screen-left)
+      // Right section for top player: screen-left
       const rightUnit = new Infantry(Side.AXIS);
       gameState.placeUnit({ q: 2, r: 1 }, rightUnit);
 
@@ -111,11 +117,11 @@ describe("Ordering Units with Command Cards", () => {
 
       // Place friendly unit in left section
       const friendlyUnit = new Infantry(Side.ALLIES);
-      gameState.placeUnit({ q: 2, r: 7 }, friendlyUnit);
+      gameState.placeUnit({ q: -1, r: 7 }, friendlyUnit);
 
       // Place enemy unit in left section (same q range)
       const enemyUnit = new Infantry(Side.AXIS);
-      gameState.placeUnit({ q: 1, r: 2 }, enemyUnit);
+      gameState.placeUnit({ q: 1, r: 1 }, enemyUnit);
 
       gameState.setCurrentCard(card.id);
 

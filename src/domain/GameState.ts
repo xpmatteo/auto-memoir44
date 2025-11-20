@@ -7,7 +7,7 @@ import {Move, SelectCard} from "./Move";
 import { Unit, coordToKey, keyToCoord } from "./Unit";
 import type { HexCoord } from "../utils/hex";
 import {CardLocation} from "./CommandCard";
-import { getSection, Section } from "./Section";
+import {getSection, isHexInSection, Section} from "./Section";
 
 export class GameState {
   players: [Player, Player];
@@ -143,8 +143,7 @@ export class GameState {
       }
 
       // Check if unit is in the target section
-      const unitSection = getSection(coord, activePlayer.position);
-      if (unitSection === section) {
+      if (isHexInSection(coord, section, activePlayer.position)) {
         this.orderedUnits.add(unit.id);
       }
     }

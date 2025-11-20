@@ -68,19 +68,3 @@ export function isHexInSection(coord: HexCoord, section: Section, playerPosition
 
   return false;
 }
-
-/**
- * Get the primary section for a hex (for display purposes).
- * Boundary hexes return their left-most section.
- * @deprecated Use isHexInSection for game logic
- */
-export function getSection(coord: HexCoord, playerPosition: Position): Section {
-  // For display, prefer LEFT over CENTER, and CENTER over RIGHT for boundary hexes
-  if (isHexInSection(coord, Section.LEFT, playerPosition)) {
-    return Section.LEFT;
-  }
-  if (isHexInSection(coord, Section.CENTER, playerPosition)) {
-    return Section.CENTER;
-  }
-  return Section.RIGHT;
-}
