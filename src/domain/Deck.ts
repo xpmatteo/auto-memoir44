@@ -114,6 +114,11 @@ export class Deck {
      */
 
     return Deck.createFromComposition([
+      // Recon cards (2 each)
+      [ReconCenter, 2],
+      [ReconLeft, 2],
+      [ReconRight, 2],
+
       // Assault cards (2 each)
       [AssaultCenter, 2],
       [AssaultLeft, 2],
@@ -128,11 +133,6 @@ export class Deck {
       [ProbeCenter, 5],
       [ProbeLeft, 4],
       [ProbeRight, 4],
-
-      // Recon cards (2 each)
-      [ReconCenter, 2],
-      [ReconLeft, 2],
-      [ReconRight, 2],
     ]);
   }
 }

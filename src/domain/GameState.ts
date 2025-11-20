@@ -7,7 +7,7 @@ import {Move, SelectCard} from "./Move";
 import { Unit, coordToKey, keyToCoord } from "./Unit";
 import type { HexCoord } from "../utils/hex";
 import {CardLocation} from "./CommandCard";
-import {getSection, isHexInSection, Section} from "./Section";
+import {isHexInSection, Section} from "./Section";
 
 export class GameState {
   players: [Player, Player];
