@@ -90,7 +90,7 @@ async function start() {
   const wrapper = createBoardWrapper(canvas, overlay);
 
   // Create current card display
-  const currentCardDisplay = new CurrentCardDisplay(gameState.deck, gameState);
+  const currentCardDisplay = new CurrentCardDisplay(gameState.getDeck(), gameState);
 
   // Create a container for the current card display and the board
   const gameBoardContainer = document.createElement("div");
@@ -101,7 +101,7 @@ async function start() {
   app.appendChild(gameBoardContainer);
 
   // Create and mount hand display
-  const handDisplay = new HandDisplay(gameState.deck, gameState);
+  const handDisplay = new HandDisplay(gameState.getDeck(), gameState);
 
   const context = canvas.getContext("2d");
   if (!context) {

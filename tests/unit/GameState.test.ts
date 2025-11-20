@@ -24,9 +24,9 @@ describe("GameState", () => {
 
       const gameState = new GameState(deck);
 
-      expect(gameState.activePlayerIndex).toBe(0);
-      expect(gameState.deck).toBe(deck);
-      expect(gameState.currentCardId).toBeNull();
+      expect(gameState.getActivePlayerIndex()).toBe(0);
+      expect(gameState.getDeck()).toBe(deck);
+      expect(gameState.getCurrentCard()).toBeNull();
     });
 
     it("should initialize with empty unit positions by default", () => {
@@ -51,7 +51,7 @@ describe("GameState", () => {
 
       gameState.setCurrentCard(cardId);
 
-      expect(gameState.currentCardId).toBe(cardId);
+      expect(gameState.getCurrentCard()).toBe(cardId);
     });
 
     it("should throw error when a card is already selected", () => {
@@ -480,10 +480,11 @@ describe("GameState", () => {
     it("should allow playing the cards in the hand", () => {
       const deck = Deck.createStandardDeck();
       const gameState = new GameState(deck);
-      gameState.deck.drawCard(CardLocation.BOTTOM_PLAYER_HAND);
-      gameState.deck.drawCard(CardLocation.BOTTOM_PLAYER_HAND);
-      gameState.deck.drawCard(CardLocation.BOTTOM_PLAYER_HAND);
-      let [card1, card2, card3] = deck.getCardsInLocation(CardLocation.BOTTOM_PLAYER_HAND)
+      const gameDeck = gameState.getDeck();
+      gameDeck.drawCard(CardLocation.BOTTOM_PLAYER_HAND);
+      gameDeck.drawCard(CardLocation.BOTTOM_PLAYER_HAND);
+      gameDeck.drawCard(CardLocation.BOTTOM_PLAYER_HAND);
+      let [card1, card2, card3] = gameDeck.getCardsInLocation(CardLocation.BOTTOM_PLAYER_HAND)
 
       let moves = gameState.legalMoves();
 
@@ -494,10 +495,11 @@ describe("GameState", () => {
       const deck = Deck.createStandardDeck();
       const gameState = new GameState(deck);
       gameState.switchActivePlayer();
-      gameState.deck.drawCard(CardLocation.TOP_PLAYER_HAND);
-      gameState.deck.drawCard(CardLocation.TOP_PLAYER_HAND);
-      gameState.deck.drawCard(CardLocation.TOP_PLAYER_HAND);
-      let [card1, card2, card3] = deck.getCardsInLocation(CardLocation.TOP_PLAYER_HAND)
+      const gameDeck = gameState.getDeck();
+      gameDeck.drawCard(CardLocation.TOP_PLAYER_HAND);
+      gameDeck.drawCard(CardLocation.TOP_PLAYER_HAND);
+      gameDeck.drawCard(CardLocation.TOP_PLAYER_HAND);
+      let [card1, card2, card3] = gameDeck.getCardsInLocation(CardLocation.TOP_PLAYER_HAND)
 
       let moves = gameState.legalMoves();
 

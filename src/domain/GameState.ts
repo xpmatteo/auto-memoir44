@@ -10,12 +10,12 @@ import {CardLocation} from "./CommandCard";
 import {isHexInSection, Section} from "./Section";
 
 export class GameState {
-    players: [Player, Player];
-    activePlayerIndex: 0 | 1;
-    deck: Deck;
-    unitPositions: Map<string, Unit>; // Map from coordinate key to Unit
-    currentCardId: string | null; // Currently selected card ID
-    orderedUnits: Set<string>; // Set of unit IDs that have been ordered this turn
+    private readonly players: [Player, Player];
+    private activePlayerIndex: 0 | 1;
+    private readonly deck: Deck;
+    private unitPositions: Map<string, Unit>; // Map from coordinate key to Unit
+    private currentCardId: string | null; // Currently selected card ID
+    private orderedUnits: Set<string>; // Set of unit IDs that have been ordered this turn
 
     constructor(
         deck: Deck,
@@ -30,6 +30,20 @@ export class GameState {
 
     get activePlayer(): Player {
         return this.players[this.activePlayerIndex];
+    }
+
+    /**
+     * Get the deck
+     */
+    getDeck(): Deck {
+        return this.deck;
+    }
+
+    /**
+     * Get the active player index
+     */
+    getActivePlayerIndex(): 0 | 1 {
+        return this.activePlayerIndex;
     }
 
     /**
@@ -197,5 +211,11 @@ export class GameState {
 
     switchActivePlayer() {
         this.activePlayerIndex = this.activePlayerIndex == 0 ? 1 : 0;
+    }
+
+    drawCard(howMany: number, toLocation: CardLocation) {
+        for (let i = 0; i < howMany; i++) {
+            this.deck.drawCard(toLocation)
+        }
     }
 }
