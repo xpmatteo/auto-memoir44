@@ -6,6 +6,7 @@ import type { GridConfig } from "./utils/hex.js";
 import { toCanvasCoords, pixelToHex } from "./utils/hex.js";
 import { loadBoardImage, drawBoard } from "./ui/canvas/BoardRenderer.js";
 import { drawGrid } from "./ui/canvas/HexGrid.js";
+import { drawUnits } from "./ui/canvas/UnitRenderer.js";
 import { loadScenario, getDefaultScenario } from "./scenarios/index.js";
 import { HandDisplay } from "./ui/components/HandDisplay.js";
 import type { GameState } from "./domain/GameState.js";
@@ -93,6 +94,7 @@ async function start() {
     const image = await loadBoardImage(BOARD_IMAGE_PATH);
     drawBoard(context, image);
     drawGrid(context, defaultGrid);
+    await drawUnits(context, gameState.units, defaultGrid);
   } catch (error) {
     context.fillStyle = "#b22222";
     context.font = "16px sans-serif";
