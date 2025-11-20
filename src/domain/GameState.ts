@@ -21,15 +21,13 @@ export class GameState {
     players: [Player, Player],
     activePlayerIndex: 0 | 1,
     deck: Deck,
-    unitPositions: Map<string, Unit> = new Map(),
-    currentCardId: string | null = null
   ) {
     this.players = players;
     this.activePlayerIndex = activePlayerIndex;
     this.deck = deck;
-    this.unitPositions = unitPositions;
-    this.currentCardId = currentCardId;
-    this.orderedUnits = new Set();
+    this.unitPositions = new Map<string, Unit>();
+    this.currentCardId = null;
+    this.orderedUnits = new Set<string>();
   }
 
   get activePlayer(): Player {

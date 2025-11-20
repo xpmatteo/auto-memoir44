@@ -43,22 +43,6 @@ describe("GameState", () => {
 
       expect(gameState.getAllUnitsWithPositions()).toHaveLength(0);
     });
-
-    it("should accept initial currentCardId", () => {
-      const bottomPlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
-      const topPlayer = createPlayer(Side.AXIS, Position.TOP);
-      const deck = Deck.createStandardDeck();
-
-      const gameState = new GameState(
-        [bottomPlayer, topPlayer],
-        0,
-        deck,
-        new Map(),
-        "card-123"
-      );
-
-      expect(gameState.currentCardId).toBe("card-123");
-    });
   });
 
   describe("activePlayer", () => {
