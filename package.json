@@ -1,0 +1,24 @@
+{
+  "name": "memoir",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Memoir '44 canvas-based MVP using Vite + TypeScript",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "keywords": [
+    "memoir44",
+    "vite",
+    "typescript"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "typescript": "^5.9.3",
+    "vite": "^7.2.4"
+  }
+}
