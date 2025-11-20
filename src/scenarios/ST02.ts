@@ -22,7 +22,7 @@ export class ST02Scenario implements Scenario {
     gameState.placeUnit({q: -3, r: 7}, new Infantry(Side.ALLIES));
     gameState.placeUnit({q: -2, r: 7}, new Infantry(Side.ALLIES));
     gameState.placeUnit({q: -1, r: 7}, new Infantry(Side.ALLIES));
-    
+
     gameState.placeUnit({q: -0, r: 7}, new Infantry(Side.ALLIES));
 
     gameState.placeUnit({q: 1, r: 7}, new Infantry(Side.ALLIES));

@@ -12,17 +12,20 @@ export class GameState {
   activePlayerIndex: 0 | 1;
   deck: Deck;
   unitPositions: Map<string, Unit>; // Map from coordinate key to Unit
+  currentCardId: string | null; // Currently selected card ID
 
   constructor(
     players: [Player, Player],
     activePlayerIndex: 0 | 1,
     deck: Deck,
-    unitPositions: Map<string, Unit> = new Map()
+    unitPositions: Map<string, Unit> = new Map(),
+    currentCardId: string | null = null
   ) {
     this.players = players;
     this.activePlayerIndex = activePlayerIndex;
     this.deck = deck;
     this.unitPositions = unitPositions;
+    this.currentCardId = currentCardId;
   }
 
   get activePlayer(): Player {
@@ -86,6 +89,32 @@ export class GameState {
       coord: keyToCoord(key),
       unit,
     }));
+  }
+
+  /**
+   * Set the current card. Throws if a card is already selected.
+   */
+  setCurrentCard(cardId: string): void {
+    if (this.currentCardId !== null) {
+      throw new Error(
+        `Cannot select card: a card is already selected (${this.currentCardId}). Clear the current card first.`
+      );
+    }
+    this.currentCardId = cardId;
+  }
+
+  /**
+   * Get the current card, or null if none is selected
+   */
+  getCurrentCard(): string | null {
+    return this.currentCardId;
+  }
+
+  /**
+   * Clear the current card selection
+   */
+  clearCurrentCard(): void {
+    this.currentCardId = null;
   }
 
   /**

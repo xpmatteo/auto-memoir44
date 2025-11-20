@@ -12,6 +12,7 @@ import { drawGrid } from "./ui/canvas/HexGrid.js";
 import { drawUnits } from "./ui/canvas/UnitRenderer.js";
 import { loadScenario, getDefaultScenario } from "./scenarios/index.js";
 import { HandDisplay } from "./ui/components/HandDisplay.js";
+import { CurrentCardDisplay } from "./ui/components/CurrentCardDisplay.js";
 import { GameState } from "./domain/GameState.js";
 import { createPlayer, Side, Position } from "./domain/Player.js";
 import { Deck } from "./domain/Deck.js";
@@ -90,11 +91,33 @@ async function start() {
   const canvas = createCanvas();
   const overlay = createOverlay();
   const wrapper = createBoardWrapper(canvas, overlay);
-  app.appendChild(wrapper);
+
+  // Create current card display
+  const currentCardDisplay = new CurrentCardDisplay(gameState.deck, gameState);
+
+  // Create a container for the current card display and the board
+  const gameBoardContainer = document.createElement("div");
+  gameBoardContainer.id = "game-board-container";
+  gameBoardContainer.appendChild(currentCardDisplay.getElement());
+  gameBoardContainer.appendChild(wrapper);
+
+  app.appendChild(gameBoardContainer);
 
   // Create and mount hand display
-  const handDisplay = new HandDisplay(gameState.deck);
-  handDisplay.render();
+  const handDisplay = new HandDisplay(gameState.deck, gameState);
+
+  // Set up reactive rendering function
+  const renderUI = () => {
+    handDisplay.render();
+    currentCardDisplay.render();
+  };
+
+  // Set callback for card clicks to trigger re-render
+  handDisplay.setOnCardClick(renderUI);
+
+  // Initial render
+  renderUI();
+
   app.appendChild(handDisplay.getElement());
 
   applyResponsiveSizing(canvas);

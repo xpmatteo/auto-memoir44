@@ -29,6 +29,21 @@ body {
     #0b0c10;
 }
 
+#game-board-container {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+  align-items: center;
+  justify-content: center;
+}
+
+#current-card-display {
+  min-width: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .board-wrapper {
   position: relative;
   display: inline-block;
