@@ -46,8 +46,8 @@ export class HandDisplay {
     const allCards = this.deck.getCardsInLocation(CardLocation.BOTTOM_PLAYER_HAND);
 
     // Filter out the current card (it's displayed separately)
-    const currentCardId = this.gameState.getCurrentCard();
-    const cards = allCards.filter((card) => card.id !== currentCardId);
+    const currentCard = this.gameState.getCurrentCard();
+    const cards = allCards.filter((card) => card.id !== currentCard?.id);
 
     // Create image elements for each card
     cards.forEach((card) => {

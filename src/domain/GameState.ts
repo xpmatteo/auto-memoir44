@@ -6,7 +6,7 @@ import {Deck} from "./Deck";
 import {Move, SelectCard} from "./Move";
 import {Unit, coordToKey, keyToCoord} from "./Unit";
 import type {HexCoord} from "../utils/hex";
-import {CardLocation} from "./CommandCard";
+import {CardLocation, CommandCard} from "./CommandCard";
 import {isHexInSection, Section} from "./Section";
 
 export class GameState {
@@ -174,8 +174,11 @@ export class GameState {
     /**
      * Get the current card, or null if none is selected
      */
-    getCurrentCard(): string | null {
-        return this.currentCardId;
+    getCurrentCard(): CommandCard | null {
+        if (this.currentCardId === null) {
+            return null;
+        }
+        return this.deck.getCard(this.currentCardId) ?? null;
     }
 
     /**

@@ -90,7 +90,7 @@ async function start() {
   const wrapper = createBoardWrapper(canvas, overlay);
 
   // Create current card display
-  const currentCardDisplay = new CurrentCardDisplay(gameState.getDeck(), gameState);
+  const currentCardDisplay = new CurrentCardDisplay(gameState);
 
   // Create a container for the current card display and the board
   const gameBoardContainer = document.createElement("div");

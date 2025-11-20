@@ -47,11 +47,11 @@ describe("GameState", () => {
 
       // Get a real card from the deck
       const cards = deck.getCardsInLocation(CardLocation.DECK);
-      const cardId = cards[0].id;
+      const card = cards[0];
 
-      gameState.setCurrentCard(cardId);
+      gameState.setCurrentCard(card.id);
 
-      expect(gameState.getCurrentCard()).toBe(cardId);
+      expect(gameState.getCurrentCard()).toBe(card);
     });
 
     it("should throw error when a card is already selected", () => {
@@ -97,7 +97,7 @@ describe("GameState", () => {
       expect(gameState.getCurrentCard()).toBeNull();
     });
 
-    it("should return the current card ID when one is selected", () => {
+    it("should return the current card when one is selected", () => {
       const bottomPlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
       const topPlayer = createPlayer(Side.AXIS, Position.TOP);
       const deck = Deck.createStandardDeck();
@@ -105,11 +105,11 @@ describe("GameState", () => {
 
       // Get a real card from the deck
       const cards = deck.getCardsInLocation(CardLocation.DECK);
-      const cardId = cards[0].id;
+      const card = cards[0];
 
-      gameState.setCurrentCard(cardId);
+      gameState.setCurrentCard(card.id);
 
-      expect(gameState.getCurrentCard()).toBe(cardId);
+      expect(gameState.getCurrentCard()).toBe(card);
     });
   });
 
@@ -138,14 +138,14 @@ describe("GameState", () => {
 
       // Get real cards from the deck
       const cards = deck.getCardsInLocation(CardLocation.DECK);
-      const cardId1 = cards[0].id;
-      const cardId2 = cards[1].id;
+      const card1 = cards[0];
+      const card2 = cards[1];
 
-      gameState.setCurrentCard(cardId1);
+      gameState.setCurrentCard(card1.id);
       gameState.clearCurrentCard();
-      gameState.setCurrentCard(cardId2);
+      gameState.setCurrentCard(card2.id);
 
-      expect(gameState.getCurrentCard()).toBe(cardId2);
+      expect(gameState.getCurrentCard()).toBe(card2);
     });
 
     it("should do nothing when no card is selected", () => {
@@ -417,27 +417,27 @@ describe("GameState", () => {
 
       // Get real cards from the deck
       const cards = deck.getCardsInLocation(CardLocation.DECK);
-      const cardId1 = cards[0].id;
-      const cardId2 = cards[1].id;
-      const cardId3 = cards[2].id;
+      const card1 = cards[0];
+      const card2 = cards[1];
+      const card3 = cards[2];
 
       // Initially no card selected
       expect(gameState.getCurrentCard()).toBeNull();
 
       // Select a card
-      gameState.setCurrentCard(cardId1);
-      expect(gameState.getCurrentCard()).toBe(cardId1);
+      gameState.setCurrentCard(card1.id);
+      expect(gameState.getCurrentCard()).toBe(card1);
 
       // Cannot select another card
-      expect(() => gameState.setCurrentCard(cardId2)).toThrow();
+      expect(() => gameState.setCurrentCard(card2.id)).toThrow();
 
       // Clear selection
       gameState.clearCurrentCard();
       expect(gameState.getCurrentCard()).toBeNull();
 
       // Can now select a different card
-      gameState.setCurrentCard(cardId3);
-      expect(gameState.getCurrentCard()).toBe(cardId3);
+      gameState.setCurrentCard(card3.id);
+      expect(gameState.getCurrentCard()).toBe(card3);
     });
   });
 

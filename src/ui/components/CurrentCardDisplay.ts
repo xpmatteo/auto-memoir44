@@ -1,16 +1,13 @@
 // ABOUTME: Current card display component showing the selected card
 // ABOUTME: Positioned to the left of the game board
 
-import { Deck } from "../../domain/Deck";
 import { GameState } from "../../domain/GameState";
 
 export class CurrentCardDisplay {
   private container: HTMLDivElement;
-  private deck: Deck;
   private gameState: GameState;
 
-  constructor(deck: Deck, gameState: GameState) {
-    this.deck = deck;
+  constructor(gameState: GameState) {
     this.gameState = gameState;
     this.container = document.createElement("div");
     this.container.id = "current-card-display";
@@ -31,17 +28,10 @@ export class CurrentCardDisplay {
     // Clear existing content
     this.container.innerHTML = "";
 
-    const currentCardId = this.gameState.getCurrentCard();
+    const card = this.gameState.getCurrentCard();
 
-    if (currentCardId === null) {
+    if (card === null) {
       // No card selected, show nothing
-      return;
-    }
-
-    // Get the card from the deck
-    const card = this.deck.getCard(currentCardId);
-    if (!card) {
-      console.error(`Current card ${currentCardId} not found in deck`);
       return;
     }
 
