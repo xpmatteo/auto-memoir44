@@ -1,9 +1,16 @@
 // ABOUTME: Hex grid overlay rendering with coordinates
 // ABOUTME: Draws pointy-top hexagon grid on canvas with optional coordinate labels
 
-import type { GridConfig } from "../../utils/hex.js";
+import type { GridConfig, HexCoord } from "../../utils/hex.js";
+import { hexToPixel } from "../../utils/hex.js";
 import { isHexInSection, Section } from "../../domain/Section.js";
 import { Position } from "../../domain/Player.js";
+import {
+  ORDERED_UNIT_OUTLINE_COLOR,
+  ORDERED_UNIT_SHADOW_COLOR,
+  ORDERED_UNIT_OUTLINE_WIDTH,
+  ORDERED_UNIT_SHADOW_BLUR
+} from "../../utils/constants.js";
 
 const SQRT3 = Math.sqrt(3);
 
@@ -29,7 +36,7 @@ export function drawGrid(context: CanvasRenderingContext2D, grid: GridConfig) {
     for (let r = 0; r < rows; r += 1) {
       const centerX = originX + horizStep * (q + r / 2);
       const centerY = originY + vertStep * r;
-      drawHex(context, centerX, centerY, hexRadius);
+      //drawHex(context, centerX, centerY, hexRadius);
       if (showCoords) {
         // Get section(s) for this hex from bottom player's perspective
         const sections = [];
@@ -67,4 +74,27 @@ export function drawHex(context: CanvasRenderingContext2D, cx: number, cy: numbe
   corners.slice(1).forEach((corner) => context.lineTo(corner.x, corner.y));
   context.closePath();
   context.stroke();
+}
+
+/**
+ * Draw outlines around ordered units to highlight them.
+ * Uses a thicker, more visible stroke to indicate ordered status.
+ */
+export function drawOrderedUnitOutlines(
+  context: CanvasRenderingContext2D,
+  orderedCoords: HexCoord[],
+  grid: GridConfig
+) {
+  context.save();
+  context.lineWidth = ORDERED_UNIT_OUTLINE_WIDTH;
+  context.strokeStyle = ORDERED_UNIT_OUTLINE_COLOR;
+  context.shadowColor = ORDERED_UNIT_SHADOW_COLOR;
+  context.shadowBlur = ORDERED_UNIT_SHADOW_BLUR;
+
+  for (const coord of orderedCoords) {
+    const { x, y } = hexToPixel(coord, grid);
+    drawHex(context, x, y, grid.hexRadius);
+  }
+
+  context.restore();
 }

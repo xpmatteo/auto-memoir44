@@ -8,7 +8,7 @@ import "./style.css";
 import type { GridConfig } from "./utils/hex.js";
 import { toCanvasCoords, pixelToHex } from "./utils/hex.js";
 import { loadBoardImage, drawBoard } from "./ui/canvas/BoardRenderer.js";
-import { drawGrid } from "./ui/canvas/HexGrid.js";
+import { drawGrid, drawOrderedUnitOutlines } from "./ui/canvas/HexGrid.js";
 import { drawUnits } from "./ui/canvas/UnitRenderer.js";
 import { loadScenario, getDefaultScenario } from "./scenarios/index.js";
 import { HandDisplay } from "./ui/components/HandDisplay.js";
@@ -29,7 +29,7 @@ const defaultGrid: GridConfig = {
   originY: 182,
   lineWidth: 2.5,
   strokeStyle: "rgba(0, 255, 255, 0.72)",
-  showCoords: true,
+  showCoords: false,
   coordColor: "rgba(0, 0, 0, 0.85)"
 };
 
@@ -106,42 +106,54 @@ async function start() {
   // Create and mount hand display
   const handDisplay = new HandDisplay(gameState.deck, gameState);
 
-  // Set up reactive rendering function
-  const renderUI = () => {
+  const context = canvas.getContext("2d");
+  if (!context) {
+    throw new Error("Canvas rendering context unavailable");
+  }
+
+  // Load board image once
+  const boardImage = await loadBoardImage(BOARD_IMAGE_PATH);
+
+  // Create render function for canvas
+  const renderCanvas = async () => {
+    try {
+      drawBoard(context, boardImage);
+      drawGrid(context, defaultGrid);
+      await drawUnits(context, gameState.getAllUnitsWithPositions(), defaultGrid);
+
+      // Draw outlines around ordered units
+      const orderedUnits = gameState.getOrderedUnitsWithPositions();
+      const orderedCoords = orderedUnits.map(({ coord }) => coord);
+      drawOrderedUnitOutlines(context, orderedCoords, defaultGrid);
+
+      // Draw grid labels on top of units for clarity
+      drawGrid(context, { ...defaultGrid, strokeStyle: "transparent", lineWidth: 0 });
+    } catch (error) {
+      context.fillStyle = "#b22222";
+      context.font = "16px sans-serif";
+      context.fillText((error as Error).message, 20, 30);
+    }
+  };
+
+  // Set up reactive rendering function that updates both UI and canvas
+  const renderAll = async () => {
     handDisplay.render();
     currentCardDisplay.render();
+    await renderCanvas();
   };
 
   // Set callback for card clicks to trigger re-render
-  handDisplay.setOnCardClick(renderUI);
+  handDisplay.setOnCardClick(renderAll);
 
   // Initial render
-  renderUI();
+  await renderAll();
 
   app.appendChild(handDisplay.getElement());
 
   applyResponsiveSizing(canvas);
   window.addEventListener("resize", () => applyResponsiveSizing(canvas));
 
-  const context = canvas.getContext("2d");
-  if (!context) {
-    throw new Error("Canvas rendering context unavailable");
-  }
-
   attachHoverDisplay(canvas, overlay, defaultGrid);
-
-  try {
-    const image = await loadBoardImage(BOARD_IMAGE_PATH);
-    drawBoard(context, image);
-    drawGrid(context, defaultGrid);
-    await drawUnits(context, gameState.getAllUnitsWithPositions(), defaultGrid);
-    // Draw grid labels on top of units for clarity
-    drawGrid(context, { ...defaultGrid, strokeStyle: "transparent", lineWidth: 0 });
-  } catch (error) {
-    context.fillStyle = "#b22222";
-    context.font = "16px sans-serif";
-    context.fillText((error as Error).message, 20, 30);
-  }
 }
 
 function applyResponsiveSizing(canvas: HTMLCanvasElement) {

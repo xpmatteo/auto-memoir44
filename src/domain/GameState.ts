@@ -96,6 +96,18 @@ export class GameState {
   }
 
   /**
+   * Get all ordered units with their coordinates
+   */
+  getOrderedUnitsWithPositions(): Array<{ coord: HexCoord; unit: Unit }> {
+    return Array.from(this.unitPositions.entries())
+      .filter(([_key, unit]) => this.orderedUnits.has(unit.id))
+      .map(([key, unit]) => ({
+        coord: keyToCoord(key),
+        unit,
+      }));
+  }
+
+  /**
    * Set the current card. Throws if a card is already selected.
    * Orders units based on the card type and section.
    */
