@@ -10,6 +10,8 @@ type GridConfig = {
   originY: number;
   lineWidth: number;
   strokeStyle: string;
+  showCoords: boolean;
+  coordColor: string;
 };
 
 const defaultGrid: GridConfig = {
@@ -19,7 +21,9 @@ const defaultGrid: GridConfig = {
   originX: 90,
   originY: 182,
   lineWidth: 2.5,
-  strokeStyle: "rgba(0, 255, 255, 0.72)"
+  strokeStyle: "rgba(0, 255, 255, 0.72)",
+  showCoords: true,
+  coordColor: "rgba(0, 0, 0, 0.85)"
 };
 
 function createCanvas(): HTMLCanvasElement {
@@ -36,7 +40,7 @@ function drawBoard(context: CanvasRenderingContext2D, image: HTMLImageElement) {
 }
 
 function drawGrid(context: CanvasRenderingContext2D, grid: GridConfig) {
-  const { cols, rows, hexRadius, originX, originY, lineWidth, strokeStyle } = grid;
+  const { cols, rows, hexRadius, originX, originY, lineWidth, strokeStyle, showCoords, coordColor } = grid;
   const hexHeight = Math.sqrt(3) * hexRadius; // pointy-top height
   const horizStep = Math.sqrt(3) * hexRadius; // width of a column offset
   const vertStep = hexRadius * 1.5; // vertical spacing for pointy-top
@@ -46,12 +50,25 @@ function drawGrid(context: CanvasRenderingContext2D, grid: GridConfig) {
   context.strokeStyle = strokeStyle;
   context.shadowColor = "rgba(0, 0, 0, 0.35)";
   context.shadowBlur = 1.5;
+  context.font = `${Math.floor(hexRadius * 0.36)}px sans-serif`;
+  context.textAlign = "center";
+  context.textBaseline = "middle";
 
   for (let q = 0; q < cols; q += 1) {
     for (let r = 0; r < rows; r += 1) {
       const centerX = originX + horizStep * (q + r / 2);
       const centerY = originY + vertStep * r;
       drawHex(context, centerX, centerY, hexRadius);
+      if (showCoords) {
+        const label = `${q},${r}`;
+        context.fillStyle = "rgba(255, 255, 255, 0.92)";
+        context.strokeStyle = coordColor;
+        context.lineWidth = 0.8;
+        context.strokeText(label, centerX, centerY);
+        context.fillText(label, centerX, centerY);
+        context.strokeStyle = strokeStyle;
+        context.lineWidth = lineWidth;
+      }
     }
   }
 
