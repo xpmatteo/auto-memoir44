@@ -101,7 +101,7 @@ async function start() {
   app.appendChild(gameBoardContainer);
 
   // Create and mount hand display
-  const handDisplay = new HandDisplay(gameState.getDeck(), gameState);
+  const handDisplay = new HandDisplay(gameState);
 
   const context = canvas.getContext("2d");
   if (!context) {

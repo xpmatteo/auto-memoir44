@@ -33,13 +33,6 @@ export class GameState {
     }
 
     /**
-     * Get the deck
-     */
-    getDeck(): Deck {
-        return this.deck;
-    }
-
-    /**
      * Get the active player index
      */
     getActivePlayerIndex(): 0 | 1 {
@@ -220,5 +213,9 @@ export class GameState {
         for (let i = 0; i < howMany; i++) {
             this.deck.drawCard(toLocation)
         }
+    }
+
+    getCardsInLocation(location: CardLocation) {
+        return this.deck.getCardsInLocation(location);
     }
 }

@@ -8,12 +8,7 @@ import { Deck } from "../../src/domain/Deck";
 import { Infantry } from "../../src/domain/Unit";
 import type { HexCoord } from "../../src/utils/hex";
 import {
-  AssaultCenter,
-  AssaultLeft,
-  AssaultRight,
-  AttackCenter,
-  AttackLeft, AttackRight,
-  CardLocation, ProbeCenter, ProbeLeft, ProbeRight, ReconCenter, ReconLeft, ReconRight
+  CardLocation
 } from "../../src/domain/CommandCard";
 import {SelectCard} from "../../src/domain/Move";
 
@@ -25,13 +20,10 @@ describe("GameState", () => {
       const gameState = new GameState(deck);
 
       expect(gameState.getActivePlayerIndex()).toBe(0);
-      expect(gameState.getDeck()).toBe(deck);
       expect(gameState.getCurrentCard()).toBeNull();
     });
 
     it("should initialize with empty unit positions by default", () => {
-      const bottomPlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
-      const topPlayer = createPlayer(Side.AXIS, Position.TOP);
       const deck = Deck.createStandardDeck();
 
       const gameState = new GameState(deck);
@@ -71,8 +63,6 @@ describe("GameState", () => {
     });
 
     it("should include the existing card ID in the error message", () => {
-      const bottomPlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
-      const topPlayer = createPlayer(Side.AXIS, Position.TOP);
       const deck = Deck.createStandardDeck();
       const gameState = new GameState(deck);
 
@@ -89,8 +79,6 @@ describe("GameState", () => {
 
   describe("getCurrentCard", () => {
     it("should return null when no card is selected", () => {
-      const bottomPlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
-      const topPlayer = createPlayer(Side.AXIS, Position.TOP);
       const deck = Deck.createStandardDeck();
       const gameState = new GameState(deck);
 
@@ -98,8 +86,6 @@ describe("GameState", () => {
     });
 
     it("should return the current card when one is selected", () => {
-      const bottomPlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
-      const topPlayer = createPlayer(Side.AXIS, Position.TOP);
       const deck = Deck.createStandardDeck();
       const gameState = new GameState(deck);
 
@@ -115,8 +101,6 @@ describe("GameState", () => {
 
   describe("clearCurrentCard", () => {
     it("should clear the current card selection", () => {
-      const bottomPlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
-      const topPlayer = createPlayer(Side.AXIS, Position.TOP);
       const deck = Deck.createStandardDeck();
       const gameState = new GameState(deck);
 
@@ -131,8 +115,6 @@ describe("GameState", () => {
     });
 
     it("should allow setting a new card after clearing", () => {
-      const bottomPlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
-      const topPlayer = createPlayer(Side.AXIS, Position.TOP);
       const deck = Deck.createStandardDeck();
       const gameState = new GameState(deck);
 
@@ -149,8 +131,6 @@ describe("GameState", () => {
     });
 
     it("should do nothing when no card is selected", () => {
-      const bottomPlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
-      const topPlayer = createPlayer(Side.AXIS, Position.TOP);
       const deck = Deck.createStandardDeck();
       const gameState = new GameState(deck);
 
@@ -162,8 +142,6 @@ describe("GameState", () => {
 
   describe("placeUnit", () => {
     it("should place a unit at an empty coordinate", () => {
-      const bottomPlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
-      const topPlayer = createPlayer(Side.AXIS, Position.TOP);
       const deck = Deck.createStandardDeck();
       const gameState = new GameState(deck);
 
@@ -176,8 +154,6 @@ describe("GameState", () => {
     });
 
     it("should throw error when coordinate is already occupied", () => {
-      const bottomPlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
-      const topPlayer = createPlayer(Side.AXIS, Position.TOP);
       const deck = Deck.createStandardDeck();
       const gameState = new GameState(deck);
 
@@ -195,8 +171,6 @@ describe("GameState", () => {
 
   describe("getUnitAt", () => {
     it("should return undefined for empty coordinate", () => {
-      const bottomPlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
-      const topPlayer = createPlayer(Side.AXIS, Position.TOP);
       const deck = Deck.createStandardDeck();
       const gameState = new GameState(deck);
 
@@ -206,8 +180,6 @@ describe("GameState", () => {
     });
 
     it("should return the unit at the specified coordinate", () => {
-      const bottomPlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
-      const topPlayer = createPlayer(Side.AXIS, Position.TOP);
       const deck = Deck.createStandardDeck();
       const gameState = new GameState(deck);
 
@@ -220,8 +192,6 @@ describe("GameState", () => {
     });
 
     it("should distinguish between different coordinates", () => {
-      const bottomPlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
-      const topPlayer = createPlayer(Side.AXIS, Position.TOP);
       const deck = Deck.createStandardDeck();
       const gameState = new GameState(deck);
 
@@ -240,8 +210,6 @@ describe("GameState", () => {
 
   describe("moveUnit", () => {
     it("should move a unit from one coordinate to another", () => {
-      const bottomPlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
-      const topPlayer = createPlayer(Side.AXIS, Position.TOP);
       const deck = Deck.createStandardDeck();
       const gameState = new GameState(deck);
 
@@ -257,8 +225,6 @@ describe("GameState", () => {
     });
 
     it("should throw error when moving from empty coordinate", () => {
-      const bottomPlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
-      const topPlayer = createPlayer(Side.AXIS, Position.TOP);
       const deck = Deck.createStandardDeck();
       const gameState = new GameState(deck);
 
@@ -271,8 +237,6 @@ describe("GameState", () => {
     });
 
     it("should throw error when destination is occupied", () => {
-      const bottomPlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
-      const topPlayer = createPlayer(Side.AXIS, Position.TOP);
       const deck = Deck.createStandardDeck();
       const gameState = new GameState(deck);
 
@@ -292,8 +256,6 @@ describe("GameState", () => {
 
   describe("removeUnit", () => {
     it("should remove a unit from the board", () => {
-      const bottomPlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
-      const topPlayer = createPlayer(Side.AXIS, Position.TOP);
       const deck = Deck.createStandardDeck();
       const gameState = new GameState(deck);
 
@@ -307,8 +269,6 @@ describe("GameState", () => {
     });
 
     it("should do nothing when removing from empty coordinate", () => {
-      const bottomPlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
-      const topPlayer = createPlayer(Side.AXIS, Position.TOP);
       const deck = Deck.createStandardDeck();
       const gameState = new GameState(deck);
 
@@ -322,8 +282,6 @@ describe("GameState", () => {
 
   describe("getAllUnitsWithPositions", () => {
     it("should return empty array when no units are on the board", () => {
-      const bottomPlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
-      const topPlayer = createPlayer(Side.AXIS, Position.TOP);
       const deck = Deck.createStandardDeck();
       const gameState = new GameState(deck);
 
@@ -331,8 +289,6 @@ describe("GameState", () => {
     });
 
     it("should return all units with their coordinates", () => {
-      const bottomPlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
-      const topPlayer = createPlayer(Side.AXIS, Position.TOP);
       const deck = Deck.createStandardDeck();
       const gameState = new GameState(deck);
 
@@ -352,8 +308,6 @@ describe("GameState", () => {
     });
 
     it("should reflect changes after removing a unit", () => {
-      const bottomPlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
-      const topPlayer = createPlayer(Side.AXIS, Position.TOP);
       const deck = Deck.createStandardDeck();
       const gameState = new GameState(deck);
 
@@ -375,8 +329,6 @@ describe("GameState", () => {
 
   describe("legalMoves", () => {
     it("should return an array", () => {
-      const bottomPlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
-      const topPlayer = createPlayer(Side.AXIS, Position.TOP);
       const deck = Deck.createStandardDeck();
       const gameState = new GameState(deck);
 
@@ -386,8 +338,6 @@ describe("GameState", () => {
     });
 
     it("should currently return empty array (placeholder implementation)", () => {
-      const bottomPlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
-      const topPlayer = createPlayer(Side.AXIS, Position.TOP);
       const deck = Deck.createStandardDeck();
       const gameState = new GameState(deck);
 
@@ -397,8 +347,6 @@ describe("GameState", () => {
 
   describe("executeMove", () => {
     it("should accept a move object without error", () => {
-      const bottomPlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
-      const topPlayer = createPlayer(Side.AXIS, Position.TOP);
       const deck = Deck.createStandardDeck();
       const gameState = new GameState(deck);
 
@@ -410,8 +358,6 @@ describe("GameState", () => {
 
   describe("integration: current card workflow", () => {
     it("should support full card selection lifecycle", () => {
-      const bottomPlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
-      const topPlayer = createPlayer(Side.AXIS, Position.TOP);
       const deck = Deck.createStandardDeck();
       const gameState = new GameState(deck);
 
@@ -443,8 +389,6 @@ describe("GameState", () => {
 
   describe("integration: unit placement and movement", () => {
     it("should support placing multiple units and moving them", () => {
-      const bottomPlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
-      const topPlayer = createPlayer(Side.AXIS, Position.TOP);
       const deck = Deck.createStandardDeck();
       const gameState = new GameState(deck);
 
@@ -473,18 +417,11 @@ describe("GameState", () => {
   });
 
   describe("Available actions at the beginning of the game", () => {
-    const bottomPlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
-    const topPlayer = createPlayer(Side.AXIS, Position.TOP);
-
-
     it("should allow playing the cards in the hand", () => {
       const deck = Deck.createStandardDeck();
       const gameState = new GameState(deck);
-      const gameDeck = gameState.getDeck();
-      gameDeck.drawCard(CardLocation.BOTTOM_PLAYER_HAND);
-      gameDeck.drawCard(CardLocation.BOTTOM_PLAYER_HAND);
-      gameDeck.drawCard(CardLocation.BOTTOM_PLAYER_HAND);
-      let [card1, card2, card3] = gameDeck.getCardsInLocation(CardLocation.BOTTOM_PLAYER_HAND)
+      gameState.drawCard(3, CardLocation.BOTTOM_PLAYER_HAND);
+      let [card1, card2, card3] = gameState.getCardsInLocation(CardLocation.BOTTOM_PLAYER_HAND)
 
       let moves = gameState.legalMoves();
 
@@ -495,11 +432,8 @@ describe("GameState", () => {
       const deck = Deck.createStandardDeck();
       const gameState = new GameState(deck);
       gameState.switchActivePlayer();
-      const gameDeck = gameState.getDeck();
-      gameDeck.drawCard(CardLocation.TOP_PLAYER_HAND);
-      gameDeck.drawCard(CardLocation.TOP_PLAYER_HAND);
-      gameDeck.drawCard(CardLocation.TOP_PLAYER_HAND);
-      let [card1, card2, card3] = gameDeck.getCardsInLocation(CardLocation.TOP_PLAYER_HAND)
+      gameState.drawCard(3, CardLocation.TOP_PLAYER_HAND);
+      let [card1, card2, card3] = gameState.getCardsInLocation(CardLocation.TOP_PLAYER_HAND)
 
       let moves = gameState.legalMoves();
 

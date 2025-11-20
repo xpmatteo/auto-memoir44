@@ -1,18 +1,15 @@
 // ABOUTME: Hand display component showing active player's command cards
 // ABOUTME: HTML-based UI positioned below the game canvas
 
-import { Deck } from "../../domain/Deck";
 import { CommandCard, CardLocation } from "../../domain/CommandCard";
 import { GameState } from "../../domain/GameState";
 
 export class HandDisplay {
   private container: HTMLDivElement;
-  private deck: Deck;
   private gameState: GameState;
   private onCardClick: (() => void) | null = null;
 
-  constructor(deck: Deck, gameState: GameState) {
-    this.deck = deck;
+  constructor(gameState: GameState) {
     this.gameState = gameState;
     this.container = document.createElement("div");
     this.container.id = "hand-display";
@@ -43,7 +40,7 @@ export class HandDisplay {
     this.container.innerHTML = "";
 
     // Get cards in bottom player's hand
-    const allCards = this.deck.getCardsInLocation(CardLocation.BOTTOM_PLAYER_HAND);
+    const allCards = this.gameState.getCardsInLocation(CardLocation.BOTTOM_PLAYER_HAND);
 
     // Filter out the current card (it's displayed separately)
     const currentCard = this.gameState.getCurrentCard();
