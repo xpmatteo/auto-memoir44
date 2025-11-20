@@ -15,9 +15,9 @@ type GridConfig = {
 const defaultGrid: GridConfig = {
   cols: 13,
   rows: 9,
-  hexRadius: 86,
-  originX: 92,
-  originY: 180,
+  hexRadius: 87.7,
+  originX: 90,
+  originY: 182,
   lineWidth: 2.5,
   strokeStyle: "rgba(0, 255, 255, 0.72)"
 };
@@ -37,9 +37,9 @@ function drawBoard(context: CanvasRenderingContext2D, image: HTMLImageElement) {
 
 function drawGrid(context: CanvasRenderingContext2D, grid: GridConfig) {
   const { cols, rows, hexRadius, originX, originY, lineWidth, strokeStyle } = grid;
-  const hexHeight = Math.sqrt(3) * hexRadius;
-  const horizStep = hexRadius * 1.5;
-  const vertStep = hexHeight;
+  const hexHeight = Math.sqrt(3) * hexRadius; // pointy-top height
+  const horizStep = Math.sqrt(3) * hexRadius; // width of a column offset
+  const vertStep = hexRadius * 1.5; // vertical spacing for pointy-top
 
   context.save();
   context.lineWidth = lineWidth;
@@ -47,10 +47,10 @@ function drawGrid(context: CanvasRenderingContext2D, grid: GridConfig) {
   context.shadowColor = "rgba(0, 0, 0, 0.35)";
   context.shadowBlur = 1.5;
 
-  for (let col = 0; col < cols; col += 1) {
-    for (let row = 0; row < rows; row += 1) {
-      const centerX = originX + col * horizStep;
-      const centerY = originY + row * vertStep + (col % 2 === 0 ? 0 : vertStep / 2);
+  for (let q = 0; q < cols; q += 1) {
+    for (let r = 0; r < rows; r += 1) {
+      const centerX = originX + horizStep * (q + r / 2);
+      const centerY = originY + vertStep * r;
       drawHex(context, centerX, centerY, hexRadius);
     }
   }
@@ -60,7 +60,7 @@ function drawGrid(context: CanvasRenderingContext2D, grid: GridConfig) {
 
 function drawHex(context: CanvasRenderingContext2D, cx: number, cy: number, radius: number) {
   const corners = Array.from({ length: 6 }, (_, i) => {
-    const angle = (Math.PI / 180) * (60 * i + 30); // flat-top orientation
+    const angle = (Math.PI / 180) * (60 * i - 30); // pointy-top orientation
     return {
       x: cx + radius * Math.cos(angle),
       y: cy + radius * Math.sin(angle)
