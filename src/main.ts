@@ -12,7 +12,9 @@ import { drawGrid } from "./ui/canvas/HexGrid.js";
 import { drawUnits } from "./ui/canvas/UnitRenderer.js";
 import { loadScenario, getDefaultScenario } from "./scenarios/index.js";
 import { HandDisplay } from "./ui/components/HandDisplay.js";
-import type { GameState } from "./domain/GameState.js";
+import { GameState } from "./domain/GameState.js";
+import { createPlayer, Side, Position } from "./domain/Player.js";
+import { Deck } from "./domain/Deck.js";
 
 const BOARD_IMAGE_PATH = "/images/boards/memoir-desert-map.jpg";
 const BOARD_WIDTH = 2007;
@@ -46,20 +48,32 @@ function createBoardWrapper(canvas: HTMLCanvasElement, overlay: HTMLDivElement):
   return wrapper;
 }
 
-function loadScenarioFromURL(): GameState {
+function createGameStateFromURL(): GameState {
   const params = new URLSearchParams(window.location.search);
   const scenarioCode = params.get("scenario");
 
+  // Create base game state with players and deck
+  const bottomPlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
+  const topPlayer = createPlayer(Side.AXIS, Position.TOP);
+  const deck = Deck.createStandardDeck();
+  const gameState = new GameState([bottomPlayer, topPlayer], 0, deck);
+
+  // Load and setup scenario
+  let scenario;
   if (scenarioCode) {
     try {
-      return loadScenario(scenarioCode);
+      scenario = loadScenario(scenarioCode);
     } catch (error) {
       console.warn(`Failed to load scenario '${scenarioCode}':`, error);
       console.warn("Falling back to default scenario");
+      scenario = getDefaultScenario();
     }
+  } else {
+    scenario = getDefaultScenario();
   }
 
-  return getDefaultScenario();
+  scenario.setup(gameState);
+  return gameState;
 }
 
 
@@ -70,8 +84,8 @@ async function start() {
     throw new Error("App root not found");
   }
 
-  // Load scenario from query parameter or use default
-  const gameState = loadScenarioFromURL();
+  // Create game state and initialize with scenario
+  const gameState = createGameStateFromURL();
 
   const canvas = createCanvas();
   const overlay = createOverlay();

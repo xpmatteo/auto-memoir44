@@ -26,40 +26,32 @@ export function keyToCoord(key: string): HexCoord {
   return { q, r };
 }
 
-export class Unit {
+let nextUnitId = 1;
+
+/**
+ * Base class for all units
+ */
+export abstract class Unit {
   id: string;
-  type: UnitType;
+  abstract readonly type: UnitType;
   strength: number; // Number of figures remaining
   owner: Side;
 
-  constructor(id: string, type: UnitType, strength: number, owner: Side) {
-    this.id = id;
-    this.type = type;
+  constructor(strength: number, owner: Side) {
+    this.id = `unit-${nextUnitId++}`;
     this.strength = strength;
     this.owner = owner;
   }
 }
 
 /**
- * Base class for unit types
- * Each unit type defines its type identifier and default strength
- */
-export abstract class UnitClass {
-  abstract readonly type: UnitType;
-  abstract readonly defaultStrength: number;
-
-  /**
-   * Create a unit instance of this type
-   */
-  createUnit(id: string, owner: Side, strength?: number): Unit {
-    return new Unit(id, this.type, strength ?? this.defaultStrength, owner);
-  }
-}
-
-/**
  * Infantry unit type
  */
-export class Infantry extends UnitClass {
+export class Infantry extends Unit {
   readonly type = UnitType.INFANTRY;
-  readonly defaultStrength = 4;
+  static readonly defaultStrength = 4;
+
+  constructor(owner: Side, strength?: number) {
+    super(strength ?? Infantry.defaultStrength, owner);
+  }
 }
