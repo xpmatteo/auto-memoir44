@@ -5,7 +5,7 @@
   "description": "Memoir '44 canvas-based MVP using Vite + TypeScript",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite 2>&1 | tee vite.log",
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest",

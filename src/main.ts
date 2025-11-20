@@ -1,6 +1,9 @@
 // ABOUTME: Entry point for Memoir '44 browser game
 // ABOUTME: Bootstraps canvas, rendering, and event handling
 
+// Log page loads for debugging
+console.log(`[${new Date().toISOString()}] Page loaded/reloaded`);
+
 import "./style.css";
 import type { GridConfig } from "./utils/hex.js";
 import { toCanvasCoords, pixelToHex } from "./utils/hex.js";
