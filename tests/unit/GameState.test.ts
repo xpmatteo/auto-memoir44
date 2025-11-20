@@ -80,47 +80,6 @@ describe("GameState", () => {
     });
   });
 
-  describe("clearCurrentCard", () => {
-    it("should clear the current card selection", () => {
-      const deck = Deck.createStandardDeck();
-      const gameState = new GameState(deck);
-
-      // Get a real card from the deck
-      const cards = deck.getCardsInLocation(CardLocation.DECK);
-      const cardId = cards[0].id;
-
-      gameState.setCurrentCard(cardId);
-      gameState.clearCurrentCard();
-
-      expect(gameState.getCurrentCard()).toBeNull();
-    });
-
-    it("should allow setting a new card after clearing", () => {
-      const deck = Deck.createStandardDeck();
-      const gameState = new GameState(deck);
-
-      // Get real cards from the deck
-      const cards = deck.getCardsInLocation(CardLocation.DECK);
-      const card1 = cards[0];
-      const card2 = cards[1];
-
-      gameState.setCurrentCard(card1.id);
-      gameState.clearCurrentCard();
-      gameState.setCurrentCard(card2.id);
-
-      expect(gameState.getCurrentCard()).toBe(card2);
-    });
-
-    it("should do nothing when no card is selected", () => {
-      const deck = Deck.createStandardDeck();
-      const gameState = new GameState(deck);
-
-      gameState.clearCurrentCard();
-
-      expect(gameState.getCurrentCard()).toBeNull();
-    });
-  });
-
   describe("placeUnit", () => {
     it("should place a unit at an empty coordinate", () => {
       const deck = Deck.createStandardDeck();
@@ -346,7 +305,6 @@ describe("GameState", () => {
       const cards = deck.getCardsInLocation(CardLocation.DECK);
       const card1 = cards[0];
       const card2 = cards[1];
-      const card3 = cards[2];
 
       // Initially no card selected
       expect(gameState.getCurrentCard()).toBeNull();
@@ -357,14 +315,6 @@ describe("GameState", () => {
 
       // Cannot select another card
       expect(() => gameState.setCurrentCard(card2.id)).toThrow();
-
-      // Clear selection
-      gameState.clearCurrentCard();
-      expect(gameState.getCurrentCard()).toBeNull();
-
-      // Can now select a different card
-      gameState.setCurrentCard(card3.id);
-      expect(gameState.getCurrentCard()).toBe(card3);
     });
   });
 
@@ -401,7 +351,7 @@ describe("GameState", () => {
     it("should allow playing the cards in the hand", () => {
       const deck = Deck.createStandardDeck();
       const gameState = new GameState(deck);
-      gameState.drawCard(3, CardLocation.BOTTOM_PLAYER_HAND);
+      gameState.drawCards(3, CardLocation.BOTTOM_PLAYER_HAND);
       let [card1, card2, card3] = gameState.getCardsInLocation(CardLocation.BOTTOM_PLAYER_HAND)
 
       let moves = gameState.legalMoves();
@@ -413,7 +363,7 @@ describe("GameState", () => {
       const deck = Deck.createStandardDeck();
       const gameState = new GameState(deck);
       gameState.switchActivePlayer();
-      gameState.drawCard(3, CardLocation.TOP_PLAYER_HAND);
+      gameState.drawCards(3, CardLocation.TOP_PLAYER_HAND);
       let [card1, card2, card3] = gameState.getCardsInLocation(CardLocation.TOP_PLAYER_HAND)
 
       let moves = gameState.legalMoves();

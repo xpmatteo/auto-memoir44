@@ -133,14 +133,11 @@ export class GameState {
 
         // If this is a section card, order units in that section
         if (targetSection !== null) {
-            this.orderUnitsInSection(targetSection);
+            this.orderAllFriendlyUnitsInSection(targetSection);
         }
     }
 
-    /**
-     * Order all friendly units in the specified section
-     */
-    private orderUnitsInSection(section: Section): void {
+    private orderAllFriendlyUnitsInSection(section: Section): void {
         const activePlayer = this.activePlayer;
         const allUnitsWithPositions = this.getAllUnitsWithPositions();
 
@@ -168,13 +165,6 @@ export class GameState {
     }
 
     /**
-     * Clear the current card selection
-     */
-    clearCurrentCard(): void {
-        this.currentCardId = null;
-    }
-
-    /**
      * Check if a unit has been ordered this turn
      */
     isUnitOrdered(unit: Unit): boolean {
@@ -183,7 +173,6 @@ export class GameState {
 
     /**
      * Returns all valid moves for the active player
-     * TODO: Implement actual move generation logic
      */
     legalMoves(): Move[] {
         let location = (this.activePlayerIndex == 0) ? CardLocation.BOTTOM_PLAYER_HAND : CardLocation.TOP_PLAYER_HAND;
@@ -192,7 +181,6 @@ export class GameState {
 
     /**
      * Applies a move and updates state
-     * TODO: Implement actual move execution logic
      */
     executeMove(_move: Move): void {
         // Placeholder for move execution
@@ -202,7 +190,7 @@ export class GameState {
         this.activePlayerIndex = this.activePlayerIndex == 0 ? 1 : 0;
     }
 
-    drawCard(howMany: number, toLocation: CardLocation) {
+    drawCards(howMany: number, toLocation: CardLocation) {
         for (let i = 0; i < howMany; i++) {
             this.deck.drawCard(toLocation)
         }

@@ -10,8 +10,8 @@ import {Side} from "../domain/Player";
 export class ST02Scenario implements Scenario {
     setup(gameState: GameState): void {
         // Draw 5 cards for bottom player, 4 cards for top player
-        gameState.drawCard(5, CardLocation.BOTTOM_PLAYER_HAND);
-        gameState.drawCard(4, CardLocation.TOP_PLAYER_HAND);
+        gameState.drawCards(5, CardLocation.BOTTOM_PLAYER_HAND);
+        gameState.drawCards(4, CardLocation.TOP_PLAYER_HAND);
 
         // Helper to place a unit at coordinates
         // US infantry at bottom (6 units with 4 figures each)
