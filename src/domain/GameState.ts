@@ -15,6 +15,7 @@ export class GameState {
   deck: Deck;
   unitPositions: Map<string, Unit>; // Map from coordinate key to Unit
   currentCardId: string | null; // Currently selected card ID
+  orderedUnits: Set<string>; // Set of unit IDs that have been ordered this turn
 
   constructor(
     players: [Player, Player],
@@ -28,6 +29,7 @@ export class GameState {
     this.deck = deck;
     this.unitPositions = unitPositions;
     this.currentCardId = currentCardId;
+    this.orderedUnits = new Set();
   }
 
   get activePlayer(): Player {
@@ -143,7 +145,7 @@ export class GameState {
       // Check if unit is in the target section
       const unitSection = getSection(coord, activePlayer.position);
       if (unitSection === section) {
-        unit.setOrdered(true);
+        this.orderedUnits.add(unit.id);
       }
     }
   }
@@ -160,6 +162,13 @@ export class GameState {
    */
   clearCurrentCard(): void {
     this.currentCardId = null;
+  }
+
+  /**
+   * Check if a unit has been ordered this turn
+   */
+  isUnitOrdered(unit: Unit): boolean {
+    return this.orderedUnits.has(unit.id);
   }
 
   /**
