@@ -94,7 +94,7 @@ async function start() {
     const image = await loadBoardImage(BOARD_IMAGE_PATH);
     drawBoard(context, image);
     drawGrid(context, defaultGrid);
-    await drawUnits(context, gameState.units, defaultGrid);
+    await drawUnits(context, gameState.getAllUnitsWithPositions(), defaultGrid);
   } catch (error) {
     context.fillStyle = "#b22222";
     context.font = "16px sans-serif";

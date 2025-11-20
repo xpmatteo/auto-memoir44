@@ -2,6 +2,7 @@
 // ABOUTME: Handles loading unit images and drawing them at hex coordinates
 
 import type { Unit } from "../../domain/Unit.js";
+import { UnitType } from "../../domain/Unit.js";
 import type { GridConfig, HexCoord } from "../../utils/hex.js";
 import { hexToPixel } from "../../utils/hex.js";
 import { Side } from "../../domain/Player.js";
@@ -13,7 +14,7 @@ const UNIT_IMAGE_CACHE = new Map<string, HTMLImageElement>();
  */
 function getUnitImagePath(unit: Unit): string {
   const prefix = unit.owner === Side.ALLIES ? "us" : "ger";
-  const type = unit.type === "infantry" ? "inf" : "arm";
+  const type = unit.type === UnitType.INFANTRY ? "inf" : "arm";
   return `/images/units/${prefix}_${type}.png`;
 }
 
@@ -38,18 +39,19 @@ function loadUnitImage(imagePath: string): Promise<HTMLImageElement> {
 }
 
 /**
- * Draw a single unit on the canvas at its hex location
+ * Draw a single unit on the canvas at a specific hex location
  */
 export async function drawUnit(
   context: CanvasRenderingContext2D,
   unit: Unit,
+  coord: HexCoord,
   grid: GridConfig
 ): Promise<void> {
   const imagePath = getUnitImagePath(unit);
   const image = await loadUnitImage(imagePath);
 
   // Convert hex coordinates to pixel coordinates
-  const { x, y } = hexToPixel(unit.location, grid);
+  const { x, y } = hexToPixel(coord, grid);
 
   // Calculate size based on natural image proportions
   const aspectRatio = image.width / image.height;
@@ -102,11 +104,11 @@ function drawStrengthIndicator(
  */
 export async function drawUnits(
   context: CanvasRenderingContext2D,
-  units: Unit[],
+  unitsWithPositions: Array<{ coord: HexCoord; unit: Unit }>,
   grid: GridConfig
 ): Promise<void> {
   // Draw all units
-  for (const unit of units) {
-    await drawUnit(context, unit, grid);
+  for (const { coord, unit } of unitsWithPositions) {
+    await drawUnit(context, unit, coord, grid);
   }
 }

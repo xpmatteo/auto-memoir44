@@ -131,4 +131,5 @@ memoir/
 - Optional `seed` query parameter for reproducible RNG (dice rolls and AI decisions)
 - Game state auto-saves to browser storage after each change
 - Auto-resume on page load with full turn context
-
+- Important: never restart the vite server.  It is always running and it hot-reloads changes
+- always use named constants for enumerations
