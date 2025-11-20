@@ -22,7 +22,7 @@ export class Deck {
    * Returns the drawn card, or null if deck is empty
    */
   drawCard(toLocation: CardLocation): CommandCard | null {
-    const deckCards = this.getCardsInLocation("Deck");
+    const deckCards = this.getCardsInLocation(CardLocation.DECK);
     if (deckCards.length === 0) {
       return null;
     }
@@ -61,7 +61,7 @@ export class Deck {
           `probe-center-${i}`,
           "Probe Center",
           "images/cards/a5_probe_center.png",
-          "Deck"
+          CardLocation.DECK
         )
       );
     }

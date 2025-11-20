@@ -4,6 +4,7 @@
 import { GameState } from "../domain/GameState";
 import { createPlayer } from "../domain/Player";
 import { Deck } from "../domain/Deck";
+import { CardLocation } from "../domain/CommandCard";
 
 export function createST02Scenario(): GameState {
   // Create standard deck with 10 Probe Center cards
@@ -15,10 +16,10 @@ export function createST02Scenario(): GameState {
 
   // Draw 5 cards for each player
   for (let i = 0; i < 5; i++) {
-    deck.drawCard("BottomPlayerHand");
+    deck.drawCard(CardLocation.BOTTOM_PLAYER_HAND);
   }
   for (let i = 0; i < 5; i++) {
-    deck.drawCard("TopPlayerHand");
+    deck.drawCard(CardLocation.TOP_PLAYER_HAND);
   }
 
   // Create game state with bottom player (Allies) as active

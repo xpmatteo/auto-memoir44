@@ -2,7 +2,7 @@
 // ABOUTME: HTML-based UI positioned below the game canvas
 
 import { Deck } from "../../domain/Deck";
-import { CommandCard } from "../../domain/CommandCard";
+import { CommandCard, CardLocation } from "../../domain/CommandCard";
 
 export class HandDisplay {
   private container: HTMLDivElement;
@@ -32,7 +32,7 @@ export class HandDisplay {
     this.container.innerHTML = "";
 
     // Get cards in bottom player's hand
-    const cards = this.deck.getCardsInLocation("BottomPlayerHand");
+    const cards = this.deck.getCardsInLocation(CardLocation.BOTTOM_PLAYER_HAND);
 
     // Create image elements for each card
     cards.forEach((card) => {
