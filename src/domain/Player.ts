@@ -1,8 +1,19 @@
 // ABOUTME: Player model representing a game participant
 // ABOUTME: Tracks side (Allies/Axis) and position (Bottom/Top) but not cards directly
 
-export type Side = "Allies" | "Axis";
-export type Position = "Bottom" | "Top";
+export const Side = {
+  ALLIES: "Allies",
+  AXIS: "Axis",
+} as const;
+
+export type Side = typeof Side[keyof typeof Side];
+
+export const Position = {
+  BOTTOM: "Bottom",
+  TOP: "Top",
+} as const;
+
+export type Position = typeof Position[keyof typeof Position];
 
 export interface Player {
   side: Side;
