@@ -73,7 +73,6 @@ async function start() {
   const overlay = createOverlay();
   const wrapper = createBoardWrapper(canvas, overlay);
   app.appendChild(wrapper);
-  app.appendChild(createCaption());
 
   // Create and mount hand display
   const handDisplay = new HandDisplay(gameState.deck);
@@ -104,9 +103,9 @@ async function start() {
 function applyResponsiveSizing(canvas: HTMLCanvasElement) {
   // Preserve aspect ratio while fitting within viewport with some breathing room.
   const padding = 24;
-  const captionAllowance = 100;
+  const handDisplayAllowance = 190; // Hand display: 150px cards + 40px padding
   const maxWidth = Math.max(200, window.innerWidth - padding * 2);
-  const maxHeight = Math.max(200, window.innerHeight - padding * 2 - captionAllowance);
+  const maxHeight = Math.max(200, window.innerHeight - padding * 2 - handDisplayAllowance);
   const scale = Math.min(1, maxWidth / BOARD_WIDTH, maxHeight / BOARD_HEIGHT);
   canvas.style.width = `${BOARD_WIDTH * scale}px`;
   canvas.style.height = `${BOARD_HEIGHT * scale}px`;
@@ -126,14 +125,6 @@ function attachHoverDisplay(
   canvas.addEventListener("mouseleave", () => {
     overlay.textContent = "";
   });
-}
-
-
-function createCaption(): HTMLDivElement {
-  const caption = document.createElement("div");
-  caption.className = "caption";
-  caption.textContent = "Memoir '44 board ready";
-  return caption;
 }
 
 function createOverlay(): HTMLDivElement {
