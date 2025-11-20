@@ -25,7 +25,7 @@ describe("Deck", () => {
 
       expect(uniqueIds.size).toBe(35);
     });
-
+  });
 
   describe("getCardsInLocation", () => {
     it("should return only cards in the specified location", () => {

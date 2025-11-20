@@ -4,16 +4,24 @@
 import { Player } from "./Player";
 import { Deck } from "./Deck";
 import { Move } from "./Move";
+import { Unit } from "./Unit";
 
 export class GameState {
   players: [Player, Player];
   activePlayerIndex: 0 | 1;
   deck: Deck;
+  units: Unit[];
 
-  constructor(players: [Player, Player], activePlayerIndex: 0 | 1, deck: Deck) {
+  constructor(
+    players: [Player, Player],
+    activePlayerIndex: 0 | 1,
+    deck: Deck,
+    units: Unit[] = []
+  ) {
     this.players = players;
     this.activePlayerIndex = activePlayerIndex;
     this.deck = deck;
+    this.units = units;
   }
 
   get activePlayer(): Player {
