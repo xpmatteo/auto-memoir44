@@ -1,6 +1,8 @@
 import "./style.css";
 
 const BOARD_IMAGE_PATH = "/images/boards/memoir-desert-map.jpg";
+const BOARD_WIDTH = 2007;
+const BOARD_HEIGHT = 1417;
 
 type GridConfig = {
   cols: number;
@@ -29,8 +31,8 @@ const defaultGrid: GridConfig = {
 function createCanvas(): HTMLCanvasElement {
   const canvas = document.createElement("canvas");
   canvas.className = "board-canvas";
-  canvas.width = 2007;
-  canvas.height = 1417;
+  canvas.width = BOARD_WIDTH;
+  canvas.height = BOARD_HEIGHT;
   return canvas;
 }
 
@@ -110,6 +112,8 @@ async function start() {
   const canvas = createCanvas();
   app.appendChild(canvas);
   app.appendChild(createCaption());
+  applyResponsiveSizing(canvas);
+  window.addEventListener("resize", () => applyResponsiveSizing(canvas));
 
   const context = canvas.getContext("2d");
   if (!context) {
@@ -125,6 +129,17 @@ async function start() {
     context.font = "16px sans-serif";
     context.fillText((error as Error).message, 20, 30);
   }
+}
+
+function applyResponsiveSizing(canvas: HTMLCanvasElement) {
+  // Preserve aspect ratio while fitting within viewport with some breathing room.
+  const padding = 24;
+  const captionAllowance = 100;
+  const maxWidth = Math.max(200, window.innerWidth - padding * 2);
+  const maxHeight = Math.max(200, window.innerHeight - padding * 2 - captionAllowance);
+  const scale = Math.min(1, maxWidth / BOARD_WIDTH, maxHeight / BOARD_HEIGHT);
+  canvas.style.width = `${BOARD_WIDTH * scale}px`;
+  canvas.style.height = `${BOARD_HEIGHT * scale}px`;
 }
 
 function createCaption(): HTMLDivElement {
