@@ -3,7 +3,14 @@
 
 import { describe, it, expect } from "vitest";
 import { Deck } from "../../src/domain/Deck";
-import { createCommandCard, CardLocation } from "../../src/domain/CommandCard";
+import { CommandCard, CardLocation } from "../../src/domain/CommandCard";
+
+// Test helper card class
+class TestCard extends CommandCard {
+  constructor(public readonly name: string, public readonly imagePath: string, location: CardLocation = CardLocation.DECK) {
+    super(location);
+  }
+}
 
 describe("Deck", () => {
   describe("createStandardDeck", () => {
@@ -30,10 +37,10 @@ describe("Deck", () => {
   describe("getCardsInLocation", () => {
     it("should return only cards in the specified location", () => {
       const cards = [
-        createCommandCard("1", "Card A", "path/a.png", CardLocation.DECK),
-        createCommandCard("2", "Card B", "path/b.png", CardLocation.BOTTOM_PLAYER_HAND),
-        createCommandCard("3", "Card C", "path/c.png", CardLocation.DECK),
-        createCommandCard("4", "Card D", "path/d.png", CardLocation.TOP_PLAYER_HAND),
+        new TestCard("Card A", "path/a.png", CardLocation.DECK),
+        new TestCard("Card B", "path/b.png", CardLocation.BOTTOM_PLAYER_HAND),
+        new TestCard("Card C", "path/c.png", CardLocation.DECK),
+        new TestCard("Card D", "path/d.png", CardLocation.TOP_PLAYER_HAND),
       ];
       const deck = new Deck(cards);
 
@@ -43,14 +50,14 @@ describe("Deck", () => {
       const discardCards = deck.getCardsInLocation(CardLocation.DISCARD_PILE);
 
       expect(deckCards).toHaveLength(2);
-      expect(deckCards[0].id).toBe("1");
-      expect(deckCards[1].id).toBe("3");
+      expect(deckCards[0]).toBe(cards[0]);
+      expect(deckCards[1]).toBe(cards[2]);
 
       expect(bottomHandCards).toHaveLength(1);
-      expect(bottomHandCards[0].id).toBe("2");
+      expect(bottomHandCards[0]).toBe(cards[1]);
 
       expect(topHandCards).toHaveLength(1);
-      expect(topHandCards[0].id).toBe("4");
+      expect(topHandCards[0]).toBe(cards[3]);
 
       expect(discardCards).toHaveLength(0);
     });
@@ -101,17 +108,17 @@ describe("Deck", () => {
   describe("moveCard", () => {
     it("should move a specific card to new location", () => {
       const cards = [
-        createCommandCard("card-1", "Card A", "path/a.png", CardLocation.DECK),
-        createCommandCard("card-2", "Card B", "path/b.png", CardLocation.DECK),
-        createCommandCard("card-3", "Card C", "path/c.png", CardLocation.BOTTOM_PLAYER_HAND),
+        new TestCard("Card A", "path/a.png", CardLocation.DECK),
+        new TestCard("Card B", "path/b.png", CardLocation.DECK),
+        new TestCard("Card C", "path/c.png", CardLocation.BOTTOM_PLAYER_HAND),
       ];
       const deck = new Deck(cards);
 
-      deck.moveCard("card-2", CardLocation.DISCARD_PILE);
+      deck.moveCard(cards[1].id, CardLocation.DISCARD_PILE);
 
       expect(deck.getCardsInLocation(CardLocation.DECK)).toHaveLength(1);
       expect(deck.getCardsInLocation(CardLocation.DISCARD_PILE)).toHaveLength(1);
-      expect(deck.getCardsInLocation(CardLocation.DISCARD_PILE)[0].id).toBe("card-2");
+      expect(deck.getCardsInLocation(CardLocation.DISCARD_PILE)[0]).toBe(cards[1]);
     });
 
     it("should handle moving card that doesn't exist", () => {
@@ -124,31 +131,29 @@ describe("Deck", () => {
     });
 
     it("should move card from hand to discard pile", () => {
-      const cards = [
-        createCommandCard("card-1", "Card A", "path/a.png", CardLocation.BOTTOM_PLAYER_HAND),
-      ];
-      const deck = new Deck(cards);
+      const card = new TestCard("Card A", "path/a.png", CardLocation.BOTTOM_PLAYER_HAND);
+      const deck = new Deck([card]);
 
-      deck.moveCard("card-1", CardLocation.DISCARD_PILE);
+      deck.moveCard(card.id, CardLocation.DISCARD_PILE);
 
       expect(deck.getCardsInLocation(CardLocation.BOTTOM_PLAYER_HAND)).toHaveLength(0);
       expect(deck.getCardsInLocation(CardLocation.DISCARD_PILE)).toHaveLength(1);
-      expect(deck.getCardsInLocation(CardLocation.DISCARD_PILE)[0].id).toBe("card-1");
+      expect(deck.getCardsInLocation(CardLocation.DISCARD_PILE)[0]).toBe(card);
     });
   });
 
   describe("getCard", () => {
     it("should return card with matching ID", () => {
       const cards = [
-        createCommandCard("card-1", "Card A", "path/a.png", CardLocation.DECK),
-        createCommandCard("card-2", "Card B", "path/b.png", CardLocation.DECK),
+        new TestCard("Card A", "path/a.png", CardLocation.DECK),
+        new TestCard("Card B", "path/b.png", CardLocation.DECK),
       ];
       const deck = new Deck(cards);
 
-      const card = deck.getCard("card-2");
+      const card = deck.getCard(cards[1].id);
 
       expect(card).toBeDefined();
-      expect(card!.id).toBe("card-2");
+      expect(card).toBe(cards[1]);
       expect(card!.name).toBe("Card B");
     });
 

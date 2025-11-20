@@ -4,7 +4,6 @@
 import {
   CommandCard,
   CardLocation,
-  CardType,
   AssaultCenter,
   AssaultLeft,
   AssaultRight,
@@ -67,21 +66,16 @@ export class Deck {
 
   /**
    * Create a deck from a composition specification
-   * Composition is an array of [CardType, count] tuples
+   * Composition is an array of [CommandCard class, count] tuples
    */
   static createFromComposition(
-    composition: Array<[new () => CardType, number]>
+    composition: Array<[new (location?: CardLocation) => CommandCard, number]>
   ): Deck {
     const cards: CommandCard[] = [];
-    let cardCounter = 0;
 
-    for (const [CardTypeClass, count] of composition) {
-      const cardType = new CardTypeClass();
-      const baseName = cardType.name.toLowerCase().replace(/\s+/g, "-");
-
-      for (let i = 1; i <= count; i++) {
-        const id = `${baseName}-${++cardCounter}`;
-        cards.push(cardType.createCard(id, CardLocation.DECK));
+    for (const [CardClass, count] of composition) {
+      for (let i = 0; i < count; i++) {
+        cards.push(new CardClass(CardLocation.DECK));
       }
     }
 

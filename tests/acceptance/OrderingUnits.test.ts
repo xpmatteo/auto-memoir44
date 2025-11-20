@@ -17,8 +17,7 @@ describe("Ordering Units with Command Cards", () => {
       const topPlayer = createPlayer(Side.AXIS, Position.TOP);
 
       // Create an Assault Left card
-      const assaultLeft = new AssaultLeft();
-      const card = assaultLeft.createCard("assault-left-1", CardLocation.BOTTOM_PLAYER_HAND);
+      const card = new AssaultLeft(CardLocation.BOTTOM_PLAYER_HAND);
 
       // Create deck with this card
       const deck = new Deck([card]);
@@ -61,8 +60,7 @@ describe("Ordering Units with Command Cards", () => {
       const topPlayer = createPlayer(Side.AXIS, Position.TOP);
 
       // Create an Assault Left card
-      const assaultLeft = new AssaultLeft();
-      const card = assaultLeft.createCard("assault-left-2", CardLocation.TOP_PLAYER_HAND);
+      const card = new AssaultLeft(CardLocation.TOP_PLAYER_HAND);
 
       // Create deck with this card
       const deck = new Deck([card]);
@@ -105,8 +103,7 @@ describe("Ordering Units with Command Cards", () => {
       const topPlayer = createPlayer(Side.AXIS, Position.TOP);
 
       // Create an Assault Left card
-      const assaultLeft = new AssaultLeft();
-      const card = assaultLeft.createCard("assault-left-3", CardLocation.BOTTOM_PLAYER_HAND);
+      const card = new AssaultLeft(CardLocation.BOTTOM_PLAYER_HAND);
 
       // Create deck with this card
       const deck = new Deck([card]);

@@ -10,98 +10,83 @@ export const CardLocation = {
 
 export type CardLocation = typeof CardLocation[keyof typeof CardLocation];
 
-export interface CommandCard {
-  id: string;
-  name: string;
-  imagePath: string;
-  location: CardLocation;
-}
-
-export function createCommandCard(
-  id: string,
-  name: string,
-  imagePath: string,
-  location: CardLocation = CardLocation.DECK
-): CommandCard {
-  return { id, name, imagePath, location };
-}
+let nextCardId = 1;
 
 /**
- * Base class for card types
- * Each card type defines its name and image path
+ * Base class for all command cards
  */
-export abstract class CardType {
+export abstract class CommandCard {
+  id: string;
   abstract readonly name: string;
   abstract readonly imagePath: string;
+  location: CardLocation;
 
-  /**
-   * Create a command card instance of this type
-   */
-  createCard(id: string, location: CardLocation = CardLocation.DECK): CommandCard {
-    return createCommandCard(id, this.name, this.imagePath, location);
+  constructor(location: CardLocation = CardLocation.DECK) {
+    this.id = `card-${nextCardId++}`;
+    this.location = location;
   }
 }
 
 // Assault cards
-export class AssaultCenter extends CardType {
+export class AssaultCenter extends CommandCard {
   readonly name = "Assault Center";
   readonly imagePath = "images/cards/a2_assault_center.png";
 }
 
-export class AssaultLeft extends CardType {
+export class AssaultLeft extends CommandCard {
   readonly name = "Assault Left";
   readonly imagePath = "images/cards/a2_assault_left.png";
 }
 
-export class AssaultRight extends CardType {
+export class AssaultRight extends CommandCard {
   readonly name = "Assault Right";
   readonly imagePath = "images/cards/a2_assault_right.png";
 }
 
 // Attack cards
-export class AttackCenter extends CardType {
+export class AttackCenter extends CommandCard {
   readonly name = "Attack Center";
   readonly imagePath = "images/cards/a4_attack_center.png";
 }
 
-export class AttackLeft extends CardType {
+export class AttackLeft extends CommandCard {
   readonly name = "Attack Left";
   readonly imagePath = "images/cards/a3_attack_left.png";
 }
 
-export class AttackRight extends CardType {
+export class AttackRight extends CommandCard {
   readonly name = "Attack Right";
   readonly imagePath = "images/cards/a3_attack_right.png";
 }
 
 // Probe cards
-export class ProbeCenter extends CardType {
+export class ProbeCenter extends CommandCard {
   readonly name = "Probe Center";
   readonly imagePath = "images/cards/a5_probe_center.png";
 }
 
-export class ProbeLeft extends CardType {
+export class ProbeLeft extends CommandCard {
   readonly name = "Probe Left";
   readonly imagePath = "images/cards/a4_probe_left.png";
 }
 
-export class ProbeRight extends CardType {
+export class ProbeRight extends CommandCard {
   readonly name = "Probe Right";
   readonly imagePath = "images/cards/a4_probe_right.png";
 }
 
 // Recon cards
-export class ReconCenter extends CardType {
+export class ReconCenter extends CommandCard {
   readonly name = "Recon Center";
   readonly imagePath = "images/cards/a4_recon_center.png";
 }
 
-export class ReconLeft extends CardType {
+export class ReconLeft extends CommandCard {
   readonly name = "Recon Left";
   readonly imagePath = "images/cards/a2_recon_left.png";
 }
 
-export class ReconRight extends CardType {
+export class ReconRight extends CommandCard {
   readonly name = "Recon Right";
   readonly imagePath = "images/cards/a2_recon_right.png";
 }
