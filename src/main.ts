@@ -14,7 +14,6 @@ import { loadScenario, getDefaultScenario } from "./scenarios/index.js";
 import { HandDisplay } from "./ui/components/HandDisplay.js";
 import { CurrentCardDisplay } from "./ui/components/CurrentCardDisplay.js";
 import { GameState } from "./domain/GameState.js";
-import { createPlayer, Side, Position } from "./domain/Player.js";
 import { Deck } from "./domain/Deck.js";
 
 const BOARD_IMAGE_PATH = "/images/boards/memoir-desert-map.jpg";
@@ -53,9 +52,7 @@ function createGameStateFromURL(): GameState {
   const params = new URLSearchParams(window.location.search);
   const scenarioCode = params.get("scenario");
 
-  // Create base game state with players and deck
-  const bottomPlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
-  const topPlayer = createPlayer(Side.AXIS, Position.TOP);
+  // Create base game state with deck
   const deck = Deck.createStandardDeck();
   const gameState = new GameState(deck);
 

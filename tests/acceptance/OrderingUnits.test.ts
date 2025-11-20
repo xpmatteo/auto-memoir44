@@ -12,10 +12,6 @@ import { CardLocation } from "../../src/domain/CommandCard";
 describe("Ordering Units with Command Cards", () => {
   describe("Assault Left card", () => {
     it("should order all units in the bottom player's left section when Assault Left is played", () => {
-      // Setup
-      const bottomPlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
-      const topPlayer = createPlayer(Side.AXIS, Position.TOP);
-
       // Create an Assault Left card
       const card = new AssaultLeft(CardLocation.BOTTOM_PLAYER_HAND);
 

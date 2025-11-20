@@ -191,7 +191,7 @@ export class GameState {
      * Applies a move and updates state
      * TODO: Implement actual move execution logic
      */
-    executeMove(move: Move): void {
+    executeMove(_move: Move): void {
         // Placeholder for move execution
     }
 

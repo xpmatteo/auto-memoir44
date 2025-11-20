@@ -6,11 +6,12 @@
   "type": "module",
   "scripts": {
     "dev": "vite 2>&1 | tee vite.log",
-    "build": "vite build",
+    "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
     "test": "vitest",
     "test:ui": "vitest --ui",
-    "test:run": "vitest run"
+    "test:run": "vitest run",
+    "typecheck": "tsc --noEmit"
   },
   "keywords": [
     "memoir44",
