@@ -3,6 +3,7 @@ import "./style.css";
 const BOARD_IMAGE_PATH = "/images/boards/memoir-desert-map.jpg";
 const BOARD_WIDTH = 2007;
 const BOARD_HEIGHT = 1417;
+const SQRT3 = Math.sqrt(3);
 
 type GridConfig = {
   cols: number;
@@ -36,6 +37,14 @@ function createCanvas(): HTMLCanvasElement {
   return canvas;
 }
 
+function createBoardWrapper(canvas: HTMLCanvasElement, overlay: HTMLDivElement): HTMLDivElement {
+  const wrapper = document.createElement("div");
+  wrapper.className = "board-wrapper";
+  wrapper.appendChild(canvas);
+  wrapper.appendChild(overlay);
+  return wrapper;
+}
+
 function drawBoard(context: CanvasRenderingContext2D, image: HTMLImageElement) {
   context.clearRect(0, 0, context.canvas.width, context.canvas.height);
   context.drawImage(image, 0, 0, context.canvas.width, context.canvas.height);
@@ -43,8 +52,8 @@ function drawBoard(context: CanvasRenderingContext2D, image: HTMLImageElement) {
 
 function drawGrid(context: CanvasRenderingContext2D, grid: GridConfig) {
   const { cols, rows, hexRadius, originX, originY, lineWidth, strokeStyle, showCoords, coordColor } = grid;
-  const hexHeight = Math.sqrt(3) * hexRadius; // pointy-top height
-  const horizStep = Math.sqrt(3) * hexRadius; // width of a column offset
+  const hexHeight = SQRT3 * hexRadius; // pointy-top height
+  const horizStep = SQRT3 * hexRadius; // width of a column offset
   const vertStep = hexRadius * 1.5; // vertical spacing for pointy-top
 
   context.save();
@@ -110,7 +119,9 @@ async function start() {
   }
 
   const canvas = createCanvas();
-  app.appendChild(canvas);
+  const overlay = createOverlay();
+  const wrapper = createBoardWrapper(canvas, overlay);
+  app.appendChild(wrapper);
   app.appendChild(createCaption());
   applyResponsiveSizing(canvas);
   window.addEventListener("resize", () => applyResponsiveSizing(canvas));
@@ -119,6 +130,8 @@ async function start() {
   if (!context) {
     throw new Error("Canvas rendering context unavailable");
   }
+
+  attachHoverDisplay(canvas, overlay, defaultGrid);
 
   try {
     const image = await loadBoardImage();
@@ -142,11 +155,73 @@ function applyResponsiveSizing(canvas: HTMLCanvasElement) {
   canvas.style.height = `${BOARD_HEIGHT * scale}px`;
 }
 
+function attachHoverDisplay(
+  canvas: HTMLCanvasElement,
+  overlay: HTMLDivElement,
+  grid: GridConfig
+) {
+  canvas.addEventListener("mousemove", (event) => {
+    const { x, y } = toCanvasCoords(event, canvas);
+    const { q, r } = pixelToHex(x, y, grid);
+    overlay.textContent = `q=${q}, r=${r}`;
+  });
+
+  canvas.addEventListener("mouseleave", () => {
+    overlay.textContent = "";
+  });
+}
+
+function toCanvasCoords(event: MouseEvent, canvas: HTMLCanvasElement): { x: number; y: number } {
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = canvas.width / rect.width;
+  const scaleY = canvas.height / rect.height;
+  return {
+    x: (event.clientX - rect.left) * scaleX,
+    y: (event.clientY - rect.top) * scaleY
+  };
+}
+
+function pixelToHex(x: number, y: number, grid: GridConfig): { q: number; r: number } {
+  const px = x - grid.originX;
+  const py = y - grid.originY;
+  const q = (SQRT3 / 3 * px - py / 3) / grid.hexRadius;
+  const r = ((2 / 3) * py) / grid.hexRadius;
+  return axialRound(q, r);
+}
+
+function axialRound(q: number, r: number): { q: number; r: number } {
+  const s = -q - r;
+  let rq = Math.round(q);
+  let rr = Math.round(r);
+  let rs = Math.round(s);
+
+  const qDiff = Math.abs(rq - q);
+  const rDiff = Math.abs(rr - r);
+  const sDiff = Math.abs(rs - s);
+
+  if (qDiff > rDiff && qDiff > sDiff) {
+    rq = -rr - rs;
+  } else if (rDiff > sDiff) {
+    rr = -rq - rs;
+  } else {
+    rs = -rq - rr;
+  }
+
+  return { q: rq, r: rr };
+}
+
 function createCaption(): HTMLDivElement {
   const caption = document.createElement("div");
   caption.className = "caption";
   caption.textContent = "Memoir '44 board ready";
   return caption;
+}
+
+function createOverlay(): HTMLDivElement {
+  const overlay = document.createElement("div");
+  overlay.className = "hover-overlay";
+  overlay.textContent = "";
+  return overlay;
 }
 
 start();
