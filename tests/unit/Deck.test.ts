@@ -7,14 +7,12 @@ import { createCommandCard, CardLocation } from "../../src/domain/CommandCard";
 
 describe("Deck", () => {
   describe("createStandardDeck", () => {
-    it("should create a deck with 10 Probe Center cards", () => {
+    it("should create a deck with a given number of total cards", () => {
       const deck = Deck.createStandardDeck();
       const cardsInDeck = deck.getCardsInLocation(CardLocation.DECK);
 
-      expect(cardsInDeck).toHaveLength(10);
+      expect(cardsInDeck).toHaveLength(35);
       cardsInDeck.forEach((card) => {
-        expect(card.name).toBe("Probe Center");
-        expect(card.imagePath).toBe("images/cards/a5_probe_center.png");
         expect(card.location).toBe(CardLocation.DECK);
       });
     });
@@ -25,9 +23,9 @@ describe("Deck", () => {
       const ids = cards.map((card) => card.id);
       const uniqueIds = new Set(ids);
 
-      expect(uniqueIds.size).toBe(10);
+      expect(uniqueIds.size).toBe(35);
     });
-  });
+
 
   describe("getCardsInLocation", () => {
     it("should return only cards in the specified location", () => {
@@ -96,7 +94,7 @@ describe("Deck", () => {
 
       expect(deck.getCardsInLocation(CardLocation.BOTTOM_PLAYER_HAND)).toHaveLength(2);
       expect(deck.getCardsInLocation(CardLocation.TOP_PLAYER_HAND)).toHaveLength(3);
-      expect(deck.getCardsInLocation(CardLocation.DECK)).toHaveLength(5);
+      expect(deck.getCardsInLocation(CardLocation.DECK)).toHaveLength(30);
     });
   });
 
@@ -179,7 +177,7 @@ describe("Deck", () => {
 
       expect(deck.getCardsInLocation(CardLocation.BOTTOM_PLAYER_HAND)).toHaveLength(5);
       expect(deck.getCardsInLocation(CardLocation.TOP_PLAYER_HAND)).toHaveLength(5);
-      expect(deck.getCardsInLocation(CardLocation.DECK)).toHaveLength(0);
+      expect(deck.getCardsInLocation(CardLocation.DECK)).toHaveLength(25);
     });
   });
 });

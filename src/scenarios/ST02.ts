@@ -18,7 +18,7 @@ export function createST02Scenario(): GameState {
   for (let i = 0; i < 5; i++) {
     deck.drawCard(CardLocation.BOTTOM_PLAYER_HAND);
   }
-  for (let i = 0; i < 5; i++) {
+  for (let i = 0; i < 4; i++) {
     deck.drawCard(CardLocation.TOP_PLAYER_HAND);
   }
 
