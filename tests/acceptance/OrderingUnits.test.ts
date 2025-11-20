@@ -21,7 +21,7 @@ describe("Ordering Units with Command Cards", () => {
 
       // Create deck with this card
       const deck = new Deck([card]);
-      const gameState = new GameState([bottomPlayer, topPlayer], 0, deck);
+      const gameState = new GameState(deck);
 
       // Place units in different sections for bottom player (Allies)
       // Bottom player's left section
@@ -61,16 +61,13 @@ describe("Ordering Units with Command Cards", () => {
     });
 
     it("should order all units in the top player's left section when Assault Left is played", () => {
-      // Setup
-      const bottomPlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
-      const topPlayer = createPlayer(Side.AXIS, Position.TOP);
-
       // Create an Assault Left card
       const card = new AssaultLeft(CardLocation.TOP_PLAYER_HAND);
 
       // Create deck with this card
       const deck = new Deck([card]);
-      const gameState = new GameState([bottomPlayer, topPlayer], 1, deck); // Top player active
+      const gameState = new GameState(deck);
+      gameState.switchActivePlayer(); // Top player active
 
       // Place units in different sections for top player (Axis)
       // Top player's left section is FLIPPED: screen-right
@@ -113,7 +110,7 @@ describe("Ordering Units with Command Cards", () => {
 
       // Create deck with this card
       const deck = new Deck([card]);
-      const gameState = new GameState([bottomPlayer, topPlayer], 0, deck);
+      const gameState = new GameState(deck);
 
       // Place friendly unit in left section
       const friendlyUnit = new Infantry(Side.ALLIES);

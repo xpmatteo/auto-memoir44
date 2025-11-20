@@ -57,7 +57,7 @@ function createGameStateFromURL(): GameState {
   const bottomPlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
   const topPlayer = createPlayer(Side.AXIS, Position.TOP);
   const deck = Deck.createStandardDeck();
-  const gameState = new GameState([bottomPlayer, topPlayer], 0, deck);
+  const gameState = new GameState(deck);
 
   // Load and setup scenario
   let scenario;

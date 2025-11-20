@@ -22,7 +22,7 @@ describe("GameState", () => {
     it("should create a game state with provided parameters", () => {
       const deck = Deck.createStandardDeck();
 
-      const gameState = new GameState(null, 0, deck);
+      const gameState = new GameState(deck);
 
       expect(gameState.activePlayerIndex).toBe(0);
       expect(gameState.deck).toBe(deck);
@@ -34,7 +34,7 @@ describe("GameState", () => {
       const topPlayer = createPlayer(Side.AXIS, Position.TOP);
       const deck = Deck.createStandardDeck();
 
-      const gameState = new GameState([bottomPlayer, topPlayer], 0, deck);
+      const gameState = new GameState(deck);
 
       expect(gameState.getAllUnitsWithPositions()).toHaveLength(0);
     });
@@ -42,10 +42,8 @@ describe("GameState", () => {
 
   describe("setCurrentCard", () => {
     it("should set the current card when none is selected", () => {
-      const bottomPlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
-      const topPlayer = createPlayer(Side.AXIS, Position.TOP);
       const deck = Deck.createStandardDeck();
-      const gameState = new GameState([bottomPlayer, topPlayer], 0, deck);
+      const gameState = new GameState(deck);
 
       // Get a real card from the deck
       const cards = deck.getCardsInLocation(CardLocation.DECK);
@@ -57,10 +55,8 @@ describe("GameState", () => {
     });
 
     it("should throw error when a card is already selected", () => {
-      const bottomPlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
-      const topPlayer = createPlayer(Side.AXIS, Position.TOP);
       const deck = Deck.createStandardDeck();
-      const gameState = new GameState([bottomPlayer, topPlayer], 0, deck);
+      const gameState = new GameState(deck);
 
       // Get real cards from the deck
       const cards = deck.getCardsInLocation(CardLocation.DECK);
@@ -78,7 +74,7 @@ describe("GameState", () => {
       const bottomPlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
       const topPlayer = createPlayer(Side.AXIS, Position.TOP);
       const deck = Deck.createStandardDeck();
-      const gameState = new GameState([bottomPlayer, topPlayer], 0, deck);
+      const gameState = new GameState(deck);
 
       // Get real cards from the deck
       const cards = deck.getCardsInLocation(CardLocation.DECK);
@@ -96,7 +92,7 @@ describe("GameState", () => {
       const bottomPlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
       const topPlayer = createPlayer(Side.AXIS, Position.TOP);
       const deck = Deck.createStandardDeck();
-      const gameState = new GameState([bottomPlayer, topPlayer], 0, deck);
+      const gameState = new GameState(deck);
 
       expect(gameState.getCurrentCard()).toBeNull();
     });
@@ -105,7 +101,7 @@ describe("GameState", () => {
       const bottomPlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
       const topPlayer = createPlayer(Side.AXIS, Position.TOP);
       const deck = Deck.createStandardDeck();
-      const gameState = new GameState([bottomPlayer, topPlayer], 0, deck);
+      const gameState = new GameState(deck);
 
       // Get a real card from the deck
       const cards = deck.getCardsInLocation(CardLocation.DECK);
@@ -122,7 +118,7 @@ describe("GameState", () => {
       const bottomPlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
       const topPlayer = createPlayer(Side.AXIS, Position.TOP);
       const deck = Deck.createStandardDeck();
-      const gameState = new GameState([bottomPlayer, topPlayer], 0, deck);
+      const gameState = new GameState(deck);
 
       // Get a real card from the deck
       const cards = deck.getCardsInLocation(CardLocation.DECK);
@@ -138,7 +134,7 @@ describe("GameState", () => {
       const bottomPlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
       const topPlayer = createPlayer(Side.AXIS, Position.TOP);
       const deck = Deck.createStandardDeck();
-      const gameState = new GameState([bottomPlayer, topPlayer], 0, deck);
+      const gameState = new GameState(deck);
 
       // Get real cards from the deck
       const cards = deck.getCardsInLocation(CardLocation.DECK);
@@ -156,7 +152,7 @@ describe("GameState", () => {
       const bottomPlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
       const topPlayer = createPlayer(Side.AXIS, Position.TOP);
       const deck = Deck.createStandardDeck();
-      const gameState = new GameState([bottomPlayer, topPlayer], 0, deck);
+      const gameState = new GameState(deck);
 
       gameState.clearCurrentCard();
 
@@ -169,7 +165,7 @@ describe("GameState", () => {
       const bottomPlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
       const topPlayer = createPlayer(Side.AXIS, Position.TOP);
       const deck = Deck.createStandardDeck();
-      const gameState = new GameState([bottomPlayer, topPlayer], 0, deck);
+      const gameState = new GameState(deck);
 
       const unit = new Infantry(Side.ALLIES);
       const coord: HexCoord = { q: 5, r: 3 };
@@ -183,7 +179,7 @@ describe("GameState", () => {
       const bottomPlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
       const topPlayer = createPlayer(Side.AXIS, Position.TOP);
       const deck = Deck.createStandardDeck();
-      const gameState = new GameState([bottomPlayer, topPlayer], 0, deck);
+      const gameState = new GameState(deck);
 
       const unit1 = new Infantry(Side.ALLIES);
       const unit2 = new Infantry(Side.AXIS);
@@ -202,7 +198,7 @@ describe("GameState", () => {
       const bottomPlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
       const topPlayer = createPlayer(Side.AXIS, Position.TOP);
       const deck = Deck.createStandardDeck();
-      const gameState = new GameState([bottomPlayer, topPlayer], 0, deck);
+      const gameState = new GameState(deck);
 
       const coord: HexCoord = { q: 5, r: 3 };
 
@@ -213,7 +209,7 @@ describe("GameState", () => {
       const bottomPlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
       const topPlayer = createPlayer(Side.AXIS, Position.TOP);
       const deck = Deck.createStandardDeck();
-      const gameState = new GameState([bottomPlayer, topPlayer], 0, deck);
+      const gameState = new GameState(deck);
 
       const unit = new Infantry(Side.ALLIES);
       const coord: HexCoord = { q: 5, r: 3 };
@@ -227,7 +223,7 @@ describe("GameState", () => {
       const bottomPlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
       const topPlayer = createPlayer(Side.AXIS, Position.TOP);
       const deck = Deck.createStandardDeck();
-      const gameState = new GameState([bottomPlayer, topPlayer], 0, deck);
+      const gameState = new GameState(deck);
 
       const unit1 = new Infantry(Side.ALLIES);
       const unit2 = new Infantry(Side.AXIS);
@@ -247,7 +243,7 @@ describe("GameState", () => {
       const bottomPlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
       const topPlayer = createPlayer(Side.AXIS, Position.TOP);
       const deck = Deck.createStandardDeck();
-      const gameState = new GameState([bottomPlayer, topPlayer], 0, deck);
+      const gameState = new GameState(deck);
 
       const unit = new Infantry(Side.ALLIES);
       const from: HexCoord = { q: 5, r: 3 };
@@ -264,7 +260,7 @@ describe("GameState", () => {
       const bottomPlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
       const topPlayer = createPlayer(Side.AXIS, Position.TOP);
       const deck = Deck.createStandardDeck();
-      const gameState = new GameState([bottomPlayer, topPlayer], 0, deck);
+      const gameState = new GameState(deck);
 
       const from: HexCoord = { q: 5, r: 3 };
       const to: HexCoord = { q: 6, r: 3 };
@@ -278,7 +274,7 @@ describe("GameState", () => {
       const bottomPlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
       const topPlayer = createPlayer(Side.AXIS, Position.TOP);
       const deck = Deck.createStandardDeck();
-      const gameState = new GameState([bottomPlayer, topPlayer], 0, deck);
+      const gameState = new GameState(deck);
 
       const unit1 = new Infantry(Side.ALLIES);
       const unit2 = new Infantry(Side.AXIS);
@@ -299,7 +295,7 @@ describe("GameState", () => {
       const bottomPlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
       const topPlayer = createPlayer(Side.AXIS, Position.TOP);
       const deck = Deck.createStandardDeck();
-      const gameState = new GameState([bottomPlayer, topPlayer], 0, deck);
+      const gameState = new GameState(deck);
 
       const unit = new Infantry(Side.ALLIES);
       const coord: HexCoord = { q: 5, r: 3 };
@@ -314,7 +310,7 @@ describe("GameState", () => {
       const bottomPlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
       const topPlayer = createPlayer(Side.AXIS, Position.TOP);
       const deck = Deck.createStandardDeck();
-      const gameState = new GameState([bottomPlayer, topPlayer], 0, deck);
+      const gameState = new GameState(deck);
 
       const coord: HexCoord = { q: 5, r: 3 };
 
@@ -329,7 +325,7 @@ describe("GameState", () => {
       const bottomPlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
       const topPlayer = createPlayer(Side.AXIS, Position.TOP);
       const deck = Deck.createStandardDeck();
-      const gameState = new GameState([bottomPlayer, topPlayer], 0, deck);
+      const gameState = new GameState(deck);
 
       expect(gameState.getAllUnitsWithPositions()).toHaveLength(0);
     });
@@ -338,7 +334,7 @@ describe("GameState", () => {
       const bottomPlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
       const topPlayer = createPlayer(Side.AXIS, Position.TOP);
       const deck = Deck.createStandardDeck();
-      const gameState = new GameState([bottomPlayer, topPlayer], 0, deck);
+      const gameState = new GameState(deck);
 
       const unit1 = new Infantry(Side.ALLIES);
       const unit2 = new Infantry(Side.AXIS);
@@ -359,7 +355,7 @@ describe("GameState", () => {
       const bottomPlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
       const topPlayer = createPlayer(Side.AXIS, Position.TOP);
       const deck = Deck.createStandardDeck();
-      const gameState = new GameState([bottomPlayer, topPlayer], 0, deck);
+      const gameState = new GameState(deck);
 
       const unit1 = new Infantry(Side.ALLIES);
       const unit2 = new Infantry(Side.AXIS);
@@ -382,7 +378,7 @@ describe("GameState", () => {
       const bottomPlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
       const topPlayer = createPlayer(Side.AXIS, Position.TOP);
       const deck = Deck.createStandardDeck();
-      const gameState = new GameState([bottomPlayer, topPlayer], 0, deck);
+      const gameState = new GameState(deck);
 
       const moves = gameState.legalMoves();
 
@@ -393,7 +389,7 @@ describe("GameState", () => {
       const bottomPlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
       const topPlayer = createPlayer(Side.AXIS, Position.TOP);
       const deck = Deck.createStandardDeck();
-      const gameState = new GameState([bottomPlayer, topPlayer], 0, deck);
+      const gameState = new GameState(deck);
 
       expect(gameState.legalMoves()).toHaveLength(0);
     });
@@ -404,7 +400,7 @@ describe("GameState", () => {
       const bottomPlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
       const topPlayer = createPlayer(Side.AXIS, Position.TOP);
       const deck = Deck.createStandardDeck();
-      const gameState = new GameState([bottomPlayer, topPlayer], 0, deck);
+      const gameState = new GameState(deck);
 
       const move = { type: "test-move" };
 
@@ -417,7 +413,7 @@ describe("GameState", () => {
       const bottomPlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
       const topPlayer = createPlayer(Side.AXIS, Position.TOP);
       const deck = Deck.createStandardDeck();
-      const gameState = new GameState([bottomPlayer, topPlayer], 0, deck);
+      const gameState = new GameState(deck);
 
       // Get real cards from the deck
       const cards = deck.getCardsInLocation(CardLocation.DECK);
@@ -450,7 +446,7 @@ describe("GameState", () => {
       const bottomPlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
       const topPlayer = createPlayer(Side.AXIS, Position.TOP);
       const deck = Deck.createStandardDeck();
-      const gameState = new GameState([bottomPlayer, topPlayer], 0, deck);
+      const gameState = new GameState(deck);
 
       const unit1 = new Infantry(Side.ALLIES, 4);
       const unit2 = new Infantry(Side.ALLIES, 3);
@@ -483,7 +479,7 @@ describe("GameState", () => {
 
     it("should allow playing the cards in the hand", () => {
       const deck = Deck.createStandardDeck();
-      const gameState = new GameState([bottomPlayer, topPlayer], 0, deck);
+      const gameState = new GameState(deck);
       gameState.deck.drawCard(CardLocation.BOTTOM_PLAYER_HAND);
       gameState.deck.drawCard(CardLocation.BOTTOM_PLAYER_HAND);
       gameState.deck.drawCard(CardLocation.BOTTOM_PLAYER_HAND);
@@ -494,9 +490,10 @@ describe("GameState", () => {
       expect(moves).toEqual([new SelectCard(card1), new SelectCard(card2), new SelectCard(card3)]);
     });
 
-    it("should allow playing the cards in the hand", () => {
+    it("should allow playing the cards in the hand for other player", () => {
       const deck = Deck.createStandardDeck();
-      const gameState = new GameState([bottomPlayer, topPlayer], 1, deck);
+      const gameState = new GameState(deck);
+      gameState.switchActivePlayer();
       gameState.deck.drawCard(CardLocation.TOP_PLAYER_HAND);
       gameState.deck.drawCard(CardLocation.TOP_PLAYER_HAND);
       gameState.deck.drawCard(CardLocation.TOP_PLAYER_HAND);
