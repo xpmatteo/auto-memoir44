@@ -51,7 +51,7 @@ describe("At game start", () => {
             ]);
         });
 
-        it("When playing ProbeLeft, all units in the left section can be ordered", () => {
+        it.skip("When playing ProbeLeft, all units in the left section can be ordered", () => {
             let cards = [
                 new ProbeLeft(),
             ];

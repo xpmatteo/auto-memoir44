@@ -8,6 +8,7 @@ import {Unit, coordToKey, keyToCoord} from "./Unit";
 import type {HexCoord} from "../utils/hex";
 import {CardLocation, CommandCard} from "./CommandCard";
 import {isHexInSection, Section} from "./Section";
+import {Phase, PlayCardPhase} from "./Phase";
 
 export class GameState {
     private readonly players: [Player, Player];
@@ -16,6 +17,7 @@ export class GameState {
     private unitPositions: Map<string, Unit>; // Map from coordinate key to Unit
     private currentCardId: string | null; // Currently selected card ID
     private orderedUnits: Set<Unit>; // Set of units that have been ordered this turn
+    private phases: Array<Phase>;
 
     constructor(
         deck: Deck,
@@ -26,18 +28,26 @@ export class GameState {
         this.unitPositions = new Map<string, Unit>();
         this.currentCardId = null;
         this.orderedUnits = new Set<Unit>();
+        this.phases = new Array<Phase>();
+        this.phases.push(new PlayCardPhase());
     }
 
     get activePlayer(): Player {
         return this.players[this.activePlayerIndex];
     }
 
+    get activePhase(): Phase {
+        if (this.phases.length === 0) {
+            throw Error("Phases stack empty");
+        }
+        return this.phases[this.phases.length-1];
+    }
+
     /**
      * Returns all valid moves for the active player
      */
     legalMoves(): Move[] {
-        let location = (this.activePlayerIndex == 0) ? CardLocation.BOTTOM_PLAYER_HAND : CardLocation.TOP_PLAYER_HAND;
-        return this.deck.getCardsInLocation(location).map(card => new PlayCardMove(card));
+        return this.activePhase.legalMoves(this);
     }
 
     /**
