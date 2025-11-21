@@ -3,3 +3,4 @@ dist
 .idea
 .worktrees
 vite.log
+.DS_Store
