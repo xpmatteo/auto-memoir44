@@ -3,7 +3,7 @@
 
 import {createPlayer, Player, Position, Side} from "./Player";
 import {Deck} from "./Deck";
-import {Move, SelectCard} from "./Move";
+import {Move, PlayCardMove} from "./Move";
 import {Unit, coordToKey, keyToCoord} from "./Unit";
 import type {HexCoord} from "../utils/hex";
 import {CardLocation, CommandCard} from "./CommandCard";
@@ -31,6 +31,23 @@ export class GameState {
     get activePlayer(): Player {
         return this.players[this.activePlayerIndex];
     }
+
+    /**
+     * Returns all valid moves for the active player
+     */
+    legalMoves(): Move[] {
+        let location = (this.activePlayerIndex == 0) ? CardLocation.BOTTOM_PLAYER_HAND : CardLocation.TOP_PLAYER_HAND;
+        return this.deck.getCardsInLocation(location).map(card => new PlayCardMove(card));
+    }
+
+    /**
+     * Applies a move and updates state
+     */
+    executeMove(_move: Move): void {
+        // Placeholder for move execution
+    }
+
+
 
     /**
      * Get the unit at a specific coordinate, or undefined if empty
@@ -169,21 +186,6 @@ export class GameState {
      */
     isUnitOrdered(unit: Unit): boolean {
         return this.orderedUnits.has(unit.id);
-    }
-
-    /**
-     * Returns all valid moves for the active player
-     */
-    legalMoves(): Move[] {
-        let location = (this.activePlayerIndex == 0) ? CardLocation.BOTTOM_PLAYER_HAND : CardLocation.TOP_PLAYER_HAND;
-        return this.deck.getCardsInLocation(location).map(card => new SelectCard(card));
-    }
-
-    /**
-     * Applies a move and updates state
-     */
-    executeMove(_move: Move): void {
-        // Placeholder for move execution
     }
 
     switchActivePlayer() {

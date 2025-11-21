@@ -10,7 +10,7 @@ import type { HexCoord } from "../../src/utils/hex";
 import {
   CardLocation
 } from "../../src/domain/CommandCard";
-import {SelectCard} from "../../src/domain/Move";
+import {PlayCardMove} from "../../src/domain/Move";
 
 describe("GameState", () => {
   describe("setCurrentCard", () => {
@@ -356,7 +356,7 @@ describe("GameState", () => {
 
       let moves = gameState.legalMoves();
 
-      expect(moves).toEqual([new SelectCard(card1), new SelectCard(card2), new SelectCard(card3)]);
+      expect(moves).toEqual([new PlayCardMove(card1), new PlayCardMove(card2), new PlayCardMove(card3)]);
     });
 
     it("should allow playing the cards in the hand for other player", () => {
@@ -368,7 +368,7 @@ describe("GameState", () => {
 
       let moves = gameState.legalMoves();
 
-      expect(moves).toEqual([new SelectCard(card1), new SelectCard(card2), new SelectCard(card3)]);
+      expect(moves).toEqual([new PlayCardMove(card1), new PlayCardMove(card2), new PlayCardMove(card3)]);
     });
 
   });

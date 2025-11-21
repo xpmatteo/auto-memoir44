@@ -6,10 +6,9 @@ import {CommandCard} from "./CommandCard";
 export interface Move {
 }
 
-export class SelectCard implements Move {
+export class PlayCardMove implements Move {
     readonly card: CommandCard
     constructor(card: CommandCard) {
         this.card = card
     }
 }
-
