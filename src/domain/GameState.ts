@@ -123,6 +123,9 @@ export class GameState {
     /**
      * Set the current card. Throws if a card is already selected.
      * Orders units based on the card type and section.
+     *
+     * @internal This method should ONLY be called from CommandCard.onCardPlayed().
+     * UI code must use executeMove(PlayCardMove) instead of calling this directly.
      */
     setCurrentCard(cardId: string): void {
         if (this.currentCardId !== null) {

@@ -3,6 +3,7 @@
 
 import { CommandCard, CardLocation } from "../../domain/CommandCard";
 import { GameState } from "../../domain/GameState";
+import { PlayCardMove } from "../../domain/Move";
 
 export class HandDisplay {
   private container: HTMLDivElement;
@@ -79,10 +80,18 @@ export class HandDisplay {
     // Add click handler
     img.addEventListener("click", () => {
       try {
-        this.gameState.setCurrentCard(card.id);
-        // Trigger re-render callback if set
-        if (this.onCardClick) {
-          this.onCardClick();
+        // Get legal moves and find the PlayCardMove for this card
+        const moves = this.gameState.legalMoves();
+        const playCardMove = moves.find(
+          (m) => m instanceof PlayCardMove && m.card.id === card.id
+        );
+
+        if (playCardMove) {
+          this.gameState.executeMove(playCardMove);
+          // Trigger re-render callback if set
+          if (this.onCardClick) {
+            this.onCardClick();
+          }
         }
       } catch (error) {
         alert((error as Error).message);
