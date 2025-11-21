@@ -21,7 +21,7 @@ export class PlayCardMove implements Move {
     }
 }
 
-export class OrderUnitMove implements Move {
+export class ToggleUnitOrderedMove implements Move {
     readonly unit;
 
     constructor(unit: Unit) {

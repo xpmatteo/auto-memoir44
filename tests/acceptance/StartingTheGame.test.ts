@@ -5,7 +5,7 @@ import {describe, expect, it} from "vitest";
 import {GameState} from "../../src/domain/GameState";
 import {Deck} from "../../src/domain/Deck";
 import {AssaultLeft, CardLocation, ProbeLeft} from "../../src/domain/CommandCard";
-import {OrderUnitMove, PlayCardMove} from "../../src/domain/Move";
+import {ToggleUnitOrderedMove, PlayCardMove} from "../../src/domain/Move";
 import {Position} from "../../src/domain/Player";
 import {Infantry, Unit} from "../../src/domain/Unit";
 
@@ -51,7 +51,7 @@ describe("At game start", () => {
             ]);
         });
 
-        it.skip("When playing ProbeLeft, all units in the left section can be ordered", () => {
+        it("When playing ProbeLeft, all units in the left section can be ordered", () => {
             let cards = [
                 new ProbeLeft(),
             ];
@@ -64,7 +64,7 @@ describe("At game start", () => {
             expect(gameState.getCurrentCard()).toEqual(cards[0]);
             expect(gameState.getOrderedUnits()).toEqual([]);
             expect(gameState.legalMoves()).toEqual([
-                new OrderUnitMove(unitInLeft),
+                new ToggleUnitOrderedMove(unitInLeft),
             ])
         });
     });

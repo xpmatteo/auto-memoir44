@@ -3,7 +3,7 @@
 
 import {createPlayer, Player, Position, Side} from "./Player";
 import {Deck} from "./Deck";
-import {Move, PlayCardMove} from "./Move";
+import {Move} from "./Move";
 import {Unit, coordToKey, keyToCoord} from "./Unit";
 import type {HexCoord} from "../utils/hex";
 import {CardLocation, CommandCard} from "./CommandCard";
@@ -41,6 +41,16 @@ export class GameState {
             throw Error("Phases stack empty");
         }
         return this.phases[this.phases.length-1];
+    }
+
+    /**
+     * Get the current card, or null if none is selected
+     */
+    getCurrentCard(): CommandCard | null {
+        if (this.currentCardId === null) {
+            return null;
+        }
+        return this.deck.getCard(this.currentCardId) ?? null;
     }
 
     /**
@@ -130,6 +140,27 @@ export class GameState {
             }));
     }
 
+    getUnitsInSection(section: Section): Array<Unit> {
+        throw new Error("implement me");
+    }
+
+    getOrderedUnits() {
+        return [...this.orderedUnits.values()];
+    }
+
+    toggleUnitOrdered(unit: Unit) {
+        // Check if this unit exists in the game by searching through all placed units
+        const unitExists = Array.from(this.unitPositions.values()).some(u => u.id === unit.id);
+        if (!unitExists) {
+            throw new Error(`Unknown unit "${unit.id}"`)
+        }
+        if (this.orderedUnits.has(unit)) {
+            this.orderedUnits.delete(unit);
+        } else {
+            this.orderedUnits.add(unit);
+        }
+    }
+
     /**
      * Set the current card. Throws if a card is already selected.
      * Orders units based on the card type and section.
@@ -170,16 +201,6 @@ export class GameState {
     }
 
     /**
-     * Get the current card, or null if none is selected
-     */
-    getCurrentCard(): CommandCard | null {
-        if (this.currentCardId === null) {
-            return null;
-        }
-        return this.deck.getCard(this.currentCardId) ?? null;
-    }
-
-    /**
      * Check if a unit has been ordered this turn
      */
     isUnitOrdered(unit: Unit): boolean {
@@ -200,20 +221,4 @@ export class GameState {
         return this.deck.getCardsInLocation(location);
     }
 
-    getOrderedUnits() {
-        return [...this.orderedUnits.values()];
-    }
-
-    toggleUnitOrdered(unit: Unit) {
-        // Check if this unit exists in the game by searching through all placed units
-        const unitExists = Array.from(this.unitPositions.values()).some(u => u.id === unit.id);
-        if (!unitExists) {
-            throw new Error(`Unknown unit "${unit.id}"`)
-        }
-        if (this.orderedUnits.has(unit)) {
-            this.orderedUnits.delete(unit);
-        } else {
-            this.orderedUnits.add(unit);
-        }
-    }
 }
