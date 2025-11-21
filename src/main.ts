@@ -15,6 +15,7 @@ import { HandDisplay } from "./ui/components/HandDisplay.js";
 import { CurrentCardDisplay } from "./ui/components/CurrentCardDisplay.js";
 import { GameState } from "./domain/GameState.js";
 import { Deck } from "./domain/Deck.js";
+import { ToggleUnitOrderedMove } from "./domain/Move.js";
 
 const BOARD_IMAGE_PATH = "/images/boards/memoir-desert-map.jpg";
 const BOARD_WIDTH = 2007;
@@ -186,6 +187,25 @@ function attachHoverDisplay(
 
   canvas.addEventListener("mouseleave", () => {
     updateOverlay();
+  });
+
+  canvas.addEventListener("click", (event) => {
+    const { x, y } = toCanvasCoords(event, canvas);
+    const { q, r } = pixelToHex(x, y, grid);
+    const unit = gameState.getUnitAt({ q, r });
+
+    if (unit) {
+      // Find matching ToggleUnitOrderedMove in legal moves
+      const moves = gameState.legalMoves();
+      const toggleMove = moves.find(
+        (m) => m instanceof ToggleUnitOrderedMove && m.unit.id === unit.id
+      );
+
+      if (toggleMove) {
+        gameState.executeMove(toggleMove);
+        renderAll();
+      }
+    }
   });
 }
 

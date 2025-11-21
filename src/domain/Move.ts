@@ -28,7 +28,8 @@ export class ToggleUnitOrderedMove implements Move {
         this.unit = unit;
     }
 
-    execute(_gameState: GameState): void {
+    execute(gameState: GameState): void {
+        gameState.toggleUnitOrdered(this.unit);
     }
 }
 
