@@ -32,8 +32,6 @@ All game logic flows through the `GameState` object:
 ### Canvas Rendering
 
 - Full canvas redraw on every state change
-- Canvas dimensions: 2007×1417 (matches board image)
-- Current implementation in `src/main.ts` shows hex grid overlay on board image
 - Non-canvas UI elements are allowed when needed (hand display, controls, etc.)
 
 ### Coordinate System
@@ -128,9 +126,10 @@ memoir/
 ## Key Architectural Constraints
 
 - Scenarios are selected via query parameter: `?scenario=ST02`
-- Optional `seed` query parameter for reproducible RNG (dice rolls and AI decisions)
-- Game state auto-saves to browser storage after each change
+- Optional `seed` query parameter for reproducible RNG (dice rolls and deck shuffling)
 - Auto-resume on page load with full turn context
+
+## Notes
 - Important: never restart the vite server.  It is always running and it hot-reloads changes
 - Always use named constants for enumerations
 - Check out the vite server log in `vite.log`
