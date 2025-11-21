@@ -4,9 +4,9 @@
 import {describe, expect, it} from "vitest";
 import {GameState} from "../../src/domain/GameState";
 import {Deck} from "../../src/domain/Deck";
-import {AssaultLeft, CardLocation} from "../../src/domain/CommandCard";
-import {PlayCardMove} from "../../src/domain/Move";
-import {Position, Side} from "../../src/domain/Player";
+import {AssaultLeft, CardLocation, ProbeLeft} from "../../src/domain/CommandCard";
+import {OrderUnitMove, PlayCardMove} from "../../src/domain/Move";
+import {Position} from "../../src/domain/Player";
 import {Infantry, Unit} from "../../src/domain/Unit";
 
 describe("At game start", () => {
@@ -32,8 +32,8 @@ describe("At game start", () => {
         });
     });
 
-    describe("Activating one card", () => {
-        it("When selecting AssaultLeft, all units in the left section are ordered", () => {
+    describe("Playing one card", () => {
+        it("When playing AssaultLeft, all units in the left section are ordered", () => {
             let cards = [
                 new AssaultLeft(),
             ];
@@ -50,8 +50,32 @@ describe("At game start", () => {
                 unitInLeft,
             ]);
         });
+
+        it("When playing ProbeLeft, all units in the left section can be ordered", () => {
+            let cards = [
+                new ProbeLeft(),
+            ];
+            const gameState = setupGameWith(cards);
+            const unitInLeft = placeUnitInLeftSection(gameState);
+            placeUnitInCenterSection(gameState);
+
+            gameState.executeMove(new PlayCardMove(cards[0]));
+
+            expect(gameState.getCurrentCard()).toEqual(cards[0]);
+            expect(gameState.getOrderedUnits()).toEqual([]);
+            expect(gameState.legalMoves()).toEqual([
+                new OrderUnitMove(unitInLeft),
+            ])
+        });
     });
 });
+
+function setupGameWith(cards: ProbeLeft[]) {
+    const deck = new Deck(cards);
+    const gameState = new GameState(deck);
+    gameState.drawCards(cards.length, CardLocation.BOTTOM_PLAYER_HAND);
+    return gameState;
+}
 
 function placeUnitInCenterSection(gameState: GameState): Unit {
     let unit = new Infantry(gameState.activePlayer.side);
