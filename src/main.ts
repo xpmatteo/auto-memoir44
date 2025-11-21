@@ -150,7 +150,7 @@ async function start() {
   applyResponsiveSizing(canvas);
   window.addEventListener("resize", () => applyResponsiveSizing(canvas));
 
-  attachHoverDisplay(canvas, overlay, defaultGrid);
+  attachHoverDisplay(canvas, overlay, defaultGrid, gameState);
 }
 
 function applyResponsiveSizing(canvas: HTMLCanvasElement) {
@@ -167,16 +167,25 @@ function applyResponsiveSizing(canvas: HTMLCanvasElement) {
 function attachHoverDisplay(
   canvas: HTMLCanvasElement,
   overlay: HTMLDivElement,
-  grid: GridConfig
+  grid: GridConfig,
+  gameState: GameState
 ) {
+  const updateOverlay = (coords?: string) => {
+    const phaseName = gameState.activePhase.name;
+    overlay.textContent = coords ? `Phase: ${phaseName} | ${coords}` : `Phase: ${phaseName}`;
+  };
+
+  // Show phase name initially
+  updateOverlay();
+
   canvas.addEventListener("mousemove", (event) => {
     const { x, y } = toCanvasCoords(event, canvas);
     const { q, r } = pixelToHex(x, y, grid);
-    overlay.textContent = `q=${q}, r=${r}`;
+    updateOverlay(`q=${q}, r=${r}`);
   });
 
   canvas.addEventListener("mouseleave", () => {
-    overlay.textContent = "";
+    updateOverlay();
   });
 }
 
