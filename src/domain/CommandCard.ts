@@ -3,6 +3,7 @@
 
 import {GameState} from "./GameState";
 import {Section} from "./Section";
+import {OrderUnitsPhase} from "./Phase";
 
 export const CardLocation = {
     DECK: "Deck",
@@ -85,6 +86,11 @@ export class ProbeCenter extends CommandCard {
 export class ProbeLeft extends CommandCard {
     readonly name = "Probe Left";
     readonly imagePath = "images/cards/a4_probe_left.png";
+    onCardPlayed(gameState: GameState): void {
+        super.onCardPlayed(gameState);
+        gameState.popPhase();
+        gameState.pushPhase(new OrderUnitsPhase(Section.LEFT));
+    }
 }
 
 export class ProbeRight extends CommandCard {

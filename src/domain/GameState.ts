@@ -40,7 +40,7 @@ export class GameState {
         if (this.phases.length === 0) {
             throw Error("Phases stack empty");
         }
-        return this.phases[this.phases.length-1];
+        return this.phases[this.phases.length - 1];
     }
 
     /**
@@ -66,8 +66,6 @@ export class GameState {
     executeMove(move: Move): void {
         move.execute(this);
     }
-
-
 
     /**
      * Get the unit at a specific coordinate, or undefined if empty
@@ -141,7 +139,10 @@ export class GameState {
     }
 
     getUnitsInSection(section: Section): Array<Unit> {
-        throw new Error("implement me");
+        return this.getAllUnitsWithPositions()
+            .filter(({coord}) =>
+                isHexInSection(coord, section, this.activePlayer.position))
+            .map(({unit}) => unit);
     }
 
     getOrderedUnits() {
@@ -221,4 +222,11 @@ export class GameState {
         return this.deck.getCardsInLocation(location);
     }
 
+    popPhase() {
+        this.phases.pop();
+    }
+
+    pushPhase(phase: Phase) {
+        this.phases.push(phase);
+    }
 }

@@ -6,10 +6,12 @@ import {Section} from "./Section";
 import {Unit} from "./Unit";
 
 export interface Phase {
+    readonly name: string;
     legalMoves(gameState: GameState): Array<Move>;
 }
 
 export class PlayCardPhase implements Phase {
+    name: string = "Play Card";
     legalMoves(gameState: GameState): Array<Move> {
         let location = (gameState.activePlayer.position === Position.BOTTOM) ?
             CardLocation.BOTTOM_PLAYER_HAND : CardLocation.TOP_PLAYER_HAND;
@@ -22,6 +24,7 @@ interface UnitsOrderer {
 }
 
 export class OrderUnitsPhase implements Phase {
+    name: string = "Order Units";
     private readonly section;
 
     constructor(section: Section) {
