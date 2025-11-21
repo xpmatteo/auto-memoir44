@@ -1,5 +1,4 @@
 // ABOUTME: Move types and definitions for game actions
-// ABOUTME: Placeholder for future move implementations
 
 import {CommandCard} from "./CommandCard";
 import {GameState} from "./GameState";

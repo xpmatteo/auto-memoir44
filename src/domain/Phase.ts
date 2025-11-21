@@ -37,6 +37,7 @@ export class OrderUnitsPhase implements Phase {
 
     doLegalMoves(unitsOrderer: UnitsOrderer) {
         return unitsOrderer.getUnitsInSection(this.section)
+
             .map(unit => new ToggleUnitOrderedMove(unit));
     }
 }

@@ -11,7 +11,7 @@ describe("Phases", () => {
     describe("OrderUnitPhase", () => {
         const unit1 = new Infantry(Side.ALLIES);
         const unit2 = new Infantry(Side.ALLIES);
-        const unit3 = new Infantry(Side.ALLIES);
+        const unit3 = new Infantry(Side.AXIS);
 
         test("All units are not ordered", () => {
             const unitOrderer = {
@@ -22,7 +22,7 @@ describe("Phases", () => {
                     return [unit1, unit2, unit3];
                 },
             };
-            const phase = new OrderUnitsPhase(Section.LEFT, 2);
+            const phase = new OrderUnitsPhase(Section.LEFT);
 
             let actual = phase.doLegalMoves(unitOrderer);
 
