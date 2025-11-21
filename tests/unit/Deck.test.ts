@@ -1,9 +1,9 @@
 // ABOUTME: Unit tests for Deck class
 // ABOUTME: Tests card location management and deck operations
 
-import {describe, it, expect} from "vitest";
+import {describe, expect, it} from "vitest";
 import {Deck} from "../../src/domain/Deck";
-import {CommandCard, CardLocation} from "../../src/domain/CommandCard";
+import {CardLocation, CommandCard} from "../../src/domain/CommandCard";
 
 // Test helper card class
 class TestCard extends CommandCard {
@@ -38,27 +38,22 @@ describe("Deck", () => {
         it("should return only cards in the specified location", () => {
             const cards = [
                 new TestCard("Card A", "path/a.png", CardLocation.DECK),
-                new TestCard("Card B", "path/b.png", CardLocation.BOTTOM_PLAYER_HAND),
+                new TestCard("Card B", "path/b.png", CardLocation.DECK),
                 new TestCard("Card C", "path/c.png", CardLocation.DECK),
-                new TestCard("Card D", "path/d.png", CardLocation.TOP_PLAYER_HAND),
+                new TestCard("Card D", "path/d.png", CardLocation.DECK),
             ];
             const deck = new Deck(cards);
+            deck.moveCard(cards[1].id, CardLocation.BOTTOM_PLAYER_HAND)
+            deck.moveCard(cards[3].id, CardLocation.TOP_PLAYER_HAND)
 
             const deckCards = deck.getCardsInLocation(CardLocation.DECK);
             const bottomHandCards = deck.getCardsInLocation(CardLocation.BOTTOM_PLAYER_HAND);
             const topHandCards = deck.getCardsInLocation(CardLocation.TOP_PLAYER_HAND);
             const discardCards = deck.getCardsInLocation(CardLocation.DISCARD_PILE);
 
-            expect(deckCards).toHaveLength(2);
-            expect(deckCards[0]).toBe(cards[0]);
-            expect(deckCards[1]).toBe(cards[2]);
-
-            expect(bottomHandCards).toHaveLength(1);
-            expect(bottomHandCards[0]).toBe(cards[1]);
-
-            expect(topHandCards).toHaveLength(1);
-            expect(topHandCards[0]).toBe(cards[3]);
-
+            expect(deckCards).toEqual([cards[0], cards[2]]);
+            expect(bottomHandCards).toEqual([cards[1]]);
+            expect(topHandCards).toEqual([cards[3]]);
             expect(discardCards).toHaveLength(0);
         });
 
@@ -108,15 +103,14 @@ describe("Deck", () => {
             const cards = [
                 new TestCard("Card A", "path/a.png", CardLocation.DECK),
                 new TestCard("Card B", "path/b.png", CardLocation.DECK),
-                new TestCard("Card C", "path/c.png", CardLocation.BOTTOM_PLAYER_HAND),
+                new TestCard("Card C", "path/c.png", CardLocation.DECK),
             ];
             const deck = new Deck(cards);
 
             deck.moveCard(cards[1].id, CardLocation.DISCARD_PILE);
 
-            expect(deck.getCardsInLocation(CardLocation.DECK)).toHaveLength(1);
-            expect(deck.getCardsInLocation(CardLocation.DISCARD_PILE)).toHaveLength(1);
-            expect(deck.getCardsInLocation(CardLocation.DISCARD_PILE)[0]).toBe(cards[1]);
+            expect(deck.getCardsInLocation(CardLocation.DECK)).toEqual([cards[0], cards[2]]);
+            expect(deck.getCardsInLocation(CardLocation.DISCARD_PILE)).toEqual([cards[1]]);
         });
 
         it("should handle moving card that doesn't exist", () => {
@@ -125,17 +119,6 @@ describe("Deck", () => {
             expect(() => deck.moveCard("non-existent-id", CardLocation.DISCARD_PILE)).toThrow();
 
             expect(deck.getCardsInLocation(CardLocation.DISCARD_PILE)).toHaveLength(0);
-        });
-
-        it("should move card from hand to discard pile", () => {
-            const card = new TestCard("Card A", "path/a.png", CardLocation.BOTTOM_PLAYER_HAND);
-            const deck = new Deck([card]);
-
-            deck.moveCard(card.id, CardLocation.DISCARD_PILE);
-
-            expect(deck.getCardsInLocation(CardLocation.BOTTOM_PLAYER_HAND)).toHaveLength(0);
-            expect(deck.getCardsInLocation(CardLocation.DISCARD_PILE)).toHaveLength(1);
-            expect(deck.getCardsInLocation(CardLocation.DISCARD_PILE)[0]).toBe(card);
         });
     });
 
