@@ -1,6 +1,9 @@
 // ABOUTME: Command card model with location tracking for deck management
 // ABOUTME: Cards can be in Deck, DiscardPile, or either player's hand
 
+import {GameState} from "./GameState";
+import {Section} from "./Section";
+
 export const CardLocation = {
     DECK: "Deck",
     DISCARD_PILE: "DiscardPile",
@@ -23,22 +26,38 @@ export abstract class CommandCard {
     constructor() {
         this.id = `card-${nextCardId++}`;
     }
+
+    onCardPlayed(gameState: GameState): void {
+        gameState.setCurrentCard(this.id);
+    }
 }
 
 // Assault cards
 export class AssaultCenter extends CommandCard {
     readonly name = "Assault Center";
     readonly imagePath = "images/cards/a2_assault_center.png";
+    onCardPlayed(gameState: GameState): void {
+        super.onCardPlayed(gameState);
+        gameState.orderAllFriendlyUnitsInSection(Section.CENTER);
+    }
 }
 
 export class AssaultLeft extends CommandCard {
     readonly name = "Assault Left";
     readonly imagePath = "images/cards/a2_assault_left.png";
+    onCardPlayed(gameState: GameState): void {
+        super.onCardPlayed(gameState);
+        gameState.orderAllFriendlyUnitsInSection(Section.LEFT);
+    }
 }
 
 export class AssaultRight extends CommandCard {
     readonly name = "Assault Right";
     readonly imagePath = "images/cards/a2_assault_right.png";
+    onCardPlayed(gameState: GameState): void {
+        super.onCardPlayed(gameState);
+        gameState.orderAllFriendlyUnitsInSection(Section.RIGHT);
+    }
 }
 
 // Attack cards

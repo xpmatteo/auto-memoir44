@@ -37,21 +37,13 @@ describe("Ordering Units with Command Cards", () => {
             gameState.placeUnit({q: 7, r: 7}, rightUnit);
 
             // Initially, no units should be ordered
-            expect(gameState.isUnitOrdered(leftUnit1)).toBe(false);
-            expect(gameState.isUnitOrdered(leftUnit2)).toBe(false);
-            expect(gameState.isUnitOrdered(straddlingUnit)).toBe(false);
-            expect(gameState.isUnitOrdered(centerUnit)).toBe(false);
-            expect(gameState.isUnitOrdered(rightUnit)).toBe(false);
+            expect(gameState.getOrderedUnits()).toEqual([]);
 
             // Act: Play the Assault Left card (set it as current card)
-            gameState.setCurrentCard(card.id);
+            card.onCardPlayed(gameState);
 
             // Assert: Only left section units should be ordered
-            expect(gameState.isUnitOrdered(leftUnit1)).toBe(true);
-            expect(gameState.isUnitOrdered(leftUnit2)).toBe(true);
-            expect(gameState.isUnitOrdered(straddlingUnit)).toBe(true);
-            expect(gameState.isUnitOrdered(centerUnit)).toBe(false);
-            expect(gameState.isUnitOrdered(rightUnit)).toBe(false);
+            expect(gameState.getOrderedUnits()).toEqual([leftUnit1, leftUnit2, straddlingUnit]);
         });
 
         it("should order all units in the top player's left section when Assault Left is played", () => {
@@ -80,7 +72,7 @@ describe("Ordering Units with Command Cards", () => {
             expect(gameState.getOrderedUnits()).toEqual([]);
 
             // Act: Play the Assault Left card
-            gameState.setCurrentCard(card.id);
+            card.onCardPlayed(gameState);
 
             // Assert: Only left section units (q: 9-12 for top player) should be ordered
             expect(gameState.getOrderedUnits()).toEqual([leftUnit1, leftUnit2]);
@@ -100,7 +92,7 @@ describe("Ordering Units with Command Cards", () => {
             const enemyUnit = new Infantry(Side.AXIS);
             gameState.placeUnit({q: 1, r: 1}, enemyUnit);
 
-            gameState.setCurrentCard(card.id);
+            card.onCardPlayed(gameState);
 
             // Only friendly unit should be ordered
             expect(gameState.isUnitOrdered(friendlyUnit)).toBe(true);

@@ -43,8 +43,8 @@ export class GameState {
     /**
      * Applies a move and updates state
      */
-    executeMove(_move: Move): void {
-        // Placeholder for move execution
+    executeMove(move: Move): void {
+        move.execute(this);
     }
 
 
@@ -137,24 +137,9 @@ export class GameState {
         if (!card) {
             throw new Error(`Card ${cardId} not found in deck`);
         }
-
-        // Determine which section to order based on card name
-        let targetSection: Section | null = null;
-        if (card.name.includes("Left")) {
-            targetSection = Section.LEFT;
-        } else if (card.name.includes("Center")) {
-            targetSection = Section.CENTER;
-        } else if (card.name.includes("Right")) {
-            targetSection = Section.RIGHT;
-        }
-
-        // If this is a section card, order units in that section
-        if (targetSection !== null) {
-            this.orderAllFriendlyUnitsInSection(targetSection);
-        }
     }
 
-    private orderAllFriendlyUnitsInSection(section: Section): void {
+    orderAllFriendlyUnitsInSection(section: Section): void {
         const activePlayer = this.activePlayer;
         const allUnitsWithPositions = this.getAllUnitsWithPositions();
 

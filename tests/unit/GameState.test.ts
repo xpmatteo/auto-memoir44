@@ -285,17 +285,6 @@ describe("GameState", () => {
     });
   });
 
-  describe("executeMove", () => {
-    it("should accept a move object without error", () => {
-      const deck = Deck.createStandardDeck();
-      const gameState = new GameState(deck);
-
-      const move = { type: "test-move" };
-
-      expect(() => gameState.executeMove(move)).not.toThrow();
-    });
-  });
-
   describe("integration: current card workflow", () => {
     it("should support full card selection lifecycle", () => {
       const deck = Deck.createStandardDeck();
