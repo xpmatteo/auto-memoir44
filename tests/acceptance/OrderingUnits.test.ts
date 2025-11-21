@@ -77,19 +77,13 @@ describe("Ordering Units with Command Cards", () => {
             gameState.placeUnit({q: 2, r: 1}, rightUnit);
 
             // Initially, no units should be ordered
-            expect(gameState.isUnitOrdered(leftUnit1)).toBe(false);
-            expect(gameState.isUnitOrdered(leftUnit2)).toBe(false);
-            expect(gameState.isUnitOrdered(centerUnit)).toBe(false);
-            expect(gameState.isUnitOrdered(rightUnit)).toBe(false);
+            expect(gameState.getOrderedUnits()).toEqual([]);
 
             // Act: Play the Assault Left card
             gameState.setCurrentCard(card.id);
 
             // Assert: Only left section units (q: 9-12 for top player) should be ordered
-            expect(gameState.isUnitOrdered(leftUnit1)).toBe(true);
-            expect(gameState.isUnitOrdered(leftUnit2)).toBe(true);
-            expect(gameState.isUnitOrdered(centerUnit)).toBe(false);
-            expect(gameState.isUnitOrdered(rightUnit)).toBe(false);
+            expect(gameState.getOrderedUnits()).toEqual([leftUnit1, leftUnit2]);
         });
 
         it("should not order enemy units when Assault Left is played", () => {

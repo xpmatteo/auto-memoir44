@@ -15,7 +15,7 @@ export class GameState {
     private readonly deck: Deck;
     private unitPositions: Map<string, Unit>; // Map from coordinate key to Unit
     private currentCardId: string | null; // Currently selected card ID
-    private orderedUnits: Set<string>; // Set of unit IDs that have been ordered this turn
+    private orderedUnits: Set<Unit>; // Set of units that have been ordered this turn
 
     constructor(
         deck: Deck,
@@ -25,7 +25,7 @@ export class GameState {
         this.activePlayerIndex = 0;
         this.unitPositions = new Map<string, Unit>();
         this.currentCardId = null;
-        this.orderedUnits = new Set<string>();
+        this.orderedUnits = new Set<Unit>();
     }
 
     get activePlayer(): Player {
@@ -113,7 +113,7 @@ export class GameState {
      */
     getOrderedUnitsWithPositions(): Array<{ coord: HexCoord; unit: Unit }> {
         return Array.from(this.unitPositions.entries())
-            .filter(([_key, unit]) => this.orderedUnits.has(unit.id))
+            .filter(([_, unit]) => this.orderedUnits.has(unit))
             .map(([key, unit]) => ({
                 coord: keyToCoord(key),
                 unit,
@@ -166,7 +166,7 @@ export class GameState {
 
             // Check if unit is in the target section
             if (isHexInSection(coord, section, activePlayer.position)) {
-                this.orderedUnits.add(unit.id);
+                this.orderedUnits.add(unit);
             }
         }
     }
@@ -185,7 +185,7 @@ export class GameState {
      * Check if a unit has been ordered this turn
      */
     isUnitOrdered(unit: Unit): boolean {
-        return this.orderedUnits.has(unit.id);
+        return this.orderedUnits.has(unit);
     }
 
     switchActivePlayer() {
@@ -200,5 +200,22 @@ export class GameState {
 
     getCardsInLocation(location: CardLocation) {
         return this.deck.getCardsInLocation(location);
+    }
+
+    getOrderedUnits() {
+        return [...this.orderedUnits.values()];
+    }
+
+    toggleUnitOrdered(unit: Unit) {
+        // Check if this unit exists in the game by searching through all placed units
+        const unitExists = Array.from(this.unitPositions.values()).some(u => u.id === unit.id);
+        if (!unitExists) {
+            throw new Error(`Unknown unit "${unit.id}"`)
+        }
+        if (this.orderedUnits.has(unit)) {
+            this.orderedUnits.delete(unit);
+        } else {
+            this.orderedUnits.add(unit);
+        }
     }
 }
