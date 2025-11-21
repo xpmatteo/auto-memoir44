@@ -12,9 +12,9 @@ import {Position} from "../../src/domain/Player";
 describe("At game start", () => {
     describe("Legal moves for each card played", () => {
         it("Cards available for bottom player", () => {
-            const card1 = new AssaultLeft(CardLocation.DECK);
-            const card2 = new AssaultLeft(CardLocation.DECK);
-            const card3 = new AssaultLeft(CardLocation.DECK);
+            const card1 = new AssaultLeft();
+            const card2 = new AssaultLeft();
+            const card3 = new AssaultLeft();
             const deck = new Deck([card1, card2, card3]);
             const gameState = new GameState(deck);
             gameState.drawCards(3, CardLocation.BOTTOM_PLAYER_HAND);

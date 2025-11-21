@@ -7,8 +7,8 @@ import {CardLocation, CommandCard} from "../../src/domain/CommandCard";
 
 // Test helper card class
 class TestCard extends CommandCard {
-    constructor(public readonly name: string, public readonly imagePath: string, location: CardLocation = CardLocation.DECK) {
-        super(location);
+    constructor(public readonly name: string, public readonly imagePath: string) {
+        super();
     }
 }
 
@@ -19,9 +19,6 @@ describe("Deck", () => {
             const cardsInDeck = deck.getCardsInLocation(CardLocation.DECK);
 
             expect(cardsInDeck).toHaveLength(35);
-            cardsInDeck.forEach((card) => {
-                expect(card.location).toBe(CardLocation.DECK);
-            });
         });
 
         it("should give each card a unique ID", () => {
@@ -37,10 +34,10 @@ describe("Deck", () => {
     describe("getCardsInLocation", () => {
         it("should return only cards in the specified location", () => {
             const cards = [
-                new TestCard("Card A", "path/a.png", CardLocation.DECK),
-                new TestCard("Card B", "path/b.png", CardLocation.DECK),
-                new TestCard("Card C", "path/c.png", CardLocation.DECK),
-                new TestCard("Card D", "path/d.png", CardLocation.DECK),
+                new TestCard("Card A", "path/a.png"),
+                new TestCard("Card B", "path/b.png"),
+                new TestCard("Card C", "path/c.png"),
+                new TestCard("Card D", "path/d.png"),
             ];
             const deck = new Deck(cards);
             deck.moveCard(cards[1].id, CardLocation.BOTTOM_PLAYER_HAND)
@@ -72,10 +69,8 @@ describe("Deck", () => {
 
             const drawnCard = deck.drawCard(CardLocation.BOTTOM_PLAYER_HAND);
 
-            expect(drawnCard).not.toBeNull();
-            expect(drawnCard!.location).toBe(CardLocation.BOTTOM_PLAYER_HAND);
             expect(deck.getCardsInLocation(CardLocation.DECK)).toHaveLength(initialDeckSize - 1);
-            expect(deck.getCardsInLocation(CardLocation.BOTTOM_PLAYER_HAND)).toHaveLength(1);
+            expect(deck.getCardsInLocation(CardLocation.BOTTOM_PLAYER_HAND)).toEqual([drawnCard]);
         });
 
         it("should return null when deck is empty", () => {
@@ -101,9 +96,9 @@ describe("Deck", () => {
     describe("moveCard", () => {
         it("should move a specific card to new location", () => {
             const cards = [
-                new TestCard("Card A", "path/a.png", CardLocation.DECK),
-                new TestCard("Card B", "path/b.png", CardLocation.DECK),
-                new TestCard("Card C", "path/c.png", CardLocation.DECK),
+                new TestCard("Card A", "path/a.png"),
+                new TestCard("Card B", "path/b.png"),
+                new TestCard("Card C", "path/c.png"),
             ];
             const deck = new Deck(cards);
 
@@ -125,8 +120,8 @@ describe("Deck", () => {
     describe("getCard", () => {
         it("should return card with matching ID", () => {
             const cards = [
-                new TestCard("Card A", "path/a.png", CardLocation.DECK),
-                new TestCard("Card B", "path/b.png", CardLocation.DECK),
+                new TestCard("Card A", "path/a.png"),
+                new TestCard("Card B", "path/b.png"),
             ];
             const deck = new Deck(cards);
 

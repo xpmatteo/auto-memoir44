@@ -26,7 +26,7 @@ export class Deck {
         this.cardLocations = new Map<CommandCard, CardLocation>();
         this.cardIds = new Map<string, CommandCard>();
         cards.forEach(card => {
-            this.cardLocations.set(card, card.location)
+            this.cardLocations.set(card, CardLocation.DECK)
             this.cardIds.set(card.id, card)
         });
     }
@@ -70,7 +70,6 @@ export class Deck {
         if (!card) {
             throw new Error(`No card with id ${cardId}`);
         }
-        card.location = toLocation;
         this.cardLocations.set(card, toLocation);
     }
 

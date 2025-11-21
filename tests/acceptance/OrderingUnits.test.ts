@@ -12,7 +12,7 @@ import {CardLocation} from "../../src/domain/CommandCard";
 describe("Ordering Units with Command Cards", () => {
     describe("Assault Left card", () => {
         it("should order all units in the bottom player's left section when Assault Left is played", () => {
-            const card = new AssaultLeft(CardLocation.DECK);
+            const card = new AssaultLeft();
             const deck = new Deck([card]);
             const gameState = new GameState(deck);
             gameState.drawCards(1, CardLocation.BOTTOM_PLAYER_HAND);
@@ -55,7 +55,7 @@ describe("Ordering Units with Command Cards", () => {
         });
 
         it("should order all units in the top player's left section when Assault Left is played", () => {
-            const card = new AssaultLeft(CardLocation.DECK);
+            const card = new AssaultLeft();
             const deck = new Deck([card]);
             const gameState = new GameState(deck);
             gameState.drawCards(1, CardLocation.TOP_PLAYER_HAND);
@@ -93,7 +93,7 @@ describe("Ordering Units with Command Cards", () => {
         });
 
         it("should not order enemy units when Assault Left is played", () => {
-            const card = new AssaultLeft(CardLocation.DECK);
+            const card = new AssaultLeft();
             const deck = new Deck([card]);
             const gameState = new GameState(deck);
             gameState.drawCards(1, CardLocation.BOTTOM_PLAYER_HAND);
