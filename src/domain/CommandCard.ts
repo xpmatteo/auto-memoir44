@@ -23,6 +23,7 @@ export abstract class CommandCard {
     readonly id: string;
     abstract readonly name: string;
     abstract readonly imagePath: string;
+    abstract readonly section: Section;
 
     constructor() {
         this.id = `card-${nextCardId++}`;
@@ -30,6 +31,8 @@ export abstract class CommandCard {
 
     onCardPlayed(gameState: GameState): void {
         gameState.setCurrentCard(this.id);
+        gameState.popPhase();
+        gameState.pushPhase(new OrderUnitsPhase(this.section));
     }
 }
 
@@ -37,6 +40,7 @@ export abstract class CommandCard {
 export class AssaultCenter extends CommandCard {
     readonly name = "Assault Center";
     readonly imagePath = "images/cards/a2_assault_center.png";
+    readonly section = Section.CENTER;
     onCardPlayed(gameState: GameState): void {
         super.onCardPlayed(gameState);
         gameState.orderAllFriendlyUnitsInSection(Section.CENTER);
@@ -46,6 +50,7 @@ export class AssaultCenter extends CommandCard {
 export class AssaultLeft extends CommandCard {
     readonly name = "Assault Left";
     readonly imagePath = "images/cards/a2_assault_left.png";
+    readonly section = Section.LEFT;
     onCardPlayed(gameState: GameState): void {
         super.onCardPlayed(gameState);
         gameState.orderAllFriendlyUnitsInSection(Section.LEFT);
@@ -55,6 +60,7 @@ export class AssaultLeft extends CommandCard {
 export class AssaultRight extends CommandCard {
     readonly name = "Assault Right";
     readonly imagePath = "images/cards/a2_assault_right.png";
+    readonly section = Section.RIGHT;
     onCardPlayed(gameState: GameState): void {
         super.onCardPlayed(gameState);
         gameState.orderAllFriendlyUnitsInSection(Section.RIGHT);
@@ -65,51 +71,55 @@ export class AssaultRight extends CommandCard {
 export class AttackCenter extends CommandCard {
     readonly name = "Attack Center";
     readonly imagePath = "images/cards/a4_attack_center.png";
+    readonly section = Section.CENTER;
 }
 
 export class AttackLeft extends CommandCard {
     readonly name = "Attack Left";
     readonly imagePath = "images/cards/a3_attack_left.png";
+    readonly section = Section.LEFT;
 }
 
 export class AttackRight extends CommandCard {
     readonly name = "Attack Right";
     readonly imagePath = "images/cards/a3_attack_right.png";
+    readonly section = Section.RIGHT;
 }
 
 // Probe cards
 export class ProbeCenter extends CommandCard {
     readonly name = "Probe Center";
     readonly imagePath = "images/cards/a5_probe_center.png";
+    readonly section = Section.CENTER;
 }
 
 export class ProbeLeft extends CommandCard {
     readonly name = "Probe Left";
     readonly imagePath = "images/cards/a4_probe_left.png";
-    onCardPlayed(gameState: GameState): void {
-        super.onCardPlayed(gameState);
-        gameState.popPhase();
-        gameState.pushPhase(new OrderUnitsPhase(Section.LEFT));
-    }
+    readonly section = Section.LEFT;
 }
 
 export class ProbeRight extends CommandCard {
     readonly name = "Probe Right";
     readonly imagePath = "images/cards/a4_probe_right.png";
+    readonly section = Section.RIGHT;
 }
 
 // Recon cards
 export class ReconCenter extends CommandCard {
     readonly name = "Recon Center";
     readonly imagePath = "images/cards/a4_recon_center.png";
+    readonly section = Section.CENTER;
 }
 
 export class ReconLeft extends CommandCard {
     readonly name = "Recon Left";
     readonly imagePath = "images/cards/a2_recon_left.png";
+    readonly section = Section.LEFT;
 }
 
 export class ReconRight extends CommandCard {
     readonly name = "Recon Right";
     readonly imagePath = "images/cards/a2_recon_right.png";
+    readonly section = Section.RIGHT;
 }
