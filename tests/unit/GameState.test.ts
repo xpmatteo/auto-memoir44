@@ -3,12 +3,14 @@
 
 import {describe, expect, it} from "vitest";
 import {GameState} from "../../src/domain/GameState";
-import {Side} from "../../src/domain/Player";
+import {Side, Position} from "../../src/domain/Player";
 import {Deck} from "../../src/domain/Deck";
 import {Infantry} from "../../src/domain/Unit";
 import type {HexCoord} from "../../src/utils/hex";
 import {CardLocation} from "../../src/domain/CommandCard";
-import {PlayCardMove} from "../../src/domain/Move";
+import {PlayCardMove, ToggleUnitOrderedMove} from "../../src/domain/Move";
+import {OrderUnitsPhase} from "../../src/domain/phases/OrderUnitsPhase";
+import {Section} from "../../src/domain/Section";
 
 describe("GameState", () => {
   describe("setCurrentCard", () => {
@@ -358,5 +360,159 @@ describe("GameState", () => {
       expect(moves).toEqual([new PlayCardMove(card1), new PlayCardMove(card2), new PlayCardMove(card3)]);
     });
 
+  });
+
+  describe("popPhase", () => {
+    it("should not trigger turn completion when phases remain on the stack", () => {
+      const deck = Deck.createStandardDeck();
+      const gameState = new GameState(deck);
+      gameState.drawCards(3, CardLocation.BOTTOM_PLAYER_HAND);
+      const [card] = gameState.getCardsInLocation(CardLocation.BOTTOM_PLAYER_HAND);
+
+      // Set up a card and push extra phases
+      gameState.setCurrentCard(card.id);
+      gameState.replacePhase(new OrderUnitsPhase(Section.CENTER, 1));
+      gameState.pushPhase(new OrderUnitsPhase(Section.CENTER, 1));
+
+      const initialPlayer = gameState.activePlayer.position;
+
+      // Pop one phase - should NOT complete turn
+      gameState.popPhase();
+
+      // Card should still be current, player should not switch
+      expect(gameState.currentCardId).toBe(card.id);
+      expect(gameState.activePlayer.position).toBe(initialPlayer);
+      expect(gameState.getCardsInLocation(CardLocation.DISCARD_PILE)).toHaveLength(0);
+    });
+
+    it("should move current card to discard pile when turn completes", () => {
+      const deck = Deck.createStandardDeck();
+      const gameState = new GameState(deck);
+      gameState.drawCards(3, CardLocation.BOTTOM_PLAYER_HAND);
+      const [card] = gameState.getCardsInLocation(CardLocation.BOTTOM_PLAYER_HAND);
+
+      // Set up: play a card (replace PlayCardPhase with OrderUnitsPhase)
+      gameState.setCurrentCard(card.id);
+      gameState.replacePhase(new OrderUnitsPhase(Section.CENTER, 1));
+
+      // Complete turn by popping the last phase
+      gameState.popPhase();
+
+      // Card should be in discard pile
+      expect(gameState.getCardsInLocation(CardLocation.DISCARD_PILE)).toEqual([card]);
+      expect(gameState.currentCardId).toBeNull();
+    });
+
+    it("should draw a replacement card for bottom player when turn completes", () => {
+      const deck = Deck.createStandardDeck();
+      const gameState = new GameState(deck);
+      gameState.drawCards(3, CardLocation.BOTTOM_PLAYER_HAND);
+      const [card] = gameState.getCardsInLocation(CardLocation.BOTTOM_PLAYER_HAND);
+
+      expect(gameState.activePlayer.position).toBe(Position.BOTTOM);
+
+      // Set up: play a card
+      gameState.setCurrentCard(card.id);
+      gameState.replacePhase(new OrderUnitsPhase(Section.CENTER, 1));
+
+      // Complete turn
+      gameState.popPhase();
+
+      // Bottom player should have 3 cards again (2 remaining + 1 drawn)
+      expect(gameState.getCardsInLocation(CardLocation.BOTTOM_PLAYER_HAND)).toHaveLength(3);
+    });
+
+    it("should draw a replacement card for top player when turn completes", () => {
+      const deck = Deck.createStandardDeck();
+      const gameState = new GameState(deck);
+      gameState.switchActivePlayer(); // Switch to top player
+      gameState.drawCards(3, CardLocation.TOP_PLAYER_HAND);
+      const [card] = gameState.getCardsInLocation(CardLocation.TOP_PLAYER_HAND);
+
+      expect(gameState.activePlayer.position).toBe(Position.TOP);
+
+      // Set up: play a card
+      gameState.setCurrentCard(card.id);
+      gameState.replacePhase(new OrderUnitsPhase(Section.CENTER, 1));
+
+      // Complete turn
+      gameState.popPhase();
+
+      // Top player should have 3 cards again
+      expect(gameState.getCardsInLocation(CardLocation.TOP_PLAYER_HAND)).toHaveLength(3);
+    });
+
+    it("should clear ordered units when turn completes", () => {
+      const deck = Deck.createStandardDeck();
+      const gameState = new GameState(deck);
+      gameState.drawCards(3, CardLocation.BOTTOM_PLAYER_HAND);
+      const [card] = gameState.getCardsInLocation(CardLocation.BOTTOM_PLAYER_HAND);
+
+      // Set up: play a card and toggle a unit to ordered
+      const unit = new Infantry(Side.ALLIES);
+      const coord: HexCoord = { q: 5, r: 3 };
+      gameState.placeUnit(coord, unit);
+
+      gameState.setCurrentCard(card.id);
+      gameState.replacePhase(new OrderUnitsPhase(Section.CENTER, 1));
+
+      // Toggle unit to ordered
+      gameState.executeMove(new ToggleUnitOrderedMove(unit));
+      expect(gameState.isUnitOrdered(unit)).toBe(true);
+
+      // Complete turn
+      gameState.popPhase();
+
+      // Ordered units should be cleared
+      expect(gameState.isUnitOrdered(unit)).toBe(false);
+    });
+
+    it("should switch active player when turn completes", () => {
+      const deck = Deck.createStandardDeck();
+      const gameState = new GameState(deck);
+      gameState.drawCards(3, CardLocation.BOTTOM_PLAYER_HAND);
+      const [card] = gameState.getCardsInLocation(CardLocation.BOTTOM_PLAYER_HAND);
+
+      expect(gameState.activePlayer.position).toBe(Position.BOTTOM);
+
+      // Set up and complete turn
+      gameState.setCurrentCard(card.id);
+      gameState.replacePhase(new OrderUnitsPhase(Section.CENTER, 1));
+      gameState.popPhase();
+
+      // Player should have switched
+      expect(gameState.activePlayer.position).toBe(Position.TOP);
+    });
+
+    it("should push PlayCardPhase for next player when turn completes", () => {
+      const deck = Deck.createStandardDeck();
+      const gameState = new GameState(deck);
+      gameState.drawCards(3, CardLocation.BOTTOM_PLAYER_HAND);
+      const [card] = gameState.getCardsInLocation(CardLocation.BOTTOM_PLAYER_HAND);
+
+      // Set up and complete turn
+      gameState.setCurrentCard(card.id);
+      gameState.replacePhase(new OrderUnitsPhase(Section.CENTER, 1));
+      gameState.popPhase();
+
+      // Should have PlayCardPhase on stack
+      expect(gameState.activePhase.name).toBe("Play Card");
+    });
+
+    it("should handle null currentCardId gracefully when turn completes", () => {
+      const deck = Deck.createStandardDeck();
+      const gameState = new GameState(deck);
+      gameState.drawCards(3, CardLocation.BOTTOM_PLAYER_HAND);
+
+      // Set up turn completion without setting a current card (edge case)
+      gameState.replacePhase(new OrderUnitsPhase(Section.CENTER, 1));
+
+      // Should not throw when popping with null currentCardId
+      expect(() => gameState.popPhase()).not.toThrow();
+
+      // Should still switch player and draw card
+      expect(gameState.activePlayer.position).toBe(Position.TOP);
+      expect(gameState.getCardsInLocation(CardLocation.BOTTOM_PLAYER_HAND)).toHaveLength(4);
+    });
   });
 });

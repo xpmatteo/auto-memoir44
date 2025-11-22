@@ -155,6 +155,22 @@ export class GameState {
         this.phases.pop();
         // End of player turn?
         if (this.phases.length === 0) {
+            // Move the played card to discard pile
+            if (this.currentCardId !== null) {
+                this.deck.moveCard(this.currentCardId, CardLocation.DISCARD_PILE);
+                this.currentCardId = null;
+            }
+
+            // Draw replacement card for the player who just finished
+            const handLocation = this.activePlayer.position === Position.BOTTOM
+                ? CardLocation.BOTTOM_PLAYER_HAND
+                : CardLocation.TOP_PLAYER_HAND;
+            this.deck.drawCard(handLocation);
+
+            // Clear ordered units for next turn
+            this.orderedUnits.clear();
+
+            // Switch to next player and start their turn
             this.switchActivePlayer();
             this.pushPhase(new PlayCardPhase());
         }

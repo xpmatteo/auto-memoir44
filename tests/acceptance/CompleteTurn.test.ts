@@ -15,13 +15,21 @@ test("Complete turn", () => {
     gameState.drawCards(3, CardLocation.TOP_PLAYER_HAND);
 
     // Act (1): bottom player plays a card
-    gameState.executeMove(new PlayCardMove(gameState.getCardsInLocation(CardLocation.BOTTOM_PLAYER_HAND)[0]));
+    let playedCard = gameState.getCardsInLocation(CardLocation.BOTTOM_PLAYER_HAND)[0];
+    gameState.executeMove(new PlayCardMove(playedCard));
 
     // Act (2): bottom player orders nothing and continues
     expect(gameState.legalMoves()).toContainEqual(new ConfirmOrdersMove());
     gameState.executeMove(new ConfirmOrdersMove());
 
     // Assert
+    // - the played card is in the discards
+    expect(gameState.getCardsInLocation(CardLocation.DISCARD_PILE)).toEqual([playedCard]);
+    // - there is no activeCard
+    expect(gameState.activeCard).toBeNull();
+    // - the bottom player has 3 cards again
+    expect(gameState.getCardsInLocation(CardLocation.TOP_PLAYER_HAND)).toHaveLength(3);
+    // - the current phase is play a card for the top player
     expect(gameState.activePlayer.position).toBe(Position.TOP);
     expect(gameState.activePhase.name).toBe("Play Card");
     expect(gameState.legalMoves()).toEqual([
