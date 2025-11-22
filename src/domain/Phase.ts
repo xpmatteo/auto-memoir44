@@ -21,6 +21,7 @@ export class PlayCardPhase implements Phase {
 
 interface UnitsOrderer {
     getUnitsInSection(section: Section): Array<Unit>;
+    getOrderedUnits(): Array<Unit>;
 }
 
 export class OrderUnitsPhase implements Phase {

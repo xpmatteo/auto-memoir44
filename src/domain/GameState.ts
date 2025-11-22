@@ -32,6 +32,7 @@ export class GameState {
         this.phases.push(new PlayCardPhase());
     }
 
+    // -- getters used in the UI
     get activePlayer(): Player {
         return this.players[this.activePlayerIndex];
     }
@@ -53,6 +54,12 @@ export class GameState {
         return this.deck.getCard(this.currentCardId) ?? null;
     }
 
+    getCardsInLocation(location: CardLocation) {
+        return this.deck.getCardsInLocation(location);
+    }
+
+
+    // -- GameState pattern
     /**
      * Returns all valid moves for the active player
      */
@@ -67,11 +74,15 @@ export class GameState {
         move.execute(this);
     }
 
-    /**
-     * Get the unit at a specific coordinate, or undefined if empty
-     */
-    getUnitAt(coord: HexCoord): Unit | undefined {
-        return this.unitPositions.get(coordToKey(coord));
+    // -- Commands used when setting up the game
+    switchActivePlayer() {
+        this.activePlayerIndex = this.activePlayerIndex == 0 ? 1 : 0;
+    }
+
+    drawCards(howMany: number, toLocation: CardLocation) {
+        for (let i = 0; i < howMany; i++) {
+            this.deck.drawCard(toLocation)
+        }
     }
 
     /**
@@ -87,33 +98,13 @@ export class GameState {
         this.unitPositions.set(key, unit);
     }
 
+
+    // -- Unit getters
     /**
-     * Move a unit from one coordinate to another. Throws if destination is occupied.
+     * Get the unit at a specific coordinate, or undefined if empty
      */
-    moveUnit(from: HexCoord, to: HexCoord): void {
-        const fromKey = coordToKey(from);
-        const toKey = coordToKey(to);
-
-        const unit = this.unitPositions.get(fromKey);
-        if (!unit) {
-            throw new Error(`No unit at (${from.q}, ${from.r}) to move`);
-        }
-
-        if (this.unitPositions.has(toKey)) {
-            throw new Error(
-                `Cannot move unit to (${to.q}, ${to.r}): coordinate already occupied`
-            );
-        }
-
-        this.unitPositions.delete(fromKey);
-        this.unitPositions.set(toKey, unit);
-    }
-
-    /**
-     * Remove a unit from the board
-     */
-    removeUnit(coord: HexCoord): void {
-        this.unitPositions.delete(coordToKey(coord));
+    getUnitAt(coord: HexCoord): Unit | undefined {
+        return this.unitPositions.get(coordToKey(coord));
     }
 
     /**
@@ -149,17 +140,20 @@ export class GameState {
         return [...this.orderedUnits.values()];
     }
 
-    toggleUnitOrdered(unit: Unit) {
-        // Check if this unit exists in the game by searching through all placed units
-        const unitExists = Array.from(this.unitPositions.values()).some(u => u.id === unit.id);
-        if (!unitExists) {
-            throw new Error(`Unknown unit "${unit.id}"`)
-        }
-        if (this.orderedUnits.has(unit)) {
-            this.orderedUnits.delete(unit);
-        } else {
-            this.orderedUnits.add(unit);
-        }
+    /**
+     * Check if a unit has been ordered this turn
+     */
+    isUnitOrdered(unit: Unit): boolean {
+        return this.orderedUnits.has(unit);
+    }
+
+    // -- Commands used by CommandCards
+    popPhase() {
+        this.phases.pop();
+    }
+
+    pushPhase(phase: Phase) {
+        this.phases.push(phase);
     }
 
     /**
@@ -184,6 +178,50 @@ export class GameState {
         }
     }
 
+    // -- Commands used by Moves
+
+    /**
+     * Move a unit from one coordinate to another. Throws if destination is occupied.
+     */
+    moveUnit(from: HexCoord, to: HexCoord): void {
+        const fromKey = coordToKey(from);
+        const toKey = coordToKey(to);
+
+        const unit = this.unitPositions.get(fromKey);
+        if (!unit) {
+            throw new Error(`No unit at (${from.q}, ${from.r}) to move`);
+        }
+
+        if (this.unitPositions.has(toKey)) {
+            throw new Error(
+                `Cannot move unit to (${to.q}, ${to.r}): coordinate already occupied`
+            );
+        }
+
+        this.unitPositions.delete(fromKey);
+        this.unitPositions.set(toKey, unit);
+    }
+
+    /**
+     * Remove a unit from the board
+     */
+    removeUnit(coord: HexCoord): void {
+        this.unitPositions.delete(coordToKey(coord));
+    }
+
+    toggleUnitOrdered(unit: Unit) {
+        // Check if this unit exists in the game by searching through all placed units
+        const unitExists = Array.from(this.unitPositions.values()).some(u => u.id === unit.id);
+        if (!unitExists) {
+            throw new Error(`Unknown unit "${unit.id}"`)
+        }
+        if (this.orderedUnits.has(unit)) {
+            this.orderedUnits.delete(unit);
+        } else {
+            this.orderedUnits.add(unit);
+        }
+    }
+
     orderAllFriendlyUnitsInSection(section: Section): void {
         const activePlayer = this.activePlayer;
         const allUnitsWithPositions = this.getAllUnitsWithPositions();
@@ -201,32 +239,4 @@ export class GameState {
         }
     }
 
-    /**
-     * Check if a unit has been ordered this turn
-     */
-    isUnitOrdered(unit: Unit): boolean {
-        return this.orderedUnits.has(unit);
-    }
-
-    switchActivePlayer() {
-        this.activePlayerIndex = this.activePlayerIndex == 0 ? 1 : 0;
-    }
-
-    drawCards(howMany: number, toLocation: CardLocation) {
-        for (let i = 0; i < howMany; i++) {
-            this.deck.drawCard(toLocation)
-        }
-    }
-
-    getCardsInLocation(location: CardLocation) {
-        return this.deck.getCardsInLocation(location);
-    }
-
-    popPhase() {
-        this.phases.pop();
-    }
-
-    pushPhase(phase: Phase) {
-        this.phases.push(phase);
-    }
 }
