@@ -153,6 +153,11 @@ export class GameState {
 
     popPhase() {
         this.phases.pop();
+        // End of player turn?
+        if (this.phases.length === 0) {
+            this.switchActivePlayer();
+            this.pushPhase(new PlayCardPhase());
+        }
     }
 
     pushPhase(phase: Phase) {
