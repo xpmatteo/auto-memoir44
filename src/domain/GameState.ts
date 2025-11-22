@@ -18,6 +18,7 @@ export class GameState {
     private unitPositions: Map<string, Unit>; // Map from coordinate key to Unit
     private currentCardId: string | null; // Currently selected card ID
     private orderedUnits: Set<Unit>; // Set of units that have been ordered this turn
+    private movedUnits: Set<Unit>; // Set of units that have moved this turn
     private phases: Array<Phase>;
 
     constructor(
@@ -29,6 +30,7 @@ export class GameState {
         this.unitPositions = new Map<string, Unit>();
         this.currentCardId = null;
         this.orderedUnits = new Set<Unit>();
+        this.movedUnits = new Set<Unit>();
         this.phases = new Array<Phase>();
         this.phases.push(new PlayCardPhase());
     }
@@ -149,6 +151,20 @@ export class GameState {
         return this.orderedUnits.has(unit);
     }
 
+    /**
+     * Check if a unit has moved this turn
+     */
+    isUnitMoved(unit: Unit): boolean {
+        return this.movedUnits.has(unit);
+    }
+
+    /**
+     * Mark a unit as having moved this turn
+     */
+    markUnitMoved(unit: Unit): void {
+        this.movedUnits.add(unit);
+    }
+
     // -- Commands used by CommandCards
 
     // popPhase ends the current phase and starts the next phase, or the next player turn.
@@ -174,6 +190,7 @@ export class GameState {
 
             // Clear ordered units for next turn
             this.orderedUnits.clear();
+            this.movedUnits.clear();
 
             // Switch to next player and start their turn
             this.switchActivePlayer();

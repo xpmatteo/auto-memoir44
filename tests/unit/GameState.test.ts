@@ -8,7 +8,7 @@ import {Deck} from "../../src/domain/Deck";
 import {Infantry} from "../../src/domain/Unit";
 import type {HexCoord} from "../../src/utils/hex";
 import {CardLocation} from "../../src/domain/CommandCard";
-import {PlayCardMove, ToggleUnitOrderedMove} from "../../src/domain/Move";
+import {PlayCardMove, ToggleUnitOrderedMove, MoveUnitMove} from "../../src/domain/Move";
 import {OrderUnitsPhase} from "../../src/domain/phases/OrderUnitsPhase";
 import {Section} from "../../src/domain/Section";
 
@@ -513,6 +513,51 @@ describe("GameState", () => {
       // Should still switch player and draw card
       expect(gameState.activePlayer.position).toBe(Position.TOP);
       expect(gameState.getCardsInLocation(CardLocation.BOTTOM_PLAYER_HAND)).toHaveLength(4);
+    });
+  });
+
+  describe("MoveUnitMove integration", () => {
+    it("should move unit from one coordinate to another when executed", () => {
+      const deck = Deck.createStandardDeck();
+      const gameState = new GameState(deck);
+      const unit = new Infantry(Side.ALLIES);
+      const from: HexCoord = { q: 5, r: 3 };
+      const to: HexCoord = { q: 6, r: 3 };
+
+      gameState.placeUnit(from, unit);
+      const move = new MoveUnitMove(from, to);
+
+      gameState.executeMove(move);
+
+      expect(gameState.getUnitAt(from)).toBeUndefined();
+      expect(gameState.getUnitAt(to)).toBe(unit);
+    });
+
+    it("should mark unit as moved when MoveUnitMove is executed", () => {
+      const deck = Deck.createStandardDeck();
+      const gameState = new GameState(deck);
+      const unit = new Infantry(Side.ALLIES);
+      const from: HexCoord = { q: 5, r: 3 };
+      const to: HexCoord = { q: 6, r: 3 };
+
+      gameState.placeUnit(from, unit);
+      expect(gameState.isUnitMoved(unit)).toBe(false);
+
+      const move = new MoveUnitMove(from, to);
+      gameState.executeMove(move);
+
+      expect(gameState.isUnitMoved(unit)).toBe(true);
+    });
+
+    it("should throw error when trying to move unit that is not at from coordinate", () => {
+      const deck = Deck.createStandardDeck();
+      const gameState = new GameState(deck);
+      const from: HexCoord = { q: 5, r: 3 };
+      const to: HexCoord = { q: 6, r: 3 };
+
+      const move = new MoveUnitMove(from, to);
+
+      expect(() => gameState.executeMove(move)).toThrow();
     });
   });
 });

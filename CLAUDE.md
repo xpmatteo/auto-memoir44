@@ -133,3 +133,4 @@ memoir/
 - Important: never restart the vite server.  It is always running and it hot-reloads changes
 - Always use named constants for enumerations
 - Check out the vite server log in `vite.log`
+- ALWAYS prefer to throw an error instead of silently doing nothing

@@ -3,6 +3,8 @@
 import {CommandCard} from "./CommandCard";
 import {GameState} from "./GameState";
 import {Unit} from "./Unit";
+import type {HexCoord} from "../utils/hex";
+import {MovePhase} from "./phases/MovePhase";
 
 export interface Move {
     execute(gameState: GameState): void;
@@ -34,7 +36,41 @@ export class ToggleUnitOrderedMove implements Move {
 
 export class ConfirmOrdersMove implements Move {
     execute(gameState: GameState): void {
-        gameState.popPhase();
+        // Only enter MovePhase if there are ordered units
+        const orderedUnits = gameState.getOrderedUnits();
+        if (orderedUnits.length > 0) {
+            gameState.replacePhase(new MovePhase());
+        } else {
+            gameState.popPhase();
+        }
+    }
+}
+
+export class MoveUnitMove implements Move {
+    readonly from: HexCoord;
+    readonly to: HexCoord;
+
+    constructor(from: HexCoord, to: HexCoord) {
+        this.from = from;
+        this.to = to;
     }
 
+    execute(gameState: GameState): void {
+        const unit = gameState.getUnitAt(this.from);
+        if (!unit) {
+            throw new Error(`No unit found at (${this.from.q}, ${this.from.r})`);
+        }
+        gameState.moveUnit(this.from, this.to);
+        gameState.markUnitMoved(unit);
+
+        // Check if all ordered units have moved (auto-advance phase)
+        const orderedUnits = gameState.getOrderedUnits();
+        if (orderedUnits.length > 0) {
+            const allMoved = orderedUnits.every(u => gameState.isUnitMoved(u));
+            if (allMoved) {
+                gameState.popPhase();
+            }
+        }
+    }
 }
+
