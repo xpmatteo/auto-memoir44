@@ -8,26 +8,31 @@ import {Side} from "../../src/domain/Player";
 
 import {OrderUnitsPhase} from "../../src/domain/phases/OrderUnitsPhase";
 
+
+const unit1 = new Infantry(Side.ALLIES);
+const unit2 = new Infantry(Side.ALLIES);
+const unit3 = new Infantry(Side.AXIS);
+
+const fakeUnitsorder = {
+    orderedUnits: [] as Unit[],
+    getFriendlyUnitsInSection(section: Section): Array<Unit> {
+        if (section !== Section.LEFT) {
+            throw Error(`unexpected argument ${section}`);
+        }
+        return [unit1, unit2, unit3];
+    },
+    isUnitOrdered(unit: Unit): boolean {
+        return this.orderedUnits.includes(unit);
+    }
+};
+
 describe("OrderUnitsPhase", () => {
-    const unit1 = new Infantry(Side.ALLIES);
-    const unit2 = new Infantry(Side.ALLIES);
-    const unit3 = new Infantry(Side.AXIS);
 
     test("With no ordered units", () => {
-        const unitOrderer = {
-            getFriendlyUnitsInSection(section: Section): Array<Unit> {
-                if (section !== Section.LEFT) {
-                    throw Error(`unexpected argument ${section}`);
-                }
-                return [unit1, unit2, unit3];
-            },
-            isUnitOrdered(_unit: Unit): boolean {
-                return false;
-            }
-        };
+        fakeUnitsorder.orderedUnits = [];
         const phase = new OrderUnitsPhase(Section.LEFT, 2);
 
-        let actual = phase.doLegalMoves(unitOrderer);
+        let actual = phase.doLegalMoves(fakeUnitsorder);
 
         expect(actual).toEqual([
             new ToggleUnitOrderedMove(unit1),
@@ -37,20 +42,10 @@ describe("OrderUnitsPhase", () => {
     });
 
     test("With less ordered units than card allows", () => {
-        const unitOrderer = {
-            getFriendlyUnitsInSection(section: Section): Array<Unit> {
-                if (section !== Section.LEFT) {
-                    throw Error(`unexpected argument ${section}`);
-                }
-                return [unit1, unit2, unit3];
-            },
-            isUnitOrdered(unit: Unit): boolean {
-                return unit === unit1;
-            }
-        };
+        fakeUnitsorder.orderedUnits = [unit1];
         const phase = new OrderUnitsPhase(Section.LEFT, 2);
 
-        let actual = phase.doLegalMoves(unitOrderer);
+        let actual = phase.doLegalMoves(fakeUnitsorder);
 
         expect(actual).toEqual([
             new ToggleUnitOrderedMove(unit1),
@@ -60,20 +55,10 @@ describe("OrderUnitsPhase", () => {
     });
 
     test("With as many ordered units as card allows", () => {
-        const unitOrderer = {
-            getFriendlyUnitsInSection(section: Section): Array<Unit> {
-                if (section !== Section.LEFT) {
-                    throw Error(`unexpected argument ${section}`);
-                }
-                return [unit1, unit2, unit3];
-            },
-            isUnitOrdered(unit: Unit): boolean {
-                return unit === unit1 || unit === unit2;
-            }
-        };
+        fakeUnitsorder.orderedUnits = [unit1, unit2];
         const phase = new OrderUnitsPhase(Section.LEFT, 2);
 
-        let actual = phase.doLegalMoves(unitOrderer);
+        let actual = phase.doLegalMoves(fakeUnitsorder);
 
         // Only the ordered units can be toggled
         expect(actual).toEqual([

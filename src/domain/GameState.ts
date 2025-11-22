@@ -54,7 +54,7 @@ export class GameState {
         }
         return this.deck.getCard(this.currentCardId);
     }
-    
+
     getCardsInLocation(location: CardLocation) {
         return this.deck.getCardsInLocation(location);
     }
