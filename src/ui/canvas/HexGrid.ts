@@ -9,7 +9,14 @@ import {
   ORDERED_UNIT_OUTLINE_COLOR,
   ORDERED_UNIT_SHADOW_COLOR,
   ORDERED_UNIT_OUTLINE_WIDTH,
-  ORDERED_UNIT_SHADOW_BLUR
+  ORDERED_UNIT_SHADOW_BLUR,
+  SELECTED_UNIT_OUTLINE_COLOR,
+  SELECTED_UNIT_SHADOW_COLOR,
+  SELECTED_UNIT_OUTLINE_WIDTH,
+  SELECTED_UNIT_SHADOW_BLUR,
+  VALID_DESTINATION_FILL_COLOR,
+  VALID_DESTINATION_OUTLINE_COLOR,
+  VALID_DESTINATION_OUTLINE_WIDTH
 } from "../../utils/constants.js";
 
 const SQRT3 = Math.sqrt(3);
@@ -93,6 +100,62 @@ export function drawOrderedUnitOutlines(
   for (const coord of orderedCoords) {
     const { x, y } = hexToPixel(coord, grid);
     drawHex(context, x, y, grid.hexRadius);
+  }
+
+  context.restore();
+}
+
+/**
+ * Draw outline around the selected unit to highlight it.
+ * Uses bright yellow with a thicker outline than ordered units.
+ */
+export function drawSelectedUnit(
+  context: CanvasRenderingContext2D,
+  selectedCoord: HexCoord,
+  grid: GridConfig
+) {
+  context.save();
+  context.lineWidth = SELECTED_UNIT_OUTLINE_WIDTH;
+  context.strokeStyle = SELECTED_UNIT_OUTLINE_COLOR;
+  context.shadowColor = SELECTED_UNIT_SHADOW_COLOR;
+  context.shadowBlur = SELECTED_UNIT_SHADOW_BLUR;
+
+  const { x, y } = hexToPixel(selectedCoord, grid);
+  drawHex(context, x, y, grid.hexRadius);
+
+  context.restore();
+}
+
+/**
+ * Draw highlighting on valid destination hexes.
+ * Uses semi-transparent green fill with green outline.
+ */
+export function drawValidDestinations(
+  context: CanvasRenderingContext2D,
+  destinations: HexCoord[],
+  grid: GridConfig
+) {
+  context.save();
+  context.lineWidth = VALID_DESTINATION_OUTLINE_WIDTH;
+  context.strokeStyle = VALID_DESTINATION_OUTLINE_COLOR;
+  context.fillStyle = VALID_DESTINATION_FILL_COLOR;
+
+  for (const coord of destinations) {
+    const { x, y } = hexToPixel(coord, grid);
+    const corners = Array.from({ length: 6 }, (_, i) => {
+      const angle = (Math.PI / 180) * (60 * i - 30); // pointy-top orientation
+      return {
+        x: x + grid.hexRadius * Math.cos(angle),
+        y: y + grid.hexRadius * Math.sin(angle)
+      };
+    });
+
+    context.beginPath();
+    context.moveTo(corners[0].x, corners[0].y);
+    corners.slice(1).forEach((corner) => context.lineTo(corner.x, corner.y));
+    context.closePath();
+    context.fill();
+    context.stroke();
   }
 
   context.restore();

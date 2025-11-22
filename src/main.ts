@@ -8,7 +8,7 @@ import "./style.css";
 import type { GridConfig } from "./utils/hex.js";
 import { toCanvasCoords, pixelToHex } from "./utils/hex.js";
 import { loadBoardImage, drawBoard } from "./ui/canvas/BoardRenderer.js";
-import { drawGrid, drawOrderedUnitOutlines } from "./ui/canvas/HexGrid.js";
+import { drawGrid, drawOrderedUnitOutlines, drawSelectedUnit, drawValidDestinations } from "./ui/canvas/HexGrid.js";
 import { drawUnits } from "./ui/canvas/UnitRenderer.js";
 import { loadScenario, getDefaultScenario } from "./scenarios/index.js";
 import { HandDisplay } from "./ui/components/HandDisplay.js";
@@ -17,6 +17,7 @@ import { ConfirmOrdersButton } from "./ui/components/ConfirmOrdersButton.js";
 import { GameState } from "./domain/GameState.js";
 import { Deck } from "./domain/Deck.js";
 import { CanvasClickHandler } from "./ui/input/CanvasClickHandler.js";
+import { uiState } from "./ui/UIState.js";
 
 const BOARD_IMAGE_PATH = "/images/boards/memoir-desert-map.jpg";
 const BOARD_WIDTH = 2007;
@@ -129,6 +130,16 @@ async function start() {
       const orderedUnits = gameState.getOrderedUnitsWithPositions();
       const orderedCoords = orderedUnits.map(({ coord }) => coord);
       drawOrderedUnitOutlines(context, orderedCoords, defaultGrid);
+
+      // Draw valid destination highlights
+      if (uiState.validDestinations.length > 0) {
+        drawValidDestinations(context, uiState.validDestinations, defaultGrid);
+      }
+
+      // Draw selected unit highlight
+      if (uiState.selectedUnitLocation) {
+        drawSelectedUnit(context, uiState.selectedUnitLocation, defaultGrid);
+      }
 
       // Draw grid labels on top of units for clarity
       drawGrid(context, { ...defaultGrid, strokeStyle: "transparent", lineWidth: 0 });
