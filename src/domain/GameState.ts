@@ -151,7 +151,12 @@ export class GameState {
 
     // -- Commands used by CommandCards
 
+    // popPhase ends the current phase and starts the next phase, or the next player turn.
+    // Moves that must end a phase will call this.
     popPhase() {
+        if (this.phases.length === 0) {
+            throw Error("Phases stack is empty");
+        }
         this.phases.pop();
         // End of player turn?
         if (this.phases.length === 0) {
