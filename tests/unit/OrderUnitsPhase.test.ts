@@ -5,7 +5,8 @@ import {Section} from "../../src/domain/Section";
 import {ToggleUnitOrderedMove} from "../../src/domain/Move";
 import {Infantry, Unit} from "../../src/domain/Unit";
 import {Side} from "../../src/domain/Player";
-import {OrderUnitsPhase} from "../../src/domain/Phase";
+
+import {OrderUnitsPhase} from "../../src/domain/phases/OrderUnitsPhase";
 
 describe("OrderUnitsPhase", () => {
     const unit1 = new Infantry(Side.ALLIES);

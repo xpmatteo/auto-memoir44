@@ -8,7 +8,8 @@ import {Unit, coordToKey, keyToCoord} from "./Unit";
 import type {HexCoord} from "../utils/hex";
 import {CardLocation, CommandCard} from "./CommandCard";
 import {isHexInSection, Section} from "./Section";
-import {Phase, PlayCardPhase} from "./Phase";
+import {Phase} from "./Phase";
+import {PlayCardPhase} from "./phases/PlayCardPhase";
 
 export class GameState {
     private readonly players: [Player, Player];
