@@ -5,7 +5,7 @@ import {describe, expect, it} from "vitest";
 import {GameState} from "../../src/domain/GameState";
 import {Deck} from "../../src/domain/Deck";
 import {AssaultLeft, CardLocation, ProbeLeft} from "../../src/domain/CommandCard";
-import {ToggleUnitOrderedMove, PlayCardMove} from "../../src/domain/Move";
+import {PlayCardMove, ToggleUnitOrderedMove} from "../../src/domain/Move";
 import {Position} from "../../src/domain/Player";
 import {Infantry, Unit} from "../../src/domain/Unit";
 
@@ -45,7 +45,7 @@ describe("At game start", () => {
 
             gameState.executeMove(new PlayCardMove(cards[0]));
 
-            expect(gameState.getCurrentCard()).toEqual(cards[0]);
+            expect(gameState.activeCard).toEqual(cards[0]);
             expect(gameState.getOrderedUnits()).toEqual([
                 unitInLeft,
             ]);
@@ -61,7 +61,7 @@ describe("At game start", () => {
 
             gameState.executeMove(new PlayCardMove(cards[0]));
 
-            expect(gameState.getCurrentCard()).toEqual(cards[0]);
+            expect(gameState.activeCard).toEqual(cards[0]);
             expect(gameState.getOrderedUnits()).toEqual([]);
             expect(gameState.legalMoves()).toEqual([
                 new ToggleUnitOrderedMove(unitInLeft),

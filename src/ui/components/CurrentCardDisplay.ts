@@ -1,7 +1,7 @@
 // ABOUTME: Current card display component showing the selected card
 // ABOUTME: Positioned to the left of the game board
 
-import { GameState } from "../../domain/GameState";
+import {GameState} from "../../domain/GameState";
 
 export class CurrentCardDisplay {
   private container: HTMLDivElement;
@@ -28,7 +28,7 @@ export class CurrentCardDisplay {
     // Clear existing content
     this.container.innerHTML = "";
 
-    const card = this.gameState.getCurrentCard();
+    const card = this.gameState.activeCard;
 
     if (card === null) {
       // No card selected, show nothing

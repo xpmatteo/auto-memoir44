@@ -1,15 +1,13 @@
 // ABOUTME: Unit tests for GameState class
 // ABOUTME: Tests current card management, unit positioning, and game state operations
 
-import { describe, it, expect } from "vitest";
-import { GameState } from "../../src/domain/GameState";
-import {  Side } from "../../src/domain/Player";
-import { Deck } from "../../src/domain/Deck";
-import { Infantry } from "../../src/domain/Unit";
-import type { HexCoord } from "../../src/utils/hex";
-import {
-  CardLocation
-} from "../../src/domain/CommandCard";
+import {describe, expect, it} from "vitest";
+import {GameState} from "../../src/domain/GameState";
+import {Side} from "../../src/domain/Player";
+import {Deck} from "../../src/domain/Deck";
+import {Infantry} from "../../src/domain/Unit";
+import type {HexCoord} from "../../src/utils/hex";
+import {CardLocation} from "../../src/domain/CommandCard";
 import {PlayCardMove} from "../../src/domain/Move";
 
 describe("GameState", () => {
@@ -24,7 +22,7 @@ describe("GameState", () => {
 
       gameState.setCurrentCard(card.id);
 
-      expect(gameState.getCurrentCard()).toBe(card);
+      expect(gameState.activeCard).toBe(card);
     });
 
     it("should throw error when a card is already selected", () => {
@@ -63,7 +61,7 @@ describe("GameState", () => {
       const deck = Deck.createStandardDeck();
       const gameState = new GameState(deck);
 
-      expect(gameState.getCurrentCard()).toBeNull();
+      expect(gameState.activeCard).toBeNull();
     });
 
     it("should return the current card when one is selected", () => {
@@ -76,7 +74,7 @@ describe("GameState", () => {
 
       gameState.setCurrentCard(card.id);
 
-      expect(gameState.getCurrentCard()).toBe(card);
+      expect(gameState.activeCard).toBe(card);
     });
   });
 
@@ -296,11 +294,11 @@ describe("GameState", () => {
       const card2 = cards[1];
 
       // Initially no card selected
-      expect(gameState.getCurrentCard()).toBeNull();
+      expect(gameState.activeCard).toBeNull();
 
       // Select a card
       gameState.setCurrentCard(card1.id);
-      expect(gameState.getCurrentCard()).toBe(card1);
+      expect(gameState.activeCard).toBe(card1);
 
       // Cannot select another card
       expect(() => gameState.setCurrentCard(card2.id)).toThrow();

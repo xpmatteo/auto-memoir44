@@ -1,9 +1,9 @@
 // ABOUTME: Hand display component showing active player's command cards
 // ABOUTME: HTML-based UI positioned below the game canvas
 
-import { CommandCard, CardLocation } from "../../domain/CommandCard";
-import { GameState } from "../../domain/GameState";
-import { PlayCardMove } from "../../domain/Move";
+import {CardLocation, CommandCard} from "../../domain/CommandCard";
+import {GameState} from "../../domain/GameState";
+import {PlayCardMove} from "../../domain/Move";
 
 export class HandDisplay {
   private container: HTMLDivElement;
@@ -44,7 +44,7 @@ export class HandDisplay {
     const allCards = this.gameState.getCardsInLocation(CardLocation.BOTTOM_PLAYER_HAND);
 
     // Filter out the current card (it's displayed separately)
-    const currentCard = this.gameState.getCurrentCard();
+    const currentCard = this.gameState.activeCard;
     const cards = allCards.filter((card) => card.id !== currentCard?.id);
 
     // Create image elements for each card

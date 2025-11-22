@@ -48,13 +48,13 @@ export class GameState {
     /**
      * Get the current card, or null if none is selected
      */
-    getCurrentCard(): CommandCard | null {
+    get activeCard(): CommandCard | null {
         if (this.currentCardId === null) {
             return null;
         }
-        return this.deck.getCard(this.currentCardId) ?? null;
+        return this.deck.getCard(this.currentCardId);
     }
-
+    
     getCardsInLocation(location: CardLocation) {
         return this.deck.getCardsInLocation(location);
     }

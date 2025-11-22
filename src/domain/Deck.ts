@@ -76,7 +76,7 @@ export class Deck {
     /**
      * Get a card by its ID
      */
-    getCard(cardId: string): CommandCard | undefined {
+    getCard(cardId: string): CommandCard {
         let card = this.cardIds.get(cardId);
         if (!card) {
             throw new Error(`No card with id ${cardId}`);
