@@ -8,7 +8,7 @@ import {Unit, coordToKey, keyToCoord} from "./Unit";
 import type {HexCoord} from "../utils/hex";
 import {CardLocation, CommandCard} from "./CommandCard";
 import {isHexInSection, Section} from "./Section";
-import {Phase} from "./Phase";
+import {Phase} from "./phases/Phase";
 import {PlayCardPhase} from "./phases/PlayCardPhase";
 
 export class GameState {
@@ -161,6 +161,11 @@ export class GameState {
     }
 
     pushPhase(phase: Phase) {
+        this.phases.push(phase);
+    }
+
+    replacePhase(phase: Phase) {
+        this.phases.pop();
         this.phases.push(phase);
     }
 

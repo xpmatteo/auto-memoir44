@@ -2,7 +2,7 @@ import {GameState} from "../GameState";
 import {Move, PlayCardMove} from "../Move";
 import {Position} from "../Player";
 import {CardLocation} from "../CommandCard";
-import {Phase} from "../Phase";
+import {Phase} from "./Phase";
 
 export class PlayCardPhase implements Phase {
     name: string = "Play Card";
