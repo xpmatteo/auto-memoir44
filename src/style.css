@@ -78,3 +78,37 @@ body {
   font-weight: 600;
   letter-spacing: 0.02em;
 }
+
+#confirm-orders-container {
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+#confirm-orders-button {
+  padding: 10px 24px;
+  background: rgba(0, 0, 0, 0.6);
+  color: #e5e7eb;
+  border: 2px solid #1f2937;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 16px;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+#confirm-orders-button:hover {
+  background: rgba(251, 191, 36, 0.2);
+  border-color: #fbbf24;
+  color: #fbbf24;
+  box-shadow: 0 6px 16px rgba(251, 191, 36, 0.2);
+}
+
+#confirm-orders-button:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}

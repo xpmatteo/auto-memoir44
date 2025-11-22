@@ -13,6 +13,7 @@ import { drawUnits } from "./ui/canvas/UnitRenderer.js";
 import { loadScenario, getDefaultScenario } from "./scenarios/index.js";
 import { HandDisplay } from "./ui/components/HandDisplay.js";
 import { CurrentCardDisplay } from "./ui/components/CurrentCardDisplay.js";
+import { ConfirmOrdersButton } from "./ui/components/ConfirmOrdersButton.js";
 import { GameState } from "./domain/GameState.js";
 import { Deck } from "./domain/Deck.js";
 import { CanvasClickHandler } from "./ui/input/CanvasClickHandler.js";
@@ -93,12 +94,17 @@ async function start() {
   // Create current card display
   const currentCardDisplay = new CurrentCardDisplay(gameState);
 
+  // Create confirm orders button
+  const confirmOrdersButton = new ConfirmOrdersButton(gameState);
+
   // Create a container for the current card display and the board
   const gameBoardContainer = document.createElement("div");
   gameBoardContainer.id = "game-board-container";
   gameBoardContainer.appendChild(currentCardDisplay.getElement());
   gameBoardContainer.appendChild(wrapper);
 
+  // Mount confirm orders button before the game board (at top)
+  app.appendChild(confirmOrdersButton.getElement());
   app.appendChild(gameBoardContainer);
 
   // Create and mount hand display
@@ -137,11 +143,15 @@ async function start() {
   const renderAll = async () => {
     handDisplay.render();
     currentCardDisplay.render();
+    confirmOrdersButton.render();
     await renderCanvas();
   };
 
   // Set callback for card clicks to trigger re-render
   handDisplay.setOnCardClick(renderAll);
+
+  // Set callback for confirm button clicks to trigger re-render
+  confirmOrdersButton.onConfirm = renderAll;
 
   // Initial render
   await renderAll();
