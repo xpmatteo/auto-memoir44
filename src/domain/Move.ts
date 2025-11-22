@@ -32,3 +32,9 @@ export class ToggleUnitOrderedMove implements Move {
     }
 }
 
+export class ConfirmOrdersMove implements Move {
+    execute(gameState: GameState): void {
+        gameState.switchActivePlayer();
+    }
+
+}

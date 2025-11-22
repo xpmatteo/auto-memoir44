@@ -1,8 +1,8 @@
 import {Section} from "../Section";
 import {Unit} from "../Unit";
 import {GameState} from "../GameState";
-import {Move, ToggleUnitOrderedMove} from "../Move";
-import {Phase} from "../Phase";
+import {ConfirmOrdersMove, Move, ToggleUnitOrderedMove} from "../Move";
+import {Phase} from "./Phase";
 
 // Declare which methods from GameState we actually need to do our job
 interface UnitsOrderer {
@@ -31,12 +31,14 @@ export class OrderUnitsPhase implements Phase {
         let orderedUnits = friendlyUnitsInSection
             .filter(unit => unitsOrderer.isUnitOrdered(unit));
 
+        let moveOrders ;
         if (orderedUnits.length < this.howManyUnits) {
-            return friendlyUnitsInSection
+            moveOrders = friendlyUnitsInSection
                 .map(unit => new ToggleUnitOrderedMove(unit));
         } else {
-            return orderedUnits
+            moveOrders = orderedUnits
                 .map(unit => new ToggleUnitOrderedMove(unit));
         }
+        return [new ConfirmOrdersMove(), ...moveOrders];
     }
 }
