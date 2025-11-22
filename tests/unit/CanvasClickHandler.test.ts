@@ -99,7 +99,7 @@ describe("CanvasClickHandler", () => {
     const { gameState } = setupGameWithUnit();
     // Place a unit in center section that cannot be ordered with ProbeLeft
     const centerUnit = new Infantry(Side.ALLIES);
-    gameState.placeUnit({ q: 0, r: 8 }, centerUnit);
+    gameState.placeUnit({ q: 3, r: 8 }, centerUnit);
 
     const canvas = document.createElement("canvas");
     const updateCallback = vi.fn();

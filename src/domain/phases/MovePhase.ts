@@ -6,29 +6,13 @@ import {GameState} from "../GameState";
 import {Move, MoveUnitMove} from "../Move";
 import {Unit} from "../Unit";
 import type {HexCoord} from "../../utils/hex";
+import {BOARD_GEOMETRY} from "../BoardGeometry";
 
 // Declare which methods from GameState we actually need to do our job
 export interface UnitMover {
     getOrderedUnitsWithPositions(): Array<{ coord: HexCoord; unit: Unit }>;
     isUnitMoved(unit: Unit): boolean;
     getUnitAt(coord: HexCoord): Unit | undefined;
-}
-
-// Pointy-top hex neighbors in axial coordinates
-const HEX_NEIGHBORS = [
-    {q: 1, r: 0},   // East
-    {q: 0, r: 1},   // Southeast
-    {q: -1, r: 1},  // Southwest
-    {q: -1, r: 0},  // West
-    {q: -1, r: -1}, // Northwest
-    {q: 0, r: -1},  // Northeast
-];
-
-function getNeighbors(coord: HexCoord): HexCoord[] {
-    return HEX_NEIGHBORS.map(offset => ({
-        q: coord.q + offset.q,
-        r: coord.r + offset.r
-    }));
 }
 
 export class MovePhase implements Phase {
@@ -88,8 +72,8 @@ export class MovePhase implements Phase {
                 continue;
             }
 
-            // Check all neighbors
-            for (const neighbor of getNeighbors(coord)) {
+            // Check all neighbors (only valid on-board neighbors)
+            for (const neighbor of BOARD_GEOMETRY.getValidNeighbors(coord)) {
                 const key = coordToKey(neighbor);
 
                 // Skip if already visited

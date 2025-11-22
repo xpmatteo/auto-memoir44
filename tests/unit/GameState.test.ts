@@ -319,7 +319,7 @@ describe("GameState", () => {
       // Place units
       gameState.placeUnit({ q: 0, r: 0 }, unit1);
       gameState.placeUnit({ q: 1, r: 0 }, unit2);
-      gameState.placeUnit({ q: 10, r: 8 }, unit3);
+      gameState.placeUnit({ q: 8, r: 8 }, unit3);
 
       expect(gameState.getAllUnitsWithPositions()).toHaveLength(3);
 

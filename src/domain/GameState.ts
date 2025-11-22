@@ -10,6 +10,7 @@ import {CardLocation, CommandCard} from "./CommandCard";
 import {isHexInSection, Section} from "./Section";
 import {Phase} from "./phases/Phase";
 import {PlayCardPhase} from "./phases/PlayCardPhase";
+import {BOARD_GEOMETRY} from "./BoardGeometry";
 
 export class GameState {
     private readonly players: [Player, Player];
@@ -89,9 +90,14 @@ export class GameState {
     }
 
     /**
-     * Place a unit at a coordinate. Throws if coordinate is occupied.
+     * Place a unit at a coordinate. Throws if coordinate is occupied or off-board.
      */
     placeUnit(coord: HexCoord, unit: Unit): void {
+        if (!BOARD_GEOMETRY.contains(coord)) {
+            throw new Error(
+                `Cannot place unit at (${coord.q}, ${coord.r}): coordinate is outside board boundaries`
+            );
+        }
         const key = coordToKey(coord);
         if (this.unitPositions.has(key)) {
             throw new Error(
@@ -232,7 +238,7 @@ export class GameState {
     // -- Commands used by Moves
 
     /**
-     * Move a unit from one coordinate to another. Throws if destination is occupied.
+     * Move a unit from one coordinate to another. Throws if destination is occupied or off-board.
      */
     moveUnit(from: HexCoord, to: HexCoord): void {
         const fromKey = coordToKey(from);
@@ -241,6 +247,12 @@ export class GameState {
         const unit = this.unitPositions.get(fromKey);
         if (!unit) {
             throw new Error(`No unit at (${from.q}, ${from.r}) to move`);
+        }
+
+        if (!BOARD_GEOMETRY.contains(to)) {
+            throw new Error(
+                `Cannot move unit to (${to.q}, ${to.r}): coordinate is outside board boundaries`
+            );
         }
 
         if (this.unitPositions.has(toKey)) {

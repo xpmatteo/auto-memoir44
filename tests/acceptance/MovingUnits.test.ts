@@ -136,7 +136,7 @@ describe("Moving units", () => {
         expect(gameState.activePhase.name).toBe("Move Units");
 
         // Act: Now move unit2
-        const newPos2: HexCoord = {q: 9, r: 8};
+        const newPos2: HexCoord = {q: 7, r: 8};
         gameState.executeMove(new MoveUnitMove(pos2, newPos2));
 
         // Assert: Phase auto-advances
