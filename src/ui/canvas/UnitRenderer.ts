@@ -13,7 +13,7 @@ const UNIT_IMAGE_CACHE = new Map<string, HTMLImageElement>();
  * Get the image path for a unit based on its type and owner
  */
 function getUnitImagePath(unit: Unit): string {
-  const prefix = unit.owner === Side.ALLIES ? "us" : "ger";
+  const prefix = unit.side === Side.ALLIES ? "us" : "ger";
   const type = unit.type === UnitType.INFANTRY ? "inf" : "arm";
   return `/images/units/${prefix}_${type}.png`;
 }

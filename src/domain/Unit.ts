@@ -35,12 +35,12 @@ export abstract class Unit {
   id: string;
   abstract readonly type: UnitType;
   strength: number; // Number of figures remaining
-  owner: Side;
+  side: Side;
 
   constructor(strength: number, owner: Side) {
     this.id = `unit-${nextUnitId++}`;
     this.strength = strength;
-    this.owner = owner;
+    this.side = owner;
   }
 }
 

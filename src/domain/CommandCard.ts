@@ -32,7 +32,7 @@ export abstract class CommandCard {
     onCardPlayed(gameState: GameState): void {
         gameState.setCurrentCard(this.id);
         gameState.popPhase();
-        gameState.pushPhase(new OrderUnitsPhase(this.section));
+        gameState.pushPhase(new OrderUnitsPhase(this.section, 2));
     }
 }
 

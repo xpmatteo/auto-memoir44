@@ -129,14 +129,15 @@ export class GameState {
             }));
     }
 
-    getUnitsInSection(section: Section): Array<Unit> {
+    getFriendlyUnitsInSection(section: Section): Array<Unit> {
         return this.getAllUnitsWithPositions()
             .filter(({coord}) =>
                 isHexInSection(coord, section, this.activePlayer.position))
+            .filter(({unit}) => unit.side == this.activePlayer.side)
             .map(({unit}) => unit);
     }
 
-    getOrderedUnits() {
+    getOrderedUnits(): Array<Unit> {
         return [...this.orderedUnits.values()];
     }
 
@@ -148,6 +149,7 @@ export class GameState {
     }
 
     // -- Commands used by CommandCards
+
     popPhase() {
         this.phases.pop();
     }
@@ -228,7 +230,7 @@ export class GameState {
 
         for (const {coord, unit} of allUnitsWithPositions) {
             // Only order units owned by the active player
-            if (unit.owner !== activePlayer.side) {
+            if (unit.side !== activePlayer.side) {
                 continue;
             }
 
