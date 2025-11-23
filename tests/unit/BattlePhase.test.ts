@@ -441,7 +441,7 @@ describe("BattlePhase", () => {
     });
 
     describe("Multiple Targets", () => {
-        test("When unit has 3 enemies in range, returns 3 BattleMoves (one per target)", () => {
+        test("When unit has 3 enemies in range (all distance 2-3, no close combat), returns 3 BattleMoves", () => {
             const friendlyUnit = new Infantry(Side.ALLIES);
             const enemy1 = new Infantry(Side.AXIS);
             const enemy2 = new Infantry(Side.AXIS);
@@ -451,9 +451,9 @@ describe("BattlePhase", () => {
                 orderedUnits: [{coord: {q: 5, r: 5}, unit: friendlyUnit}],
                 allUnits: [
                     {coord: {q: 5, r: 5}, unit: friendlyUnit},
-                    {coord: {q: 6, r: 5}, unit: enemy1},  // Distance 1
-                    {coord: {q: 7, r: 5}, unit: enemy2},  // Distance 2
-                    {coord: {q: 8, r: 5}, unit: enemy3}   // Distance 3
+                    {coord: {q: 7, r: 5}, unit: enemy1},  // Distance 2
+                    {coord: {q: 8, r: 5}, unit: enemy2},  // Distance 3
+                    {coord: {q: 5, r: 7}, unit: enemy3}   // Distance 2 (vertical)
                 ],
                 unitsSkipBattle: [] as Unit[],
                 activePlayer: createPlayer(Side.ALLIES, Position.BOTTOM),
@@ -474,19 +474,16 @@ describe("BattlePhase", () => {
             const phase = new BattlePhase();
             const actual = phase.doLegalMoves(fakeUnitBattler);
 
-            // Should have EndBattlesMove + 3 BattleMoves
-            expect(actual.length).toBe(4);
-
             const battleMoves = actual.filter(m => m instanceof BattleMove) as BattleMove[];
-            expect(battleMoves.length).toBe(3);
 
-            // Each BattleMove should target a different enemy
+            // No adjacent enemies, so all 3 enemies at range 2-3 should be targetable
+            expect(battleMoves.length).toBe(3);
             expect(battleMoves.some(m => m.toUnit === enemy1)).toBe(true);
             expect(battleMoves.some(m => m.toUnit === enemy2)).toBe(true);
             expect(battleMoves.some(m => m.toUnit === enemy3)).toBe(true);
         });
 
-        test("Each BattleMove has correct fromUnit and toUnit", () => {
+        test("Each BattleMove has correct fromUnit and toUnit (no close combat)", () => {
             const friendlyUnit = new Infantry(Side.ALLIES);
             const enemy1 = new Infantry(Side.AXIS);
             const enemy2 = new Infantry(Side.AXIS);
@@ -495,8 +492,8 @@ describe("BattlePhase", () => {
                 orderedUnits: [{coord: {q: 5, r: 5}, unit: friendlyUnit}],
                 allUnits: [
                     {coord: {q: 5, r: 5}, unit: friendlyUnit},
-                    {coord: {q: 6, r: 5}, unit: enemy1},
-                    {coord: {q: 7, r: 5}, unit: enemy2}
+                    {coord: {q: 7, r: 5}, unit: enemy1},  // Distance 2
+                    {coord: {q: 8, r: 5}, unit: enemy2}   // Distance 3
                 ],
                 unitsSkipBattle: [] as Unit[],
                 activePlayer: createPlayer(Side.ALLIES, Position.BOTTOM),
@@ -706,6 +703,250 @@ describe("BattlePhase", () => {
 
             expect(actual.length).toBe(1);
             expect(actual[0]).toBeInstanceOf(EndBattlesMove);
+        });
+    });
+
+    describe("Close Combat Restriction", () => {
+        test("Unit with adjacent enemy can only battle at distance 1", () => {
+            const friendlyUnit = new Infantry(Side.ALLIES);
+            const adjacentEnemy = new Infantry(Side.AXIS);
+            const distantEnemy = new Infantry(Side.AXIS);
+
+            const fakeUnitBattler: UnitBattler = {
+                orderedUnits: [{coord: {q: 5, r: 5}, unit: friendlyUnit}],
+                allUnits: [
+                    {coord: {q: 5, r: 5}, unit: friendlyUnit},
+                    {coord: {q: 6, r: 5}, unit: adjacentEnemy},  // Distance 1
+                    {coord: {q: 7, r: 5}, unit: distantEnemy}    // Distance 2
+                ],
+                unitsSkipBattle: [] as Unit[],
+                activePlayer: createPlayer(Side.ALLIES, Position.BOTTOM),
+
+                getOrderedUnitsWithPositions() {
+                    return this.orderedUnits;
+                },
+
+                unitSkipsBattle(unit: Unit): boolean {
+                    return this.unitsSkipBattle.includes(unit);
+                },
+
+                getAllUnitsWithPositions() {
+                    return this.allUnits;
+                },
+            };
+
+            const phase = new BattlePhase();
+            const actual = phase.doLegalMoves(fakeUnitBattler);
+
+            // Should have EndBattlesMove + BattleMove for adjacent enemy only
+            const battleMoves = actual.filter(m => m instanceof BattleMove) as BattleMove[];
+            expect(battleMoves.length).toBe(1);
+            expect(battleMoves[0].toUnit).toBe(adjacentEnemy);
+        });
+
+        test("Unit with adjacent enemy cannot battle at distance 2", () => {
+            const friendlyUnit = new Infantry(Side.ALLIES);
+            const adjacentEnemy = new Infantry(Side.AXIS);
+            const enemyAtDistance2 = new Infantry(Side.AXIS);
+
+            const fakeUnitBattler: UnitBattler = {
+                orderedUnits: [{coord: {q: 5, r: 5}, unit: friendlyUnit}],
+                allUnits: [
+                    {coord: {q: 5, r: 5}, unit: friendlyUnit},
+                    {coord: {q: 6, r: 5}, unit: adjacentEnemy},     // Distance 1
+                    {coord: {q: 7, r: 5}, unit: enemyAtDistance2}   // Distance 2
+                ],
+                unitsSkipBattle: [] as Unit[],
+                activePlayer: createPlayer(Side.ALLIES, Position.BOTTOM),
+
+                getOrderedUnitsWithPositions() {
+                    return this.orderedUnits;
+                },
+
+                unitSkipsBattle(unit: Unit): boolean {
+                    return this.unitsSkipBattle.includes(unit);
+                },
+
+                getAllUnitsWithPositions() {
+                    return this.allUnits;
+                },
+            };
+
+            const phase = new BattlePhase();
+            const actual = phase.doLegalMoves(fakeUnitBattler);
+
+            const battleMoves = actual.filter(m => m instanceof BattleMove) as BattleMove[];
+            // Should not include enemy at distance 2
+            expect(battleMoves.every(m => m.toUnit !== enemyAtDistance2)).toBe(true);
+        });
+
+        test("Unit with adjacent enemy cannot battle at distance 3", () => {
+            const friendlyUnit = new Infantry(Side.ALLIES);
+            const adjacentEnemy = new Infantry(Side.AXIS);
+            const enemyAtDistance3 = new Infantry(Side.AXIS);
+
+            const fakeUnitBattler: UnitBattler = {
+                orderedUnits: [{coord: {q: 5, r: 5}, unit: friendlyUnit}],
+                allUnits: [
+                    {coord: {q: 5, r: 5}, unit: friendlyUnit},
+                    {coord: {q: 6, r: 5}, unit: adjacentEnemy},     // Distance 1
+                    {coord: {q: 8, r: 5}, unit: enemyAtDistance3}   // Distance 3
+                ],
+                unitsSkipBattle: [] as Unit[],
+                activePlayer: createPlayer(Side.ALLIES, Position.BOTTOM),
+
+                getOrderedUnitsWithPositions() {
+                    return this.orderedUnits;
+                },
+
+                unitSkipsBattle(unit: Unit): boolean {
+                    return this.unitsSkipBattle.includes(unit);
+                },
+
+                getAllUnitsWithPositions() {
+                    return this.allUnits;
+                },
+            };
+
+            const phase = new BattlePhase();
+            const actual = phase.doLegalMoves(fakeUnitBattler);
+
+            const battleMoves = actual.filter(m => m instanceof BattleMove) as BattleMove[];
+            // Should not include enemy at distance 3
+            expect(battleMoves.every(m => m.toUnit !== enemyAtDistance3)).toBe(true);
+        });
+
+        test("Unit with multiple adjacent enemies can battle all adjacent enemies", () => {
+            const friendlyUnit = new Infantry(Side.ALLIES);
+            const adjacentEnemy1 = new Infantry(Side.AXIS);
+            const adjacentEnemy2 = new Infantry(Side.AXIS);
+            const distantEnemy = new Infantry(Side.AXIS);
+
+            const fakeUnitBattler: UnitBattler = {
+                orderedUnits: [{coord: {q: 5, r: 5}, unit: friendlyUnit}],
+                allUnits: [
+                    {coord: {q: 5, r: 5}, unit: friendlyUnit},
+                    {coord: {q: 6, r: 5}, unit: adjacentEnemy1},  // Distance 1 (East)
+                    {coord: {q: 4, r: 5}, unit: adjacentEnemy2},  // Distance 1 (West)
+                    {coord: {q: 8, r: 5}, unit: distantEnemy}     // Distance 3
+                ],
+                unitsSkipBattle: [] as Unit[],
+                activePlayer: createPlayer(Side.ALLIES, Position.BOTTOM),
+
+                getOrderedUnitsWithPositions() {
+                    return this.orderedUnits;
+                },
+
+                unitSkipsBattle(unit: Unit): boolean {
+                    return this.unitsSkipBattle.includes(unit);
+                },
+
+                getAllUnitsWithPositions() {
+                    return this.allUnits;
+                },
+            };
+
+            const phase = new BattlePhase();
+            const actual = phase.doLegalMoves(fakeUnitBattler);
+
+            const battleMoves = actual.filter(m => m instanceof BattleMove) as BattleMove[];
+            // Should have 2 BattleMoves (for both adjacent enemies)
+            expect(battleMoves.length).toBe(2);
+            expect(battleMoves.some(m => m.toUnit === adjacentEnemy1)).toBe(true);
+            expect(battleMoves.some(m => m.toUnit === adjacentEnemy2)).toBe(true);
+            expect(battleMoves.some(m => m.toUnit === distantEnemy)).toBe(false);
+        });
+
+        test("Unit without adjacent enemy can battle at all ranges 1-3", () => {
+            const friendlyUnit = new Infantry(Side.ALLIES);
+            const enemyAt1 = new Infantry(Side.AXIS);
+            const enemyAt2 = new Infantry(Side.AXIS);
+            const enemyAt3 = new Infantry(Side.AXIS);
+
+            const fakeUnitBattler: UnitBattler = {
+                orderedUnits: [{coord: {q: 5, r: 5}, unit: friendlyUnit}],
+                allUnits: [
+                    {coord: {q: 5, r: 5}, unit: friendlyUnit},
+                    {coord: {q: 6, r: 6}, unit: enemyAt1},  // Distance 1 (but diagonal, not adjacent in grid)
+                    {coord: {q: 7, r: 5}, unit: enemyAt2},  // Distance 2
+                    {coord: {q: 8, r: 5}, unit: enemyAt3}   // Distance 3
+                ],
+                unitsSkipBattle: [] as Unit[],
+                activePlayer: createPlayer(Side.ALLIES, Position.BOTTOM),
+
+                getOrderedUnitsWithPositions() {
+                    return this.orderedUnits;
+                },
+
+                unitSkipsBattle(unit: Unit): boolean {
+                    return this.unitsSkipBattle.includes(unit);
+                },
+
+                getAllUnitsWithPositions() {
+                    return this.allUnits;
+                },
+            };
+
+            const phase = new BattlePhase();
+            const actual = phase.doLegalMoves(fakeUnitBattler);
+
+            const battleMoves = actual.filter(m => m instanceof BattleMove) as BattleMove[];
+            // Should be able to battle all enemies at ranges 1-3
+            expect(battleMoves.length).toBe(3);
+            expect(battleMoves.some(m => m.toUnit === enemyAt1)).toBe(true);
+            expect(battleMoves.some(m => m.toUnit === enemyAt2)).toBe(true);
+            expect(battleMoves.some(m => m.toUnit === enemyAt3)).toBe(true);
+        });
+
+        test("Close combat restriction only applies to unit with adjacent enemy", () => {
+            const friendly1 = new Infantry(Side.ALLIES);
+            const friendly2 = new Infantry(Side.ALLIES);
+            const adjacentEnemy = new Infantry(Side.AXIS);
+            const distantEnemy1 = new Infantry(Side.AXIS);
+            const distantEnemy2 = new Infantry(Side.AXIS);
+
+            const fakeUnitBattler: UnitBattler = {
+                orderedUnits: [
+                    {coord: {q: 5, r: 5}, unit: friendly1},   // Has adjacent enemy
+                    {coord: {q: 10, r: 10}, unit: friendly2}  // No adjacent enemy
+                ],
+                allUnits: [
+                    {coord: {q: 5, r: 5}, unit: friendly1},
+                    {coord: {q: 6, r: 5}, unit: adjacentEnemy},   // Adjacent to friendly1
+                    {coord: {q: 7, r: 5}, unit: distantEnemy1},   // Distance 2 from friendly1
+                    {coord: {q: 10, r: 10}, unit: friendly2},
+                    {coord: {q: 12, r: 10}, unit: distantEnemy2}  // Distance 2 from friendly2
+                ],
+                unitsSkipBattle: [] as Unit[],
+                activePlayer: createPlayer(Side.ALLIES, Position.BOTTOM),
+
+                getOrderedUnitsWithPositions() {
+                    return this.orderedUnits;
+                },
+
+                unitSkipsBattle(unit: Unit): boolean {
+                    return this.unitsSkipBattle.includes(unit);
+                },
+
+                getAllUnitsWithPositions() {
+                    return this.allUnits;
+                },
+            };
+
+            const phase = new BattlePhase();
+            const actual = phase.doLegalMoves(fakeUnitBattler);
+
+            const battleMoves = actual.filter(m => m instanceof BattleMove) as BattleMove[];
+
+            // friendly1 should only be able to battle adjacentEnemy (close combat)
+            const friendly1Moves = battleMoves.filter(m => m.fromUnit === friendly1);
+            expect(friendly1Moves.length).toBe(1);
+            expect(friendly1Moves[0].toUnit).toBe(adjacentEnemy);
+
+            // friendly2 should be able to battle distantEnemy2 (no close combat restriction)
+            const friendly2Moves = battleMoves.filter(m => m.fromUnit === friendly2);
+            expect(friendly2Moves.length).toBe(1);
+            expect(friendly2Moves[0].toUnit).toBe(distantEnemy2);
         });
     });
 

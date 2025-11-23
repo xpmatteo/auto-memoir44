@@ -40,15 +40,26 @@ export class BattlePhase implements Phase {
                 continue;
             }
 
-            // Find all enemy units within 3 hexes
+            // Check if there are any adjacent enemies (close combat restriction)
+            const hasAdjacentEnemy = allUnits.some(({coord, unit}) =>
+                unit.side !== activeSide && hexDistance(fromCoord, coord) === 1
+            );
+
+            // Find all enemy units within range
             for (const {coord: toCoord, unit: toUnit} of allUnits) {
                 // Skip friendly units
                 if (toUnit.side === activeSide) {
                     continue;
                 }
 
-                // Check if within range (at most 3 hexes)
                 const distance = hexDistance(fromCoord, toCoord);
+
+                // If engaged in close combat (adjacent enemy), can only battle at distance 1
+                if (hasAdjacentEnemy && distance > 1) {
+                    continue;
+                }
+
+                // Otherwise, can battle enemies at distance 1-3
                 if (distance <= 3) {
                     moves.push(new BattleMove(fromUnit, toUnit));
                 }
