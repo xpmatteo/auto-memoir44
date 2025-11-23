@@ -20,7 +20,7 @@ export class GameState {
     private currentCardId: string | null; // Currently selected card ID
     private orderedUnits: Set<Unit>; // Set of units that have been ordered this turn
     private movedUnits: Set<Unit>; // Set of units that have moved this turn
-    private unitsCannotBattle: Set<Unit>; // Set of units that cannot battle this turn (moved 2 hexes)
+    private unitsSkipBattle: Set<Unit>; // Set of units that skip battle this turn (moved 2 hexes)
     private phases: Array<Phase>;
 
     constructor(
@@ -33,7 +33,7 @@ export class GameState {
         this.currentCardId = null;
         this.orderedUnits = new Set<Unit>();
         this.movedUnits = new Set<Unit>();
-        this.unitsCannotBattle = new Set<Unit>();
+        this.unitsSkipBattle = new Set<Unit>();
         this.phases = new Array<Phase>();
         this.phases.push(new PlayCardPhase());
     }
@@ -174,17 +174,17 @@ export class GameState {
     }
 
     /**
-     * Mark a unit as unable to battle this turn (moved 2 hexes)
+     * Mark a unit to skip battle this turn (moved 2 hexes)
      */
-    markUnitCannotBattle(unit: Unit): void {
-        this.unitsCannotBattle.add(unit);
+    markUnitSkipsBattle(unit: Unit): void {
+        this.unitsSkipBattle.add(unit);
     }
 
     /**
-     * Check if a unit can battle this turn
+     * Check if a unit skips battle this turn
      */
-    canUnitBattle(unit: Unit): boolean {
-        return !this.unitsCannotBattle.has(unit);
+    unitSkipsBattle(unit: Unit): boolean {
+        return this.unitsSkipBattle.has(unit);
     }
 
     // -- Commands used by CommandCards
@@ -213,7 +213,7 @@ export class GameState {
             // Clear ordered units for next turn
             this.orderedUnits.clear();
             this.movedUnits.clear();
-            this.unitsCannotBattle.clear();
+            this.unitsSkipBattle.clear();
 
             // Switch to next player and start their turn
             this.switchActivePlayer();

@@ -11,7 +11,7 @@ import type {HexCoord} from "../../src/utils/hex";
 // Declare which methods from GameState we actually need to do our job
 interface UnitBattler {
     getOrderedUnitsWithPositions(): Array<{ coord: HexCoord; unit: Unit }>;
-    canUnitBattle(unit: Unit): boolean;
+    unitSkipsBattle(unit: Unit): boolean;
     getAllUnitsWithPositions(): Array<{ coord: HexCoord; unit: Unit }>;
     activePlayer: Player;
 }
@@ -22,15 +22,15 @@ describe("BattlePhase", () => {
             const fakeUnitBattler: UnitBattler = {
                 orderedUnits: [],
                 allUnits: [],
-                unitsCannotBattle: [] as Unit[],
+                unitsSkipBattle: [] as Unit[],
                 activePlayer: createPlayer(Side.ALLIES, Position.BOTTOM),
 
                 getOrderedUnitsWithPositions() {
                     return this.orderedUnits;
                 },
 
-                canUnitBattle(unit: Unit): boolean {
-                    return !this.unitsCannotBattle.includes(unit);
+                unitSkipsBattle(unit: Unit): boolean {
+                    return this.unitsSkipBattle.includes(unit);
                 },
 
                 getAllUnitsWithPositions() {
@@ -55,15 +55,15 @@ describe("BattlePhase", () => {
                     {coord: {q: 5, r: 5}, unit: friendlyUnit},
                     {coord: {q: 6, r: 5}, unit: enemyUnit} // 1 hex away
                 ],
-                unitsCannotBattle: [] as Unit[],
+                unitsSkipBattle: [] as Unit[],
                 activePlayer: createPlayer(Side.ALLIES, Position.BOTTOM),
 
                 getOrderedUnitsWithPositions() {
                     return this.orderedUnits;
                 },
 
-                canUnitBattle(unit: Unit): boolean {
-                    return !this.unitsCannotBattle.includes(unit);
+                unitSkipsBattle(unit: Unit): boolean {
+                    return this.unitsSkipBattle.includes(unit);
                 },
 
                 getAllUnitsWithPositions() {
@@ -84,7 +84,7 @@ describe("BattlePhase", () => {
             expect(battleMoves[0].toUnit).toBe(enemyUnit);
         });
 
-        test("Does NOT return BattleMove for ordered unit that cannot battle (marked cannotBattle)", () => {
+        test("Does NOT return BattleMove for ordered unit that skips battle (marked skipsBattle)", () => {
             const friendlyUnit = new Infantry(Side.ALLIES);
             const enemyUnit = new Infantry(Side.AXIS);
 
@@ -94,15 +94,15 @@ describe("BattlePhase", () => {
                     {coord: {q: 5, r: 5}, unit: friendlyUnit},
                     {coord: {q: 6, r: 5}, unit: enemyUnit}
                 ],
-                unitsCannotBattle: [friendlyUnit], // Unit cannot battle
+                unitsSkipBattle: [friendlyUnit], // Unit cannot battle
                 activePlayer: createPlayer(Side.ALLIES, Position.BOTTOM),
 
                 getOrderedUnitsWithPositions() {
                     return this.orderedUnits;
                 },
 
-                canUnitBattle(unit: Unit): boolean {
-                    return !this.unitsCannotBattle.includes(unit);
+                unitSkipsBattle(unit: Unit): boolean {
+                    return this.unitsSkipBattle.includes(unit);
                 },
 
                 getAllUnitsWithPositions() {
@@ -130,15 +130,15 @@ describe("BattlePhase", () => {
                     {coord: {q: 8, r: 8}, unit: unorderedUnit}, // Not ordered
                     {coord: {q: 9, r: 8}, unit: enemyUnit} // Adjacent to unordered unit
                 ],
-                unitsCannotBattle: [] as Unit[],
+                unitsSkipBattle: [] as Unit[],
                 activePlayer: createPlayer(Side.ALLIES, Position.BOTTOM),
 
                 getOrderedUnitsWithPositions() {
                     return this.orderedUnits;
                 },
 
-                canUnitBattle(unit: Unit): boolean {
-                    return !this.unitsCannotBattle.includes(unit);
+                unitSkipsBattle(unit: Unit): boolean {
+                    return this.unitsSkipBattle.includes(unit);
                 },
 
                 getAllUnitsWithPositions() {
@@ -166,15 +166,15 @@ describe("BattlePhase", () => {
                     {coord: {q: 5, r: 5}, unit: friendlyUnit},
                     {coord: {q: 6, r: 5}, unit: enemyUnit} // 1 hex east (distance = 1)
                 ],
-                unitsCannotBattle: [] as Unit[],
+                unitsSkipBattle: [] as Unit[],
                 activePlayer: createPlayer(Side.ALLIES, Position.BOTTOM),
 
                 getOrderedUnitsWithPositions() {
                     return this.orderedUnits;
                 },
 
-                canUnitBattle(unit: Unit): boolean {
-                    return !this.unitsCannotBattle.includes(unit);
+                unitSkipsBattle(unit: Unit): boolean {
+                    return this.unitsSkipBattle.includes(unit);
                 },
 
                 getAllUnitsWithPositions() {
@@ -201,15 +201,15 @@ describe("BattlePhase", () => {
                     {coord: {q: 5, r: 5}, unit: friendlyUnit},
                     {coord: {q: 7, r: 5}, unit: enemyUnit} // 2 hexes east (distance = 2)
                 ],
-                unitsCannotBattle: [] as Unit[],
+                unitsSkipBattle: [] as Unit[],
                 activePlayer: createPlayer(Side.ALLIES, Position.BOTTOM),
 
                 getOrderedUnitsWithPositions() {
                     return this.orderedUnits;
                 },
 
-                canUnitBattle(unit: Unit): boolean {
-                    return !this.unitsCannotBattle.includes(unit);
+                unitSkipsBattle(unit: Unit): boolean {
+                    return this.unitsSkipBattle.includes(unit);
                 },
 
                 getAllUnitsWithPositions() {
@@ -236,15 +236,15 @@ describe("BattlePhase", () => {
                     {coord: {q: 5, r: 5}, unit: friendlyUnit},
                     {coord: {q: 8, r: 5}, unit: enemyUnit} // 3 hexes east (distance = 3)
                 ],
-                unitsCannotBattle: [] as Unit[],
+                unitsSkipBattle: [] as Unit[],
                 activePlayer: createPlayer(Side.ALLIES, Position.BOTTOM),
 
                 getOrderedUnitsWithPositions() {
                     return this.orderedUnits;
                 },
 
-                canUnitBattle(unit: Unit): boolean {
-                    return !this.unitsCannotBattle.includes(unit);
+                unitSkipsBattle(unit: Unit): boolean {
+                    return this.unitsSkipBattle.includes(unit);
                 },
 
                 getAllUnitsWithPositions() {
@@ -271,15 +271,15 @@ describe("BattlePhase", () => {
                     {coord: {q: 5, r: 5}, unit: friendlyUnit},
                     {coord: {q: 9, r: 5}, unit: enemyUnit} // 4 hexes east (distance = 4)
                 ],
-                unitsCannotBattle: [] as Unit[],
+                unitsSkipBattle: [] as Unit[],
                 activePlayer: createPlayer(Side.ALLIES, Position.BOTTOM),
 
                 getOrderedUnitsWithPositions() {
                     return this.orderedUnits;
                 },
 
-                canUnitBattle(unit: Unit): boolean {
-                    return !this.unitsCannotBattle.includes(unit);
+                unitSkipsBattle(unit: Unit): boolean {
+                    return this.unitsSkipBattle.includes(unit);
                 },
 
                 getAllUnitsWithPositions() {
@@ -307,15 +307,15 @@ describe("BattlePhase", () => {
                     {coord: {q: 7, r: 6}, unit: enemyNear}, // distance = 2
                     {coord: {q: 9, r: 7}, unit: enemyFar}   // distance = 4
                 ],
-                unitsCannotBattle: [] as Unit[],
+                unitsSkipBattle: [] as Unit[],
                 activePlayer: createPlayer(Side.ALLIES, Position.BOTTOM),
 
                 getOrderedUnitsWithPositions() {
                     return this.orderedUnits;
                 },
 
-                canUnitBattle(unit: Unit): boolean {
-                    return !this.unitsCannotBattle.includes(unit);
+                unitSkipsBattle(unit: Unit): boolean {
+                    return this.unitsSkipBattle.includes(unit);
                 },
 
                 getAllUnitsWithPositions() {
@@ -346,15 +346,15 @@ describe("BattlePhase", () => {
                     {coord: {q: 6, r: 5}, unit: anotherFriendly}, // Same side
                     {coord: {q: 7, r: 5}, unit: enemyUnit}        // Enemy
                 ],
-                unitsCannotBattle: [] as Unit[],
+                unitsSkipBattle: [] as Unit[],
                 activePlayer: createPlayer(Side.ALLIES, Position.BOTTOM),
 
                 getOrderedUnitsWithPositions() {
                     return this.orderedUnits;
                 },
 
-                canUnitBattle(unit: Unit): boolean {
-                    return !this.unitsCannotBattle.includes(unit);
+                unitSkipsBattle(unit: Unit): boolean {
+                    return this.unitsSkipBattle.includes(unit);
                 },
 
                 getAllUnitsWithPositions() {
@@ -380,15 +380,15 @@ describe("BattlePhase", () => {
                     {coord: {q: 5, r: 5}, unit: friendlyUnit1},
                     {coord: {q: 6, r: 5}, unit: friendlyUnit2} // Adjacent friendly
                 ],
-                unitsCannotBattle: [] as Unit[],
+                unitsSkipBattle: [] as Unit[],
                 activePlayer: createPlayer(Side.ALLIES, Position.BOTTOM),
 
                 getOrderedUnitsWithPositions() {
                     return this.orderedUnits;
                 },
 
-                canUnitBattle(unit: Unit): boolean {
-                    return !this.unitsCannotBattle.includes(unit);
+                unitSkipsBattle(unit: Unit): boolean {
+                    return this.unitsSkipBattle.includes(unit);
                 },
 
                 getAllUnitsWithPositions() {
@@ -414,15 +414,15 @@ describe("BattlePhase", () => {
                     {coord: {q: 5, r: 5}, unit: axisUnit},
                     {coord: {q: 6, r: 5}, unit: alliedUnit} // Enemy when AXIS is active
                 ],
-                unitsCannotBattle: [] as Unit[],
+                unitsSkipBattle: [] as Unit[],
                 activePlayer: createPlayer(Side.AXIS, Position.TOP),
 
                 getOrderedUnitsWithPositions() {
                     return this.orderedUnits;
                 },
 
-                canUnitBattle(unit: Unit): boolean {
-                    return !this.unitsCannotBattle.includes(unit);
+                unitSkipsBattle(unit: Unit): boolean {
+                    return this.unitsSkipBattle.includes(unit);
                 },
 
                 getAllUnitsWithPositions() {
@@ -455,15 +455,15 @@ describe("BattlePhase", () => {
                     {coord: {q: 7, r: 5}, unit: enemy2},  // Distance 2
                     {coord: {q: 8, r: 5}, unit: enemy3}   // Distance 3
                 ],
-                unitsCannotBattle: [] as Unit[],
+                unitsSkipBattle: [] as Unit[],
                 activePlayer: createPlayer(Side.ALLIES, Position.BOTTOM),
 
                 getOrderedUnitsWithPositions() {
                     return this.orderedUnits;
                 },
 
-                canUnitBattle(unit: Unit): boolean {
-                    return !this.unitsCannotBattle.includes(unit);
+                unitSkipsBattle(unit: Unit): boolean {
+                    return this.unitsSkipBattle.includes(unit);
                 },
 
                 getAllUnitsWithPositions() {
@@ -498,15 +498,15 @@ describe("BattlePhase", () => {
                     {coord: {q: 6, r: 5}, unit: enemy1},
                     {coord: {q: 7, r: 5}, unit: enemy2}
                 ],
-                unitsCannotBattle: [] as Unit[],
+                unitsSkipBattle: [] as Unit[],
                 activePlayer: createPlayer(Side.ALLIES, Position.BOTTOM),
 
                 getOrderedUnitsWithPositions() {
                     return this.orderedUnits;
                 },
 
-                canUnitBattle(unit: Unit): boolean {
-                    return !this.unitsCannotBattle.includes(unit);
+                unitSkipsBattle(unit: Unit): boolean {
+                    return this.unitsSkipBattle.includes(unit);
                 },
 
                 getAllUnitsWithPositions() {
@@ -547,15 +547,15 @@ describe("BattlePhase", () => {
                     {coord: {q: 10, r: 10}, unit: friendly2},
                     {coord: {q: 11, r: 10}, unit: enemy2}     // Near friendly2
                 ],
-                unitsCannotBattle: [] as Unit[],
+                unitsSkipBattle: [] as Unit[],
                 activePlayer: createPlayer(Side.ALLIES, Position.BOTTOM),
 
                 getOrderedUnitsWithPositions() {
                     return this.orderedUnits;
                 },
 
-                canUnitBattle(unit: Unit): boolean {
-                    return !this.unitsCannotBattle.includes(unit);
+                unitSkipsBattle(unit: Unit): boolean {
+                    return this.unitsSkipBattle.includes(unit);
                 },
 
                 getAllUnitsWithPositions() {
@@ -585,15 +585,15 @@ describe("BattlePhase", () => {
             const fakeUnitBattler: UnitBattler = {
                 orderedUnits: [], // No ordered units
                 allUnits: [{coord: {q: 5, r: 5}, unit: enemy}],
-                unitsCannotBattle: [] as Unit[],
+                unitsSkipBattle: [] as Unit[],
                 activePlayer: createPlayer(Side.ALLIES, Position.BOTTOM),
 
                 getOrderedUnitsWithPositions() {
                     return this.orderedUnits;
                 },
 
-                canUnitBattle(unit: Unit): boolean {
-                    return !this.unitsCannotBattle.includes(unit);
+                unitSkipsBattle(unit: Unit): boolean {
+                    return this.unitsSkipBattle.includes(unit);
                 },
 
                 getAllUnitsWithPositions() {
@@ -608,7 +608,7 @@ describe("BattlePhase", () => {
             expect(actual[0]).toBeInstanceOf(EndBattlesMove);
         });
 
-        test("All ordered units marked cannotBattle → only EndBattlesMove", () => {
+        test("All ordered units marked skipsBattle → only EndBattlesMove", () => {
             const friendly1 = new Infantry(Side.ALLIES);
             const friendly2 = new Infantry(Side.ALLIES);
             const enemy = new Infantry(Side.AXIS);
@@ -623,15 +623,15 @@ describe("BattlePhase", () => {
                     {coord: {q: 6, r: 6}, unit: friendly2},
                     {coord: {q: 7, r: 5}, unit: enemy}
                 ],
-                unitsCannotBattle: [friendly1, friendly2], // Both cannot battle
+                unitsSkipBattle: [friendly1, friendly2], // Both cannot battle
                 activePlayer: createPlayer(Side.ALLIES, Position.BOTTOM),
 
                 getOrderedUnitsWithPositions() {
                     return this.orderedUnits;
                 },
 
-                canUnitBattle(unit: Unit): boolean {
-                    return !this.unitsCannotBattle.includes(unit);
+                unitSkipsBattle(unit: Unit): boolean {
+                    return this.unitsSkipBattle.includes(unit);
                 },
 
                 getAllUnitsWithPositions() {
@@ -652,15 +652,15 @@ describe("BattlePhase", () => {
             const fakeUnitBattler: UnitBattler = {
                 orderedUnits: [{coord: {q: 5, r: 5}, unit: friendly}],
                 allUnits: [{coord: {q: 5, r: 5}, unit: friendly}], // No enemies
-                unitsCannotBattle: [] as Unit[],
+                unitsSkipBattle: [] as Unit[],
                 activePlayer: createPlayer(Side.ALLIES, Position.BOTTOM),
 
                 getOrderedUnitsWithPositions() {
                     return this.orderedUnits;
                 },
 
-                canUnitBattle(unit: Unit): boolean {
-                    return !this.unitsCannotBattle.includes(unit);
+                unitSkipsBattle(unit: Unit): boolean {
+                    return this.unitsSkipBattle.includes(unit);
                 },
 
                 getAllUnitsWithPositions() {
@@ -685,15 +685,15 @@ describe("BattlePhase", () => {
                     {coord: {q: 5, r: 5}, unit: friendly},
                     {coord: {q: 10, r: 10}, unit: enemy} // Far away (distance > 3)
                 ],
-                unitsCannotBattle: [] as Unit[],
+                unitsSkipBattle: [] as Unit[],
                 activePlayer: createPlayer(Side.ALLIES, Position.BOTTOM),
 
                 getOrderedUnitsWithPositions() {
                     return this.orderedUnits;
                 },
 
-                canUnitBattle(unit: Unit): boolean {
-                    return !this.unitsCannotBattle.includes(unit);
+                unitSkipsBattle(unit: Unit): boolean {
+                    return this.unitsSkipBattle.includes(unit);
                 },
 
                 getAllUnitsWithPositions() {
@@ -721,15 +721,15 @@ describe("BattlePhase", () => {
                     {coord: {q: 5, r: 5}, unit: friendly},
                     {coord: {q: 6, r: 5}, unit: enemy}
                 ],
-                unitsCannotBattle: [] as Unit[],
+                unitsSkipBattle: [] as Unit[],
                 activePlayer: createPlayer(Side.ALLIES, Position.BOTTOM),
 
                 getOrderedUnitsWithPositions() {
                     return this.orderedUnits;
                 },
 
-                canUnitBattle(unit: Unit): boolean {
-                    return !this.unitsCannotBattle.includes(unit);
+                unitSkipsBattle(unit: Unit): boolean {
+                    return this.unitsSkipBattle.includes(unit);
                 },
 
                 getAllUnitsWithPositions() {

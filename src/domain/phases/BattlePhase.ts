@@ -12,7 +12,7 @@ import type {Player} from "../Player";
 // Declare which methods from GameState we actually need to do our job
 export interface UnitBattler {
     getOrderedUnitsWithPositions(): Array<{ coord: HexCoord; unit: Unit }>;
-    canUnitBattle(unit: Unit): boolean;
+    unitSkipsBattle(unit: Unit): boolean;
     getAllUnitsWithPositions(): Array<{ coord: HexCoord; unit: Unit }>;
     activePlayer: Player;
 }
@@ -35,8 +35,8 @@ export class BattlePhase implements Phase {
         const activeSide = unitBattler.activePlayer.side;
 
         for (const {coord: fromCoord, unit: fromUnit} of orderedUnits) {
-            // Skip units that cannot battle (moved 2 hexes)
-            if (!unitBattler.canUnitBattle(fromUnit)) {
+            // Skip units that skip battle (moved 2 hexes)
+            if (unitBattler.unitSkipsBattle(fromUnit)) {
                 continue;
             }
 

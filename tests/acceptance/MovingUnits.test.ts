@@ -188,8 +188,8 @@ describe("Moving units", () => {
         const endPos1: HexCoord = {q: 3, r: 4}; // 2 hexes away
         gameState.executeMove(new MoveUnitMove(startPos1, endPos1));
 
-        // Assert: After moving 2 hexes, unit1 should be marked as unable to battle
-        expect(gameState.canUnitBattle(unit1)).toBe(false);
+        // Assert: After moving 2 hexes, unit1 should be marked to skip battle
+        expect(gameState.unitSkipsBattle(unit1)).toBe(true);
 
         // Still in MovePhase because unit2 hasn't moved yet
         expect(gameState.activePhase.name).toBe("Move Units");
@@ -203,7 +203,7 @@ describe("Moving units", () => {
 
         // Note: After turn end, battle restrictions are cleared automatically by popPhase()
         // The unit tests in MoveUnitMove.test.ts and GameState.movement.test.ts verify this behavior
-        expect(gameState.canUnitBattle(unit1)).toBe(true);
-        expect(gameState.canUnitBattle(unit2)).toBe(true);
+        expect(gameState.unitSkipsBattle(unit1)).toBe(false);
+        expect(gameState.unitSkipsBattle(unit2)).toBe(false);
     });
 });

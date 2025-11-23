@@ -31,8 +31,8 @@ export class ST02Scenario implements Scenario {
         gameState.placeUnit({q: 7, r: 7}, new Infantry(Side.ALLIES));
 
         // German infantry at top (2 units with 4 figures each)
-        gameState.placeUnit({q: 5, r: 1}, new Infantry(Side.AXIS));
-        gameState.placeUnit({q: 6, r: 1}, new Infantry(Side.AXIS));
-        gameState.placeUnit({q: 7, r: 1}, new Infantry(Side.AXIS));
+        gameState.placeUnit({q: 3, r: 4}, new Infantry(Side.AXIS));
+        gameState.placeUnit({q: 4, r: 4}, new Infantry(Side.AXIS));
+        gameState.placeUnit({q: 5, r: 4}, new Infantry(Side.AXIS));
     }
 }

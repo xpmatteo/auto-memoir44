@@ -75,19 +75,19 @@ describe("GameState movement tracking", () => {
 });
 
 describe("GameState battle restriction tracking", () => {
-    it("should mark a unit as unable to battle", () => {
+    it("should mark a unit to skip battle", () => {
         const deck = Deck.createStandardDeck();
         const gameState = new GameState(deck);
         const unit = new Infantry(Side.ALLIES);
         const coord: HexCoord = {q: 5, r: 3};
 
         gameState.placeUnit(coord, unit);
-        gameState.markUnitCannotBattle(unit);
+        gameState.markUnitSkipsBattle(unit);
 
-        expect(gameState.canUnitBattle(unit)).toBe(false);
+        expect(gameState.unitSkipsBattle(unit)).toBe(true);
     });
 
-    it("should return true for units that can battle", () => {
+    it("should return false for units that do not skip battle", () => {
         const deck = Deck.createStandardDeck();
         const gameState = new GameState(deck);
         const unit = new Infantry(Side.ALLIES);
@@ -95,7 +95,7 @@ describe("GameState battle restriction tracking", () => {
 
         gameState.placeUnit(coord, unit);
 
-        expect(gameState.canUnitBattle(unit)).toBe(true);
+        expect(gameState.unitSkipsBattle(unit)).toBe(false);
     });
 
     it("should clear battle restrictions when turn ends", () => {
@@ -108,15 +108,15 @@ describe("GameState battle restriction tracking", () => {
         const coord: HexCoord = {q: 5, r: 3};
 
         gameState.placeUnit(coord, unit);
-        gameState.markUnitCannotBattle(unit);
-        expect(gameState.canUnitBattle(unit)).toBe(false);
+        gameState.markUnitSkipsBattle(unit);
+        expect(gameState.unitSkipsBattle(unit)).toBe(true);
 
         // Set up and complete turn
         gameState.setCurrentCard(card.id);
         gameState.replacePhase(new OrderUnitsPhase(Section.CENTER, 1));
         gameState.popPhase();
 
-        expect(gameState.canUnitBattle(unit)).toBe(true);
+        expect(gameState.unitSkipsBattle(unit)).toBe(false);
     });
 
     it("should track battle restrictions for multiple units independently", () => {
@@ -130,9 +130,9 @@ describe("GameState battle restriction tracking", () => {
         gameState.placeUnit(coord1, unit1);
         gameState.placeUnit(coord2, unit2);
 
-        gameState.markUnitCannotBattle(unit1);
+        gameState.markUnitSkipsBattle(unit1);
 
-        expect(gameState.canUnitBattle(unit1)).toBe(false);
-        expect(gameState.canUnitBattle(unit2)).toBe(true);
+        expect(gameState.unitSkipsBattle(unit1)).toBe(true);
+        expect(gameState.unitSkipsBattle(unit2)).toBe(false);
     });
 });
