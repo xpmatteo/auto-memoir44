@@ -81,3 +81,24 @@ export class MoveUnitMove implements Move {
     }
 }
 
+export class BattleMove implements Move {
+    readonly fromUnit: Unit;
+    readonly toUnit: Unit;
+
+    constructor(fromUnit: Unit, toUnit: Unit) {
+        this.fromUnit = fromUnit;
+        this.toUnit = toUnit;
+    }
+
+    execute(gameState: GameState): void {
+        // TODO: Implement combat resolution (dice rolls, casualties)
+        throw new Error("BattleMove.execute() not yet implemented");
+    }
+}
+
+export class EndBattlesMove implements Move {
+    execute(gameState: GameState): void {
+        gameState.popPhase();
+    }
+}
+
