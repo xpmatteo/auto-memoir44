@@ -163,4 +163,47 @@ describe("Moving units", () => {
         // Assert: Skips MovePhase and goes straight to next player's turn
         expect(gameState.activePhase.name).toBe("Play Card");
     });
+
+    test("Units that move 2 hexes cannot battle", () => {
+        // Arrange
+        const deck = Deck.createFromComposition([[ProbeCenter, 60]]);
+        const gameState = new GameState(deck);
+        gameState.drawCards(3, CardLocation.BOTTOM_PLAYER_HAND);
+
+        const unit1 = new Infantry(Side.ALLIES);
+        const unit2 = new Infantry(Side.ALLIES);
+        const startPos1: HexCoord = {q: 1, r: 4};
+        const startPos2: HexCoord = {q: 1, r: 6};
+        gameState.placeUnit(startPos1, unit1);
+        gameState.placeUnit(startPos2, unit2);
+
+        // Play card and order both units
+        const card = gameState.getCardsInLocation(CardLocation.BOTTOM_PLAYER_HAND)[0];
+        gameState.executeMove(new PlayCardMove(card));
+        gameState.executeMove(new ToggleUnitOrderedMove(unit1));
+        gameState.executeMove(new ToggleUnitOrderedMove(unit2));
+        gameState.executeMove(new ConfirmOrdersMove());
+
+        // Act: Move unit1 2 hexes
+        const endPos1: HexCoord = {q: 3, r: 4}; // 2 hexes away
+        gameState.executeMove(new MoveUnitMove(startPos1, endPos1));
+
+        // Assert: After moving 2 hexes, unit1 should be marked as unable to battle
+        expect(gameState.canUnitBattle(unit1)).toBe(false);
+
+        // Still in MovePhase because unit2 hasn't moved yet
+        expect(gameState.activePhase.name).toBe("Move Units");
+
+        // Act: Move unit2 1 hex
+        const endPos2: HexCoord = {q: 2, r: 6}; // 1 hex away
+        gameState.executeMove(new MoveUnitMove(startPos2, endPos2));
+
+        // Assert: Phase auto-advanced to next turn after all units moved
+        expect(gameState.activePhase.name).toBe("Play Card");
+
+        // Note: After turn end, battle restrictions are cleared automatically by popPhase()
+        // The unit tests in MoveUnitMove.test.ts and GameState.movement.test.ts verify this behavior
+        expect(gameState.canUnitBattle(unit1)).toBe(true);
+        expect(gameState.canUnitBattle(unit2)).toBe(true);
+    });
 });

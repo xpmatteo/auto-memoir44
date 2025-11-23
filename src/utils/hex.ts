@@ -89,3 +89,15 @@ export function hexToPixel(coord: HexCoord, grid: GridConfig): CanvasCoord {
     y: grid.originY + vertStep * coord.r
   };
 }
+
+/**
+ * Calculate the distance between two hexes in hex grid coordinates.
+ * Uses the cube coordinate system where q + r + s = 0.
+ * Based on the algorithm from doc/hexlib.js.
+ */
+export function hexDistance(from: HexCoord, to: HexCoord): number {
+  const dq = Math.abs(from.q - to.q);
+  const dr = Math.abs(from.r - to.r);
+  const ds = Math.abs((from.q + from.r) - (to.q + to.r));
+  return Math.trunc((dq + dr + ds) / 2);
+}

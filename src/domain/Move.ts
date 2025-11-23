@@ -4,6 +4,7 @@ import {CommandCard} from "./CommandCard";
 import {GameState} from "./GameState";
 import {Unit} from "./Unit";
 import type {HexCoord} from "../utils/hex";
+import {hexDistance} from "../utils/hex";
 import {MovePhase} from "./phases/MovePhase";
 
 export interface Move {
@@ -62,6 +63,12 @@ export class MoveUnitMove implements Move {
         }
         gameState.moveUnit(this.from, this.to);
         gameState.markUnitMoved(unit);
+
+        // Mark unit as unable to battle if it moved 2 hexes
+        const distance = hexDistance(this.from, this.to);
+        if (distance === 2) {
+            gameState.markUnitCannotBattle(unit);
+        }
 
         // Check if all ordered units have moved (auto-advance phase)
         const orderedUnits = gameState.getOrderedUnits();

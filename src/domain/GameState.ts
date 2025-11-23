@@ -20,6 +20,7 @@ export class GameState {
     private currentCardId: string | null; // Currently selected card ID
     private orderedUnits: Set<Unit>; // Set of units that have been ordered this turn
     private movedUnits: Set<Unit>; // Set of units that have moved this turn
+    private unitsCannotBattle: Set<Unit>; // Set of units that cannot battle this turn (moved 2 hexes)
     private phases: Array<Phase>;
 
     constructor(
@@ -32,6 +33,7 @@ export class GameState {
         this.currentCardId = null;
         this.orderedUnits = new Set<Unit>();
         this.movedUnits = new Set<Unit>();
+        this.unitsCannotBattle = new Set<Unit>();
         this.phases = new Array<Phase>();
         this.phases.push(new PlayCardPhase());
     }
@@ -171,6 +173,20 @@ export class GameState {
         this.movedUnits.add(unit);
     }
 
+    /**
+     * Mark a unit as unable to battle this turn (moved 2 hexes)
+     */
+    markUnitCannotBattle(unit: Unit): void {
+        this.unitsCannotBattle.add(unit);
+    }
+
+    /**
+     * Check if a unit can battle this turn
+     */
+    canUnitBattle(unit: Unit): boolean {
+        return !this.unitsCannotBattle.has(unit);
+    }
+
     // -- Commands used by CommandCards
 
     // popPhase ends the current phase and starts the next phase, or the next player turn.
@@ -197,6 +213,7 @@ export class GameState {
             // Clear ordered units for next turn
             this.orderedUnits.clear();
             this.movedUnits.clear();
+            this.unitsCannotBattle.clear();
 
             // Switch to next player and start their turn
             this.switchActivePlayer();
