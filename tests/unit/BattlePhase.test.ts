@@ -126,6 +126,7 @@ describe("BattlePhase", () => {
             expect(battleMoves.length).toBe(1);
             expect(battleMoves[0].fromUnit).toBe(friendlyUnit);
             expect(battleMoves[0].toUnit).toBe(enemyUnit);
+            expect(battleMoves[0].dice).toBe(3); // Infantry rolls 3 dice at distance 1
         });
 
         test("Returns BattleMove for enemy at distance 2", () => {
@@ -147,6 +148,7 @@ describe("BattlePhase", () => {
             expect(battleMoves.length).toBe(1);
             expect(battleMoves[0].fromUnit).toBe(friendlyUnit);
             expect(battleMoves[0].toUnit).toBe(enemyUnit);
+            expect(battleMoves[0].dice).toBe(2); // Infantry rolls 2 dice at distance 2
         });
 
         test("Returns BattleMove for enemy at distance 3", () => {
@@ -168,6 +170,7 @@ describe("BattlePhase", () => {
             expect(battleMoves.length).toBe(1);
             expect(battleMoves[0].fromUnit).toBe(friendlyUnit);
             expect(battleMoves[0].toUnit).toBe(enemyUnit);
+            expect(battleMoves[0].dice).toBe(1); // Infantry rolls 1 die at distance 3
         });
 
         test("Does NOT return BattleMove for enemy at distance 4", () => {

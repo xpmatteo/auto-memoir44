@@ -8,6 +8,7 @@ import {Unit} from "../Unit";
 import {HexCoord} from "../../utils/hex";
 import {hexDistance} from "../../utils/hex";
 import type {Player} from "../Player";
+import {calculateDiceCount} from "../../rules/combat";
 
 // Declare which methods from GameState we actually need to do our job
 export interface UnitBattler {
@@ -35,7 +36,7 @@ export class BattlePhase implements Phase {
         const activeSide = unitBattler.activePlayer.side;
 
         for (const {coord: fromCoord, unit: fromUnit} of orderedUnits) {
-            // Skip units that skip battle (moved 2 hexes)
+            // Skip units that skip battle
             if (unitBattler.unitSkipsBattle(fromUnit)) {
                 continue;
             }
@@ -61,7 +62,8 @@ export class BattlePhase implements Phase {
 
                 // Otherwise, can battle enemies at distance 1-3
                 if (distance <= 3) {
-                    moves.push(new BattleMove(fromUnit, toUnit));
+                    const dice = calculateDiceCount(fromUnit, distance);
+                    moves.push(new BattleMove(fromUnit, toUnit, dice));
                 }
             }
         }

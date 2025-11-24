@@ -113,16 +113,22 @@ export class MoveUnitMove extends Move {
 export class BattleMove extends Move {
     readonly fromUnit: Unit;
     readonly toUnit: Unit;
+    readonly dice: number;
 
-    constructor(fromUnit: Unit, toUnit: Unit) {
+    constructor(fromUnit: Unit, toUnit: Unit, dice: number) {
         super();
         this.fromUnit = fromUnit;
         this.toUnit = toUnit;
+        this.dice = dice;
     }
 
     execute(_gameState: GameState): void {
         // TODO: Implement combat resolution (dice rolls, casualties)
         throw new Error("BattleMove.execute() not yet implemented");
+    }
+
+    toString(): string {
+        return `Battle: ${this.fromUnit.type} (${this.dice} dice) → ${this.toUnit.type}`;
     }
 }
 
