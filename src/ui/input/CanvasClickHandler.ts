@@ -4,7 +4,7 @@
 import type { GameState } from "../../domain/GameState.js";
 import type { GridConfig } from "../../utils/hex.js";
 import type { Unit } from "../../domain/Unit.js";
-import { toCanvasCoords, pixelToHex } from "../../utils/hex.js";
+import { toCanvasCoords, pixelToHex, HexCoord } from "../../utils/hex.js";
 import { ToggleUnitOrderedMove, MoveUnitMove } from "../../domain/Move.js";
 import { OrderUnitsPhase } from "../../domain/phases/OrderUnitsPhase.js";
 import { MovePhase } from "../../domain/phases/MovePhase.js";
@@ -42,7 +42,7 @@ export class CanvasClickHandler {
    * Handle clicks during OrderUnitsPhase
    * Toggles unit ordering when clicking on a unit
    */
-  private handleOrderingClick(hexCoord: { q: number; r: number }): void {
+  private handleOrderingClick(hexCoord: HexCoord): void {
     const unit = this.gameState.getUnitAt(hexCoord);
 
     if (unit) {
@@ -62,7 +62,7 @@ export class CanvasClickHandler {
    * Handle clicks during MovePhase
    * Two-click flow: select unit -> select destination -> execute move
    */
-  private handleMovementClick(hexCoord: { q: number; r: number }): void {
+  private handleMovementClick(hexCoord: HexCoord): void {
     const unit = this.gameState.getUnitAt(hexCoord);
     const legalMoves = this.gameState.legalMoves();
 
@@ -115,7 +115,7 @@ export class CanvasClickHandler {
   /**
    * Find the location of a unit on the board
    */
-  private findUnitLocation(unit: Unit): { q: number; r: number } | null {
+  private findUnitLocation(unit: Unit): HexCoord | null {
     const allUnits = this.gameState.getAllUnitsWithPositions();
     const found = allUnits.find(({ unit: u }) => u.id === unit.id);
     return found ? found.coord : null;

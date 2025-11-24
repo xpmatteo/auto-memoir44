@@ -6,6 +6,7 @@ import type {Scenario} from "./Scenario";
 import {CardLocation} from "../domain/CommandCard";
 import {Infantry} from "../domain/Unit";
 import {Side} from "../domain/Player";
+import {HexCoord} from "../utils/hex";
 
 export class ST02Scenario implements Scenario {
     setup(gameState: GameState): void {
@@ -15,24 +16,24 @@ export class ST02Scenario implements Scenario {
 
         // Helper to place a unit at coordinates
         // US infantry at bottom (6 units with 4 figures each)
-        gameState.placeUnit({q: -2, r: 7}, new Infantry(Side.ALLIES));
-        gameState.placeUnit({q: -1, r: 7}, new Infantry(Side.ALLIES));
+        gameState.placeUnit(new HexCoord(-2, 7), new Infantry(Side.ALLIES));
+        gameState.placeUnit(new HexCoord(-1, 7), new Infantry(Side.ALLIES));
 
-        gameState.placeUnit({q: -0, r: 7}, new Infantry(Side.ALLIES));
+        gameState.placeUnit(new HexCoord(-0, 7), new Infantry(Side.ALLIES));
 
-        gameState.placeUnit({q: 1, r: 7}, new Infantry(Side.ALLIES));
-        gameState.placeUnit({q: 2, r: 7}, new Infantry(Side.ALLIES));
-        gameState.placeUnit({q: 3, r: 7}, new Infantry(Side.ALLIES));
-        gameState.placeUnit({q: 4, r: 7}, new Infantry(Side.ALLIES));
+        gameState.placeUnit(new HexCoord(1, 7), new Infantry(Side.ALLIES));
+        gameState.placeUnit(new HexCoord(2, 7), new Infantry(Side.ALLIES));
+        gameState.placeUnit(new HexCoord(3, 7), new Infantry(Side.ALLIES));
+        gameState.placeUnit(new HexCoord(4, 7), new Infantry(Side.ALLIES));
 
-        gameState.placeUnit({q: 5, r: 7}, new Infantry(Side.ALLIES));
+        gameState.placeUnit(new HexCoord(5, 7), new Infantry(Side.ALLIES));
 
-        gameState.placeUnit({q: 6, r: 7}, new Infantry(Side.ALLIES));
-        gameState.placeUnit({q: 7, r: 7}, new Infantry(Side.ALLIES));
+        gameState.placeUnit(new HexCoord(6, 7), new Infantry(Side.ALLIES));
+        gameState.placeUnit(new HexCoord(7, 7), new Infantry(Side.ALLIES));
 
         // German infantry at top (2 units with 4 figures each)
-        gameState.placeUnit({q: 3, r: 4}, new Infantry(Side.AXIS));
-        gameState.placeUnit({q: 4, r: 4}, new Infantry(Side.AXIS));
-        gameState.placeUnit({q: 5, r: 4}, new Infantry(Side.AXIS));
+        gameState.placeUnit(new HexCoord(3, 4), new Infantry(Side.AXIS));
+        gameState.placeUnit(new HexCoord(4, 4), new Infantry(Side.AXIS));
+        gameState.placeUnit(new HexCoord(5, 4), new Infantry(Side.AXIS));
     }
 }

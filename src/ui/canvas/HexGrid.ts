@@ -50,9 +50,10 @@ export function drawGrid(context: CanvasRenderingContext2D, grid: GridConfig) {
       if (showCoords) {
         // Get section(s) for this hex from bottom player's perspective
         const sections = [];
-        if (isHexInSection({ q, r }, Section.LEFT, Position.BOTTOM)) sections.push("L");
-        if (isHexInSection({ q, r }, Section.CENTER, Position.BOTTOM)) sections.push("C");
-        if (isHexInSection({ q, r }, Section.RIGHT, Position.BOTTOM)) sections.push("R");
+        const coord = new HexCoord(q, r);
+        if (isHexInSection(coord, Section.LEFT, Position.BOTTOM)) sections.push("L");
+        if (isHexInSection(coord, Section.CENTER, Position.BOTTOM)) sections.push("C");
+        if (isHexInSection(coord, Section.RIGHT, Position.BOTTOM)) sections.push("R");
         const sectionLabel = sections.join("/");
         const label = `${q},${r} ${sectionLabel}`;
         context.fillStyle = "black";

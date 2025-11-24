@@ -23,7 +23,7 @@ export function coordToKey(coord: HexCoord): string {
  */
 export function keyToCoord(key: string): HexCoord {
   const [q, r] = key.split(",").map(Number);
-  return { q, r };
+  return new HexCoord(q, r);
 }
 
 let nextUnitId = 1;

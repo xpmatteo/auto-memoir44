@@ -5,7 +5,6 @@ import {GameState} from "./GameState";
 import {Unit} from "./Unit";
 import {HexCoord} from "../utils/hex";
 import {hexDistance} from "../utils/hex";
-import {MovePhase} from "./phases/MovePhase";
 
 export interface Move {
     execute(gameState: GameState): void;

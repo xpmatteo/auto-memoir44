@@ -34,7 +34,7 @@ export class BoardGeometry {
       const numCols = r % 2 === 0 ? 13 : 12;
 
       for (let q = colStart; q < colStart + numCols; q++) {
-        const hex = { q, r };
+        const hex = new HexCoord(q, r);
         const key = this.hexKey(hex);
         this.validHexes.add(key);
 
