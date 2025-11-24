@@ -3,11 +3,11 @@
 
 export class DiceResult {
   readonly name: string;
-  readonly value: number;
+  readonly sortValue: number;
 
   constructor(name: string, value: number) {
     this.name = name;
-    this.value = value;
+    this.sortValue = value;
   }
 
   toString(): string {
@@ -67,7 +67,7 @@ export class Dice {
       die.roll();
       results.push(die.getValue());
     }
-    results.sort((a, b) => a.value - b.value);
+    results.sort((a, b) => a.sortValue - b.sortValue);
     return results;
   }
 }
