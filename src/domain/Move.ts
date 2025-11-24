@@ -6,14 +6,15 @@ import {Unit} from "./Unit";
 import {HexCoord} from "../utils/hex";
 import {hexDistance} from "../utils/hex";
 
-export interface Move {
-    execute(gameState: GameState): void;
+export abstract class Move {
+    abstract execute(gameState: GameState): void;
 }
 
-export class PlayCardMove implements Move {
+export class PlayCardMove extends Move {
     readonly card: CommandCard
 
     constructor(card: CommandCard) {
+        super();
         this.card = card
     }
 
@@ -22,10 +23,11 @@ export class PlayCardMove implements Move {
     }
 }
 
-export class ToggleUnitOrderedMove implements Move {
+export class ToggleUnitOrderedMove extends Move {
     readonly unit;
 
     constructor(unit: Unit) {
+        super();
         this.unit = unit;
     }
 
@@ -34,23 +36,24 @@ export class ToggleUnitOrderedMove implements Move {
     }
 }
 
-export class ConfirmOrdersMove implements Move {
+export class ConfirmOrdersMove extends Move {
     execute(gameState: GameState): void {
         gameState.popPhase();
     }
 }
 
-export class EndMovementsMove implements Move {
+export class EndMovementsMove extends Move {
     execute(gameState: GameState): void {
         gameState.popPhase();
     }
 }
 
-export class MoveUnitMove implements Move {
+export class MoveUnitMove extends Move {
     readonly from: HexCoord;
     readonly to: HexCoord;
 
     constructor(from: HexCoord, to: HexCoord) {
+        super();
         this.from = from;
         this.to = to;
     }
@@ -80,11 +83,12 @@ export class MoveUnitMove implements Move {
     }
 }
 
-export class BattleMove implements Move {
+export class BattleMove extends Move {
     readonly fromUnit: Unit;
     readonly toUnit: Unit;
 
     constructor(fromUnit: Unit, toUnit: Unit) {
+        super();
         this.fromUnit = fromUnit;
         this.toUnit = toUnit;
     }
@@ -95,7 +99,7 @@ export class BattleMove implements Move {
     }
 }
 
-export class EndBattlesMove implements Move {
+export class EndBattlesMove extends Move {
     execute(gameState: GameState): void {
         gameState.popPhase();
     }
