@@ -1,160 +1,160 @@
 // ABOUTME: Board geometry for the 13×9 Memoir '44 hex grid
 // ABOUTME: Validates hex positions and determines section assignments
 
-import { HexCoord } from "../utils/hex";
-import { Position } from "./Player";
-import { Section } from "./Section";
+import {HexCoord} from "../utils/hex";
+import {Position} from "./Player";
+import {Section} from "./Section";
 
 /**
  * Immutable board geometry defining the valid hexes on the Memoir '44 board.
  * Extracted from the original board.js implementation.
  */
 export class BoardGeometry {
-  private readonly validHexes: Set<string>;
-  private readonly leftHexes: Set<string>;
-  private readonly centerHexes: Set<string>;
-  private readonly rightHexes: Set<string>;
+    private readonly validHexes: Set<string>;
+    private readonly leftHexes: Set<string>;
+    private readonly centerHexes: Set<string>;
+    private readonly rightHexes: Set<string>;
 
-  constructor() {
-    this.validHexes = new Set();
-    this.leftHexes = new Set();
-    this.centerHexes = new Set();
-    this.rightHexes = new Set();
+    constructor() {
+        this.validHexes = new Set();
+        this.leftHexes = new Set();
+        this.centerHexes = new Set();
+        this.rightHexes = new Set();
 
-    this.generateMap();
-  }
+        this.generateMap();
+    }
 
-  /**
-   * Generate all valid hexes on the 13×9 board.
-   * Algorithm from board.js:makeMap()
-   */
-  private generateMap(): void {
-    for (let r = 0; r <= 8; r++) {
-      const colStart = -Math.trunc(r / 2);
-      const numCols = r % 2 === 0 ? 13 : 12;
+    /**
+     * Generate all valid hexes on the 13×9 board.
+     * Algorithm from board.js:makeMap()
+     */
+    private generateMap(): void {
+        for (let r = 0; r <= 8; r++) {
+            const colStart = -Math.trunc(r / 2);
+            const numCols = r % 2 === 0 ? 13 : 12;
 
-      for (let q = colStart; q < colStart + numCols; q++) {
-        const hex = new HexCoord(q, r);
-        const key = this.hexKey(hex);
-        this.validHexes.add(key);
+            for (let q = colStart; q < colStart + numCols; q++) {
+                const hex = new HexCoord(q, r);
+                const key = this.hexKey(hex);
+                this.validHexes.add(key);
 
-        // Determine section (from BOTTOM player perspective)
-        if (this.isLeft(r, q)) {
-          this.leftHexes.add(key);
-        } else if (this.isRight(r, q)) {
-          this.rightHexes.add(key);
-        } else {
-          this.centerHexes.add(key);
+                // Determine section (from BOTTOM player perspective)
+                if (this.isLeft(r, q)) {
+                    this.leftHexes.add(key);
+                } else if (this.isRight(r, q)) {
+                    this.rightHexes.add(key);
+                } else {
+                    this.centerHexes.add(key);
+                }
+            }
         }
-      }
-    }
-  }
-
-  /**
-   * Check if a hex is in the LEFT section (from BOTTOM player perspective).
-   * Adapted from board.js:isWest()
-   */
-  private isLeft(r: number, q: number): boolean {
-    return (
-      (r === 0 && q <= 4) ||
-      (r === 1 && q <= 3) ||
-      (r === 2 && q <= 3) ||
-      (r === 3 && q <= 2) ||
-      (r === 4 && q <= 2) ||
-      (r === 5 && q <= 1) ||
-      (r === 6 && q <= 1) ||
-      (r === 7 && q <= 0) ||
-      (r === 8 && q <= 0)
-    );
-  }
-
-  /**
-   * Check if a hex is in the RIGHT section (from BOTTOM player perspective).
-   * Adapted from board.js:isEast()
-   */
-  private isRight(r: number, q: number): boolean {
-    return (
-      (r === 0 && q >= 8) ||
-      (r === 1 && q >= 8) ||
-      (r === 2 && q >= 7) ||
-      (r === 3 && q >= 7) ||
-      (r === 4 && q >= 6) ||
-      (r === 5 && q >= 6) ||
-      (r === 6 && q >= 5) ||
-      (r === 7 && q >= 5) ||
-      (r === 8 && q >= 4)
-    );
-  }
-
-  /**
-   * Create a unique key for a hex coordinate.
-   */
-  private hexKey(coord: HexCoord): string {
-    return `${coord.q},${coord.r}`;
-  }
-
-  /**
-   * Check if a hex coordinate is within the board boundaries.
-   */
-  contains(coord: HexCoord): boolean {
-    return this.validHexes.has(this.hexKey(coord));
-  }
-
-  /**
-   * Check if a hex belongs to a specific section from a player's perspective.
-   */
-  isHexInSection(coord: HexCoord, section: Section, playerPosition: Position): boolean {
-    const key = this.hexKey(coord);
-
-    // Get section membership from BOTTOM player perspective
-    const isLeft = this.leftHexes.has(key);
-    const isCenter = this.centerHexes.has(key);
-    const isRight = this.rightHexes.has(key);
-
-    // Apply player perspective
-    if (playerPosition === Position.BOTTOM) {
-      if (section === Section.LEFT) return isLeft;
-      if (section === Section.CENTER) return isCenter;
-      if (section === Section.RIGHT) return isRight;
-    } else {
-      // TOP player - perspective is flipped
-      if (section === Section.LEFT) return isRight;
-      if (section === Section.CENTER) return isCenter;
-      if (section === Section.RIGHT) return isLeft;
     }
 
-    return false;
-  }
+    /**
+     * Check if a hex is in the LEFT section (from BOTTOM player perspective).
+     * Adapted from board.js:isWest()
+     */
+    private isLeft(r: number, q: number): boolean {
+        return (
+            (r === 0 && q <= 4) ||
+            (r === 1 && q <= 3) ||
+            (r === 2 && q <= 3) ||
+            (r === 3 && q <= 2) ||
+            (r === 4 && q <= 2) ||
+            (r === 5 && q <= 1) ||
+            (r === 6 && q <= 1) ||
+            (r === 7 && q <= 0) ||
+            (r === 8 && q <= 0)
+        );
+    }
 
-  /**
-   * Get all valid neighbor hexes (within board boundaries).
-   * Uses pointy-top hex orientation neighbor offsets.
-   */
-  getValidNeighbors(coord: HexCoord): HexCoord[] {
-    // Pointy-top hex neighbor offsets
-    const offsets: HexCoord[] = [
-      new HexCoord(1, 0),   // East
-      new HexCoord(1, -1),  // Northeast
-      new HexCoord(0, -1),  // Northwest
-      new HexCoord(-1, 0),  // West
-      new HexCoord(-1, 1),  // Southwest
-      new HexCoord(0, 1),   // Southeast
-    ];
+    /**
+     * Check if a hex is in the RIGHT section (from BOTTOM player perspective).
+     * Adapted from board.js:isEast()
+     */
+    private isRight(r: number, q: number): boolean {
+        return (
+            (r === 0 && q >= 8) ||
+            (r === 1 && q >= 8) ||
+            (r === 2 && q >= 7) ||
+            (r === 3 && q >= 7) ||
+            (r === 4 && q >= 6) ||
+            (r === 5 && q >= 6) ||
+            (r === 6 && q >= 5) ||
+            (r === 7 && q >= 5) ||
+            (r === 8 && q >= 4)
+        );
+    }
 
-    return offsets
-      .map(offset => new HexCoord(coord.q + offset.q, coord.r + offset.r))
-      .filter(neighbor => this.contains(neighbor));
-  }
+    /**
+     * Create a unique key for a hex coordinate.
+     */
+    private hexKey(coord: HexCoord): string {
+        return `${coord.q},${coord.r}`;
+    }
 
-  /**
-   * Get all valid hexes on the board.
-   */
-  getAllHexes(): HexCoord[] {
-    return Array.from(this.validHexes).map(key => {
-      const [q, r] = key.split(',').map(Number);
-      return new HexCoord(q, r);
-    });
-  }
+    /**
+     * Check if a hex coordinate is within the board boundaries.
+     */
+    contains(coord: HexCoord): boolean {
+        return this.validHexes.has(this.hexKey(coord));
+    }
+
+    /**
+     * Check if a hex belongs to a specific section from a player's perspective.
+     */
+    isHexInSection(coord: HexCoord, section: Section, playerPosition: Position): boolean {
+        const key = this.hexKey(coord);
+
+        // Get section membership from BOTTOM player perspective
+        const isLeft = this.leftHexes.has(key);
+        const isCenter = this.centerHexes.has(key);
+        const isRight = this.rightHexes.has(key);
+
+        // Apply player perspective
+        if (playerPosition === Position.BOTTOM) {
+            if (section === Section.LEFT) return isLeft;
+            if (section === Section.CENTER) return isCenter;
+            if (section === Section.RIGHT) return isRight;
+        } else {
+            // TOP player - perspective is flipped
+            if (section === Section.LEFT) return isRight;
+            if (section === Section.CENTER) return isCenter;
+            if (section === Section.RIGHT) return isLeft;
+        }
+
+        return false;
+    }
+
+    /**
+     * Get all valid neighbor hexes (within board boundaries).
+     * Uses pointy-top hex orientation neighbor offsets.
+     */
+    getValidNeighbors(coord: HexCoord): HexCoord[] {
+        // Pointy-top hex neighbor offsets
+        const offsets: HexCoord[] = [
+            new HexCoord(1, 0),   // East
+            new HexCoord(1, -1),  // Northeast
+            new HexCoord(0, -1),  // Northwest
+            new HexCoord(-1, 0),  // West
+            new HexCoord(-1, 1),  // Southwest
+            new HexCoord(0, 1),   // Southeast
+        ];
+
+        return offsets
+            .map(offset => new HexCoord(coord.q + offset.q, coord.r + offset.r))
+            .filter(neighbor => this.contains(neighbor));
+    }
+
+    /**
+     * Get all valid hexes on the board.
+     */
+    getAllHexes(): HexCoord[] {
+        return Array.from(this.validHexes).map(key => {
+            const [q, r] = key.split(',').map(Number);
+            return new HexCoord(q, r);
+        });
+    }
 }
 
 // Singleton instance
