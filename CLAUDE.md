@@ -29,6 +29,31 @@ All game logic flows through the `GameState` object:
 
 **Critical**: Never implement game logic that bypasses this pattern. All state changes must go through `executeMove()` with moves from `legalMoves()`.
 
+### Phase-Based Turn Structure
+
+The game uses a phase system to manage turn progression. Each turn consists of phases that execute sequentially:
+
+1. **PlayCardPhase** - Active player selects a command card from their hand
+2. **OrderUnitsPhase** - Active player orders units in the section(s) specified by the card
+3. **MovePhase** - Active player moves ordered units (with pathfinding and unit blocking)
+4. **BattlePhase** - Active player battles with ordered units (within range, respecting close combat rules)
+
+Each phase implements the `Phase` interface:
+```typescript
+interface Phase {
+    readonly name: string;
+    legalMoves(gameState: GameState): Array<Move>;
+}
+```
+
+**Key principles:**
+- Phases are managed as a stack in GameState - `activePhase` returns the top of the stack
+- `GameState.legalMoves()` delegates to `activePhase.legalMoves(gameState)`
+- Executing certain moves (e.g., PlayCardMove, ConfirmOrdersMove) pushes new phases onto the stack
+- End-of-phase moves (e.g., EndMovementsMove, EndBattlesMove) pop phases off the stack
+- Phases are stateless - all state lives in GameState
+- Phase classes use interface segregation (e.g., `UnitMover`, `UnitBattler`) for testing and clarity
+
 ### Canvas Rendering
 
 - Full canvas redraw on every state change
@@ -50,77 +75,22 @@ Board is 13×9 hex grid using offset coordinates (q, r) with pointy-top orientat
 
 ## Directory Structure
 
-```
-memoir/
-├── src/
-│   ├── main.ts                      # Entry point, bootstraps the game
-│   ├── style.css                    # Global styles
-│   │
-│   ├── domain/                      # Game domain models & core logic
-│   │   ├── GameState.ts            # Main state with legalMoves/executeMove
-│   │   ├── Move.ts                 # Move types and definitions
-│   │   ├── Unit.ts                 # Unit class (type, strength, location)
-│   │   ├── Terrain.ts              # Terrain types and effects
-│   │   ├── CommandCard.ts          # Command card model
-│   │   ├── Section.ts              # Board section logic (left/center/right)
-│   │   └── Player.ts               # Player model (hand, units, etc)
-│   │
-│   ├── adapters/                    # External system adapters
-│   │   ├── RNG.ts                  # Seeded random number generator
-│   │   └── storage.ts              # Browser storage persistence
-│   │
-│   ├── scenarios/                   # Scenario definitions
-│   │   ├── Scenario.ts             # Scenario interface/type
-│   │   ├── ST02.ts                 # Sainte-Mère-Église scenario
-│   │   └── index.ts                # Scenario registry
-│   │
-│   ├── ai/                          # AI player implementation
-│   │   ├── AIPlayer.ts             # Main AI interface
-│   │   └── strategies/             # AI strategy implementations
-│   │       └── basic.ts            # Basic AI strategy
-│   │
-│   ├── ui/                          # UI components and rendering
-│   │   ├── canvas/                 # Canvas-based rendering
-│   │   │   ├── CanvasRenderer.ts   # Main rendering coordinator
-│   │   │   ├── BoardRenderer.ts    # Board and terrain rendering
-│   │   │   ├── UnitRenderer.ts     # Unit sprite rendering
-│   │   │   ├── HexGrid.ts          # Hex grid overlay
-│   │   │   └── coordinates.ts      # Coordinate conversions
-│   │   │
-│   │   ├── components/             # Non-canvas UI components
-│   │   │   ├── HandDisplay.ts      # Command card hand display
-│   │   │   ├── Controls.ts         # Game controls (undo, reset, etc)
-│   │   │   └── StatusDisplay.ts    # Turn/phase status
-│   │   │
-│   │   └── input/                  # Input handling
-│   │       ├── MouseHandler.ts     # Mouse events
-│   │       └── KeyboardHandler.ts  # Keyboard shortcuts
-│   │
-│   ├── rules/                       # Game rules engine
-│   │   ├── movement.ts             # Movement rules
-│   │   ├── combat.ts               # Combat resolution
-│   │   ├── cards.ts                # Card effect rules
-│   │   └── validation.ts           # Move validation logic
-│   │
-│   └── utils/                       # Shared utilities
-│       ├── hex.ts                  # Hex math utilities
-│       ├── geometry.ts             # Canvas geometry helpers
-│       └── assets.ts               # Asset loading utilities
-│
-├── tests/                           # Test suite (ATDD workflow)
-│   ├── acceptance/                 # Acceptance tests
-│   ├── integration/                # Integration tests
-│   └── unit/                       # Unit tests
-│
-├── public/images/                   # Static assets
-└── [config files]
-```
+High-level organization:
+
+- **`src/domain/`** - Pure game logic: GameState, Move types, Unit, Player, Deck, Dice, CommandCard, Section, BoardGeometry
+  - **`src/domain/phases/`** - Phase implementations (PlayCardPhase, OrderUnitsPhase, MovePhase, BattlePhase)
+- **`src/scenarios/`** - Scenario definitions (currently ST02)
+- **`src/adapters/`** - External integrations (RNG for seeded randomness)
+- **`src/ui/`** - All UI code: canvas rendering, components, input handlers, UIState
+- **`src/rules/`** - Game mechanics (combat resolution, etc.)
+- **`src/utils/`** - Shared utilities (hex math, constants)
+- **`tests/`** - ATDD test organization: `acceptance/` and `unit/` subdirectories
+- **`public/images/`** - Static assets
 
 **Key principles:**
-- `domain/` contains pure game logic (GameState, Move, Unit, etc.)
-- `adapters/` contains external system integrations (RNG, storage)
-- `ui/` handles all rendering and user interaction
-- `rules/` implements game mechanics used by GameState
+- Domain layer is pure TypeScript with no UI dependencies
+- Phases encapsulate turn logic and are easily testable via interface segregation
+- UI layer coordinates rendering and translates user actions into moves
 - Build incrementally as features are added
 
 ## Key Architectural Constraints
