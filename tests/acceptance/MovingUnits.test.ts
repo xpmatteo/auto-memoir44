@@ -8,7 +8,7 @@ import {CardLocation, ProbeCenter} from "../../src/domain/CommandCard";
 import {ConfirmOrdersMove, MoveUnitMove, PlayCardMove, ToggleUnitOrderedMove} from "../../src/domain/Move";
 import {Infantry} from "../../src/domain/Unit";
 import {Side} from "../../src/domain/Player";
-import type {HexCoord} from "../../src/utils/hex";
+import {HexCoord} from "../../src/utils/hex";
 import {MovePhase} from "../../src/domain/phases/MovePhase";
 
 describe("Moving units", () => {
@@ -19,7 +19,7 @@ describe("Moving units", () => {
         gameState.drawCards(3, CardLocation.BOTTOM_PLAYER_HAND);
 
         const unit = new Infantry(Side.ALLIES);
-        const startPos: HexCoord = {q: 5, r: 5};
+        const startPos = new HexCoord(5, 5);
         gameState.placeUnit(startPos, unit);
 
         // Play card and order the unit
@@ -32,11 +32,11 @@ describe("Moving units", () => {
         expect(gameState.activePhase.name).toBe("Move Units");
 
         // Assert: Can move 1 hex east
-        const oneHexEast: HexCoord = {q: 6, r: 5};
+        const oneHexEast = new HexCoord(6, 5);
         expect(gameState.legalMoves()).toContainEqual(new MoveUnitMove(startPos, oneHexEast));
 
         // Assert: Can move 2 hexes east
-        const twoHexesEast: HexCoord = {q: 7, r: 5};
+        const twoHexesEast = new HexCoord(7, 5);
         expect(gameState.legalMoves()).toContainEqual(new MoveUnitMove(startPos, twoHexesEast));
     });
 
@@ -47,8 +47,8 @@ describe("Moving units", () => {
         gameState.drawCards(3, CardLocation.BOTTOM_PLAYER_HAND);
 
         const unit = new Infantry(Side.ALLIES);
-        const startPos: HexCoord = {q: 5, r: 5};
-        const endPos: HexCoord = {q: 6, r: 5};
+        const startPos = new HexCoord(5, 5);
+        const endPos = new HexCoord(6, 5);
         gameState.placeUnit(startPos, unit);
 
         // Play card and order the unit
@@ -77,9 +77,9 @@ describe("Moving units", () => {
 
         const unit1 = new Infantry(Side.ALLIES);
         const unit2 = new Infantry(Side.ALLIES);
-        const startPos: HexCoord = {q: 5, r: 5};
-        const blockingPos: HexCoord = {q: 6, r: 5}; // Adjacent to unit1
-        const beyondBlocker: HexCoord = {q: 7, r: 5}; // 2 hexes away, blocked by unit2
+        const startPos = new HexCoord(5, 5);
+        const blockingPos = new HexCoord(6, 5); // Adjacent to unit1
+        const beyondBlocker = new HexCoord(7, 5); // 2 hexes away, blocked by unit2
 
         gameState.placeUnit(startPos, unit1);
         gameState.placeUnit(blockingPos, unit2);
@@ -107,9 +107,9 @@ describe("Moving units", () => {
 
         const unit1 = new Infantry(Side.ALLIES);
         const unit2 = new Infantry(Side.ALLIES);
-        const pos1: HexCoord = {q: 5, r: 5};
-        const pos2: HexCoord = {q: 8, r: 8};
-        const newPos: HexCoord = {q: 6, r: 5};
+        const pos1 = new HexCoord(5, 5);
+        const pos2 = new HexCoord(8, 8);
+        const newPos = new HexCoord(6, 5);
 
         gameState.placeUnit(pos1, unit1);
         gameState.placeUnit(pos2, unit2);
@@ -136,7 +136,7 @@ describe("Moving units", () => {
         expect(gameState.activePhase.name).toBe("Move Units");
 
         // Act: Now move unit2
-        const newPos2: HexCoord = {q: 7, r: 8};
+        const newPos2 = new HexCoord(7, 8);
         gameState.executeMove(new MoveUnitMove(pos2, newPos2));
 
         // Assert: Phase auto-advances
@@ -151,8 +151,8 @@ describe("Moving units", () => {
 
         const unit1 = new Infantry(Side.ALLIES);
         const unit2 = new Infantry(Side.ALLIES);
-        const startPos1: HexCoord = {q: 1, r: 4};
-        const startPos2: HexCoord = {q: 1, r: 6};
+        const startPos1 = new HexCoord(1, 4);
+        const startPos2 = new HexCoord(1, 6);
         gameState.placeUnit(startPos1, unit1);
         gameState.placeUnit(startPos2, unit2);
 
@@ -164,7 +164,7 @@ describe("Moving units", () => {
         gameState.executeMove(new ConfirmOrdersMove());
 
         // Act: Move unit1 2 hexes
-        const endPos1: HexCoord = {q: 3, r: 4}; // 2 hexes away
+        const endPos1 = new HexCoord(3, 4); // 2 hexes away
         gameState.executeMove(new MoveUnitMove(startPos1, endPos1));
 
         // Assert: After moving 2 hexes, unit1 should be marked to skip battle
@@ -174,7 +174,7 @@ describe("Moving units", () => {
         expect(gameState.activePhase).toBeInstanceOf(MovePhase);
 
         // Act: Move unit2 1 hex
-        const endPos2: HexCoord = {q: 2, r: 6}; // 1 hex away
+        const endPos2 = new HexCoord(2, 6); // 1 hex away
         gameState.executeMove(new MoveUnitMove(startPos2, endPos2));
         expect(gameState.unitSkipsBattle(unit2)).toBe(false);
 

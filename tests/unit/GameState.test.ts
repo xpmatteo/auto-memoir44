@@ -6,7 +6,7 @@ import {GameState} from "../../src/domain/GameState";
 import {Side, Position} from "../../src/domain/Player";
 import {Deck} from "../../src/domain/Deck";
 import {Infantry} from "../../src/domain/Unit";
-import type {HexCoord} from "../../src/utils/hex";
+import {HexCoord} from "../../src/utils/hex";
 import {CardLocation} from "../../src/domain/CommandCard";
 import {PlayCardMove, ToggleUnitOrderedMove, MoveUnitMove} from "../../src/domain/Move";
 import {OrderUnitsPhase} from "../../src/domain/phases/OrderUnitsPhase";
@@ -86,7 +86,7 @@ describe("GameState", () => {
       const gameState = new GameState(deck);
 
       const unit = new Infantry(Side.ALLIES);
-      const coord: HexCoord = { q: 5, r: 3 };
+      const coord = new HexCoord(5, 3 );
 
       gameState.placeUnit(coord, unit);
 
@@ -99,7 +99,7 @@ describe("GameState", () => {
 
       const unit1 = new Infantry(Side.ALLIES);
       const unit2 = new Infantry(Side.AXIS);
-      const coord: HexCoord = { q: 5, r: 3 };
+      const coord = new HexCoord(5, 3 );
 
       gameState.placeUnit(coord, unit1);
 
@@ -114,7 +114,7 @@ describe("GameState", () => {
       const deck = Deck.createStandardDeck();
       const gameState = new GameState(deck);
 
-      const coord: HexCoord = { q: 5, r: 3 };
+      const coord = new HexCoord(5, 3 );
 
       expect(gameState.getUnitAt(coord)).toBeUndefined();
     });
@@ -124,7 +124,7 @@ describe("GameState", () => {
       const gameState = new GameState(deck);
 
       const unit = new Infantry(Side.ALLIES);
-      const coord: HexCoord = { q: 5, r: 3 };
+      const coord = new HexCoord(5, 3 );
 
       gameState.placeUnit(coord, unit);
 
@@ -137,8 +137,8 @@ describe("GameState", () => {
 
       const unit1 = new Infantry(Side.ALLIES);
       const unit2 = new Infantry(Side.AXIS);
-      const coord1: HexCoord = { q: 5, r: 3 };
-      const coord2: HexCoord = { q: 6, r: 4 };
+      const coord1 = new HexCoord(5, 3 );
+      const coord2 = new HexCoord(6, 4 );
 
       gameState.placeUnit(coord1, unit1);
       gameState.placeUnit(coord2, unit2);
@@ -154,8 +154,8 @@ describe("GameState", () => {
       const gameState = new GameState(deck);
 
       const unit = new Infantry(Side.ALLIES);
-      const from: HexCoord = { q: 5, r: 3 };
-      const to: HexCoord = { q: 6, r: 3 };
+      const from = new HexCoord(5, 3 );
+      const to = new HexCoord(6, 3 );
 
       gameState.placeUnit(from, unit);
       gameState.moveUnit(from, to);
@@ -168,8 +168,8 @@ describe("GameState", () => {
       const deck = Deck.createStandardDeck();
       const gameState = new GameState(deck);
 
-      const from: HexCoord = { q: 5, r: 3 };
-      const to: HexCoord = { q: 6, r: 3 };
+      const from = new HexCoord(5, 3 );
+      const to = new HexCoord(6, 3 );
 
       expect(() => gameState.moveUnit(from, to)).toThrow(
         "No unit at (5, 3) to move"
@@ -182,8 +182,8 @@ describe("GameState", () => {
 
       const unit1 = new Infantry(Side.ALLIES);
       const unit2 = new Infantry(Side.AXIS);
-      const from: HexCoord = { q: 5, r: 3 };
-      const to: HexCoord = { q: 6, r: 3 };
+      const from = new HexCoord(5, 3 );
+      const to = new HexCoord(6, 3 );
 
       gameState.placeUnit(from, unit1);
       gameState.placeUnit(to, unit2);
@@ -200,7 +200,7 @@ describe("GameState", () => {
       const gameState = new GameState(deck);
 
       const unit = new Infantry(Side.ALLIES);
-      const coord: HexCoord = { q: 5, r: 3 };
+      const coord = new HexCoord(5, 3 );
 
       gameState.placeUnit(coord, unit);
       gameState.removeUnit(coord);
@@ -212,7 +212,7 @@ describe("GameState", () => {
       const deck = Deck.createStandardDeck();
       const gameState = new GameState(deck);
 
-      const coord: HexCoord = { q: 5, r: 3 };
+      const coord = new HexCoord(5, 3 );
 
       gameState.removeUnit(coord);
 
@@ -234,8 +234,8 @@ describe("GameState", () => {
 
       const unit1 = new Infantry(Side.ALLIES);
       const unit2 = new Infantry(Side.AXIS);
-      const coord1: HexCoord = { q: 5, r: 3 };
-      const coord2: HexCoord = { q: 6, r: 4 };
+      const coord1 = new HexCoord(5, 3 );
+      const coord2 = new HexCoord(6, 4 );
 
       gameState.placeUnit(coord1, unit1);
       gameState.placeUnit(coord2, unit2);
@@ -253,8 +253,8 @@ describe("GameState", () => {
 
       const unit1 = new Infantry(Side.ALLIES);
       const unit2 = new Infantry(Side.AXIS);
-      const coord1: HexCoord = { q: 5, r: 3 };
-      const coord2: HexCoord = { q: 6, r: 4 };
+      const coord1 = new HexCoord(5, 3 );
+      const coord2 = new HexCoord(6, 4 );
 
       gameState.placeUnit(coord1, unit1);
       gameState.placeUnit(coord2, unit2);
@@ -450,7 +450,7 @@ describe("GameState", () => {
 
       // Set up: play a card and toggle a unit to ordered
       const unit = new Infantry(Side.ALLIES);
-      const coord: HexCoord = { q: 5, r: 3 };
+      const coord = new HexCoord(5, 3 );
       gameState.placeUnit(coord, unit);
 
       gameState.setCurrentCard(card.id);
@@ -521,8 +521,8 @@ describe("GameState", () => {
       const deck = Deck.createStandardDeck();
       const gameState = new GameState(deck);
       const unit = new Infantry(Side.ALLIES);
-      const from: HexCoord = { q: 5, r: 3 };
-      const to: HexCoord = { q: 6, r: 3 };
+      const from = new HexCoord(5, 3 );
+      const to = new HexCoord(6, 3 );
 
       gameState.placeUnit(from, unit);
       const move = new MoveUnitMove(from, to);
@@ -537,8 +537,8 @@ describe("GameState", () => {
       const deck = Deck.createStandardDeck();
       const gameState = new GameState(deck);
       const unit = new Infantry(Side.ALLIES);
-      const from: HexCoord = { q: 5, r: 3 };
-      const to: HexCoord = { q: 6, r: 3 };
+      const from = new HexCoord(5, 3 );
+      const to = new HexCoord(6, 3 );
 
       gameState.placeUnit(from, unit);
       expect(gameState.isUnitMoved(unit)).toBe(false);
@@ -552,8 +552,8 @@ describe("GameState", () => {
     it("should throw error when trying to move unit that is not at from coordinate", () => {
       const deck = Deck.createStandardDeck();
       const gameState = new GameState(deck);
-      const from: HexCoord = { q: 5, r: 3 };
-      const to: HexCoord = { q: 6, r: 3 };
+      const from = new HexCoord(5, 3 );
+      const to = new HexCoord(6, 3 );
 
       const move = new MoveUnitMove(from, to);
 

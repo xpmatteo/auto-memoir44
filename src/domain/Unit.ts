@@ -2,7 +2,7 @@
 // ABOUTME: Tracks unit type, strength, and ownership (location managed by GameState)
 
 import { Side } from "./Player";
-import type { HexCoord } from "../utils/hex";
+import { HexCoord } from "../utils/hex";
 
 export const UnitType = {
   INFANTRY: "infantry",

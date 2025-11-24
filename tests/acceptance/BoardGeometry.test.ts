@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 import { BOARD_GEOMETRY } from "../../src/domain/BoardGeometry";
 import { Position } from "../../src/domain/Player";
 import { Section } from "../../src/domain/Section";
-import type { HexCoord } from "../../src/utils/hex";
+import { HexCoord } from "../../src/utils/hex";
 
 describe("BoardGeometry", () => {
     describe("Board boundaries", () => {

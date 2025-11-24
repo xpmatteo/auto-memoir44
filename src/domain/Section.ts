@@ -1,7 +1,7 @@
 // ABOUTME: Board section logic for command card area restrictions
 // ABOUTME: Handles left/center/right section determination based on player perspective
 
-import type { HexCoord } from "../utils/hex";
+import { HexCoord } from "../utils/hex";
 import { Position } from "./Player";
 import { BOARD_GEOMETRY } from "./BoardGeometry";
 

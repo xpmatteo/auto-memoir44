@@ -6,7 +6,7 @@ import {GameState} from "../../src/domain/GameState";
 import {Deck} from "../../src/domain/Deck";
 import {Infantry} from "../../src/domain/Unit";
 import {Side} from "../../src/domain/Player";
-import type {HexCoord} from "../../src/utils/hex";
+import {HexCoord} from "../../src/utils/hex";
 import {MoveUnitMove} from "../../src/domain/Move";
 
 describe("MoveUnitMove battle restrictions", () => {
@@ -15,8 +15,8 @@ describe("MoveUnitMove battle restrictions", () => {
         const gameState = new GameState(deck);
         const unit = new Infantry(Side.ALLIES);
 
-        const from: HexCoord = {q: 1, r: 4};
-        const to: HexCoord = {q: 3, r: 4}; // 2 hexes away
+        const from = new HexCoord(1, 4);
+        const to = new HexCoord(3, 4); // 2 hexes away
 
         gameState.placeUnit(from, unit);
 
@@ -37,8 +37,8 @@ describe("MoveUnitMove battle restrictions", () => {
         const gameState = new GameState(deck);
         const unit = new Infantry(Side.ALLIES);
 
-        const from: HexCoord = {q: 1, r: 4};
-        const to: HexCoord = {q: 2, r: 4}; // 1 hex away
+        const from = new HexCoord(1, 4);
+        const to = new HexCoord(2, 4); // 1 hex away
 
         gameState.placeUnit(from, unit);
 
@@ -56,8 +56,8 @@ describe("MoveUnitMove battle restrictions", () => {
         const gameState = new GameState(deck);
         const unit = new Infantry(Side.ALLIES);
 
-        const from: HexCoord = {q: 0, r: 0};
-        const to: HexCoord = {q: 0, r: 2}; // 2 hexes away vertically
+        const from = new HexCoord(0, 0);
+        const to = new HexCoord(0, 2); // 2 hexes away vertically
 
         gameState.placeUnit(from, unit);
 
@@ -73,8 +73,8 @@ describe("MoveUnitMove battle restrictions", () => {
         const gameState = new GameState(deck);
         const unit = new Infantry(Side.ALLIES);
 
-        const from: HexCoord = {q: 0, r: 0};
-        const to: HexCoord = {q: 1, r: 1}; // 2 hexes away diagonally
+        const from = new HexCoord(0, 0);
+        const to = new HexCoord(1, 1); // 2 hexes away diagonally
 
         gameState.placeUnit(from, unit);
 

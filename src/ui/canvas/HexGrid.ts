@@ -1,7 +1,7 @@
 // ABOUTME: Hex grid overlay rendering with coordinates
 // ABOUTME: Draws pointy-top hexagon grid on canvas with optional coordinate labels
 
-import type { GridConfig, HexCoord } from "../../utils/hex.js";
+import { GridConfig, HexCoord } from "../../utils/hex.js";
 import { hexToPixel } from "../../utils/hex.js";
 import { isHexInSection, Section } from "../../domain/Section.js";
 import { Position } from "../../domain/Player.js";

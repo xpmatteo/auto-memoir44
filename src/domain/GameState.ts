@@ -5,7 +5,7 @@ import {createPlayer, Player, Position, Side} from "./Player";
 import {Deck} from "./Deck";
 import {Move} from "./Move";
 import {Unit, coordToKey, keyToCoord} from "./Unit";
-import type {HexCoord} from "../utils/hex";
+import {HexCoord} from "../utils/hex";
 import {CardLocation, CommandCard} from "./CommandCard";
 import {isHexInSection, Section} from "./Section";
 import {Phase} from "./phases/Phase";

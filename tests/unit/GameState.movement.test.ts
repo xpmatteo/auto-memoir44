@@ -6,7 +6,7 @@ import {GameState} from "../../src/domain/GameState";
 import {Deck} from "../../src/domain/Deck";
 import {Infantry} from "../../src/domain/Unit";
 import {Side} from "../../src/domain/Player";
-import type {HexCoord} from "../../src/utils/hex";
+import {HexCoord} from "../../src/utils/hex";
 import {CardLocation} from "../../src/domain/CommandCard";
 import {OrderUnitsPhase} from "../../src/domain/phases/OrderUnitsPhase";
 import {Section} from "../../src/domain/Section";
@@ -16,7 +16,7 @@ describe("GameState movement tracking", () => {
         const deck = Deck.createStandardDeck();
         const gameState = new GameState(deck);
         const unit = new Infantry(Side.ALLIES);
-        const coord: HexCoord = {q: 5, r: 3};
+        const coord = new HexCoord(5, 3);
 
         gameState.placeUnit(coord, unit);
         gameState.markUnitMoved(unit);
@@ -28,7 +28,7 @@ describe("GameState movement tracking", () => {
         const deck = Deck.createStandardDeck();
         const gameState = new GameState(deck);
         const unit = new Infantry(Side.ALLIES);
-        const coord: HexCoord = {q: 5, r: 3};
+        const coord = new HexCoord(5, 3);
 
         gameState.placeUnit(coord, unit);
 
@@ -42,7 +42,7 @@ describe("GameState movement tracking", () => {
         const [card] = gameState.getCardsInLocation(CardLocation.BOTTOM_PLAYER_HAND);
 
         const unit = new Infantry(Side.ALLIES);
-        const coord: HexCoord = {q: 5, r: 3};
+        const coord = new HexCoord(5, 3);
 
         gameState.placeUnit(coord, unit);
         gameState.markUnitMoved(unit);
@@ -61,8 +61,8 @@ describe("GameState movement tracking", () => {
         const gameState = new GameState(deck);
         const unit1 = new Infantry(Side.ALLIES);
         const unit2 = new Infantry(Side.ALLIES);
-        const coord1: HexCoord = {q: 5, r: 3};
-        const coord2: HexCoord = {q: 6, r: 3};
+        const coord1 = new HexCoord(5, 3);
+        const coord2 = new HexCoord(6, 3);
 
         gameState.placeUnit(coord1, unit1);
         gameState.placeUnit(coord2, unit2);
@@ -79,7 +79,7 @@ describe("GameState battle restriction tracking", () => {
         const deck = Deck.createStandardDeck();
         const gameState = new GameState(deck);
         const unit = new Infantry(Side.ALLIES);
-        const coord: HexCoord = {q: 5, r: 3};
+        const coord = new HexCoord(5, 3);
 
         gameState.placeUnit(coord, unit);
         gameState.markUnitSkipsBattle(unit);
@@ -91,7 +91,7 @@ describe("GameState battle restriction tracking", () => {
         const deck = Deck.createStandardDeck();
         const gameState = new GameState(deck);
         const unit = new Infantry(Side.ALLIES);
-        const coord: HexCoord = {q: 5, r: 3};
+        const coord = new HexCoord(5, 3);
 
         gameState.placeUnit(coord, unit);
 
@@ -105,7 +105,7 @@ describe("GameState battle restriction tracking", () => {
         const [card] = gameState.getCardsInLocation(CardLocation.BOTTOM_PLAYER_HAND);
 
         const unit = new Infantry(Side.ALLIES);
-        const coord: HexCoord = {q: 5, r: 3};
+        const coord = new HexCoord(5, 3);
 
         gameState.placeUnit(coord, unit);
         gameState.markUnitSkipsBattle(unit);
@@ -124,8 +124,8 @@ describe("GameState battle restriction tracking", () => {
         const gameState = new GameState(deck);
         const unit1 = new Infantry(Side.ALLIES);
         const unit2 = new Infantry(Side.ALLIES);
-        const coord1: HexCoord = {q: 5, r: 3};
-        const coord2: HexCoord = {q: 6, r: 3};
+        const coord1 = new HexCoord(5, 3);
+        const coord2 = new HexCoord(6, 3);
 
         gameState.placeUnit(coord1, unit1);
         gameState.placeUnit(coord2, unit2);

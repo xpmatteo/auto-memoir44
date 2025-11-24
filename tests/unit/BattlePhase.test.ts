@@ -6,7 +6,7 @@ import {BattlePhase} from "../../src/domain/phases/BattlePhase";
 import {BattleMove, EndBattlesMove} from "../../src/domain/Move";
 import {Infantry, Unit} from "../../src/domain/Unit";
 import {Side, Position, createPlayer, type Player} from "../../src/domain/Player";
-import type {HexCoord} from "../../src/utils/hex";
+import {HexCoord} from "../../src/utils/hex";
 
 // Declare which methods from GameState we actually need to do our job
 interface UnitBattler {

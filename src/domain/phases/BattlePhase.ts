@@ -5,7 +5,7 @@ import {Phase} from "./Phase";
 import {GameState} from "../GameState";
 import {Move, BattleMove, EndBattlesMove} from "../Move";
 import {Unit} from "../Unit";
-import type {HexCoord} from "../../utils/hex";
+import {HexCoord} from "../../utils/hex";
 import {hexDistance} from "../../utils/hex";
 import type {Player} from "../Player";
 

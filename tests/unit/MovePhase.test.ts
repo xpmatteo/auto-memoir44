@@ -43,224 +43,62 @@ describe("MovePhase", () => {
         expect(actual).toEqual([new EndMovementsMove()]);
     });
 
-    test("Infantry can move 1 hex in any direction", () => {
-        const startPos: HexCoord = {q: 5, r: 5};
+    test("Infantry can move 2 hexes in any direction", () => {
+        const startPos: HexCoord = new HexCoord(5, 5);
         fakeUnitMover.orderedUnits = [{coord: startPos, unit: unit1}];
         fakeUnitMover.movedUnits = [];
         fakeUnitMover.occupiedCoords = [];
         const phase = new MovePhase();
 
         let actual = phase.doLegalMoves(fakeUnitMover);
+
+        // Sort function for comparing moves
+        const sortMoves = (moves: any[]) => moves.sort((a, b) => {
+            if (a instanceof EndMovementsMove) return 1;
+            if (b instanceof EndMovementsMove) return -1;
+            const aKey = `${a.from.q},${a.from.r}->${a.to.q},${a.to.r}`;
+            const bKey = `${b.from.q},${b.from.r}->${b.to.q},${b.to.r}`;
+            return aKey.localeCompare(bKey);
+        });
+
+        const expected = [
+            // six surrounding hexes
+            new MoveUnitMove(startPos, startPos.east()),
+            new MoveUnitMove(startPos, startPos.southeast()),
+            new MoveUnitMove(startPos, startPos.southwest()),
+            new MoveUnitMove(startPos, startPos.west()),
+            new MoveUnitMove(startPos, startPos.northwest()),
+            new MoveUnitMove(startPos, startPos.northeast()),
+
+            // move 2 hexes on the right side
+            new MoveUnitMove(startPos, startPos.northeast().northeast()),
+            new MoveUnitMove(startPos, startPos.northeast().east()),
+            new MoveUnitMove(startPos, startPos.east().east()),
+            new MoveUnitMove(startPos, startPos.southeast().east()),
+            new MoveUnitMove(startPos, startPos.southeast().southeast()),
+
+            // move 2 hexes down
+            new MoveUnitMove(startPos, startPos.southeast().southwest()),
+
+            // move 2 hexes left side
+            new MoveUnitMove(startPos, startPos.northwest().northwest()),
+            new MoveUnitMove(startPos, startPos.northwest().west()),
+            new MoveUnitMove(startPos, startPos.west().west()),
+            new MoveUnitMove(startPos, startPos.southwest().west()),
+            new MoveUnitMove(startPos, startPos.southwest().southwest()),
+
+            // move 2 hexes top
+            new MoveUnitMove(startPos, startPos.northeast().northwest()),
+
+            new EndMovementsMove(),
+        ];
 
         // Infantry should be able to move to all 6 adjacent hexes
-        expect(actual).toContainEqual(new MoveUnitMove(startPos, {q: 6, r: 5}));  // East
-        expect(actual).toContainEqual(new MoveUnitMove(startPos, {q: 5, r: 6}));  // Southeast
-        expect(actual).toContainEqual(new MoveUnitMove(startPos, {q: 4, r: 6}));  // Southwest
-        expect(actual).toContainEqual(new MoveUnitMove(startPos, {q: 4, r: 5}));  // West
-        expect(actual).toContainEqual(new MoveUnitMove(startPos, {q: 4, r: 4}));  // Northwest
-        expect(actual).toContainEqual(new MoveUnitMove(startPos, {q: 5, r: 4}));  // Northeast
-        expect(actual).toEqual([
-            new MoveUnitMove(
-                {
-                    "q": 5,
-                    "r": 5,
-                },
-                {
-                    "q": 6,
-                    "r": 5,
-                },
-            ),
-            new MoveUnitMove(
-                {
-                    "q": 5,
-                    "r": 5,
-                },
-                {
-                    "q": 6,
-                    "r": 4,
-                },
-            ),
-            new MoveUnitMove(
-                {
-                    "q": 5,
-                    "r": 5,
-                },
-                {
-                    "q": 5,
-                    "r": 4,
-                },
-            ),
-            new MoveUnitMove(
-                {
-                    "q": 5,
-                    "r": 5,
-                },
-                {
-                    "q": 4,
-                    "r": 5,
-                },
-            ),
-            new MoveUnitMove(
-                {
-                    "q": 5,
-                    "r": 5,
-                },
-                {
-                    "q": 4,
-                    "r": 6,
-                },
-            ),
-            new MoveUnitMove(
-                {
-                    "q": 5,
-                    "r": 5,
-                },
-                {
-                    "q": 5,
-                    "r": 6,
-                },
-            ),
-            new MoveUnitMove(
-                {
-                    "q": 5,
-                    "r": 5,
-                },
-                {
-                    "q": 7,
-                    "r": 5,
-                },
-            ),
-            new MoveUnitMove(
-                {
-                    "q": 5,
-                    "r": 5,
-                },
-                {
-                    "q": 7,
-                    "r": 4,
-                },
-            ),
-            new MoveUnitMove(
-                {
-                    "q": 5,
-                    "r": 5,
-                },
-                {
-                    "q": 6,
-                    "r": 6,
-                },
-            ),
-            new MoveUnitMove(
-                {
-                    "q": 5,
-                    "r": 5,
-                },
-                {
-                    "q": 7,
-                    "r": 3,
-                },
-            ),
-            new MoveUnitMove(
-                {
-                    "q": 5,
-                    "r": 5,
-                },
-                {
-                    "q": 6,
-                    "r": 3,
-                },
-            ),
-            new MoveUnitMove(
-                {
-                    "q": 5,
-                    "r": 5,
-                },
-                {
-                    "q": 5,
-                    "r": 3,
-                },
-            ),
-            new MoveUnitMove(
-                {
-                    "q": 5,
-                    "r": 5,
-                },
-                {
-                    "q": 4,
-                    "r": 4,
-                },
-            ),
-            new MoveUnitMove(
-                {
-                    "q": 5,
-                    "r": 5,
-                },
-                {
-                    "q": 3,
-                    "r": 5,
-                },
-            ),
-            new MoveUnitMove(
-                {
-                    "q": 5,
-                    "r": 5,
-                },
-                {
-                    "q": 3,
-                    "r": 6,
-                },
-            ),
-            new MoveUnitMove(
-                {
-                    "q": 5,
-                    "r": 5,
-                },
-                {
-                    "q": 3,
-                    "r": 7,
-                },
-            ),
-            new MoveUnitMove(
-                {
-                    "q": 5,
-                    "r": 5,
-                },
-                {
-                    "q": 4,
-                    "r": 7,
-                },
-            ),
-            new MoveUnitMove(
-                {
-                    "q": 5,
-                    "r": 5,
-                },
-                {
-                    "q": 5,
-                    "r": 7,
-                },
-            ),
-            new EndMovementsMove(),
-            ]);
-    });
-
-    test("Infantry can move 2 hexes", () => {
-        const startPos: HexCoord = {q: 5, r: 5};
-        fakeUnitMover.orderedUnits = [{coord: startPos, unit: unit1}];
-        fakeUnitMover.movedUnits = [];
-        fakeUnitMover.occupiedCoords = [];
-        const phase = new MovePhase();
-
-        let actual = phase.doLegalMoves(fakeUnitMover);
-
-        // Infantry should be able to move 2 hexes east
-        expect(actual).toContainEqual(new MoveUnitMove(startPos, {q: 7, r: 5}));
-        // Should have more than just the 6 adjacent hexes (1-hex moves)
-        expect(actual.length).toBeGreaterThan(6);
+        expect(sortMoves(actual)).toEqual(sortMoves(expected));
     });
 
     test("Does not generate moves for units that already moved", () => {
-        const startPos: HexCoord = {q: 5, r: 5};
+        const startPos= new HexCoord(5, 5);
         fakeUnitMover.orderedUnits = [{coord: startPos, unit: unit1}];
         fakeUnitMover.movedUnits = [unit1]; // Unit already moved
         fakeUnitMover.occupiedCoords = [];
@@ -272,8 +110,8 @@ describe("MovePhase", () => {
     });
 
     test("Generates moves for multiple ordered units", () => {
-        const pos1: HexCoord = {q: 5, r: 5};
-        const pos2: HexCoord = {q: 8, r: 8};
+        const pos1 = new HexCoord(5, 5);
+        const pos2 = new HexCoord(8, 8);
         fakeUnitMover.orderedUnits = [
             {coord: pos1, unit: unit1},
             {coord: pos2, unit: unit2}
@@ -293,8 +131,8 @@ describe("MovePhase", () => {
     });
 
     test("Does not generate moves to occupied hexes", () => {
-        const startPos: HexCoord = {q: 5, r: 5};
-        const blockedPos: HexCoord = {q: 6, r: 5}; // Hex to the east
+        const startPos= new HexCoord(5, 5);
+        const blockedPos = new HexCoord(6, 5); // Hex to the east
         fakeUnitMover.orderedUnits = [{coord: startPos, unit: unit1}];
         fakeUnitMover.movedUnits = [];
         fakeUnitMover.occupiedCoords = [blockedPos]; // Mark east hex as occupied
@@ -307,9 +145,9 @@ describe("MovePhase", () => {
     });
 
     test("Cannot move through friendly units", () => {
-        const startPos: HexCoord = {q: 5, r: 5};
-        const blockingPos: HexCoord = {q: 6, r: 5}; // Hex to the east (adjacent)
-        const beyondBlocker: HexCoord = {q: 7, r: 5}; // 2 hexes east (beyond blocker)
+        const startPos= new HexCoord(5, 5);
+        const blockingPos = new HexCoord(6, 5); // Hex to the east (adjacent)
+        const beyondBlocker = new HexCoord(7, 5); // 2 hexes east (beyond blocker)
 
         fakeUnitMover.orderedUnits = [{coord: startPos, unit: unit1}];
         fakeUnitMover.movedUnits = [];
@@ -323,4 +161,22 @@ describe("MovePhase", () => {
         // Should also not be able to move to the blocking hex itself
         expect(actual).not.toContainEqual(new MoveUnitMove(startPos, blockingPos));
     });
+
+
+    test("Does not generate moves to off-board hexes", () => {
+        const startPos= new HexCoord(-2, 7);
+        fakeUnitMover.orderedUnits = [{coord: startPos, unit: unit1}];
+        fakeUnitMover.movedUnits = [];
+        fakeUnitMover.occupiedCoords = [];
+        const phase = new MovePhase();
+
+        let actual = phase.doLegalMoves(fakeUnitMover);
+
+        // Should not have a move to the off-board hexes
+        expect(actual).not.toContainEqual(new MoveUnitMove(startPos, startPos.west().west()));
+        expect(actual).not.toContainEqual(new MoveUnitMove(startPos, startPos.southwest().southwest()));
+        expect(actual).not.toContainEqual(new MoveUnitMove(startPos, startPos.southwest().southeast()));
+        expect(actual).not.toContainEqual(new MoveUnitMove(startPos, startPos.southeast().southeast()));
+    });
+
 });

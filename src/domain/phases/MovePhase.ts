@@ -5,7 +5,7 @@ import {Phase} from "./Phase";
 import {GameState} from "../GameState";
 import {EndMovementsMove, Move, MoveUnitMove} from "../Move";
 import {Unit} from "../Unit";
-import type {HexCoord} from "../../utils/hex";
+import {HexCoord} from "../../utils/hex";
 import {BOARD_GEOMETRY} from "../BoardGeometry";
 
 // Declare which methods from GameState we actually need to do our job

@@ -15,10 +15,35 @@ export type GridConfig = {
   coordColor: string;
 };
 
-export type HexCoord = {
-  q: number;
-  r: number;
-};
+export class HexCoord {
+    constructor(public q: number, public r: number) {}
+
+    // 6 axial directions (pointy-top, "q,r" layout)
+
+    east(): HexCoord {
+        return new HexCoord(this.q + 1, this.r);
+    }
+
+    west(): HexCoord {
+        return new HexCoord(this.q - 1, this.r);
+    }
+
+    northeast(): HexCoord {
+        return new HexCoord(this.q + 1, this.r - 1);
+    }
+
+    northwest(): HexCoord {
+        return new HexCoord(this.q, this.r - 1);
+    }
+
+    southeast(): HexCoord {
+        return new HexCoord(this.q, this.r + 1);
+    }
+
+    southwest(): HexCoord {
+        return new HexCoord(this.q - 1, this.r + 1);
+    }
+}
 
 export type CanvasCoord = {
   x: number;
@@ -73,7 +98,7 @@ export function axialRound(q: number, r: number): HexCoord {
     rs = -rq - rr;
   }
 
-  return { q: rq, r: rr };
+  return new HexCoord(rq, rr);
 }
 
 /**

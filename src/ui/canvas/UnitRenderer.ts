@@ -3,7 +3,7 @@
 
 import type { Unit } from "../../domain/Unit.js";
 import { UnitType } from "../../domain/Unit.js";
-import type { GridConfig, HexCoord } from "../../utils/hex.js";
+import { GridConfig, HexCoord } from "../../utils/hex.js";
 import { hexToPixel } from "../../utils/hex.js";
 import { Side } from "../../domain/Player.js";
 

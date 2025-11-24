@@ -1,7 +1,7 @@
 // ABOUTME: Board geometry for the 13×9 Memoir '44 hex grid
 // ABOUTME: Validates hex positions and determines section assignments
 
-import type { HexCoord } from "../utils/hex";
+import { HexCoord } from "../utils/hex";
 import { Position } from "./Player";
 import { Section } from "./Section";
 
@@ -133,16 +133,16 @@ export class BoardGeometry {
   getValidNeighbors(coord: HexCoord): HexCoord[] {
     // Pointy-top hex neighbor offsets
     const offsets: HexCoord[] = [
-      { q: 1, r: 0 },   // East
-      { q: 1, r: -1 },  // Northeast
-      { q: 0, r: -1 },  // Northwest
-      { q: -1, r: 0 },  // West
-      { q: -1, r: 1 },  // Southwest
-      { q: 0, r: 1 },   // Southeast
+      new HexCoord(1, 0),   // East
+      new HexCoord(1, -1),  // Northeast
+      new HexCoord(0, -1),  // Northwest
+      new HexCoord(-1, 0),  // West
+      new HexCoord(-1, 1),  // Southwest
+      new HexCoord(0, 1),   // Southeast
     ];
 
     return offsets
-      .map(offset => ({ q: coord.q + offset.q, r: coord.r + offset.r }))
+      .map(offset => new HexCoord(coord.q + offset.q, coord.r + offset.r))
       .filter(neighbor => this.contains(neighbor));
   }
 
@@ -152,7 +152,7 @@ export class BoardGeometry {
   getAllHexes(): HexCoord[] {
     return Array.from(this.validHexes).map(key => {
       const [q, r] = key.split(',').map(Number);
-      return { q, r };
+      return new HexCoord(q, r);
     });
   }
 }

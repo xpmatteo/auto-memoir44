@@ -3,7 +3,7 @@
 
 import {expect, test} from "vitest";
 import {hexDistance} from "../../src/utils/hex";
-import type {HexCoord} from "../../src/utils/hex";
+import {HexCoord} from "../../src/utils/hex";
 
 test('hex distance', () => {
     expect(hexDistance({q: 0, r: 0}, {q: 0, r: 0})).toEqual(0);
