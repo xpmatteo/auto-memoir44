@@ -48,6 +48,16 @@ export class BoardGeometry {
                 }
             }
         }
+
+        // add extra hexes that straddle the center and either the left or right sections
+        this.centerHexes.add(this.hexKey(new HexCoord(3, 1)));
+        this.centerHexes.add(this.hexKey(new HexCoord(2, 3)));
+        this.centerHexes.add(this.hexKey(new HexCoord(1, 5)));
+        this.centerHexes.add(this.hexKey(new HexCoord(0, 7)));
+        this.centerHexes.add(this.hexKey(new HexCoord(8, 1)));
+        this.centerHexes.add(this.hexKey(new HexCoord(7, 3)));
+        this.centerHexes.add(this.hexKey(new HexCoord(6, 5)));
+        this.centerHexes.add(this.hexKey(new HexCoord(5, 7)));
     }
 
     /**
