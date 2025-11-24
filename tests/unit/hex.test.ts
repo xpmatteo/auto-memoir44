@@ -6,7 +6,7 @@ import {hexDistance} from "../../src/utils/hex";
 import {HexCoord} from "../../src/utils/hex";
 
 test('hex distance', () => {
-    expect(hexDistance({q: 0, r: 0}, {q: 0, r: 0})).toEqual(0);
-    expect(hexDistance({q: 0, r: 0}, {q: 0, r: 1})).toEqual(1);
-    expect(hexDistance({q: 1, r: 0}, {q: 4, r: 2})).toEqual(5);
+    expect(hexDistance(new HexCoord(0, 0), new HexCoord(0, 0))).toEqual(0);
+    expect(hexDistance(new HexCoord(0, 0), new HexCoord(0, 1))).toEqual(1);
+    expect(hexDistance(new HexCoord(1, 0), new HexCoord(4, 2))).toEqual(5);
 });

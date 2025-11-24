@@ -317,20 +317,20 @@ describe("GameState", () => {
       const unit3 = new Infantry(Side.AXIS, 4);
 
       // Place units
-      gameState.placeUnit({ q: 0, r: 0 }, unit1);
-      gameState.placeUnit({ q: 1, r: 0 }, unit2);
-      gameState.placeUnit({ q: 8, r: 8 }, unit3);
+      gameState.placeUnit(new HexCoord(0, 0), unit1);
+      gameState.placeUnit(new HexCoord(1, 0), unit2);
+      gameState.placeUnit(new HexCoord(8, 8), unit3);
 
       expect(gameState.getAllUnitsWithPositions()).toHaveLength(3);
 
       // Move unit1
-      gameState.moveUnit({ q: 0, r: 0 }, { q: 0, r: 1 });
+      gameState.moveUnit(new HexCoord(0, 0), new HexCoord(0, 1));
 
-      expect(gameState.getUnitAt({ q: 0, r: 0 })).toBeUndefined();
-      expect(gameState.getUnitAt({ q: 0, r: 1 })).toBe(unit1);
+      expect(gameState.getUnitAt(new HexCoord(0, 0))).toBeUndefined();
+      expect(gameState.getUnitAt(new HexCoord(0, 1))).toBe(unit1);
 
       // Remove unit2
-      gameState.removeUnit({ q: 1, r: 0 });
+      gameState.removeUnit(new HexCoord(1, 0));
 
       expect(gameState.getAllUnitsWithPositions()).toHaveLength(2);
     });

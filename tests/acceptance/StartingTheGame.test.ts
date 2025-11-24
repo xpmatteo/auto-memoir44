@@ -8,6 +8,7 @@ import {AssaultLeft, CardLocation, ProbeLeft} from "../../src/domain/CommandCard
 import {ConfirmOrdersMove, PlayCardMove, ToggleUnitOrderedMove} from "../../src/domain/Move";
 import {Position} from "../../src/domain/Player";
 import {Infantry, Unit} from "../../src/domain/Unit";
+import {HexCoord} from "../../src/utils/hex";
 
 describe("At game start", () => {
     describe("Legal moves for each card played", () => {
@@ -80,12 +81,12 @@ function setupGameWith(cards: ProbeLeft[]) {
 
 function placeUnitInCenterSection(gameState: GameState): Unit {
     let unit = new Infantry(gameState.activePlayer.side);
-    gameState.placeUnit({q: 2, r: 8}, unit);
+    gameState.placeUnit(new HexCoord(2, 8), unit);
     return unit;
 }
 
 function placeUnitInLeftSection(gameState: GameState): Unit {
     let unit = new Infantry(gameState.activePlayer.side);
-    gameState.placeUnit({q: -4, r: 8}, unit);
+    gameState.placeUnit(new HexCoord(-4, 8), unit);
     return unit;
 }

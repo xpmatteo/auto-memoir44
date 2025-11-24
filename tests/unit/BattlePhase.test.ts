@@ -5,21 +5,13 @@ import {describe, expect, test} from "vitest";
 import {BattlePhase} from "../../src/domain/phases/BattlePhase";
 import {BattleMove, EndBattlesMove} from "../../src/domain/Move";
 import {Infantry, Unit} from "../../src/domain/Unit";
-import {Side, Position, createPlayer, type Player} from "../../src/domain/Player";
+import {Side, Position, createPlayer} from "../../src/domain/Player";
 import {HexCoord} from "../../src/utils/hex";
-
-// Declare which methods from GameState we actually need to do our job
-interface UnitBattler {
-    getOrderedUnitsWithPositions(): Array<{ coord: HexCoord; unit: Unit }>;
-    unitSkipsBattle(unit: Unit): boolean;
-    getAllUnitsWithPositions(): Array<{ coord: HexCoord; unit: Unit }>;
-    activePlayer: Player;
-}
 
 describe("BattlePhase", () => {
     describe("Basic Functionality", () => {
         test("Always returns EndBattlesMove even with no units", () => {
-            const fakeUnitBattler: UnitBattler = {
+            const fakeUnitBattler = {
                 orderedUnits: [],
                 allUnits: [],
                 unitsSkipBattle: [] as Unit[],
@@ -49,11 +41,11 @@ describe("BattlePhase", () => {
             const friendlyUnit = new Infantry(Side.ALLIES);
             const enemyUnit = new Infantry(Side.AXIS);
 
-            const fakeUnitBattler: UnitBattler = {
-                orderedUnits: [{coord: {q: 5, r: 5}, unit: friendlyUnit}],
+            const fakeUnitBattler = {
+                orderedUnits: [{coord: new HexCoord(5, 5), unit: friendlyUnit}],
                 allUnits: [
-                    {coord: {q: 5, r: 5}, unit: friendlyUnit},
-                    {coord: {q: 6, r: 5}, unit: enemyUnit} // 1 hex away
+                    {coord: new HexCoord(5, 5), unit: friendlyUnit},
+                    {coord: new HexCoord(6, 5), unit: enemyUnit} // 1 hex away
                 ],
                 unitsSkipBattle: [] as Unit[],
                 activePlayer: createPlayer(Side.ALLIES, Position.BOTTOM),
@@ -88,13 +80,13 @@ describe("BattlePhase", () => {
             const friendlyUnit = new Infantry(Side.ALLIES);
             const enemyUnit = new Infantry(Side.AXIS);
 
-            const fakeUnitBattler: UnitBattler = {
-                orderedUnits: [{coord: {q: 5, r: 5}, unit: friendlyUnit}],
+            const fakeUnitBattler = {
+                orderedUnits: [{coord: new HexCoord(5, 5), unit: friendlyUnit}],
                 allUnits: [
-                    {coord: {q: 5, r: 5}, unit: friendlyUnit},
-                    {coord: {q: 6, r: 5}, unit: enemyUnit}
+                    {coord: new HexCoord(5, 5), unit: friendlyUnit},
+                    {coord: new HexCoord(6, 5), unit: enemyUnit}
                 ],
-                unitsSkipBattle: [friendlyUnit], // Unit cannot battle
+                unitsSkipBattle: [friendlyUnit] as Unit[], // Unit cannot battle
                 activePlayer: createPlayer(Side.ALLIES, Position.BOTTOM),
 
                 getOrderedUnitsWithPositions() {
@@ -123,12 +115,12 @@ describe("BattlePhase", () => {
             const unorderedUnit = new Infantry(Side.ALLIES);
             const enemyUnit = new Infantry(Side.AXIS);
 
-            const fakeUnitBattler: UnitBattler = {
-                orderedUnits: [{coord: {q: 5, r: 5}, unit: orderedUnit}],
+            const fakeUnitBattler = {
+                orderedUnits: [{coord: new HexCoord(5, 5), unit: orderedUnit}],
                 allUnits: [
-                    {coord: {q: 5, r: 5}, unit: orderedUnit},
-                    {coord: {q: 8, r: 8}, unit: unorderedUnit}, // Not ordered
-                    {coord: {q: 9, r: 8}, unit: enemyUnit} // Adjacent to unordered unit
+                    {coord: new HexCoord(5, 5), unit: orderedUnit},
+                    {coord: new HexCoord(8, 8), unit: unorderedUnit}, // Not ordered
+                    {coord: new HexCoord(9, 8), unit: enemyUnit} // Adjacent to unordered unit
                 ],
                 unitsSkipBattle: [] as Unit[],
                 activePlayer: createPlayer(Side.ALLIES, Position.BOTTOM),
@@ -160,11 +152,11 @@ describe("BattlePhase", () => {
             const friendlyUnit = new Infantry(Side.ALLIES);
             const enemyUnit = new Infantry(Side.AXIS);
 
-            const fakeUnitBattler: UnitBattler = {
-                orderedUnits: [{coord: {q: 5, r: 5}, unit: friendlyUnit}],
+            const fakeUnitBattler = {
+                orderedUnits: [{coord: new HexCoord(5, 5), unit: friendlyUnit}],
                 allUnits: [
-                    {coord: {q: 5, r: 5}, unit: friendlyUnit},
-                    {coord: {q: 6, r: 5}, unit: enemyUnit} // 1 hex east (distance = 1)
+                    {coord: new HexCoord(5, 5), unit: friendlyUnit},
+                    {coord: new HexCoord(6, 5), unit: enemyUnit} // 1 hex east (distance = 1)
                 ],
                 unitsSkipBattle: [] as Unit[],
                 activePlayer: createPlayer(Side.ALLIES, Position.BOTTOM),
@@ -195,11 +187,11 @@ describe("BattlePhase", () => {
             const friendlyUnit = new Infantry(Side.ALLIES);
             const enemyUnit = new Infantry(Side.AXIS);
 
-            const fakeUnitBattler: UnitBattler = {
-                orderedUnits: [{coord: {q: 5, r: 5}, unit: friendlyUnit}],
+            const fakeUnitBattler = {
+                orderedUnits: [{coord: new HexCoord(5, 5), unit: friendlyUnit}],
                 allUnits: [
-                    {coord: {q: 5, r: 5}, unit: friendlyUnit},
-                    {coord: {q: 7, r: 5}, unit: enemyUnit} // 2 hexes east (distance = 2)
+                    {coord: new HexCoord(5, 5), unit: friendlyUnit},
+                    {coord: new HexCoord(7, 5), unit: enemyUnit} // 2 hexes east (distance = 2)
                 ],
                 unitsSkipBattle: [] as Unit[],
                 activePlayer: createPlayer(Side.ALLIES, Position.BOTTOM),
@@ -230,11 +222,11 @@ describe("BattlePhase", () => {
             const friendlyUnit = new Infantry(Side.ALLIES);
             const enemyUnit = new Infantry(Side.AXIS);
 
-            const fakeUnitBattler: UnitBattler = {
-                orderedUnits: [{coord: {q: 5, r: 5}, unit: friendlyUnit}],
+            const fakeUnitBattler = {
+                orderedUnits: [{coord: new HexCoord(5, 5), unit: friendlyUnit}],
                 allUnits: [
-                    {coord: {q: 5, r: 5}, unit: friendlyUnit},
-                    {coord: {q: 8, r: 5}, unit: enemyUnit} // 3 hexes east (distance = 3)
+                    {coord: new HexCoord(5, 5), unit: friendlyUnit},
+                    {coord: new HexCoord(8, 5), unit: enemyUnit} // 3 hexes east (distance = 3)
                 ],
                 unitsSkipBattle: [] as Unit[],
                 activePlayer: createPlayer(Side.ALLIES, Position.BOTTOM),
@@ -265,11 +257,11 @@ describe("BattlePhase", () => {
             const friendlyUnit = new Infantry(Side.ALLIES);
             const enemyUnit = new Infantry(Side.AXIS);
 
-            const fakeUnitBattler: UnitBattler = {
-                orderedUnits: [{coord: {q: 5, r: 5}, unit: friendlyUnit}],
+            const fakeUnitBattler = {
+                orderedUnits: [{coord: new HexCoord(5, 5), unit: friendlyUnit}],
                 allUnits: [
-                    {coord: {q: 5, r: 5}, unit: friendlyUnit},
-                    {coord: {q: 9, r: 5}, unit: enemyUnit} // 4 hexes east (distance = 4)
+                    {coord: new HexCoord(5, 5), unit: friendlyUnit},
+                    {coord: new HexCoord(9, 5), unit: enemyUnit} // 4 hexes east (distance = 4)
                 ],
                 unitsSkipBattle: [] as Unit[],
                 activePlayer: createPlayer(Side.ALLIES, Position.BOTTOM),
@@ -300,12 +292,12 @@ describe("BattlePhase", () => {
             const enemyNear = new Infantry(Side.AXIS);
             const enemyFar = new Infantry(Side.AXIS);
 
-            const fakeUnitBattler: UnitBattler = {
-                orderedUnits: [{coord: {q: 5, r: 5}, unit: friendlyUnit}],
+            const fakeUnitBattler = {
+                orderedUnits: [{coord: new HexCoord(5, 5), unit: friendlyUnit}],
                 allUnits: [
-                    {coord: {q: 5, r: 5}, unit: friendlyUnit},
-                    {coord: {q: 7, r: 6}, unit: enemyNear}, // distance = 2
-                    {coord: {q: 9, r: 7}, unit: enemyFar}   // distance = 4
+                    {coord: new HexCoord(5, 5), unit: friendlyUnit},
+                    {coord: new HexCoord(7, 6), unit: enemyNear}, // distance = 2
+                    {coord: new HexCoord(9, 7), unit: enemyFar}   // distance = 4
                 ],
                 unitsSkipBattle: [] as Unit[],
                 activePlayer: createPlayer(Side.ALLIES, Position.BOTTOM),
@@ -339,12 +331,12 @@ describe("BattlePhase", () => {
             const anotherFriendly = new Infantry(Side.ALLIES);
             const enemyUnit = new Infantry(Side.AXIS);
 
-            const fakeUnitBattler: UnitBattler = {
-                orderedUnits: [{coord: {q: 5, r: 5}, unit: friendlyUnit}],
+            const fakeUnitBattler = {
+                orderedUnits: [{coord: new HexCoord(5, 5), unit: friendlyUnit}],
                 allUnits: [
-                    {coord: {q: 5, r: 5}, unit: friendlyUnit},
-                    {coord: {q: 6, r: 5}, unit: anotherFriendly}, // Same side
-                    {coord: {q: 7, r: 5}, unit: enemyUnit}        // Enemy
+                    {coord: new HexCoord(5, 5), unit: friendlyUnit},
+                    {coord: new HexCoord(6, 5), unit: anotherFriendly}, // Same side
+                    {coord: new HexCoord(7, 5), unit: enemyUnit}        // Enemy
                 ],
                 unitsSkipBattle: [] as Unit[],
                 activePlayer: createPlayer(Side.ALLIES, Position.BOTTOM),
@@ -374,11 +366,11 @@ describe("BattlePhase", () => {
             const friendlyUnit1 = new Infantry(Side.ALLIES);
             const friendlyUnit2 = new Infantry(Side.ALLIES);
 
-            const fakeUnitBattler: UnitBattler = {
-                orderedUnits: [{coord: {q: 5, r: 5}, unit: friendlyUnit1}],
+            const fakeUnitBattler = {
+                orderedUnits: [{coord: new HexCoord(5, 5), unit: friendlyUnit1}],
                 allUnits: [
-                    {coord: {q: 5, r: 5}, unit: friendlyUnit1},
-                    {coord: {q: 6, r: 5}, unit: friendlyUnit2} // Adjacent friendly
+                    {coord: new HexCoord(5, 5), unit: friendlyUnit1},
+                    {coord: new HexCoord(6, 5), unit: friendlyUnit2} // Adjacent friendly
                 ],
                 unitsSkipBattle: [] as Unit[],
                 activePlayer: createPlayer(Side.ALLIES, Position.BOTTOM),
@@ -408,11 +400,11 @@ describe("BattlePhase", () => {
             const axisUnit = new Infantry(Side.AXIS);
             const alliedUnit = new Infantry(Side.ALLIES);
 
-            const fakeUnitBattler: UnitBattler = {
-                orderedUnits: [{coord: {q: 5, r: 5}, unit: axisUnit}],
+            const fakeUnitBattler = {
+                orderedUnits: [{coord: new HexCoord(5, 5), unit: axisUnit}],
                 allUnits: [
-                    {coord: {q: 5, r: 5}, unit: axisUnit},
-                    {coord: {q: 6, r: 5}, unit: alliedUnit} // Enemy when AXIS is active
+                    {coord: new HexCoord(5, 5), unit: axisUnit},
+                    {coord: new HexCoord(6, 5), unit: alliedUnit} // Enemy when AXIS is active
                 ],
                 unitsSkipBattle: [] as Unit[],
                 activePlayer: createPlayer(Side.AXIS, Position.TOP),
@@ -447,13 +439,13 @@ describe("BattlePhase", () => {
             const enemy2 = new Infantry(Side.AXIS);
             const enemy3 = new Infantry(Side.AXIS);
 
-            const fakeUnitBattler: UnitBattler = {
-                orderedUnits: [{coord: {q: 5, r: 5}, unit: friendlyUnit}],
+            const fakeUnitBattler = {
+                orderedUnits: [{coord: new HexCoord(5, 5), unit: friendlyUnit}],
                 allUnits: [
-                    {coord: {q: 5, r: 5}, unit: friendlyUnit},
-                    {coord: {q: 7, r: 5}, unit: enemy1},  // Distance 2
-                    {coord: {q: 8, r: 5}, unit: enemy2},  // Distance 3
-                    {coord: {q: 5, r: 7}, unit: enemy3}   // Distance 2 (vertical)
+                    {coord: new HexCoord(5, 5), unit: friendlyUnit},
+                    {coord: new HexCoord(7, 5), unit: enemy1},  // Distance 2
+                    {coord: new HexCoord(8, 5), unit: enemy2},  // Distance 3
+                    {coord: new HexCoord(5, 7), unit: enemy3}   // Distance 2 (vertical)
                 ],
                 unitsSkipBattle: [] as Unit[],
                 activePlayer: createPlayer(Side.ALLIES, Position.BOTTOM),
@@ -488,12 +480,12 @@ describe("BattlePhase", () => {
             const enemy1 = new Infantry(Side.AXIS);
             const enemy2 = new Infantry(Side.AXIS);
 
-            const fakeUnitBattler: UnitBattler = {
-                orderedUnits: [{coord: {q: 5, r: 5}, unit: friendlyUnit}],
+            const fakeUnitBattler = {
+                orderedUnits: [{coord: new HexCoord(5, 5), unit: friendlyUnit}],
                 allUnits: [
-                    {coord: {q: 5, r: 5}, unit: friendlyUnit},
-                    {coord: {q: 7, r: 5}, unit: enemy1},  // Distance 2
-                    {coord: {q: 8, r: 5}, unit: enemy2}   // Distance 3
+                    {coord: new HexCoord(5, 5), unit: friendlyUnit},
+                    {coord: new HexCoord(7, 5), unit: enemy1},  // Distance 2
+                    {coord: new HexCoord(8, 5), unit: enemy2}   // Distance 3
                 ],
                 unitsSkipBattle: [] as Unit[],
                 activePlayer: createPlayer(Side.ALLIES, Position.BOTTOM),
@@ -533,16 +525,16 @@ describe("BattlePhase", () => {
             const enemy1 = new Infantry(Side.AXIS);
             const enemy2 = new Infantry(Side.AXIS);
 
-            const fakeUnitBattler: UnitBattler = {
+            const fakeUnitBattler = {
                 orderedUnits: [
-                    {coord: {q: 5, r: 5}, unit: friendly1},
-                    {coord: {q: 10, r: 10}, unit: friendly2}
+                    {coord: new HexCoord(5, 5), unit: friendly1},
+                    {coord: new HexCoord(10, 10), unit: friendly2}
                 ],
                 allUnits: [
-                    {coord: {q: 5, r: 5}, unit: friendly1},
-                    {coord: {q: 6, r: 5}, unit: enemy1},      // Near friendly1
-                    {coord: {q: 10, r: 10}, unit: friendly2},
-                    {coord: {q: 11, r: 10}, unit: enemy2}     // Near friendly2
+                    {coord: new HexCoord(5, 5), unit: friendly1},
+                    {coord: new HexCoord(6, 5), unit: enemy1},      // Near friendly1
+                    {coord: new HexCoord(10, 10), unit: friendly2},
+                    {coord: new HexCoord(11, 10), unit: enemy2}     // Near friendly2
                 ],
                 unitsSkipBattle: [] as Unit[],
                 activePlayer: createPlayer(Side.ALLIES, Position.BOTTOM),
@@ -579,9 +571,9 @@ describe("BattlePhase", () => {
         test("No ordered units → only EndBattlesMove", () => {
             const enemy = new Infantry(Side.AXIS);
 
-            const fakeUnitBattler: UnitBattler = {
+            const fakeUnitBattler = {
                 orderedUnits: [], // No ordered units
-                allUnits: [{coord: {q: 5, r: 5}, unit: enemy}],
+                allUnits: [{coord: new HexCoord(5, 5), unit: enemy}],
                 unitsSkipBattle: [] as Unit[],
                 activePlayer: createPlayer(Side.ALLIES, Position.BOTTOM),
 
@@ -610,17 +602,17 @@ describe("BattlePhase", () => {
             const friendly2 = new Infantry(Side.ALLIES);
             const enemy = new Infantry(Side.AXIS);
 
-            const fakeUnitBattler: UnitBattler = {
+            const fakeUnitBattler = {
                 orderedUnits: [
-                    {coord: {q: 5, r: 5}, unit: friendly1},
-                    {coord: {q: 6, r: 6}, unit: friendly2}
+                    {coord: new HexCoord(5, 5), unit: friendly1},
+                    {coord: new HexCoord(6, 6), unit: friendly2}
                 ],
                 allUnits: [
-                    {coord: {q: 5, r: 5}, unit: friendly1},
-                    {coord: {q: 6, r: 6}, unit: friendly2},
-                    {coord: {q: 7, r: 5}, unit: enemy}
+                    {coord: new HexCoord(5, 5), unit: friendly1},
+                    {coord: new HexCoord(6, 6), unit: friendly2},
+                    {coord: new HexCoord(7, 5), unit: enemy}
                 ],
-                unitsSkipBattle: [friendly1, friendly2], // Both cannot battle
+                unitsSkipBattle: [friendly1, friendly2] as Unit[], // Both cannot battle
                 activePlayer: createPlayer(Side.ALLIES, Position.BOTTOM),
 
                 getOrderedUnitsWithPositions() {
@@ -646,9 +638,9 @@ describe("BattlePhase", () => {
         test("No enemies on board → only EndBattlesMove", () => {
             const friendly = new Infantry(Side.ALLIES);
 
-            const fakeUnitBattler: UnitBattler = {
-                orderedUnits: [{coord: {q: 5, r: 5}, unit: friendly}],
-                allUnits: [{coord: {q: 5, r: 5}, unit: friendly}], // No enemies
+            const fakeUnitBattler = {
+                orderedUnits: [{coord: new HexCoord(5, 5), unit: friendly}],
+                allUnits: [{coord: new HexCoord(5, 5), unit: friendly}], // No enemies
                 unitsSkipBattle: [] as Unit[],
                 activePlayer: createPlayer(Side.ALLIES, Position.BOTTOM),
 
@@ -676,11 +668,11 @@ describe("BattlePhase", () => {
             const friendly = new Infantry(Side.ALLIES);
             const enemy = new Infantry(Side.AXIS);
 
-            const fakeUnitBattler: UnitBattler = {
-                orderedUnits: [{coord: {q: 5, r: 5}, unit: friendly}],
+            const fakeUnitBattler = {
+                orderedUnits: [{coord: new HexCoord(5, 5), unit: friendly}],
                 allUnits: [
-                    {coord: {q: 5, r: 5}, unit: friendly},
-                    {coord: {q: 10, r: 10}, unit: enemy} // Far away (distance > 3)
+                    {coord: new HexCoord(5, 5), unit: friendly},
+                    {coord: new HexCoord(10, 10), unit: enemy} // Far away (distance > 3)
                 ],
                 unitsSkipBattle: [] as Unit[],
                 activePlayer: createPlayer(Side.ALLIES, Position.BOTTOM),
@@ -712,12 +704,12 @@ describe("BattlePhase", () => {
             const adjacentEnemy = new Infantry(Side.AXIS);
             const distantEnemy = new Infantry(Side.AXIS);
 
-            const fakeUnitBattler: UnitBattler = {
-                orderedUnits: [{coord: {q: 5, r: 5}, unit: friendlyUnit}],
+            const fakeUnitBattler = {
+                orderedUnits: [{coord: new HexCoord(5, 5), unit: friendlyUnit}],
                 allUnits: [
-                    {coord: {q: 5, r: 5}, unit: friendlyUnit},
-                    {coord: {q: 6, r: 5}, unit: adjacentEnemy},  // Distance 1
-                    {coord: {q: 7, r: 5}, unit: distantEnemy}    // Distance 2
+                    {coord: new HexCoord(5, 5), unit: friendlyUnit},
+                    {coord: new HexCoord(6, 5), unit: adjacentEnemy},  // Distance 1
+                    {coord: new HexCoord(7, 5), unit: distantEnemy}    // Distance 2
                 ],
                 unitsSkipBattle: [] as Unit[],
                 activePlayer: createPlayer(Side.ALLIES, Position.BOTTOM),
@@ -749,12 +741,12 @@ describe("BattlePhase", () => {
             const adjacentEnemy = new Infantry(Side.AXIS);
             const enemyAtDistance2 = new Infantry(Side.AXIS);
 
-            const fakeUnitBattler: UnitBattler = {
-                orderedUnits: [{coord: {q: 5, r: 5}, unit: friendlyUnit}],
+            const fakeUnitBattler = {
+                orderedUnits: [{coord: new HexCoord(5, 5), unit: friendlyUnit}],
                 allUnits: [
-                    {coord: {q: 5, r: 5}, unit: friendlyUnit},
-                    {coord: {q: 6, r: 5}, unit: adjacentEnemy},     // Distance 1
-                    {coord: {q: 7, r: 5}, unit: enemyAtDistance2}   // Distance 2
+                    {coord: new HexCoord(5, 5), unit: friendlyUnit},
+                    {coord: new HexCoord(6, 5), unit: adjacentEnemy},     // Distance 1
+                    {coord: new HexCoord(7, 5), unit: enemyAtDistance2}   // Distance 2
                 ],
                 unitsSkipBattle: [] as Unit[],
                 activePlayer: createPlayer(Side.ALLIES, Position.BOTTOM),
@@ -785,12 +777,12 @@ describe("BattlePhase", () => {
             const adjacentEnemy = new Infantry(Side.AXIS);
             const enemyAtDistance3 = new Infantry(Side.AXIS);
 
-            const fakeUnitBattler: UnitBattler = {
-                orderedUnits: [{coord: {q: 5, r: 5}, unit: friendlyUnit}],
+            const fakeUnitBattler = {
+                orderedUnits: [{coord: new HexCoord(5, 5), unit: friendlyUnit}],
                 allUnits: [
-                    {coord: {q: 5, r: 5}, unit: friendlyUnit},
-                    {coord: {q: 6, r: 5}, unit: adjacentEnemy},     // Distance 1
-                    {coord: {q: 8, r: 5}, unit: enemyAtDistance3}   // Distance 3
+                    {coord: new HexCoord(5, 5), unit: friendlyUnit},
+                    {coord: new HexCoord(6, 5), unit: adjacentEnemy},     // Distance 1
+                    {coord: new HexCoord(8, 5), unit: enemyAtDistance3}   // Distance 3
                 ],
                 unitsSkipBattle: [] as Unit[],
                 activePlayer: createPlayer(Side.ALLIES, Position.BOTTOM),
@@ -822,13 +814,13 @@ describe("BattlePhase", () => {
             const adjacentEnemy2 = new Infantry(Side.AXIS);
             const distantEnemy = new Infantry(Side.AXIS);
 
-            const fakeUnitBattler: UnitBattler = {
-                orderedUnits: [{coord: {q: 5, r: 5}, unit: friendlyUnit}],
+            const fakeUnitBattler = {
+                orderedUnits: [{coord: new HexCoord(5, 5), unit: friendlyUnit}],
                 allUnits: [
-                    {coord: {q: 5, r: 5}, unit: friendlyUnit},
-                    {coord: {q: 6, r: 5}, unit: adjacentEnemy1},  // Distance 1 (East)
-                    {coord: {q: 4, r: 5}, unit: adjacentEnemy2},  // Distance 1 (West)
-                    {coord: {q: 8, r: 5}, unit: distantEnemy}     // Distance 3
+                    {coord: new HexCoord(5, 5), unit: friendlyUnit},
+                    {coord: new HexCoord(6, 5), unit: adjacentEnemy1},  // Distance 1 (East)
+                    {coord: new HexCoord(4, 5), unit: adjacentEnemy2},  // Distance 1 (West)
+                    {coord: new HexCoord(8, 5), unit: distantEnemy}     // Distance 3
                 ],
                 unitsSkipBattle: [] as Unit[],
                 activePlayer: createPlayer(Side.ALLIES, Position.BOTTOM),
@@ -863,13 +855,13 @@ describe("BattlePhase", () => {
             const enemyAt2 = new Infantry(Side.AXIS);
             const enemyAt3 = new Infantry(Side.AXIS);
 
-            const fakeUnitBattler: UnitBattler = {
-                orderedUnits: [{coord: {q: 5, r: 5}, unit: friendlyUnit}],
+            const fakeUnitBattler = {
+                orderedUnits: [{coord: new HexCoord(5, 5), unit: friendlyUnit}],
                 allUnits: [
-                    {coord: {q: 5, r: 5}, unit: friendlyUnit},
-                    {coord: {q: 6, r: 6}, unit: enemyAt1},  // Distance 1 (but diagonal, not adjacent in grid)
-                    {coord: {q: 7, r: 5}, unit: enemyAt2},  // Distance 2
-                    {coord: {q: 8, r: 5}, unit: enemyAt3}   // Distance 3
+                    {coord: new HexCoord(5, 5), unit: friendlyUnit},
+                    {coord: new HexCoord(6, 6), unit: enemyAt1},  // Distance 1 (but diagonal, not adjacent in grid)
+                    {coord: new HexCoord(7, 5), unit: enemyAt2},  // Distance 2
+                    {coord: new HexCoord(8, 5), unit: enemyAt3}   // Distance 3
                 ],
                 unitsSkipBattle: [] as Unit[],
                 activePlayer: createPlayer(Side.ALLIES, Position.BOTTOM),
@@ -905,17 +897,17 @@ describe("BattlePhase", () => {
             const distantEnemy1 = new Infantry(Side.AXIS);
             const distantEnemy2 = new Infantry(Side.AXIS);
 
-            const fakeUnitBattler: UnitBattler = {
+            const fakeUnitBattler = {
                 orderedUnits: [
-                    {coord: {q: 5, r: 5}, unit: friendly1},   // Has adjacent enemy
-                    {coord: {q: 10, r: 10}, unit: friendly2}  // No adjacent enemy
+                    {coord: new HexCoord(5, 5), unit: friendly1},   // Has adjacent enemy
+                    {coord: new HexCoord(10, 10), unit: friendly2}  // No adjacent enemy
                 ],
                 allUnits: [
-                    {coord: {q: 5, r: 5}, unit: friendly1},
-                    {coord: {q: 6, r: 5}, unit: adjacentEnemy},   // Adjacent to friendly1
-                    {coord: {q: 7, r: 5}, unit: distantEnemy1},   // Distance 2 from friendly1
-                    {coord: {q: 10, r: 10}, unit: friendly2},
-                    {coord: {q: 12, r: 10}, unit: distantEnemy2}  // Distance 2 from friendly2
+                    {coord: new HexCoord(5, 5), unit: friendly1},
+                    {coord: new HexCoord(6, 5), unit: adjacentEnemy},   // Adjacent to friendly1
+                    {coord: new HexCoord(7, 5), unit: distantEnemy1},   // Distance 2 from friendly1
+                    {coord: new HexCoord(10, 10), unit: friendly2},
+                    {coord: new HexCoord(12, 10), unit: distantEnemy2}  // Distance 2 from friendly2
                 ],
                 unitsSkipBattle: [] as Unit[],
                 activePlayer: createPlayer(Side.ALLIES, Position.BOTTOM),
@@ -957,10 +949,10 @@ describe("BattlePhase", () => {
             const enemy = new Infantry(Side.AXIS);
 
             const fakeGameState = {
-                orderedUnits: [{coord: {q: 5, r: 5}, unit: friendly}],
+                orderedUnits: [{coord: new HexCoord(5, 5), unit: friendly}],
                 allUnits: [
-                    {coord: {q: 5, r: 5}, unit: friendly},
-                    {coord: {q: 6, r: 5}, unit: enemy}
+                    {coord: new HexCoord(5, 5), unit: friendly},
+                    {coord: new HexCoord(6, 5), unit: enemy}
                 ],
                 unitsSkipBattle: [] as Unit[],
                 activePlayer: createPlayer(Side.ALLIES, Position.BOTTOM),

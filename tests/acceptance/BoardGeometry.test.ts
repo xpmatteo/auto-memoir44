@@ -16,34 +16,34 @@ describe("BoardGeometry", () => {
 
         it("Accepts valid hexes on the board", () => {
             // Test center of board
-            expect(BOARD_GEOMETRY.contains({ q: 0, r: 0 })).toBe(true);
-            expect(BOARD_GEOMETRY.contains({ q: 6, r: 0 })).toBe(true);
+            expect(BOARD_GEOMETRY.contains(new HexCoord(0, 0))).toBe(true);
+            expect(BOARD_GEOMETRY.contains(new HexCoord(6, 0))).toBe(true);
 
             // Test corners
-            expect(BOARD_GEOMETRY.contains({ q: -4, r: 8 })).toBe(true);
-            expect(BOARD_GEOMETRY.contains({ q: 8, r: 8 })).toBe(true);
+            expect(BOARD_GEOMETRY.contains(new HexCoord(-4, 8))).toBe(true);
+            expect(BOARD_GEOMETRY.contains(new HexCoord(8, 8))).toBe(true);
 
             // Test edges (Row 0: q=0 to 12, Row 8: q=-4 to 8)
-            expect(BOARD_GEOMETRY.contains({ q: 0, r: 0 })).toBe(true);
-            expect(BOARD_GEOMETRY.contains({ q: 12, r: 0 })).toBe(true);
+            expect(BOARD_GEOMETRY.contains(new HexCoord(0, 0))).toBe(true);
+            expect(BOARD_GEOMETRY.contains(new HexCoord(12, 0))).toBe(true);
         });
 
         it("Rejects hexes outside board boundaries", () => {
             // Too far left on row 0
-            expect(BOARD_GEOMETRY.contains({ q: -1, r: 0 })).toBe(false);
+            expect(BOARD_GEOMETRY.contains(new HexCoord(-1, 0))).toBe(false);
 
             // Too far right on row 0
-            expect(BOARD_GEOMETRY.contains({ q: 13, r: 0 })).toBe(false);
+            expect(BOARD_GEOMETRY.contains(new HexCoord(13, 0))).toBe(false);
 
             // Too far top
-            expect(BOARD_GEOMETRY.contains({ q: 0, r: -1 })).toBe(false);
+            expect(BOARD_GEOMETRY.contains(new HexCoord(0, -1))).toBe(false);
 
             // Too far bottom
-            expect(BOARD_GEOMETRY.contains({ q: 0, r: 9 })).toBe(false);
+            expect(BOARD_GEOMETRY.contains(new HexCoord(0, 9))).toBe(false);
 
             // Off the edge on an odd row (Row 1: q=0 to 11)
-            expect(BOARD_GEOMETRY.contains({ q: 12, r: 1 })).toBe(false);
-            expect(BOARD_GEOMETRY.contains({ q: -1, r: 1 })).toBe(false);
+            expect(BOARD_GEOMETRY.contains(new HexCoord(12, 1))).toBe(false);
+            expect(BOARD_GEOMETRY.contains(new HexCoord(-1, 1))).toBe(false);
         });
 
         it("Generates correct number of hexes per row", () => {
@@ -70,75 +70,75 @@ describe("BoardGeometry", () => {
     describe("Section assignments for BOTTOM player", () => {
         it("Assigns LEFT section hexes correctly", () => {
             // From board.test.js: MAP_WEST examples
-            expect(BOARD_GEOMETRY.isHexInSection({ q: 0, r: 0 }, Section.LEFT, Position.BOTTOM)).toBe(true);
-            expect(BOARD_GEOMETRY.isHexInSection({ q: 4, r: 0 }, Section.LEFT, Position.BOTTOM)).toBe(true);
-            expect(BOARD_GEOMETRY.isHexInSection({ q: 3, r: 1 }, Section.LEFT, Position.BOTTOM)).toBe(true);
-            expect(BOARD_GEOMETRY.isHexInSection({ q: 3, r: 2 }, Section.LEFT, Position.BOTTOM)).toBe(true);
-            expect(BOARD_GEOMETRY.isHexInSection({ q: 2, r: 3 }, Section.LEFT, Position.BOTTOM)).toBe(true);
-            expect(BOARD_GEOMETRY.isHexInSection({ q: 2, r: 4 }, Section.LEFT, Position.BOTTOM)).toBe(true);
-            expect(BOARD_GEOMETRY.isHexInSection({ q: 1, r: 5 }, Section.LEFT, Position.BOTTOM)).toBe(true);
-            expect(BOARD_GEOMETRY.isHexInSection({ q: 1, r: 6 }, Section.LEFT, Position.BOTTOM)).toBe(true);
-            expect(BOARD_GEOMETRY.isHexInSection({ q: 0, r: 7 }, Section.LEFT, Position.BOTTOM)).toBe(true);
-            expect(BOARD_GEOMETRY.isHexInSection({ q: 0, r: 8 }, Section.LEFT, Position.BOTTOM)).toBe(true);
+            expect(BOARD_GEOMETRY.isHexInSection(new HexCoord(0, 0), Section.LEFT, Position.BOTTOM)).toBe(true);
+            expect(BOARD_GEOMETRY.isHexInSection(new HexCoord(4, 0), Section.LEFT, Position.BOTTOM)).toBe(true);
+            expect(BOARD_GEOMETRY.isHexInSection(new HexCoord(3, 1), Section.LEFT, Position.BOTTOM)).toBe(true);
+            expect(BOARD_GEOMETRY.isHexInSection(new HexCoord(3, 2), Section.LEFT, Position.BOTTOM)).toBe(true);
+            expect(BOARD_GEOMETRY.isHexInSection(new HexCoord(2, 3), Section.LEFT, Position.BOTTOM)).toBe(true);
+            expect(BOARD_GEOMETRY.isHexInSection(new HexCoord(2, 4), Section.LEFT, Position.BOTTOM)).toBe(true);
+            expect(BOARD_GEOMETRY.isHexInSection(new HexCoord(1, 5), Section.LEFT, Position.BOTTOM)).toBe(true);
+            expect(BOARD_GEOMETRY.isHexInSection(new HexCoord(1, 6), Section.LEFT, Position.BOTTOM)).toBe(true);
+            expect(BOARD_GEOMETRY.isHexInSection(new HexCoord(0, 7), Section.LEFT, Position.BOTTOM)).toBe(true);
+            expect(BOARD_GEOMETRY.isHexInSection(new HexCoord(0, 8), Section.LEFT, Position.BOTTOM)).toBe(true);
 
             // Should NOT be in LEFT
-            expect(BOARD_GEOMETRY.isHexInSection({ q: 5, r: 0 }, Section.LEFT, Position.BOTTOM)).toBe(false);
+            expect(BOARD_GEOMETRY.isHexInSection(new HexCoord(5, 0), Section.LEFT, Position.BOTTOM)).toBe(false);
         });
 
         it("Assigns CENTER section hexes correctly", () => {
             // CENTER hexes should NOT be in LEFT or RIGHT
             // Row 0: center is q=5,6,7
-            expect(BOARD_GEOMETRY.isHexInSection({ q: 5, r: 0 }, Section.CENTER, Position.BOTTOM)).toBe(true);
-            expect(BOARD_GEOMETRY.isHexInSection({ q: 6, r: 0 }, Section.CENTER, Position.BOTTOM)).toBe(true);
-            expect(BOARD_GEOMETRY.isHexInSection({ q: 7, r: 0 }, Section.CENTER, Position.BOTTOM)).toBe(true);
+            expect(BOARD_GEOMETRY.isHexInSection(new HexCoord(5, 0), Section.CENTER, Position.BOTTOM)).toBe(true);
+            expect(BOARD_GEOMETRY.isHexInSection(new HexCoord(6, 0), Section.CENTER, Position.BOTTOM)).toBe(true);
+            expect(BOARD_GEOMETRY.isHexInSection(new HexCoord(7, 0), Section.CENTER, Position.BOTTOM)).toBe(true);
 
             // Row 1: center is q=4,5,6,7
-            expect(BOARD_GEOMETRY.isHexInSection({ q: 4, r: 1 }, Section.CENTER, Position.BOTTOM)).toBe(true);
-            expect(BOARD_GEOMETRY.isHexInSection({ q: 5, r: 1 }, Section.CENTER, Position.BOTTOM)).toBe(true);
+            expect(BOARD_GEOMETRY.isHexInSection(new HexCoord(4, 1), Section.CENTER, Position.BOTTOM)).toBe(true);
+            expect(BOARD_GEOMETRY.isHexInSection(new HexCoord(5, 1), Section.CENTER, Position.BOTTOM)).toBe(true);
 
             // Verify these are NOT in LEFT or RIGHT
-            expect(BOARD_GEOMETRY.isHexInSection({ q: 5, r: 0 }, Section.LEFT, Position.BOTTOM)).toBe(false);
-            expect(BOARD_GEOMETRY.isHexInSection({ q: 5, r: 0 }, Section.RIGHT, Position.BOTTOM)).toBe(false);
+            expect(BOARD_GEOMETRY.isHexInSection(new HexCoord(5, 0), Section.LEFT, Position.BOTTOM)).toBe(false);
+            expect(BOARD_GEOMETRY.isHexInSection(new HexCoord(5, 0), Section.RIGHT, Position.BOTTOM)).toBe(false);
         });
 
         it("Assigns RIGHT section hexes correctly", () => {
             // From board.test.js: MAP_EAST examples
-            expect(BOARD_GEOMETRY.isHexInSection({ q: 12, r: 0 }, Section.RIGHT, Position.BOTTOM)).toBe(true);
-            expect(BOARD_GEOMETRY.isHexInSection({ q: 8, r: 0 }, Section.RIGHT, Position.BOTTOM)).toBe(true);
-            expect(BOARD_GEOMETRY.isHexInSection({ q: 8, r: 1 }, Section.RIGHT, Position.BOTTOM)).toBe(true);
-            expect(BOARD_GEOMETRY.isHexInSection({ q: 7, r: 2 }, Section.RIGHT, Position.BOTTOM)).toBe(true);
-            expect(BOARD_GEOMETRY.isHexInSection({ q: 7, r: 3 }, Section.RIGHT, Position.BOTTOM)).toBe(true);
-            expect(BOARD_GEOMETRY.isHexInSection({ q: 6, r: 4 }, Section.RIGHT, Position.BOTTOM)).toBe(true);
-            expect(BOARD_GEOMETRY.isHexInSection({ q: 6, r: 5 }, Section.RIGHT, Position.BOTTOM)).toBe(true);
-            expect(BOARD_GEOMETRY.isHexInSection({ q: 5, r: 6 }, Section.RIGHT, Position.BOTTOM)).toBe(true);
-            expect(BOARD_GEOMETRY.isHexInSection({ q: 5, r: 7 }, Section.RIGHT, Position.BOTTOM)).toBe(true);
-            expect(BOARD_GEOMETRY.isHexInSection({ q: 4, r: 8 }, Section.RIGHT, Position.BOTTOM)).toBe(true);
+            expect(BOARD_GEOMETRY.isHexInSection(new HexCoord(12, 0), Section.RIGHT, Position.BOTTOM)).toBe(true);
+            expect(BOARD_GEOMETRY.isHexInSection(new HexCoord(8, 0), Section.RIGHT, Position.BOTTOM)).toBe(true);
+            expect(BOARD_GEOMETRY.isHexInSection(new HexCoord(8, 1), Section.RIGHT, Position.BOTTOM)).toBe(true);
+            expect(BOARD_GEOMETRY.isHexInSection(new HexCoord(7, 2), Section.RIGHT, Position.BOTTOM)).toBe(true);
+            expect(BOARD_GEOMETRY.isHexInSection(new HexCoord(7, 3), Section.RIGHT, Position.BOTTOM)).toBe(true);
+            expect(BOARD_GEOMETRY.isHexInSection(new HexCoord(6, 4), Section.RIGHT, Position.BOTTOM)).toBe(true);
+            expect(BOARD_GEOMETRY.isHexInSection(new HexCoord(6, 5), Section.RIGHT, Position.BOTTOM)).toBe(true);
+            expect(BOARD_GEOMETRY.isHexInSection(new HexCoord(5, 6), Section.RIGHT, Position.BOTTOM)).toBe(true);
+            expect(BOARD_GEOMETRY.isHexInSection(new HexCoord(5, 7), Section.RIGHT, Position.BOTTOM)).toBe(true);
+            expect(BOARD_GEOMETRY.isHexInSection(new HexCoord(4, 8), Section.RIGHT, Position.BOTTOM)).toBe(true);
 
             // Should NOT be in RIGHT
-            expect(BOARD_GEOMETRY.isHexInSection({ q: 7, r: 0 }, Section.RIGHT, Position.BOTTOM)).toBe(false);
+            expect(BOARD_GEOMETRY.isHexInSection(new HexCoord(7, 0), Section.RIGHT, Position.BOTTOM)).toBe(false);
         });
     });
 
     describe("Section assignments for TOP player (flipped perspective)", () => {
         it("Flips LEFT and RIGHT sections for TOP player", () => {
             // What is LEFT for BOTTOM is RIGHT for TOP
-            expect(BOARD_GEOMETRY.isHexInSection({ q: 0, r: 0 }, Section.LEFT, Position.BOTTOM)).toBe(true);
-            expect(BOARD_GEOMETRY.isHexInSection({ q: 0, r: 0 }, Section.RIGHT, Position.TOP)).toBe(true);
+            expect(BOARD_GEOMETRY.isHexInSection(new HexCoord(0, 0), Section.LEFT, Position.BOTTOM)).toBe(true);
+            expect(BOARD_GEOMETRY.isHexInSection(new HexCoord(0, 0), Section.RIGHT, Position.TOP)).toBe(true);
 
             // What is RIGHT for BOTTOM is LEFT for TOP
-            expect(BOARD_GEOMETRY.isHexInSection({ q: 12, r: 0 }, Section.RIGHT, Position.BOTTOM)).toBe(true);
-            expect(BOARD_GEOMETRY.isHexInSection({ q: 12, r: 0 }, Section.LEFT, Position.TOP)).toBe(true);
+            expect(BOARD_GEOMETRY.isHexInSection(new HexCoord(12, 0), Section.RIGHT, Position.BOTTOM)).toBe(true);
+            expect(BOARD_GEOMETRY.isHexInSection(new HexCoord(12, 0), Section.LEFT, Position.TOP)).toBe(true);
         });
 
         it("Keeps CENTER section the same for both players", () => {
-            expect(BOARD_GEOMETRY.isHexInSection({ q: 6, r: 0 }, Section.CENTER, Position.BOTTOM)).toBe(true);
-            expect(BOARD_GEOMETRY.isHexInSection({ q: 6, r: 0 }, Section.CENTER, Position.TOP)).toBe(true);
+            expect(BOARD_GEOMETRY.isHexInSection(new HexCoord(6, 0), Section.CENTER, Position.BOTTOM)).toBe(true);
+            expect(BOARD_GEOMETRY.isHexInSection(new HexCoord(6, 0), Section.CENTER, Position.TOP)).toBe(true);
         });
     });
 
     describe("Valid neighbors", () => {
         it("Returns all 6 neighbors for a hex in the middle of the board", () => {
-            const neighbors = BOARD_GEOMETRY.getValidNeighbors({ q: 0, r: 4 });
+            const neighbors = BOARD_GEOMETRY.getValidNeighbors(new HexCoord(0, 4));
             expect(neighbors.length).toBe(6);
 
             // Check that all 6 directions are present
@@ -153,24 +153,24 @@ describe("BoardGeometry", () => {
 
         it("Returns only on-board neighbors for edge hexes", () => {
             // Bottom-left corner (q=-4, r=8)
-            const bottomLeftNeighbors = BOARD_GEOMETRY.getValidNeighbors({ q: -4, r: 8 });
+            const bottomLeftNeighbors = BOARD_GEOMETRY.getValidNeighbors(new HexCoord(-4, 8));
             expect(bottomLeftNeighbors.length).toBe(2);
             expect(bottomLeftNeighbors.some(n => n.q === -3 && n.r === 8)).toBe(true); // East
             expect(bottomLeftNeighbors.some(n => n.q === -3 && n.r === 7)).toBe(true); // Northeast
 
             // Top-right corner (q=12, r=0)
-            const topRightNeighbors = BOARD_GEOMETRY.getValidNeighbors({ q: 12, r: 0 });
+            const topRightNeighbors = BOARD_GEOMETRY.getValidNeighbors(new HexCoord(12, 0));
             expect(topRightNeighbors.length).toBe(2);
 
             // Bottom edge hex
-            const bottomEdgeNeighbors = BOARD_GEOMETRY.getValidNeighbors({ q: 0, r: 8 });
+            const bottomEdgeNeighbors = BOARD_GEOMETRY.getValidNeighbors(new HexCoord(0, 8));
             expect(bottomEdgeNeighbors.length).toBeLessThan(6);
             // Should not include any neighbors with r > 8
             expect(bottomEdgeNeighbors.every(n => n.r <= 8)).toBe(true);
         });
 
         it("Returns empty array for off-board hex", () => {
-            const neighbors = BOARD_GEOMETRY.getValidNeighbors({ q: -10, r: 0 });
+            const neighbors = BOARD_GEOMETRY.getValidNeighbors(new HexCoord(-10, 0));
             expect(neighbors.length).toBe(0);
         });
     });

@@ -10,13 +10,13 @@ import {Section} from "./Section";
  * Extracted from the original board.js implementation.
  */
 export class BoardGeometry {
-    private readonly validHexes: Set<string>;
+    private readonly validHexes: Map<string, HexCoord>;
     private readonly leftHexes: Set<string>;
     private readonly centerHexes: Set<string>;
     private readonly rightHexes: Set<string>;
 
     constructor() {
-        this.validHexes = new Set();
+        this.validHexes = new Map<string, HexCoord>();
         this.leftHexes = new Set();
         this.centerHexes = new Set();
         this.rightHexes = new Set();
@@ -36,7 +36,7 @@ export class BoardGeometry {
             for (let q = colStart; q < colStart + numCols; q++) {
                 const hex = new HexCoord(q, r);
                 const key = this.hexKey(hex);
-                this.validHexes.add(key);
+                this.validHexes.set(key, hex);
 
                 // Determine section (from BOTTOM player perspective)
                 if (this.isLeft(r, q)) {
@@ -138,32 +138,25 @@ export class BoardGeometry {
 
     /**
      * Get all valid neighbor hexes (within board boundaries).
-     * Uses pointy-top hex orientation neighbor offsets.
      */
     getValidNeighbors(coord: HexCoord): HexCoord[] {
-        // Pointy-top hex neighbor offsets
-        const offsets: HexCoord[] = [
-            new HexCoord(1, 0),   // East
-            new HexCoord(1, -1),  // Northeast
-            new HexCoord(0, -1),  // Northwest
-            new HexCoord(-1, 0),  // West
-            new HexCoord(-1, 1),  // Southwest
-            new HexCoord(0, 1),   // Southeast
+        const neighbors: HexCoord[] = [
+            coord.east(),
+            coord.northeast(),
+            coord.northwest(),
+            coord.west(),
+            coord.southwest(),
+            coord.southeast(),
         ];
 
-        return offsets
-            .map(offset => new HexCoord(coord.q + offset.q, coord.r + offset.r))
-            .filter(neighbor => this.contains(neighbor));
+        return neighbors.filter(neighbor => this.contains(neighbor));
     }
 
     /**
      * Get all valid hexes on the board.
      */
     getAllHexes(): HexCoord[] {
-        return Array.from(this.validHexes).map(key => {
-            const [q, r] = key.split(',').map(Number);
-            return new HexCoord(q, r);
-        });
+        return [...this.validHexes.values()];
     }
 }
 

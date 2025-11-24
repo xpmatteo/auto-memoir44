@@ -4,9 +4,13 @@
 import {describe, expect, it} from "vitest";
 import {Deck} from "../../src/domain/Deck";
 import {CardLocation, CommandCard} from "../../src/domain/CommandCard";
+import {Section} from "../../src/domain/Section";
 
 // Test helper card class
 class TestCard extends CommandCard {
+    readonly section = Section.CENTER;
+    readonly howManyUnits = 1;
+
     constructor(public readonly name: string, public readonly imagePath: string) {
         super();
     }
