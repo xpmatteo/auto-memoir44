@@ -40,8 +40,6 @@ export class ConfirmOrdersMove implements Move {
         // Only enter MovePhase if there are ordered units
         const orderedUnits = gameState.getOrderedUnits();
         if (orderedUnits.length > 0) {
-            gameState.replacePhase(new MovePhase());
-        } else {
             gameState.popPhase();
         }
     }

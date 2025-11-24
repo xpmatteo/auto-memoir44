@@ -16,7 +16,11 @@ import {
   SELECTED_UNIT_SHADOW_BLUR,
   VALID_DESTINATION_FILL_COLOR,
   VALID_DESTINATION_OUTLINE_COLOR,
-  VALID_DESTINATION_OUTLINE_WIDTH
+  VALID_DESTINATION_OUTLINE_WIDTH,
+  BATTLE_UNIT_OUTLINE_COLOR,
+  BATTLE_UNIT_SHADOW_COLOR,
+  BATTLE_UNIT_OUTLINE_WIDTH,
+  BATTLE_UNIT_SHADOW_BLUR
 } from "../../utils/constants.js";
 
 const SQRT3 = Math.sqrt(3);
@@ -156,6 +160,29 @@ export function drawValidDestinations(
     context.closePath();
     context.fill();
     context.stroke();
+  }
+
+  context.restore();
+}
+
+/**
+ * Draw outlines around battle-ready units to highlight them.
+ * Uses red stroke to indicate units that can attack during BattlePhase.
+ */
+export function drawBattleUnitOutlines(
+  context: CanvasRenderingContext2D,
+  battleCoords: HexCoord[],
+  grid: GridConfig
+) {
+  context.save();
+  context.lineWidth = BATTLE_UNIT_OUTLINE_WIDTH;
+  context.strokeStyle = BATTLE_UNIT_OUTLINE_COLOR;
+  context.shadowColor = BATTLE_UNIT_SHADOW_COLOR;
+  context.shadowBlur = BATTLE_UNIT_SHADOW_BLUR;
+
+  for (const coord of battleCoords) {
+    const { x, y } = hexToPixel(coord, grid);
+    drawHex(context, x, y, grid.hexRadius);
   }
 
   context.restore();

@@ -8,7 +8,7 @@ import "./style.css";
 import type { GridConfig } from "./utils/hex.js";
 import { toCanvasCoords, pixelToHex } from "./utils/hex.js";
 import { loadBoardImage, drawBoard } from "./ui/canvas/BoardRenderer.js";
-import { drawGrid, drawOrderedUnitOutlines, drawSelectedUnit, drawValidDestinations } from "./ui/canvas/HexGrid.js";
+import { drawGrid, drawOrderedUnitOutlines, drawSelectedUnit, drawValidDestinations, drawBattleUnitOutlines } from "./ui/canvas/HexGrid.js";
 import { drawUnits } from "./ui/canvas/UnitRenderer.js";
 import { loadScenario, getDefaultScenario } from "./scenarios/index.js";
 import { HandDisplay } from "./ui/components/HandDisplay.js";
@@ -18,6 +18,7 @@ import { GameState } from "./domain/GameState.js";
 import { Deck } from "./domain/Deck.js";
 import { CanvasClickHandler } from "./ui/input/CanvasClickHandler.js";
 import { uiState } from "./ui/UIState.js";
+import { BattleMove } from "./domain/Move.js";
 
 const BOARD_IMAGE_PATH = "/images/boards/memoir-desert-map.jpg";
 const BOARD_WIDTH = 2007;
@@ -130,6 +131,17 @@ async function start() {
       const orderedUnits = gameState.getOrderedUnitsWithPositions();
       const orderedCoords = orderedUnits.map(({ coord }) => coord);
       drawOrderedUnitOutlines(context, orderedCoords, defaultGrid);
+
+      // Draw battle-ready unit outlines during BattlePhase
+      if (gameState.activePhase.name === "Battle") {
+        const legalMoves = gameState.legalMoves();
+        const battleMoves = legalMoves.filter(m => m instanceof BattleMove) as BattleMove[];
+        const battleUnits = new Set(battleMoves.map(m => m.fromUnit));
+        const battleCoords = gameState.getAllUnitsWithPositions()
+          .filter(({ unit }) => battleUnits.has(unit))
+          .map(({ coord }) => coord);
+        drawBattleUnitOutlines(context, battleCoords, defaultGrid);
+      }
 
       // Draw valid destination highlights
       if (uiState.validDestinations.length > 0) {

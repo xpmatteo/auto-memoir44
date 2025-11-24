@@ -5,6 +5,8 @@ import {GameState} from "./GameState";
 import {Section} from "./Section";
 
 import {OrderUnitsPhase} from "./phases/OrderUnitsPhase";
+import {MovePhase} from "./phases/MovePhase";
+import {BattlePhase} from "./phases/BattlePhase";
 
 export const CardLocation = {
     DECK: "Deck",
@@ -33,7 +35,9 @@ export abstract class CommandCard {
 
     onCardPlayed(gameState: GameState): void {
         gameState.setCurrentCard(this.id);
-        gameState.replacePhase(new OrderUnitsPhase(this.section, this.howManyUnits));
+        gameState.replacePhase(new BattlePhase());
+        gameState.pushPhase(new MovePhase());
+        gameState.pushPhase(new OrderUnitsPhase(this.section, this.howManyUnits));
     }
 }
 

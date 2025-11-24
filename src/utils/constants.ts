@@ -23,3 +23,11 @@ export const SELECTED_UNIT_SHADOW_BLUR = 10;
 export const VALID_DESTINATION_FILL_COLOR = "rgba(0, 255, 0, 0.3)"; // Semi-transparent green
 export const VALID_DESTINATION_OUTLINE_COLOR = "rgba(0, 255, 0, 0.8)"; // Green outline
 export const VALID_DESTINATION_OUTLINE_WIDTH = 3;
+
+/**
+ * Color constants for battle-ready unit highlighting
+ */
+export const BATTLE_UNIT_OUTLINE_COLOR = "rgba(255, 0, 0, 0.9)"; // Red
+export const BATTLE_UNIT_SHADOW_COLOR = "rgba(255, 0, 0, 0.6)"; // Red with transparency
+export const BATTLE_UNIT_OUTLINE_WIDTH = 4;
+export const BATTLE_UNIT_SHADOW_BLUR = 8;
