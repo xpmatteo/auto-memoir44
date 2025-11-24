@@ -380,7 +380,7 @@ describe("GameState", () => {
       gameState.popPhase();
 
       // Card should still be current, player should not switch
-      expect(gameState.currentCardId).toBe(card.id);
+      expect(gameState.activeCard?.id).toBe(card.id);
       expect(gameState.activePlayer.position).toBe(initialPlayer);
       expect(gameState.getCardsInLocation(CardLocation.DISCARD_PILE)).toHaveLength(0);
     });
@@ -400,7 +400,7 @@ describe("GameState", () => {
 
       // Card should be in discard pile
       expect(gameState.getCardsInLocation(CardLocation.DISCARD_PILE)).toEqual([card]);
-      expect(gameState.currentCardId).toBeNull();
+      expect(gameState.activeCard).toBeNull();
     });
 
     it("should draw a replacement card for bottom player when turn completes", () => {

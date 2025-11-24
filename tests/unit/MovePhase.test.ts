@@ -3,23 +3,15 @@
 
 import {describe, expect, test} from "vitest";
 import {MovePhase} from "../../src/domain/phases/MovePhase";
-import {MoveUnitMove} from "../../src/domain/Move";
+import {EndMovementsMove, MoveUnitMove} from "../../src/domain/Move";
 import {Infantry, Unit} from "../../src/domain/Unit";
 import {Side} from "../../src/domain/Player";
-import type {HexCoord} from "../../src/domain/HexCoord";
-
-// Declare which methods from GameState we actually need to do our job
-interface UnitMover {
-    getOrderedUnitsWithPositions(): Array<{ coord: HexCoord; unit: Unit }>;
-    isUnitMoved(unit: Unit): boolean;
-    getUnitAt(coord: HexCoord): Unit | undefined;
-}
+import {HexCoord} from "../../src/utils/hex";
 
 const unit1 = new Infantry(Side.ALLIES);
 const unit2 = new Infantry(Side.ALLIES);
-const unit3 = new Infantry(Side.ALLIES);
 
-const fakeUnitMover: UnitMover = {
+const fakeUnitMover = {
     orderedUnits: [] as Array<{ coord: HexCoord; unit: Unit }>,
     movedUnits: [] as Unit[],
     occupiedCoords: [] as HexCoord[],
@@ -48,7 +40,7 @@ describe("MovePhase", () => {
 
         let actual = phase.doLegalMoves(fakeUnitMover);
 
-        expect(actual).toEqual([]);
+        expect(actual).toEqual([new EndMovementsMove()]);
     });
 
     test("Infantry can move 1 hex in any direction", () => {
@@ -67,7 +59,189 @@ describe("MovePhase", () => {
         expect(actual).toContainEqual(new MoveUnitMove(startPos, {q: 4, r: 5}));  // West
         expect(actual).toContainEqual(new MoveUnitMove(startPos, {q: 4, r: 4}));  // Northwest
         expect(actual).toContainEqual(new MoveUnitMove(startPos, {q: 5, r: 4}));  // Northeast
-        expect(actual.length).toBeGreaterThanOrEqual(6);
+        expect(actual).toEqual([
+            new MoveUnitMove(
+                {
+                    "q": 5,
+                    "r": 5,
+                },
+                {
+                    "q": 6,
+                    "r": 5,
+                },
+            ),
+            new MoveUnitMove(
+                {
+                    "q": 5,
+                    "r": 5,
+                },
+                {
+                    "q": 6,
+                    "r": 4,
+                },
+            ),
+            new MoveUnitMove(
+                {
+                    "q": 5,
+                    "r": 5,
+                },
+                {
+                    "q": 5,
+                    "r": 4,
+                },
+            ),
+            new MoveUnitMove(
+                {
+                    "q": 5,
+                    "r": 5,
+                },
+                {
+                    "q": 4,
+                    "r": 5,
+                },
+            ),
+            new MoveUnitMove(
+                {
+                    "q": 5,
+                    "r": 5,
+                },
+                {
+                    "q": 4,
+                    "r": 6,
+                },
+            ),
+            new MoveUnitMove(
+                {
+                    "q": 5,
+                    "r": 5,
+                },
+                {
+                    "q": 5,
+                    "r": 6,
+                },
+            ),
+            new MoveUnitMove(
+                {
+                    "q": 5,
+                    "r": 5,
+                },
+                {
+                    "q": 7,
+                    "r": 5,
+                },
+            ),
+            new MoveUnitMove(
+                {
+                    "q": 5,
+                    "r": 5,
+                },
+                {
+                    "q": 7,
+                    "r": 4,
+                },
+            ),
+            new MoveUnitMove(
+                {
+                    "q": 5,
+                    "r": 5,
+                },
+                {
+                    "q": 6,
+                    "r": 6,
+                },
+            ),
+            new MoveUnitMove(
+                {
+                    "q": 5,
+                    "r": 5,
+                },
+                {
+                    "q": 7,
+                    "r": 3,
+                },
+            ),
+            new MoveUnitMove(
+                {
+                    "q": 5,
+                    "r": 5,
+                },
+                {
+                    "q": 6,
+                    "r": 3,
+                },
+            ),
+            new MoveUnitMove(
+                {
+                    "q": 5,
+                    "r": 5,
+                },
+                {
+                    "q": 5,
+                    "r": 3,
+                },
+            ),
+            new MoveUnitMove(
+                {
+                    "q": 5,
+                    "r": 5,
+                },
+                {
+                    "q": 4,
+                    "r": 4,
+                },
+            ),
+            new MoveUnitMove(
+                {
+                    "q": 5,
+                    "r": 5,
+                },
+                {
+                    "q": 3,
+                    "r": 5,
+                },
+            ),
+            new MoveUnitMove(
+                {
+                    "q": 5,
+                    "r": 5,
+                },
+                {
+                    "q": 3,
+                    "r": 6,
+                },
+            ),
+            new MoveUnitMove(
+                {
+                    "q": 5,
+                    "r": 5,
+                },
+                {
+                    "q": 3,
+                    "r": 7,
+                },
+            ),
+            new MoveUnitMove(
+                {
+                    "q": 5,
+                    "r": 5,
+                },
+                {
+                    "q": 4,
+                    "r": 7,
+                },
+            ),
+            new MoveUnitMove(
+                {
+                    "q": 5,
+                    "r": 5,
+                },
+                {
+                    "q": 5,
+                    "r": 7,
+                },
+            ),
+            new EndMovementsMove(),
+            ]);
     });
 
     test("Infantry can move 2 hexes", () => {
@@ -94,7 +268,7 @@ describe("MovePhase", () => {
 
         let actual = phase.doLegalMoves(fakeUnitMover);
 
-        expect(actual).toEqual([]);
+        expect(actual).toEqual([new EndMovementsMove()]);
     });
 
     test("Generates moves for multiple ordered units", () => {

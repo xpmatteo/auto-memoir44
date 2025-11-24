@@ -5,7 +5,7 @@ import {expect, test} from "vitest";
 import {GameState} from "../../src/domain/GameState";
 import {Deck} from "../../src/domain/Deck";
 import {CardLocation, ProbeCenter} from "../../src/domain/CommandCard";
-import {ConfirmOrdersMove, PlayCardMove} from "../../src/domain/Move";
+import {ConfirmOrdersMove, EndBattlesMove, EndMovementsMove, PlayCardMove} from "../../src/domain/Move";
 import {Position} from "../../src/domain/Player";
 
 test("Complete turn", () => {
@@ -15,12 +15,24 @@ test("Complete turn", () => {
     gameState.drawCards(3, CardLocation.TOP_PLAYER_HAND);
 
     // Act (1): bottom player plays a card
+    expect(gameState.activePhase.name).toBe("Play Card");
     let playedCard = gameState.getCardsInLocation(CardLocation.BOTTOM_PLAYER_HAND)[0];
     gameState.executeMove(new PlayCardMove(playedCard));
 
     // Act (2): bottom player orders nothing and continues
+    expect(gameState.activePhase.name).toBe("Order Units");
     expect(gameState.legalMoves()).toContainEqual(new ConfirmOrdersMove());
     gameState.executeMove(new ConfirmOrdersMove());
+
+    // Act (3): bottom player moves nothing and continues
+    expect(gameState.activePhase.name).toBe("Move Units");
+    expect(gameState.legalMoves()).toContainEqual(new EndMovementsMove());
+    gameState.executeMove(new EndMovementsMove());
+
+    // Act (4): bottom player moves nothing and continues
+    expect(gameState.activePhase.name).toBe("Battle");
+    expect(gameState.legalMoves()).toContainEqual(new EndBattlesMove());
+    gameState.executeMove(new EndBattlesMove());
 
     // Assert
     // - the played card is in the discards

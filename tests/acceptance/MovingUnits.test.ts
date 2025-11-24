@@ -9,7 +9,7 @@ import {ConfirmOrdersMove, MoveUnitMove, PlayCardMove, ToggleUnitOrderedMove} fr
 import {Infantry} from "../../src/domain/Unit";
 import {Side} from "../../src/domain/Player";
 import type {HexCoord} from "../../src/utils/hex";
-import {Section} from "../../src/domain/Section";
+import {MovePhase} from "../../src/domain/phases/MovePhase";
 
 describe("Moving units", () => {
     test("Infantry can move 1 or 2 hexes", () => {
@@ -64,7 +64,7 @@ describe("Moving units", () => {
         gameState.executeMove(new MoveUnitMove(startPos, endPos));
 
         // Assert: Phase auto-advances to end of turn (no more phases, next player)
-        expect(gameState.activePhase.name).toBe("Play Card");
+        expect(gameState.activePhase.name).toBe("Battle");
         expect(gameState.getUnitAt(endPos)).toBe(unit);
         expect(gameState.getUnitAt(startPos)).toBeUndefined();
     });
@@ -140,28 +140,7 @@ describe("Moving units", () => {
         gameState.executeMove(new MoveUnitMove(pos2, newPos2));
 
         // Assert: Phase auto-advances
-        expect(gameState.activePhase.name).toBe("Play Card");
-    });
-
-    test("Skips MovePhase when no units are ordered", () => {
-        // Arrange
-        const deck = Deck.createFromComposition([[ProbeCenter, 60]]);
-        const gameState = new GameState(deck);
-        gameState.drawCards(3, CardLocation.BOTTOM_PLAYER_HAND);
-        gameState.drawCards(3, CardLocation.TOP_PLAYER_HAND);
-
-        // Play card but don't order any units
-        const card = gameState.getCardsInLocation(CardLocation.BOTTOM_PLAYER_HAND)[0];
-        gameState.executeMove(new PlayCardMove(card));
-
-        // Assert: Can confirm orders
-        expect(gameState.legalMoves()).toContainEqual(new ConfirmOrdersMove());
-
-        // Act: Confirm with no ordered units
-        gameState.executeMove(new ConfirmOrdersMove());
-
-        // Assert: Skips MovePhase and goes straight to next player's turn
-        expect(gameState.activePhase.name).toBe("Play Card");
+        expect(gameState.activePhase.name).toBe("Battle");
     });
 
     test("Units that move 2 hexes cannot battle", () => {
@@ -192,18 +171,14 @@ describe("Moving units", () => {
         expect(gameState.unitSkipsBattle(unit1)).toBe(true);
 
         // Still in MovePhase because unit2 hasn't moved yet
-        expect(gameState.activePhase.name).toBe("Move Units");
+        expect(gameState.activePhase).toBeInstanceOf(MovePhase);
 
         // Act: Move unit2 1 hex
         const endPos2: HexCoord = {q: 2, r: 6}; // 1 hex away
         gameState.executeMove(new MoveUnitMove(startPos2, endPos2));
+        expect(gameState.unitSkipsBattle(unit2)).toBe(false);
 
         // Assert: Phase auto-advanced to next turn after all units moved
-        expect(gameState.activePhase.name).toBe("Play Card");
-
-        // Note: After turn end, battle restrictions are cleared automatically by popPhase()
-        // The unit tests in MoveUnitMove.test.ts and GameState.movement.test.ts verify this behavior
-        expect(gameState.unitSkipsBattle(unit1)).toBe(false);
-        expect(gameState.unitSkipsBattle(unit2)).toBe(false);
+        expect(gameState.activePhase.name).toBe("Battle");
     });
 });

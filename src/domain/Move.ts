@@ -37,11 +37,13 @@ export class ToggleUnitOrderedMove implements Move {
 
 export class ConfirmOrdersMove implements Move {
     execute(gameState: GameState): void {
-        // Only enter MovePhase if there are ordered units
-        const orderedUnits = gameState.getOrderedUnits();
-        if (orderedUnits.length > 0) {
-            gameState.popPhase();
-        }
+        gameState.popPhase();
+    }
+}
+
+export class EndMovementsMove implements Move {
+    execute(gameState: GameState): void {
+        gameState.popPhase();
     }
 }
 
@@ -88,7 +90,7 @@ export class BattleMove implements Move {
         this.toUnit = toUnit;
     }
 
-    execute(gameState: GameState): void {
+    execute(_gameState: GameState): void {
         // TODO: Implement combat resolution (dice rolls, casualties)
         throw new Error("BattleMove.execute() not yet implemented");
     }

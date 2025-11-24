@@ -3,7 +3,7 @@
 
 import {Phase} from "./Phase";
 import {GameState} from "../GameState";
-import {Move, MoveUnitMove} from "../Move";
+import {EndMovementsMove, Move, MoveUnitMove} from "../Move";
 import {Unit} from "../Unit";
 import type {HexCoord} from "../../utils/hex";
 import {BOARD_GEOMETRY} from "../BoardGeometry";
@@ -45,6 +45,7 @@ export class MovePhase implements Phase {
             }
         }
 
+        moves.push(new EndMovementsMove());
         return moves;
     }
 
