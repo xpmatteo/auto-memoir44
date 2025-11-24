@@ -225,9 +225,16 @@ export function drawBattleTargets(
   for (const target of targets) {
     const { x, y } = hexToPixel(target.coord, grid);
 
+    // Position dice indicator towards southeast edge of hex
+    // For pointy-top hex, southeast is at angle 30 degrees (π/6 radians)
+    const angle = Math.PI / 6;
+    const offsetDistance = grid.hexRadius * 0.6; // 60% towards the edge
+    const diceX = x + offsetDistance * Math.cos(angle);
+    const diceY = y + offsetDistance * Math.sin(angle);
+
     // Draw circle background
     context.beginPath();
-    context.arc(x, y, DICE_INDICATOR_RADIUS, 0, 2 * Math.PI);
+    context.arc(diceX, diceY, DICE_INDICATOR_RADIUS, 0, 2 * Math.PI);
     context.fillStyle = DICE_INDICATOR_CIRCLE_COLOR;
     context.fill();
     context.strokeStyle = "rgba(255, 255, 255, 0.8)"; // White outline for circle
@@ -239,7 +246,7 @@ export function drawBattleTargets(
     context.font = `bold ${DICE_INDICATOR_FONT_SIZE}px sans-serif`;
     context.textAlign = "center";
     context.textBaseline = "middle";
-    context.fillText(target.dice.toString(), x, y);
+    context.fillText(target.dice.toString(), diceX, diceY);
   }
 
   context.restore();

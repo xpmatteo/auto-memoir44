@@ -45,5 +45,5 @@ export const BATTLE_TARGET_SHADOW_BLUR = 12;
  */
 export const DICE_INDICATOR_CIRCLE_COLOR = "rgba(200, 0, 0, 0.9)"; // Dark red circle
 export const DICE_INDICATOR_TEXT_COLOR = "white";
-export const DICE_INDICATOR_RADIUS = 15; // Radius of the circle in pixels
-export const DICE_INDICATOR_FONT_SIZE = 18; // Font size for the dice count
+export const DICE_INDICATOR_RADIUS = 25; // Radius of the circle in pixels
+export const DICE_INDICATOR_FONT_SIZE = 36; // Font size for the dice count
