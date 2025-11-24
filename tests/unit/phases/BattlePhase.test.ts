@@ -2,11 +2,11 @@
 // ABOUTME: Tests legal battle move generation for units within 3 hexes
 
 import {describe, expect, test} from "vitest";
-import {BattlePhase} from "../../src/domain/phases/BattlePhase";
-import {BattleMove, EndBattlesMove} from "../../src/domain/Move";
-import {Infantry, Unit} from "../../src/domain/Unit";
-import {Side, Position, createPlayer} from "../../src/domain/Player";
-import {HexCoord} from "../../src/utils/hex";
+import {BattlePhase} from "../../../src/domain/phases/BattlePhase";
+import {BattleMove, EndBattlesMove} from "../../../src/domain/Move";
+import {Infantry, Unit} from "../../../src/domain/Unit";
+import {Side, Position, createPlayer} from "../../../src/domain/Player";
+import {HexCoord} from "../../../src/utils/hex";
 
 const fakeUnitBattler = {
     orderedUnits: [] as Array<{ coord: HexCoord, unit: Unit }>,

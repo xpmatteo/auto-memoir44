@@ -1,12 +1,11 @@
 // ABOUTME: Unit tests for Phase class
 
 import {describe, expect, test} from "vitest";
-import {Section} from "../../src/domain/Section";
-import {ConfirmOrdersMove, ToggleUnitOrderedMove} from "../../src/domain/Move";
-import {Infantry, Unit} from "../../src/domain/Unit";
-import {Side} from "../../src/domain/Player";
-
-import {OrderUnitsPhase} from "../../src/domain/phases/OrderUnitsPhase";
+import {Section} from "../../../src/domain/Section";
+import {ConfirmOrdersMove, ToggleUnitOrderedMove} from "../../../src/domain/Move";
+import {Infantry, Unit} from "../../../src/domain/Unit";
+import {Side} from "../../../src/domain/Player";
+import {OrderUnitsPhase} from "../../../src/domain/phases/OrderUnitsPhase";
 
 
 const unit1 = new Infantry(Side.ALLIES);

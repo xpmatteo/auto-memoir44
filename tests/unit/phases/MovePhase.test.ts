@@ -2,11 +2,11 @@
 // ABOUTME: Tests legal move generation for unit movement
 
 import {describe, expect, test} from "vitest";
-import {MovePhase} from "../../src/domain/phases/MovePhase";
-import {EndMovementsMove, MoveUnitMove} from "../../src/domain/Move";
-import {Infantry, Unit} from "../../src/domain/Unit";
-import {Side} from "../../src/domain/Player";
-import {HexCoord} from "../../src/utils/hex";
+import {MovePhase} from "../../../src/domain/phases/MovePhase";
+import {EndMovementsMove, MoveUnitMove} from "../../../src/domain/Move";
+import {Infantry, Unit} from "../../../src/domain/Unit";
+import {Side} from "../../../src/domain/Player";
+import {HexCoord} from "../../../src/utils/hex";
 
 const unit1 = new Infantry(Side.ALLIES);
 const unit2 = new Infantry(Side.ALLIES);
