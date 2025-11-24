@@ -5,6 +5,7 @@ import { GridConfig, HexCoord } from "../../utils/hex.js";
 import { hexToPixel } from "../../utils/hex.js";
 import { isHexInSection, Section } from "../../domain/Section.js";
 import { Position } from "../../domain/Player.js";
+import { BattleTarget } from "../UIState.js";
 import {
   ORDERED_UNIT_OUTLINE_COLOR,
   ORDERED_UNIT_SHADOW_COLOR,
@@ -20,7 +21,15 @@ import {
   BATTLE_UNIT_OUTLINE_COLOR,
   BATTLE_UNIT_SHADOW_COLOR,
   BATTLE_UNIT_OUTLINE_WIDTH,
-  BATTLE_UNIT_SHADOW_BLUR
+  BATTLE_UNIT_SHADOW_BLUR,
+  BATTLE_TARGET_OUTLINE_COLOR,
+  BATTLE_TARGET_SHADOW_COLOR,
+  BATTLE_TARGET_OUTLINE_WIDTH,
+  BATTLE_TARGET_SHADOW_BLUR,
+  DICE_INDICATOR_CIRCLE_COLOR,
+  DICE_INDICATOR_TEXT_COLOR,
+  DICE_INDICATOR_RADIUS,
+  DICE_INDICATOR_FONT_SIZE
 } from "../../utils/constants.js";
 
 const SQRT3 = Math.sqrt(3);
@@ -184,6 +193,53 @@ export function drawBattleUnitOutlines(
   for (const coord of battleCoords) {
     const { x, y } = hexToPixel(coord, grid);
     drawHex(context, x, y, grid.hexRadius);
+  }
+
+  context.restore();
+}
+
+/**
+ * Draw outlines and dice indicators on battle target units.
+ * Uses bright red outline with a circle showing the number of dice that will be rolled.
+ */
+export function drawBattleTargets(
+  context: CanvasRenderingContext2D,
+  targets: BattleTarget[],
+  grid: GridConfig
+) {
+  context.save();
+
+  // Draw outlines around target hexes
+  context.lineWidth = BATTLE_TARGET_OUTLINE_WIDTH;
+  context.strokeStyle = BATTLE_TARGET_OUTLINE_COLOR;
+  context.shadowColor = BATTLE_TARGET_SHADOW_COLOR;
+  context.shadowBlur = BATTLE_TARGET_SHADOW_BLUR;
+
+  for (const target of targets) {
+    const { x, y } = hexToPixel(target.coord, grid);
+    drawHex(context, x, y, grid.hexRadius);
+  }
+
+  // Draw dice count indicators
+  context.shadowBlur = 0; // Disable shadow for crisp text
+  for (const target of targets) {
+    const { x, y } = hexToPixel(target.coord, grid);
+
+    // Draw circle background
+    context.beginPath();
+    context.arc(x, y, DICE_INDICATOR_RADIUS, 0, 2 * Math.PI);
+    context.fillStyle = DICE_INDICATOR_CIRCLE_COLOR;
+    context.fill();
+    context.strokeStyle = "rgba(255, 255, 255, 0.8)"; // White outline for circle
+    context.lineWidth = 2;
+    context.stroke();
+
+    // Draw dice count text
+    context.fillStyle = DICE_INDICATOR_TEXT_COLOR;
+    context.font = `bold ${DICE_INDICATOR_FONT_SIZE}px sans-serif`;
+    context.textAlign = "center";
+    context.textBaseline = "middle";
+    context.fillText(target.dice.toString(), x, y);
   }
 
   context.restore();

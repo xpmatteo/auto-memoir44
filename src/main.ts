@@ -8,7 +8,7 @@ import "./style.css";
 import type { GridConfig } from "./utils/hex.js";
 import { toCanvasCoords, pixelToHex } from "./utils/hex.js";
 import { loadBoardImage, drawBoard } from "./ui/canvas/BoardRenderer.js";
-import { drawGrid, drawOrderedUnitOutlines, drawSelectedUnit, drawValidDestinations, drawBattleUnitOutlines } from "./ui/canvas/HexGrid.js";
+import { drawGrid, drawOrderedUnitOutlines, drawSelectedUnit, drawValidDestinations, drawBattleUnitOutlines, drawBattleTargets } from "./ui/canvas/HexGrid.js";
 import { drawUnits } from "./ui/canvas/UnitRenderer.js";
 import { loadScenario, getDefaultScenario } from "./scenarios/index.js";
 import { HandDisplay } from "./ui/components/HandDisplay.js";
@@ -146,6 +146,11 @@ async function start() {
       // Draw valid destination highlights
       if (uiState.validDestinations.length > 0) {
         drawValidDestinations(context, uiState.validDestinations, defaultGrid);
+      }
+
+      // Draw battle target highlights with dice indicators
+      if (uiState.validBattleTargets.length > 0) {
+        drawBattleTargets(context, uiState.validBattleTargets, defaultGrid);
       }
 
       // Draw selected unit highlight
