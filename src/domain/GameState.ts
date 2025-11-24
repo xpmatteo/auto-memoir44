@@ -11,12 +11,16 @@ import {isHexInSection, Section} from "./Section";
 import {Phase} from "./phases/Phase";
 import {PlayCardPhase} from "./phases/PlayCardPhase";
 import {BOARD_GEOMETRY} from "./BoardGeometry";
+import {Dice, DiceResult} from "./Dice";
 
 export class GameState {
     private readonly players: [Player, Player];
     private activePlayerIndex: 0 | 1;
     private readonly deck: Deck;
+    private readonly dice: Dice;
     private unitPositions: Map<string, Unit>; // Map from coordinate key to Unit
+    private unitCurrentStrength: Map<string, number>; // Map from unit ID to current strength
+    private medalTables: [Unit[], Unit[]]; // Eliminated units by capturing player (0=Bottom, 1=Top)
     private currentCardId: string | null; // Currently selected card ID
     private orderedUnits: Set<Unit>; // Set of units that have been ordered this turn
     private movedUnits: Set<Unit>; // Set of units that have moved this turn
@@ -25,11 +29,15 @@ export class GameState {
 
     constructor(
         deck: Deck,
+        dice: Dice = new Dice(),
     ) {
         this.deck = deck;
+        this.dice = dice;
         this.players = [createPlayer(Side.ALLIES, Position.BOTTOM), createPlayer(Side.AXIS, Position.TOP)];
         this.activePlayerIndex = 0;
         this.unitPositions = new Map<string, Unit>();
+        this.unitCurrentStrength = new Map<string, number>();
+        this.medalTables = [[], []];
         this.currentCardId = null;
         this.orderedUnits = new Set<Unit>();
         this.movedUnits = new Set<Unit>();
@@ -107,6 +115,8 @@ export class GameState {
             );
         }
         this.unitPositions.set(key, unit);
+        // Initialize unit's current strength to its initial strength
+        this.unitCurrentStrength.set(unit.id, unit.initialStrength);
     }
 
 
@@ -185,6 +195,54 @@ export class GameState {
      */
     unitSkipsBattle(unit: Unit): boolean {
         return this.unitsSkipBattle.has(unit);
+    }
+
+    /**
+     * Get the current strength of a unit
+     */
+    getUnitCurrentStrength(unit: Unit): number {
+        const strength = this.unitCurrentStrength.get(unit.id);
+        if (strength === undefined) {
+            throw new Error(`Unit ${unit.id} has no current strength tracked`);
+        }
+        return strength;
+    }
+
+    /**
+     * Set the current strength of a unit
+     */
+    setUnitCurrentStrength(unit: Unit, strength: number): void {
+        if (strength < 0) {
+            throw new Error(`Unit strength cannot be negative: ${strength}`);
+        }
+        this.unitCurrentStrength.set(unit.id, strength);
+    }
+
+    /**
+     * Add an eliminated unit to a player's medal table
+     * @param unit The unit that was eliminated
+     * @param capturingPlayerIndex Index of the player who captured the unit (0=Bottom, 1=Top)
+     */
+    addToMedalTable(unit: Unit, capturingPlayerIndex: 0 | 1): void {
+        this.medalTables[capturingPlayerIndex].push(unit);
+        // Remove from strength tracking
+        this.unitCurrentStrength.delete(unit.id);
+    }
+
+    /**
+     * Get a player's medal table
+     */
+    getMedalTable(playerIndex: 0 | 1): Unit[] {
+        return this.medalTables[playerIndex];
+    }
+
+    /**
+     * Roll the specified number of dice for combat
+     */
+    rollDice(count: number): DiceResult[] {
+        const results = this.dice.roll(count);
+        console.log(`Rolled ${count} dice:`, results.map(r => r.name).join(', '));
+        return results;
     }
 
     // -- Commands used by CommandCards

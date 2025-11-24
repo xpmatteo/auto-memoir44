@@ -45,7 +45,8 @@ export async function drawUnit(
   context: CanvasRenderingContext2D,
   unit: Unit,
   coord: HexCoord,
-  grid: GridConfig
+  grid: GridConfig,
+  currentStrength?: number
 ): Promise<void> {
   const imagePath = getUnitImagePath(unit);
   const image = await loadUnitImage(imagePath);
@@ -69,7 +70,8 @@ export async function drawUnit(
   );
 
   // Draw strength indicator (number of figures)
-  drawStrengthIndicator(context, unit, x, y, grid);
+  const strength = currentStrength ?? unit.initialStrength;
+  drawStrengthIndicator(context, strength, x, y, grid);
 }
 
 /**
@@ -77,7 +79,7 @@ export async function drawUnit(
  */
 function drawStrengthIndicator(
   context: CanvasRenderingContext2D,
-  unit: Unit,
+  strength: number,
   x: number,
   y: number,
   grid: GridConfig
@@ -96,7 +98,7 @@ function drawStrengthIndicator(
   context.font = `bold ${radius * 1.5}px sans-serif`;
   context.textAlign = "center";
   context.textBaseline = "middle";
-  context.fillText(unit.strength.toString(), x, y + offsetY);
+  context.fillText(strength.toString(), x, y + offsetY);
 }
 
 /**
@@ -104,11 +106,11 @@ function drawStrengthIndicator(
  */
 export async function drawUnits(
   context: CanvasRenderingContext2D,
-  unitsWithPositions: Array<{ coord: HexCoord; unit: Unit }>,
+  unitsWithPositions: Array<{ coord: HexCoord; unit: Unit; currentStrength?: number }>,
   grid: GridConfig
 ): Promise<void> {
   // Draw all units
-  for (const { coord, unit } of unitsWithPositions) {
-    await drawUnit(context, unit, coord, grid);
+  for (const { coord, unit, currentStrength } of unitsWithPositions) {
+    await drawUnit(context, unit, coord, grid, currentStrength);
   }
 }

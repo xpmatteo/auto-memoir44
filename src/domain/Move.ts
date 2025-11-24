@@ -5,6 +5,8 @@ import {GameState} from "./GameState";
 import {Unit} from "./Unit";
 import {HexCoord} from "../utils/hex";
 import {hexDistance} from "../utils/hex";
+import {resolveHits} from "../rules/combat";
+import {Position} from "./Player";
 
 interface UiButton {
     label: string,
@@ -122,9 +124,36 @@ export class BattleMove extends Move {
         this.dice = dice;
     }
 
-    execute(_gameState: GameState): void {
-        // TODO: Implement combat resolution (dice rolls, casualties)
-        throw new Error("BattleMove.execute() not yet implemented");
+    execute(gameState: GameState): void {
+        // Roll dice
+        const diceResults = gameState.rollDice(this.dice);
+
+        // Resolve hits
+        const hits = resolveHits(diceResults, this.toUnit);
+
+        // Apply casualties to target unit
+        const currentStrength = gameState.getUnitCurrentStrength(this.toUnit);
+        const newStrength = currentStrength - hits;
+
+        if (newStrength <= 0) {
+            // Unit is eliminated - find its position and remove it
+            const allUnits = gameState.getAllUnitsWithPositions();
+            const targetPosition = allUnits.find(({ unit }) => unit.id === this.toUnit.id);
+
+            if (!targetPosition) {
+                throw new Error(`Could not find position for target unit ${this.toUnit.id}`);
+            }
+
+            // Remove from board
+            gameState.removeUnit(targetPosition.coord);
+
+            // Add to attacker's medal table
+            const attackerPlayerIndex = gameState.activePlayer.position === Position.BOTTOM ? 0 : 1;
+            gameState.addToMedalTable(this.toUnit, attackerPlayerIndex as 0 | 1);
+        } else {
+            // Unit survives with reduced strength
+            gameState.setUnitCurrentStrength(this.toUnit, newStrength);
+        }
     }
 
     toString(): string {

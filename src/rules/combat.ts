@@ -2,6 +2,7 @@
 // ABOUTME: Used by BattlePhase to determine how many dice a unit rolls in battle
 
 import { Unit, UnitType } from "../domain/Unit";
+import { DiceResult, RESULT_INFANTRY, RESULT_GRENADE } from "../domain/Dice";
 
 /**
  * Calculate the number of dice a unit rolls when battling at a given distance.
@@ -27,4 +28,30 @@ export function calculateDiceCount(unit: Unit, distance: number): number {
   }
 
   throw new Error(`Unsupported unit type for dice calculation: ${unit.type}`);
+}
+
+/**
+ * Resolve hits from dice results against a target unit.
+ *
+ * Infantry units are hit by:
+ * - RESULT_INFANTRY
+ * - RESULT_GRENADE
+ *
+ * @param diceResults - The results from rolling dice
+ * @param targetUnit - The unit being attacked
+ * @returns The number of hits scored
+ */
+export function resolveHits(diceResults: DiceResult[], targetUnit: Unit): number {
+  let hits = 0;
+
+  for (const result of diceResults) {
+    if (targetUnit.type === UnitType.INFANTRY) {
+      if (result === RESULT_INFANTRY || result === RESULT_GRENADE) {
+        hits++;
+      }
+    }
+    // Future: Add armor and other unit types here
+  }
+
+  return hits;
 }

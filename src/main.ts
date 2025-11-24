@@ -19,6 +19,8 @@ import { Deck } from "./domain/Deck.js";
 import { CanvasClickHandler } from "./ui/input/CanvasClickHandler.js";
 import { uiState } from "./ui/UIState.js";
 import { BattleMove } from "./domain/Move.js";
+import { SeededRNG } from "./adapters/RNG.js";
+import { Dice } from "./domain/Dice.js";
 
 const BOARD_IMAGE_PATH = "/images/boards/memoir-desert-map.jpg";
 const BOARD_WIDTH = 2007;
@@ -55,10 +57,19 @@ function createBoardWrapper(canvas: HTMLCanvasElement, overlay: HTMLDivElement):
 function createGameStateFromURL(): GameState {
   const params = new URLSearchParams(window.location.search);
   const scenarioCode = params.get("scenario");
+  const seedParam = params.get("seed");
 
-  // Create base game state with deck
+  // Create RNG from seed (or random if no seed provided)
+  const seed = seedParam ? parseInt(seedParam, 10) : undefined;
+  const rng = new SeededRNG(seed);
+  console.log(`RNG initialized with seed: ${rng.getSeed()}`);
+
+  // Create dice with RNG
+  const dice = new Dice(() => rng.random());
+
+  // Create base game state with deck and dice
   const deck = Deck.createStandardDeck();
-  const gameState = new GameState(deck);
+  const gameState = new GameState(deck, dice);
 
   // Load and setup scenario
   let scenario;
@@ -125,7 +136,14 @@ async function start() {
     try {
       drawBoard(context, boardImage);
       drawGrid(context, defaultGrid);
-      await drawUnits(context, gameState.getAllUnitsWithPositions(), defaultGrid);
+
+      // Prepare units with current strength for rendering
+      const unitsWithStrength = gameState.getAllUnitsWithPositions().map(({ coord, unit }) => ({
+        coord,
+        unit,
+        currentStrength: gameState.getUnitCurrentStrength(unit)
+      }));
+      await drawUnits(context, unitsWithStrength, defaultGrid);
 
       // Draw outlines around ordered units
       const orderedUnits = gameState.getOrderedUnitsWithPositions();

@@ -34,12 +34,12 @@ let nextUnitId = 1;
 export abstract class Unit {
   id: string;
   abstract readonly type: UnitType;
-  strength: number; // Number of figures remaining
+  initialStrength: number; // Initial number of figures (immutable)
   side: Side;
 
   constructor(strength: number, owner: Side) {
     this.id = `unit-${nextUnitId++}`;
-    this.strength = strength;
+    this.initialStrength = strength;
     this.side = owner;
   }
 }
