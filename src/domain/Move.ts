@@ -6,8 +6,17 @@ import {Unit} from "./Unit";
 import {HexCoord} from "../utils/hex";
 import {hexDistance} from "../utils/hex";
 
+interface UiButton {
+    label: string,
+    callback: (gameState: GameState) => void,
+}
+
 export abstract class Move {
     abstract execute(gameState: GameState): void;
+
+    uiButton(): UiButton | null {
+        return null;
+    }
 }
 
 export class PlayCardMove extends Move {
@@ -40,11 +49,29 @@ export class ConfirmOrdersMove extends Move {
     execute(gameState: GameState): void {
         gameState.popPhase();
     }
+
+    uiButton(): UiButton | null {
+        return {
+            label: "Confirm Orders",
+            callback: (gameState: GameState) => {
+                gameState.popPhase();
+            },
+        };
+    }
 }
 
 export class EndMovementsMove extends Move {
     execute(gameState: GameState): void {
         gameState.popPhase();
+    }
+
+    uiButton(): UiButton | null {
+        return {
+            label: "End Movements",
+            callback: (gameState: GameState) => {
+                gameState.popPhase();
+            },
+        };
     }
 }
 
@@ -102,6 +129,15 @@ export class BattleMove extends Move {
 export class EndBattlesMove extends Move {
     execute(gameState: GameState): void {
         gameState.popPhase();
+    }
+
+    uiButton(): UiButton | null {
+        return {
+            label: "End Battles",
+            callback: (gameState: GameState) => {
+                gameState.popPhase();
+            },
+        };
     }
 }
 

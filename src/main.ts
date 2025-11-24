@@ -13,7 +13,7 @@ import { drawUnits } from "./ui/canvas/UnitRenderer.js";
 import { loadScenario, getDefaultScenario } from "./scenarios/index.js";
 import { HandDisplay } from "./ui/components/HandDisplay.js";
 import { CurrentCardDisplay } from "./ui/components/CurrentCardDisplay.js";
-import { ConfirmOrdersButton } from "./ui/components/ConfirmOrdersButton.js";
+import { MoveButtons } from "./ui/components/MoveButtons.js";
 import { GameState } from "./domain/GameState.js";
 import { Deck } from "./domain/Deck.js";
 import { CanvasClickHandler } from "./ui/input/CanvasClickHandler.js";
@@ -96,8 +96,8 @@ async function start() {
   // Create current card display
   const currentCardDisplay = new CurrentCardDisplay(gameState);
 
-  // Create confirm orders button
-  const confirmOrdersButton = new ConfirmOrdersButton(gameState);
+  // Create move buttons component
+  const moveButtons = new MoveButtons(gameState);
 
   // Create a container for the current card display and the board
   const gameBoardContainer = document.createElement("div");
@@ -105,8 +105,8 @@ async function start() {
   gameBoardContainer.appendChild(currentCardDisplay.getElement());
   gameBoardContainer.appendChild(wrapper);
 
-  // Mount confirm orders button before the game board (at top)
-  app.appendChild(confirmOrdersButton.getElement());
+  // Mount move buttons before the game board (at top)
+  moveButtons.mount(app);
   app.appendChild(gameBoardContainer);
 
   // Create and mount hand display
@@ -166,15 +166,15 @@ async function start() {
   const renderAll = async () => {
     handDisplay.render();
     currentCardDisplay.render();
-    confirmOrdersButton.render();
+    moveButtons.render();
     await renderCanvas();
   };
 
   // Set callback for card clicks to trigger re-render
   handDisplay.setOnCardClick(renderAll);
 
-  // Set callback for confirm button clicks to trigger re-render
-  confirmOrdersButton.onConfirm = renderAll;
+  // Set callback for move button clicks to trigger re-render
+  moveButtons.setOnButtonClick(renderAll);
 
   // Initial render
   await renderAll();
