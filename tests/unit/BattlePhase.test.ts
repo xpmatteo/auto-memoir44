@@ -8,28 +8,29 @@ import {Infantry, Unit} from "../../src/domain/Unit";
 import {Side, Position, createPlayer} from "../../src/domain/Player";
 import {HexCoord} from "../../src/utils/hex";
 
+const fakeUnitBattler = {
+    orderedUnits: [] as Array<{ coord: HexCoord, unit: Unit }>,
+    allUnits: [] as Array<{ coord: HexCoord, unit: Unit }>,
+    unitsSkipBattle: [] as Unit[],
+    activePlayer: createPlayer(Side.ALLIES, Position.BOTTOM),
+
+    getOrderedUnitsWithPositions() {
+        return this.orderedUnits;
+    },
+
+    unitSkipsBattle(unit: Unit): boolean {
+        return this.unitsSkipBattle.includes(unit);
+    },
+
+    getAllUnitsWithPositions() {
+        return this.allUnits;
+    },
+};
+
+
 describe("BattlePhase", () => {
     describe("Basic Functionality", () => {
         test("Always returns EndBattlesMove even with no units", () => {
-            const fakeUnitBattler = {
-                orderedUnits: [],
-                allUnits: [],
-                unitsSkipBattle: [] as Unit[],
-                activePlayer: createPlayer(Side.ALLIES, Position.BOTTOM),
-
-                getOrderedUnitsWithPositions() {
-                    return this.orderedUnits;
-                },
-
-                unitSkipsBattle(unit: Unit): boolean {
-                    return this.unitsSkipBattle.includes(unit);
-                },
-
-                getAllUnitsWithPositions() {
-                    return this.allUnits;
-                },
-            };
-
             const phase = new BattlePhase();
             const actual = phase.doLegalMoves(fakeUnitBattler);
 
@@ -41,27 +42,13 @@ describe("BattlePhase", () => {
             const friendlyUnit = new Infantry(Side.ALLIES);
             const enemyUnit = new Infantry(Side.AXIS);
 
-            const fakeUnitBattler = {
-                orderedUnits: [{coord: new HexCoord(5, 5), unit: friendlyUnit}],
-                allUnits: [
-                    {coord: new HexCoord(5, 5), unit: friendlyUnit},
-                    {coord: new HexCoord(6, 5), unit: enemyUnit} // 1 hex away
-                ],
-                unitsSkipBattle: [] as Unit[],
-                activePlayer: createPlayer(Side.ALLIES, Position.BOTTOM),
-
-                getOrderedUnitsWithPositions() {
-                    return this.orderedUnits;
-                },
-
-                unitSkipsBattle(unit: Unit): boolean {
-                    return this.unitsSkipBattle.includes(unit);
-                },
-
-                getAllUnitsWithPositions() {
-                    return this.allUnits;
-                },
-            };
+            fakeUnitBattler.orderedUnits = [{coord: new HexCoord(5, 5), unit: friendlyUnit}];
+            fakeUnitBattler.allUnits = [
+                {coord: new HexCoord(5, 5), unit: friendlyUnit},
+                {coord: new HexCoord(6, 5), unit: enemyUnit} // 1 hex away
+            ];
+            fakeUnitBattler.unitsSkipBattle = [] as Unit[];
+            fakeUnitBattler.activePlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
 
             const phase = new BattlePhase();
             const actual = phase.doLegalMoves(fakeUnitBattler);
@@ -80,27 +67,13 @@ describe("BattlePhase", () => {
             const friendlyUnit = new Infantry(Side.ALLIES);
             const enemyUnit = new Infantry(Side.AXIS);
 
-            const fakeUnitBattler = {
-                orderedUnits: [{coord: new HexCoord(5, 5), unit: friendlyUnit}],
-                allUnits: [
-                    {coord: new HexCoord(5, 5), unit: friendlyUnit},
-                    {coord: new HexCoord(6, 5), unit: enemyUnit}
-                ],
-                unitsSkipBattle: [friendlyUnit] as Unit[], // Unit cannot battle
-                activePlayer: createPlayer(Side.ALLIES, Position.BOTTOM),
-
-                getOrderedUnitsWithPositions() {
-                    return this.orderedUnits;
-                },
-
-                unitSkipsBattle(unit: Unit): boolean {
-                    return this.unitsSkipBattle.includes(unit);
-                },
-
-                getAllUnitsWithPositions() {
-                    return this.allUnits;
-                },
-            };
+            fakeUnitBattler.orderedUnits = [{coord: new HexCoord(5, 5), unit: friendlyUnit}];
+            fakeUnitBattler.allUnits = [
+                {coord: new HexCoord(5, 5), unit: friendlyUnit},
+                {coord: new HexCoord(6, 5), unit: enemyUnit}
+            ];
+            fakeUnitBattler.unitsSkipBattle = [friendlyUnit] as Unit[]; // Unit cannot battle
+            fakeUnitBattler.activePlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
 
             const phase = new BattlePhase();
             const actual = phase.doLegalMoves(fakeUnitBattler);
@@ -115,28 +88,14 @@ describe("BattlePhase", () => {
             const unorderedUnit = new Infantry(Side.ALLIES);
             const enemyUnit = new Infantry(Side.AXIS);
 
-            const fakeUnitBattler = {
-                orderedUnits: [{coord: new HexCoord(5, 5), unit: orderedUnit}],
-                allUnits: [
-                    {coord: new HexCoord(5, 5), unit: orderedUnit},
-                    {coord: new HexCoord(8, 8), unit: unorderedUnit}, // Not ordered
-                    {coord: new HexCoord(9, 8), unit: enemyUnit} // Adjacent to unordered unit
-                ],
-                unitsSkipBattle: [] as Unit[],
-                activePlayer: createPlayer(Side.ALLIES, Position.BOTTOM),
-
-                getOrderedUnitsWithPositions() {
-                    return this.orderedUnits;
-                },
-
-                unitSkipsBattle(unit: Unit): boolean {
-                    return this.unitsSkipBattle.includes(unit);
-                },
-
-                getAllUnitsWithPositions() {
-                    return this.allUnits;
-                },
-            };
+            fakeUnitBattler.orderedUnits = [{coord: new HexCoord(5, 5), unit: orderedUnit}];
+            fakeUnitBattler.allUnits = [
+                {coord: new HexCoord(5, 5), unit: orderedUnit},
+                {coord: new HexCoord(8, 8), unit: unorderedUnit}, // Not ordered
+                {coord: new HexCoord(9, 8), unit: enemyUnit} // Adjacent to unordered unit
+            ];
+            fakeUnitBattler.unitsSkipBattle = [] as Unit[];
+            fakeUnitBattler.activePlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
 
             const phase = new BattlePhase();
             const actual = phase.doLegalMoves(fakeUnitBattler);
@@ -152,27 +111,13 @@ describe("BattlePhase", () => {
             const friendlyUnit = new Infantry(Side.ALLIES);
             const enemyUnit = new Infantry(Side.AXIS);
 
-            const fakeUnitBattler = {
-                orderedUnits: [{coord: new HexCoord(5, 5), unit: friendlyUnit}],
-                allUnits: [
-                    {coord: new HexCoord(5, 5), unit: friendlyUnit},
-                    {coord: new HexCoord(6, 5), unit: enemyUnit} // 1 hex east (distance = 1)
-                ],
-                unitsSkipBattle: [] as Unit[],
-                activePlayer: createPlayer(Side.ALLIES, Position.BOTTOM),
-
-                getOrderedUnitsWithPositions() {
-                    return this.orderedUnits;
-                },
-
-                unitSkipsBattle(unit: Unit): boolean {
-                    return this.unitsSkipBattle.includes(unit);
-                },
-
-                getAllUnitsWithPositions() {
-                    return this.allUnits;
-                },
-            };
+            fakeUnitBattler.orderedUnits = [{coord: new HexCoord(5, 5), unit: friendlyUnit}];
+            fakeUnitBattler.allUnits = [
+                {coord: new HexCoord(5, 5), unit: friendlyUnit},
+                {coord: new HexCoord(6, 5), unit: enemyUnit} // 1 hex east (distance = 1)
+            ];
+            fakeUnitBattler.unitsSkipBattle = [] as Unit[];
+            fakeUnitBattler.activePlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
 
             const phase = new BattlePhase();
             const actual = phase.doLegalMoves(fakeUnitBattler);
@@ -187,27 +132,13 @@ describe("BattlePhase", () => {
             const friendlyUnit = new Infantry(Side.ALLIES);
             const enemyUnit = new Infantry(Side.AXIS);
 
-            const fakeUnitBattler = {
-                orderedUnits: [{coord: new HexCoord(5, 5), unit: friendlyUnit}],
-                allUnits: [
-                    {coord: new HexCoord(5, 5), unit: friendlyUnit},
-                    {coord: new HexCoord(7, 5), unit: enemyUnit} // 2 hexes east (distance = 2)
-                ],
-                unitsSkipBattle: [] as Unit[],
-                activePlayer: createPlayer(Side.ALLIES, Position.BOTTOM),
-
-                getOrderedUnitsWithPositions() {
-                    return this.orderedUnits;
-                },
-
-                unitSkipsBattle(unit: Unit): boolean {
-                    return this.unitsSkipBattle.includes(unit);
-                },
-
-                getAllUnitsWithPositions() {
-                    return this.allUnits;
-                },
-            };
+            fakeUnitBattler.orderedUnits = [{coord: new HexCoord(5, 5), unit: friendlyUnit}];
+            fakeUnitBattler.allUnits = [
+                {coord: new HexCoord(5, 5), unit: friendlyUnit},
+                {coord: new HexCoord(7, 5), unit: enemyUnit} // 2 hexes east (distance = 2)
+            ];
+            fakeUnitBattler.unitsSkipBattle = [] as Unit[];
+            fakeUnitBattler.activePlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
 
             const phase = new BattlePhase();
             const actual = phase.doLegalMoves(fakeUnitBattler);
@@ -222,27 +153,13 @@ describe("BattlePhase", () => {
             const friendlyUnit = new Infantry(Side.ALLIES);
             const enemyUnit = new Infantry(Side.AXIS);
 
-            const fakeUnitBattler = {
-                orderedUnits: [{coord: new HexCoord(5, 5), unit: friendlyUnit}],
-                allUnits: [
-                    {coord: new HexCoord(5, 5), unit: friendlyUnit},
-                    {coord: new HexCoord(8, 5), unit: enemyUnit} // 3 hexes east (distance = 3)
-                ],
-                unitsSkipBattle: [] as Unit[],
-                activePlayer: createPlayer(Side.ALLIES, Position.BOTTOM),
-
-                getOrderedUnitsWithPositions() {
-                    return this.orderedUnits;
-                },
-
-                unitSkipsBattle(unit: Unit): boolean {
-                    return this.unitsSkipBattle.includes(unit);
-                },
-
-                getAllUnitsWithPositions() {
-                    return this.allUnits;
-                },
-            };
+            fakeUnitBattler.orderedUnits = [{coord: new HexCoord(5, 5), unit: friendlyUnit}];
+            fakeUnitBattler.allUnits = [
+                {coord: new HexCoord(5, 5), unit: friendlyUnit},
+                {coord: new HexCoord(8, 5), unit: enemyUnit} // 3 hexes east (distance = 3)
+            ];
+            fakeUnitBattler.unitsSkipBattle = [] as Unit[];
+            fakeUnitBattler.activePlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
 
             const phase = new BattlePhase();
             const actual = phase.doLegalMoves(fakeUnitBattler);
@@ -257,27 +174,13 @@ describe("BattlePhase", () => {
             const friendlyUnit = new Infantry(Side.ALLIES);
             const enemyUnit = new Infantry(Side.AXIS);
 
-            const fakeUnitBattler = {
-                orderedUnits: [{coord: new HexCoord(5, 5), unit: friendlyUnit}],
-                allUnits: [
-                    {coord: new HexCoord(5, 5), unit: friendlyUnit},
-                    {coord: new HexCoord(9, 5), unit: enemyUnit} // 4 hexes east (distance = 4)
-                ],
-                unitsSkipBattle: [] as Unit[],
-                activePlayer: createPlayer(Side.ALLIES, Position.BOTTOM),
-
-                getOrderedUnitsWithPositions() {
-                    return this.orderedUnits;
-                },
-
-                unitSkipsBattle(unit: Unit): boolean {
-                    return this.unitsSkipBattle.includes(unit);
-                },
-
-                getAllUnitsWithPositions() {
-                    return this.allUnits;
-                },
-            };
+            fakeUnitBattler.orderedUnits = [{coord: new HexCoord(5, 5), unit: friendlyUnit}];
+            fakeUnitBattler.allUnits = [
+                {coord: new HexCoord(5, 5), unit: friendlyUnit},
+                {coord: new HexCoord(9, 5), unit: enemyUnit} // 4 hexes east (distance = 4)
+            ];
+            fakeUnitBattler.unitsSkipBattle = [] as Unit[];
+            fakeUnitBattler.activePlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
 
             const phase = new BattlePhase();
             const actual = phase.doLegalMoves(fakeUnitBattler);
@@ -292,28 +195,14 @@ describe("BattlePhase", () => {
             const enemyNear = new Infantry(Side.AXIS);
             const enemyFar = new Infantry(Side.AXIS);
 
-            const fakeUnitBattler = {
-                orderedUnits: [{coord: new HexCoord(5, 5), unit: friendlyUnit}],
-                allUnits: [
-                    {coord: new HexCoord(5, 5), unit: friendlyUnit},
-                    {coord: new HexCoord(7, 6), unit: enemyNear}, // distance = 2
-                    {coord: new HexCoord(9, 7), unit: enemyFar}   // distance = 4
-                ],
-                unitsSkipBattle: [] as Unit[],
-                activePlayer: createPlayer(Side.ALLIES, Position.BOTTOM),
-
-                getOrderedUnitsWithPositions() {
-                    return this.orderedUnits;
-                },
-
-                unitSkipsBattle(unit: Unit): boolean {
-                    return this.unitsSkipBattle.includes(unit);
-                },
-
-                getAllUnitsWithPositions() {
-                    return this.allUnits;
-                },
-            };
+            fakeUnitBattler.orderedUnits = [{coord: new HexCoord(5, 5), unit: friendlyUnit}];
+            fakeUnitBattler.allUnits = [
+                {coord: new HexCoord(5, 5), unit: friendlyUnit},
+                {coord: new HexCoord(7, 6), unit: enemyNear}, // distance = 2
+                {coord: new HexCoord(9, 7), unit: enemyFar}   // distance = 4
+            ];
+            fakeUnitBattler.unitsSkipBattle = [] as Unit[];
+            fakeUnitBattler.activePlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
 
             const phase = new BattlePhase();
             const actual = phase.doLegalMoves(fakeUnitBattler);
@@ -331,28 +220,14 @@ describe("BattlePhase", () => {
             const anotherFriendly = new Infantry(Side.ALLIES);
             const enemyUnit = new Infantry(Side.AXIS);
 
-            const fakeUnitBattler = {
-                orderedUnits: [{coord: new HexCoord(5, 5), unit: friendlyUnit}],
-                allUnits: [
-                    {coord: new HexCoord(5, 5), unit: friendlyUnit},
-                    {coord: new HexCoord(6, 5), unit: anotherFriendly}, // Same side
-                    {coord: new HexCoord(7, 5), unit: enemyUnit}        // Enemy
-                ],
-                unitsSkipBattle: [] as Unit[],
-                activePlayer: createPlayer(Side.ALLIES, Position.BOTTOM),
-
-                getOrderedUnitsWithPositions() {
-                    return this.orderedUnits;
-                },
-
-                unitSkipsBattle(unit: Unit): boolean {
-                    return this.unitsSkipBattle.includes(unit);
-                },
-
-                getAllUnitsWithPositions() {
-                    return this.allUnits;
-                },
-            };
+            fakeUnitBattler.orderedUnits = [{coord: new HexCoord(5, 5), unit: friendlyUnit}];
+            fakeUnitBattler.allUnits = [
+                {coord: new HexCoord(5, 5), unit: friendlyUnit},
+                {coord: new HexCoord(6, 5), unit: anotherFriendly}, // Same side
+                {coord: new HexCoord(7, 5), unit: enemyUnit}        // Enemy
+            ];
+            fakeUnitBattler.unitsSkipBattle = [] as Unit[];
+            fakeUnitBattler.activePlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
 
             const phase = new BattlePhase();
             const actual = phase.doLegalMoves(fakeUnitBattler);
@@ -366,27 +241,13 @@ describe("BattlePhase", () => {
             const friendlyUnit1 = new Infantry(Side.ALLIES);
             const friendlyUnit2 = new Infantry(Side.ALLIES);
 
-            const fakeUnitBattler = {
-                orderedUnits: [{coord: new HexCoord(5, 5), unit: friendlyUnit1}],
-                allUnits: [
-                    {coord: new HexCoord(5, 5), unit: friendlyUnit1},
-                    {coord: new HexCoord(6, 5), unit: friendlyUnit2} // Adjacent friendly
-                ],
-                unitsSkipBattle: [] as Unit[],
-                activePlayer: createPlayer(Side.ALLIES, Position.BOTTOM),
-
-                getOrderedUnitsWithPositions() {
-                    return this.orderedUnits;
-                },
-
-                unitSkipsBattle(unit: Unit): boolean {
-                    return this.unitsSkipBattle.includes(unit);
-                },
-
-                getAllUnitsWithPositions() {
-                    return this.allUnits;
-                },
-            };
+            fakeUnitBattler.orderedUnits = [{coord: new HexCoord(5, 5), unit: friendlyUnit1}];
+            fakeUnitBattler.allUnits = [
+                {coord: new HexCoord(5, 5), unit: friendlyUnit1},
+                {coord: new HexCoord(6, 5), unit: friendlyUnit2} // Adjacent friendly
+            ];
+            fakeUnitBattler.unitsSkipBattle = [] as Unit[];
+            fakeUnitBattler.activePlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
 
             const phase = new BattlePhase();
             const actual = phase.doLegalMoves(fakeUnitBattler);
@@ -400,27 +261,13 @@ describe("BattlePhase", () => {
             const axisUnit = new Infantry(Side.AXIS);
             const alliedUnit = new Infantry(Side.ALLIES);
 
-            const fakeUnitBattler = {
-                orderedUnits: [{coord: new HexCoord(5, 5), unit: axisUnit}],
-                allUnits: [
-                    {coord: new HexCoord(5, 5), unit: axisUnit},
-                    {coord: new HexCoord(6, 5), unit: alliedUnit} // Enemy when AXIS is active
-                ],
-                unitsSkipBattle: [] as Unit[],
-                activePlayer: createPlayer(Side.AXIS, Position.TOP),
-
-                getOrderedUnitsWithPositions() {
-                    return this.orderedUnits;
-                },
-
-                unitSkipsBattle(unit: Unit): boolean {
-                    return this.unitsSkipBattle.includes(unit);
-                },
-
-                getAllUnitsWithPositions() {
-                    return this.allUnits;
-                },
-            };
+            fakeUnitBattler.orderedUnits = [{coord: new HexCoord(5, 5), unit: axisUnit}];
+            fakeUnitBattler.allUnits = [
+                {coord: new HexCoord(5, 5), unit: axisUnit},
+                {coord: new HexCoord(6, 5), unit: alliedUnit} // Enemy when AXIS is active
+            ];
+            fakeUnitBattler.unitsSkipBattle = [] as Unit[];
+            fakeUnitBattler.activePlayer = createPlayer(Side.AXIS, Position.TOP);
 
             const phase = new BattlePhase();
             const actual = phase.doLegalMoves(fakeUnitBattler);
@@ -439,29 +286,15 @@ describe("BattlePhase", () => {
             const enemy2 = new Infantry(Side.AXIS);
             const enemy3 = new Infantry(Side.AXIS);
 
-            const fakeUnitBattler = {
-                orderedUnits: [{coord: new HexCoord(5, 5), unit: friendlyUnit}],
-                allUnits: [
-                    {coord: new HexCoord(5, 5), unit: friendlyUnit},
-                    {coord: new HexCoord(7, 5), unit: enemy1},  // Distance 2
-                    {coord: new HexCoord(8, 5), unit: enemy2},  // Distance 3
-                    {coord: new HexCoord(5, 7), unit: enemy3}   // Distance 2 (vertical)
-                ],
-                unitsSkipBattle: [] as Unit[],
-                activePlayer: createPlayer(Side.ALLIES, Position.BOTTOM),
-
-                getOrderedUnitsWithPositions() {
-                    return this.orderedUnits;
-                },
-
-                unitSkipsBattle(unit: Unit): boolean {
-                    return this.unitsSkipBattle.includes(unit);
-                },
-
-                getAllUnitsWithPositions() {
-                    return this.allUnits;
-                },
-            };
+            fakeUnitBattler.orderedUnits = [{coord: new HexCoord(5, 5), unit: friendlyUnit}];
+            fakeUnitBattler.allUnits = [
+                {coord: new HexCoord(5, 5), unit: friendlyUnit},
+                {coord: new HexCoord(7, 5), unit: enemy1},  // Distance 2
+                {coord: new HexCoord(8, 5), unit: enemy2},  // Distance 3
+                {coord: new HexCoord(5, 7), unit: enemy3}   // Distance 2 (vertical)
+            ];
+            fakeUnitBattler.unitsSkipBattle = [] as Unit[];
+            fakeUnitBattler.activePlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
 
             const phase = new BattlePhase();
             const actual = phase.doLegalMoves(fakeUnitBattler);
@@ -480,28 +313,14 @@ describe("BattlePhase", () => {
             const enemy1 = new Infantry(Side.AXIS);
             const enemy2 = new Infantry(Side.AXIS);
 
-            const fakeUnitBattler = {
-                orderedUnits: [{coord: new HexCoord(5, 5), unit: friendlyUnit}],
-                allUnits: [
-                    {coord: new HexCoord(5, 5), unit: friendlyUnit},
-                    {coord: new HexCoord(7, 5), unit: enemy1},  // Distance 2
-                    {coord: new HexCoord(8, 5), unit: enemy2}   // Distance 3
-                ],
-                unitsSkipBattle: [] as Unit[],
-                activePlayer: createPlayer(Side.ALLIES, Position.BOTTOM),
-
-                getOrderedUnitsWithPositions() {
-                    return this.orderedUnits;
-                },
-
-                unitSkipsBattle(unit: Unit): boolean {
-                    return this.unitsSkipBattle.includes(unit);
-                },
-
-                getAllUnitsWithPositions() {
-                    return this.allUnits;
-                },
-            };
+            fakeUnitBattler.orderedUnits = [{coord: new HexCoord(5, 5), unit: friendlyUnit}];
+            fakeUnitBattler.allUnits = [
+                {coord: new HexCoord(5, 5), unit: friendlyUnit},
+                {coord: new HexCoord(7, 5), unit: enemy1},  // Distance 2
+                {coord: new HexCoord(8, 5), unit: enemy2}   // Distance 3
+            ];
+            fakeUnitBattler.unitsSkipBattle = [] as Unit[];
+            fakeUnitBattler.activePlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
 
             const phase = new BattlePhase();
             const actual = phase.doLegalMoves(fakeUnitBattler);
@@ -525,32 +344,18 @@ describe("BattlePhase", () => {
             const enemy1 = new Infantry(Side.AXIS);
             const enemy2 = new Infantry(Side.AXIS);
 
-            const fakeUnitBattler = {
-                orderedUnits: [
-                    {coord: new HexCoord(5, 5), unit: friendly1},
-                    {coord: new HexCoord(10, 10), unit: friendly2}
-                ],
-                allUnits: [
-                    {coord: new HexCoord(5, 5), unit: friendly1},
-                    {coord: new HexCoord(6, 5), unit: enemy1},      // Near friendly1
-                    {coord: new HexCoord(10, 10), unit: friendly2},
-                    {coord: new HexCoord(11, 10), unit: enemy2}     // Near friendly2
-                ],
-                unitsSkipBattle: [] as Unit[],
-                activePlayer: createPlayer(Side.ALLIES, Position.BOTTOM),
-
-                getOrderedUnitsWithPositions() {
-                    return this.orderedUnits;
-                },
-
-                unitSkipsBattle(unit: Unit): boolean {
-                    return this.unitsSkipBattle.includes(unit);
-                },
-
-                getAllUnitsWithPositions() {
-                    return this.allUnits;
-                },
-            };
+            fakeUnitBattler.orderedUnits = [
+                {coord: new HexCoord(5, 5), unit: friendly1},
+                {coord: new HexCoord(10, 10), unit: friendly2}
+            ];
+            fakeUnitBattler.allUnits = [
+                {coord: new HexCoord(5, 5), unit: friendly1},
+                {coord: new HexCoord(6, 5), unit: enemy1},      // Near friendly1
+                {coord: new HexCoord(10, 10), unit: friendly2},
+                {coord: new HexCoord(11, 10), unit: enemy2}     // Near friendly2
+            ];
+            fakeUnitBattler.unitsSkipBattle = [] as Unit[];
+            fakeUnitBattler.activePlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
 
             const phase = new BattlePhase();
             const actual = phase.doLegalMoves(fakeUnitBattler);
@@ -571,24 +376,10 @@ describe("BattlePhase", () => {
         test("No ordered units → only EndBattlesMove", () => {
             const enemy = new Infantry(Side.AXIS);
 
-            const fakeUnitBattler = {
-                orderedUnits: [], // No ordered units
-                allUnits: [{coord: new HexCoord(5, 5), unit: enemy}],
-                unitsSkipBattle: [] as Unit[],
-                activePlayer: createPlayer(Side.ALLIES, Position.BOTTOM),
-
-                getOrderedUnitsWithPositions() {
-                    return this.orderedUnits;
-                },
-
-                unitSkipsBattle(unit: Unit): boolean {
-                    return this.unitsSkipBattle.includes(unit);
-                },
-
-                getAllUnitsWithPositions() {
-                    return this.allUnits;
-                },
-            };
+            fakeUnitBattler.orderedUnits = []; // No ordered units
+            fakeUnitBattler.allUnits = [{coord: new HexCoord(5, 5), unit: enemy}];
+            fakeUnitBattler.unitsSkipBattle = [] as Unit[];
+            fakeUnitBattler.activePlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
 
             const phase = new BattlePhase();
             const actual = phase.doLegalMoves(fakeUnitBattler);
@@ -602,31 +393,17 @@ describe("BattlePhase", () => {
             const friendly2 = new Infantry(Side.ALLIES);
             const enemy = new Infantry(Side.AXIS);
 
-            const fakeUnitBattler = {
-                orderedUnits: [
-                    {coord: new HexCoord(5, 5), unit: friendly1},
-                    {coord: new HexCoord(6, 6), unit: friendly2}
-                ],
-                allUnits: [
-                    {coord: new HexCoord(5, 5), unit: friendly1},
-                    {coord: new HexCoord(6, 6), unit: friendly2},
-                    {coord: new HexCoord(7, 5), unit: enemy}
-                ],
-                unitsSkipBattle: [friendly1, friendly2] as Unit[], // Both cannot battle
-                activePlayer: createPlayer(Side.ALLIES, Position.BOTTOM),
-
-                getOrderedUnitsWithPositions() {
-                    return this.orderedUnits;
-                },
-
-                unitSkipsBattle(unit: Unit): boolean {
-                    return this.unitsSkipBattle.includes(unit);
-                },
-
-                getAllUnitsWithPositions() {
-                    return this.allUnits;
-                },
-            };
+            fakeUnitBattler.orderedUnits = [
+                {coord: new HexCoord(5, 5), unit: friendly1},
+                {coord: new HexCoord(6, 6), unit: friendly2}
+            ];
+            fakeUnitBattler.allUnits = [
+                {coord: new HexCoord(5, 5), unit: friendly1},
+                {coord: new HexCoord(6, 6), unit: friendly2},
+                {coord: new HexCoord(7, 5), unit: enemy}
+            ];
+            fakeUnitBattler.unitsSkipBattle = [friendly1, friendly2] as Unit[]; // Both cannot battle
+            fakeUnitBattler.activePlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
 
             const phase = new BattlePhase();
             const actual = phase.doLegalMoves(fakeUnitBattler);
@@ -638,24 +415,10 @@ describe("BattlePhase", () => {
         test("No enemies on board → only EndBattlesMove", () => {
             const friendly = new Infantry(Side.ALLIES);
 
-            const fakeUnitBattler = {
-                orderedUnits: [{coord: new HexCoord(5, 5), unit: friendly}],
-                allUnits: [{coord: new HexCoord(5, 5), unit: friendly}], // No enemies
-                unitsSkipBattle: [] as Unit[],
-                activePlayer: createPlayer(Side.ALLIES, Position.BOTTOM),
-
-                getOrderedUnitsWithPositions() {
-                    return this.orderedUnits;
-                },
-
-                unitSkipsBattle(unit: Unit): boolean {
-                    return this.unitsSkipBattle.includes(unit);
-                },
-
-                getAllUnitsWithPositions() {
-                    return this.allUnits;
-                },
-            };
+            fakeUnitBattler.orderedUnits = [{coord: new HexCoord(5, 5), unit: friendly}];
+            fakeUnitBattler.allUnits = [{coord: new HexCoord(5, 5), unit: friendly}]; // No enemies
+            fakeUnitBattler.unitsSkipBattle = [] as Unit[];
+            fakeUnitBattler.activePlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
 
             const phase = new BattlePhase();
             const actual = phase.doLegalMoves(fakeUnitBattler);
@@ -668,27 +431,13 @@ describe("BattlePhase", () => {
             const friendly = new Infantry(Side.ALLIES);
             const enemy = new Infantry(Side.AXIS);
 
-            const fakeUnitBattler = {
-                orderedUnits: [{coord: new HexCoord(5, 5), unit: friendly}],
-                allUnits: [
-                    {coord: new HexCoord(5, 5), unit: friendly},
-                    {coord: new HexCoord(10, 10), unit: enemy} // Far away (distance > 3)
-                ],
-                unitsSkipBattle: [] as Unit[],
-                activePlayer: createPlayer(Side.ALLIES, Position.BOTTOM),
-
-                getOrderedUnitsWithPositions() {
-                    return this.orderedUnits;
-                },
-
-                unitSkipsBattle(unit: Unit): boolean {
-                    return this.unitsSkipBattle.includes(unit);
-                },
-
-                getAllUnitsWithPositions() {
-                    return this.allUnits;
-                },
-            };
+            fakeUnitBattler.orderedUnits = [{coord: new HexCoord(5, 5), unit: friendly}];
+            fakeUnitBattler.allUnits = [
+                {coord: new HexCoord(5, 5), unit: friendly},
+                {coord: new HexCoord(10, 10), unit: enemy} // Far away (distance > 3)
+            ];
+            fakeUnitBattler.unitsSkipBattle = [] as Unit[];
+            fakeUnitBattler.activePlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
 
             const phase = new BattlePhase();
             const actual = phase.doLegalMoves(fakeUnitBattler);
@@ -704,28 +453,14 @@ describe("BattlePhase", () => {
             const adjacentEnemy = new Infantry(Side.AXIS);
             const distantEnemy = new Infantry(Side.AXIS);
 
-            const fakeUnitBattler = {
-                orderedUnits: [{coord: new HexCoord(5, 5), unit: friendlyUnit}],
-                allUnits: [
-                    {coord: new HexCoord(5, 5), unit: friendlyUnit},
-                    {coord: new HexCoord(6, 5), unit: adjacentEnemy},  // Distance 1
-                    {coord: new HexCoord(7, 5), unit: distantEnemy}    // Distance 2
-                ],
-                unitsSkipBattle: [] as Unit[],
-                activePlayer: createPlayer(Side.ALLIES, Position.BOTTOM),
-
-                getOrderedUnitsWithPositions() {
-                    return this.orderedUnits;
-                },
-
-                unitSkipsBattle(unit: Unit): boolean {
-                    return this.unitsSkipBattle.includes(unit);
-                },
-
-                getAllUnitsWithPositions() {
-                    return this.allUnits;
-                },
-            };
+            fakeUnitBattler.orderedUnits = [{coord: new HexCoord(5, 5), unit: friendlyUnit}];
+            fakeUnitBattler.allUnits = [
+                {coord: new HexCoord(5, 5), unit: friendlyUnit},
+                {coord: new HexCoord(6, 5), unit: adjacentEnemy},  // Distance 1
+                {coord: new HexCoord(7, 5), unit: distantEnemy}    // Distance 2
+            ];
+            fakeUnitBattler.unitsSkipBattle = [] as Unit[];
+            fakeUnitBattler.activePlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
 
             const phase = new BattlePhase();
             const actual = phase.doLegalMoves(fakeUnitBattler);
@@ -741,28 +476,14 @@ describe("BattlePhase", () => {
             const adjacentEnemy = new Infantry(Side.AXIS);
             const enemyAtDistance2 = new Infantry(Side.AXIS);
 
-            const fakeUnitBattler = {
-                orderedUnits: [{coord: new HexCoord(5, 5), unit: friendlyUnit}],
-                allUnits: [
-                    {coord: new HexCoord(5, 5), unit: friendlyUnit},
-                    {coord: new HexCoord(6, 5), unit: adjacentEnemy},     // Distance 1
-                    {coord: new HexCoord(7, 5), unit: enemyAtDistance2}   // Distance 2
-                ],
-                unitsSkipBattle: [] as Unit[],
-                activePlayer: createPlayer(Side.ALLIES, Position.BOTTOM),
-
-                getOrderedUnitsWithPositions() {
-                    return this.orderedUnits;
-                },
-
-                unitSkipsBattle(unit: Unit): boolean {
-                    return this.unitsSkipBattle.includes(unit);
-                },
-
-                getAllUnitsWithPositions() {
-                    return this.allUnits;
-                },
-            };
+            fakeUnitBattler.orderedUnits = [{coord: new HexCoord(5, 5), unit: friendlyUnit}];
+            fakeUnitBattler.allUnits = [
+                {coord: new HexCoord(5, 5), unit: friendlyUnit},
+                {coord: new HexCoord(6, 5), unit: adjacentEnemy},     // Distance 1
+                {coord: new HexCoord(7, 5), unit: enemyAtDistance2}   // Distance 2
+            ];
+            fakeUnitBattler.unitsSkipBattle = [] as Unit[];
+            fakeUnitBattler.activePlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
 
             const phase = new BattlePhase();
             const actual = phase.doLegalMoves(fakeUnitBattler);
@@ -777,28 +498,14 @@ describe("BattlePhase", () => {
             const adjacentEnemy = new Infantry(Side.AXIS);
             const enemyAtDistance3 = new Infantry(Side.AXIS);
 
-            const fakeUnitBattler = {
-                orderedUnits: [{coord: new HexCoord(5, 5), unit: friendlyUnit}],
-                allUnits: [
-                    {coord: new HexCoord(5, 5), unit: friendlyUnit},
-                    {coord: new HexCoord(6, 5), unit: adjacentEnemy},     // Distance 1
-                    {coord: new HexCoord(8, 5), unit: enemyAtDistance3}   // Distance 3
-                ],
-                unitsSkipBattle: [] as Unit[],
-                activePlayer: createPlayer(Side.ALLIES, Position.BOTTOM),
-
-                getOrderedUnitsWithPositions() {
-                    return this.orderedUnits;
-                },
-
-                unitSkipsBattle(unit: Unit): boolean {
-                    return this.unitsSkipBattle.includes(unit);
-                },
-
-                getAllUnitsWithPositions() {
-                    return this.allUnits;
-                },
-            };
+            fakeUnitBattler.orderedUnits = [{coord: new HexCoord(5, 5), unit: friendlyUnit}];
+            fakeUnitBattler.allUnits = [
+                {coord: new HexCoord(5, 5), unit: friendlyUnit},
+                {coord: new HexCoord(6, 5), unit: adjacentEnemy},     // Distance 1
+                {coord: new HexCoord(8, 5), unit: enemyAtDistance3}   // Distance 3
+            ];
+            fakeUnitBattler.unitsSkipBattle = [] as Unit[];
+            fakeUnitBattler.activePlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
 
             const phase = new BattlePhase();
             const actual = phase.doLegalMoves(fakeUnitBattler);
@@ -814,29 +521,15 @@ describe("BattlePhase", () => {
             const adjacentEnemy2 = new Infantry(Side.AXIS);
             const distantEnemy = new Infantry(Side.AXIS);
 
-            const fakeUnitBattler = {
-                orderedUnits: [{coord: new HexCoord(5, 5), unit: friendlyUnit}],
-                allUnits: [
-                    {coord: new HexCoord(5, 5), unit: friendlyUnit},
-                    {coord: new HexCoord(6, 5), unit: adjacentEnemy1},  // Distance 1 (East)
-                    {coord: new HexCoord(4, 5), unit: adjacentEnemy2},  // Distance 1 (West)
-                    {coord: new HexCoord(8, 5), unit: distantEnemy}     // Distance 3
-                ],
-                unitsSkipBattle: [] as Unit[],
-                activePlayer: createPlayer(Side.ALLIES, Position.BOTTOM),
-
-                getOrderedUnitsWithPositions() {
-                    return this.orderedUnits;
-                },
-
-                unitSkipsBattle(unit: Unit): boolean {
-                    return this.unitsSkipBattle.includes(unit);
-                },
-
-                getAllUnitsWithPositions() {
-                    return this.allUnits;
-                },
-            };
+            fakeUnitBattler.orderedUnits = [{coord: new HexCoord(5, 5), unit: friendlyUnit}];
+            fakeUnitBattler.allUnits = [
+                {coord: new HexCoord(5, 5), unit: friendlyUnit},
+                {coord: new HexCoord(6, 5), unit: adjacentEnemy1},  // Distance 1 (East)
+                {coord: new HexCoord(4, 5), unit: adjacentEnemy2},  // Distance 1 (West)
+                {coord: new HexCoord(8, 5), unit: distantEnemy}     // Distance 3
+            ];
+            fakeUnitBattler.unitsSkipBattle = [] as Unit[];
+            fakeUnitBattler.activePlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
 
             const phase = new BattlePhase();
             const actual = phase.doLegalMoves(fakeUnitBattler);
@@ -855,29 +548,15 @@ describe("BattlePhase", () => {
             const enemyAt2 = new Infantry(Side.AXIS);
             const enemyAt3 = new Infantry(Side.AXIS);
 
-            const fakeUnitBattler = {
-                orderedUnits: [{coord: new HexCoord(5, 5), unit: friendlyUnit}],
-                allUnits: [
-                    {coord: new HexCoord(5, 5), unit: friendlyUnit},
-                    {coord: new HexCoord(6, 6), unit: enemyAt1},  // Distance 1 (but diagonal, not adjacent in grid)
-                    {coord: new HexCoord(7, 5), unit: enemyAt2},  // Distance 2
-                    {coord: new HexCoord(8, 5), unit: enemyAt3}   // Distance 3
-                ],
-                unitsSkipBattle: [] as Unit[],
-                activePlayer: createPlayer(Side.ALLIES, Position.BOTTOM),
-
-                getOrderedUnitsWithPositions() {
-                    return this.orderedUnits;
-                },
-
-                unitSkipsBattle(unit: Unit): boolean {
-                    return this.unitsSkipBattle.includes(unit);
-                },
-
-                getAllUnitsWithPositions() {
-                    return this.allUnits;
-                },
-            };
+            fakeUnitBattler.orderedUnits = [{coord: new HexCoord(5, 5), unit: friendlyUnit}];
+            fakeUnitBattler.allUnits = [
+                {coord: new HexCoord(5, 5), unit: friendlyUnit},
+                {coord: new HexCoord(6, 6), unit: enemyAt1},  // Distance 1 (but diagonal, not adjacent in grid)
+                {coord: new HexCoord(7, 5), unit: enemyAt2},  // Distance 2
+                {coord: new HexCoord(8, 5), unit: enemyAt3}   // Distance 3
+            ];
+            fakeUnitBattler.unitsSkipBattle = [] as Unit[];
+            fakeUnitBattler.activePlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
 
             const phase = new BattlePhase();
             const actual = phase.doLegalMoves(fakeUnitBattler);
@@ -897,33 +576,19 @@ describe("BattlePhase", () => {
             const distantEnemy1 = new Infantry(Side.AXIS);
             const distantEnemy2 = new Infantry(Side.AXIS);
 
-            const fakeUnitBattler = {
-                orderedUnits: [
-                    {coord: new HexCoord(5, 5), unit: friendly1},   // Has adjacent enemy
-                    {coord: new HexCoord(10, 10), unit: friendly2}  // No adjacent enemy
-                ],
-                allUnits: [
-                    {coord: new HexCoord(5, 5), unit: friendly1},
-                    {coord: new HexCoord(6, 5), unit: adjacentEnemy},   // Adjacent to friendly1
-                    {coord: new HexCoord(7, 5), unit: distantEnemy1},   // Distance 2 from friendly1
-                    {coord: new HexCoord(10, 10), unit: friendly2},
-                    {coord: new HexCoord(12, 10), unit: distantEnemy2}  // Distance 2 from friendly2
-                ],
-                unitsSkipBattle: [] as Unit[],
-                activePlayer: createPlayer(Side.ALLIES, Position.BOTTOM),
-
-                getOrderedUnitsWithPositions() {
-                    return this.orderedUnits;
-                },
-
-                unitSkipsBattle(unit: Unit): boolean {
-                    return this.unitsSkipBattle.includes(unit);
-                },
-
-                getAllUnitsWithPositions() {
-                    return this.allUnits;
-                },
-            };
+            fakeUnitBattler.orderedUnits = [
+                {coord: new HexCoord(5, 5), unit: friendly1},   // Has adjacent enemy
+                {coord: new HexCoord(10, 10), unit: friendly2}  // No adjacent enemy
+            ];
+            fakeUnitBattler.allUnits = [
+                {coord: new HexCoord(5, 5), unit: friendly1},
+                {coord: new HexCoord(6, 5), unit: adjacentEnemy},   // Adjacent to friendly1
+                {coord: new HexCoord(7, 5), unit: distantEnemy1},   // Distance 2 from friendly1
+                {coord: new HexCoord(10, 10), unit: friendly2},
+                {coord: new HexCoord(12, 10), unit: distantEnemy2}  // Distance 2 from friendly2
+            ];
+            fakeUnitBattler.unitsSkipBattle = [] as Unit[];
+            fakeUnitBattler.activePlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
 
             const phase = new BattlePhase();
             const actual = phase.doLegalMoves(fakeUnitBattler);
