@@ -14,18 +14,18 @@ import {BOARD_GEOMETRY} from "./BoardGeometry";
 import {Dice, DiceResult} from "./Dice";
 
 export class GameState {
-    private readonly players: [Player, Player];
-    private activePlayerIndex: 0 | 1;
     private readonly deck: Deck;
     private readonly dice: Dice;
+    private readonly phases: Array<Phase>;
+    private readonly players: [Player, Player];
+    private activePlayerIndex: 0 | 1;
+    private currentCardId: string | null; // Currently selected card ID
     private unitPositions: Map<string, Unit>; // Map from coordinate key to Unit
     private unitCurrentStrength: Map<string, number>; // Map from unit ID to current strength
     private medalTables: [Unit[], Unit[]]; // Eliminated units by capturing player (0=Bottom, 1=Top)
-    private currentCardId: string | null; // Currently selected card ID
     private orderedUnits: Set<Unit>; // Set of units that have been ordered this turn
     private movedUnits: Set<Unit>; // Set of units that have moved this turn
-    private unitsSkipBattle: Set<Unit>; // Set of units that skip battle this turn (moved 2 hexes)
-    private phases: Array<Phase>;
+    private unitsSkipBattle: Set<Unit>; // Set of units that skip battle this turn (for a )
 
     constructor(
         deck: Deck,
