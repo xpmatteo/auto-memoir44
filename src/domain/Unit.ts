@@ -38,12 +38,52 @@ export abstract class Unit {
     readonly side: Side;
 
     strength: number;
+    private _isOrdered: boolean;
+    private _hasMoved: boolean;
+    private _skipsBattle: boolean;
 
     protected constructor(strength: number, owner: Side) {
         this.id = `unit-${nextUnitId++}`;
         this.initialStrength = strength;
         this.side = owner;
         this.strength = strength;
+        this._isOrdered = false;
+        this._hasMoved = false;
+        this._skipsBattle = false;
+    }
+
+    // Turn state management
+    get isOrdered(): boolean {
+        return this._isOrdered;
+    }
+
+    setOrdered(ordered: boolean): void {
+        this._isOrdered = ordered;
+    }
+
+    get hasMoved(): boolean {
+        return this._hasMoved;
+    }
+
+    setMoved(moved: boolean): void {
+        this._hasMoved = moved;
+    }
+
+    get skipsBattle(): boolean {
+        return this._skipsBattle;
+    }
+
+    setSkipsBattle(skips: boolean): void {
+        this._skipsBattle = skips;
+    }
+
+    /**
+     * Clear all turn-based state flags
+     */
+    clearTurnState(): void {
+        this._isOrdered = false;
+        this._hasMoved = false;
+        this._skipsBattle = false;
     }
 }
 

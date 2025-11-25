@@ -23,9 +23,6 @@ export class GameState {
     private unitPositions: Map<string, Unit>; // Map from coordinate key to Unit
     private units: Map<string, Unit>; // Map from unit ID to unit
     private medalTables: [Unit[], Unit[]]; // Eliminated units by capturing player (0=Bottom, 1=Top)
-    private orderedUnits: Set<Unit>; // Set of units that have been ordered this turn
-    private movedUnits: Set<Unit>; // Set of units that have moved this turn
-    private unitsSkipBattle: Set<Unit>; // Set of units that skip battle this turn (for a )
 
     constructor(
         deck: Deck,
@@ -39,9 +36,6 @@ export class GameState {
         this.units = new Map<string, Unit>();
         this.medalTables = [[], []];
         this.currentCardId = null;
-        this.orderedUnits = new Set<Unit>();
-        this.movedUnits = new Set<Unit>();
-        this.unitsSkipBattle = new Set<Unit>();
         this.phases = new Array<Phase>();
         this.phases.push(new PlayCardPhase());
     }
@@ -114,6 +108,8 @@ export class GameState {
                 `Cannot place unit at (${coord.q}, ${coord.r}): coordinate already occupied`
             );
         }
+        // Clear any existing turn state when placing a unit
+        unit.clearTurnState();
         this.unitPositions.set(key, unit);
         this.units.set(unit.id, unit);
     }
@@ -142,7 +138,7 @@ export class GameState {
      */
     getOrderedUnitsWithPositions(): Array<{ coord: HexCoord; unit: Unit }> {
         return Array.from(this.unitPositions.entries())
-            .filter(([_, unit]) => this.orderedUnits.has(unit))
+            .filter(([_, unit]) => unit.isOrdered)
             .map(([key, unit]) => ({
                 coord: keyToCoord(key),
                 unit,
@@ -158,42 +154,42 @@ export class GameState {
     }
 
     getOrderedUnits(): Array<Unit> {
-        return [...this.orderedUnits.values()];
+        return Array.from(this.units.values()).filter(unit => unit.isOrdered);
     }
 
     /**
      * Check if a unit has been ordered this turn
      */
     isUnitOrdered(unit: Unit): boolean {
-        return this.orderedUnits.has(unit);
+        return unit.isOrdered;
     }
 
     /**
      * Check if a unit has moved this turn
      */
     isUnitMoved(unit: Unit): boolean {
-        return this.movedUnits.has(unit);
+        return unit.hasMoved;
     }
 
     /**
      * Mark a unit as having moved this turn
      */
     markUnitMoved(unit: Unit): void {
-        this.movedUnits.add(unit);
+        unit.setMoved(true);
     }
 
     /**
      * Mark a unit to skip battle this turn (moved 2 hexes)
      */
     markUnitSkipsBattle(unit: Unit): void {
-        this.unitsSkipBattle.add(unit);
+        unit.setSkipsBattle(true);
     }
 
     /**
      * Check if a unit skips battle this turn
      */
     unitSkipsBattle(unit: Unit): boolean {
-        return this.unitsSkipBattle.has(unit);
+        return unit.skipsBattle;
     }
 
     /**
@@ -268,10 +264,10 @@ export class GameState {
                 : CardLocation.TOP_PLAYER_HAND;
             this.deck.drawCard(handLocation);
 
-            // Clear ordered units for next turn
-            this.orderedUnits.clear();
-            this.movedUnits.clear();
-            this.unitsSkipBattle.clear();
+            // Clear turn state for all units
+            for (const unit of this.unitPositions.values()) {
+                unit.clearTurnState();
+            }
 
             // Switch to next player and start their turn
             this.switchActivePlayer();
@@ -353,11 +349,7 @@ export class GameState {
         if (!unitExists) {
             throw new Error(`Unknown unit "${unit.id}"`)
         }
-        if (this.orderedUnits.has(unit)) {
-            this.orderedUnits.delete(unit);
-        } else {
-            this.orderedUnits.add(unit);
-        }
+        unit.setOrdered(!unit.isOrdered);
     }
 
     orderAllFriendlyUnitsInSection(section: Section): void {
@@ -372,7 +364,7 @@ export class GameState {
 
             // Check if unit is in the target section
             if (isHexInSection(coord, section, activePlayer.position)) {
-                this.orderedUnits.add(unit);
+                unit.setOrdered(true);
             }
         }
     }
