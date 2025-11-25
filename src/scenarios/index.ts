@@ -3,11 +3,13 @@
 
 import type {Scenario} from "./Scenario";
 import {ST02Scenario} from "./ST02";
+import {TestMedalTablesScenario} from "./TestMedalTables";
 
 type ScenarioFactory = () => Scenario;
 
 const scenarios: Record<string, ScenarioFactory> = {
     ST02: () => new ST02Scenario(),
+    TestMedalTables: () => new TestMedalTablesScenario(),
 };
 
 export function loadScenario(scenarioCode: string): Scenario {

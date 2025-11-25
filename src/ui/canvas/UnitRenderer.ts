@@ -12,7 +12,7 @@ const UNIT_IMAGE_CACHE = new Map<string, HTMLImageElement>();
 /**
  * Get the image path for a unit based on its type and owner
  */
-function getUnitImagePath(unit: Unit): string {
+export function getUnitImagePath(unit: Unit): string {
     const prefix = unit.side === Side.ALLIES ? "us" : "ger";
     const type = unit.type === UnitType.INFANTRY ? "inf" : "arm";
     return `/images/units/${prefix}_${type}.png`;
@@ -21,7 +21,7 @@ function getUnitImagePath(unit: Unit): string {
 /**
  * Load a unit image and cache it
  */
-function loadUnitImage(imagePath: string): Promise<HTMLImageElement> {
+export function loadUnitImage(imagePath: string): Promise<HTMLImageElement> {
     // Return cached image if available
     if (UNIT_IMAGE_CACHE.has(imagePath)) {
         return Promise.resolve(UNIT_IMAGE_CACHE.get(imagePath)!);

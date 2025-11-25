@@ -19,6 +19,7 @@ import {
     drawBattleTargets
 } from "./ui/canvas/HexGrid.js";
 import {drawUnits} from "./ui/canvas/UnitRenderer.js";
+import {drawMedals} from "./ui/canvas/MedalRenderer.js";
 import {loadScenario, getDefaultScenario} from "./scenarios/index.js";
 import {HandDisplay} from "./ui/components/HandDisplay.js";
 import {CurrentCardDisplay} from "./ui/components/CurrentCardDisplay.js";
@@ -33,7 +34,8 @@ import {Dice} from "./domain/Dice.js";
 import {RandomAIPlayer} from "./ai/AIPlayer.js";
 import {AIController} from "./ai/AIController.js";
 
-const BOARD_IMAGE_PATH = "/images/boards/memoir-desert-map.jpg";
+const BOARD_IMAGE_PATH = "/images/boards/memoir-country-map.webp";
+//const BOARD_IMAGE_PATH = "/images/boards/memoir-desert-map.jpg";
 const BOARD_WIDTH = 2007;
 const BOARD_HEIGHT = 1417;
 
@@ -161,6 +163,9 @@ async function start() {
                 currentStrength: gameState.getUnitCurrentStrength(unit)
             }));
             await drawUnits(context, unitsWithStrength, defaultGrid);
+
+            // Render eliminated units in medal circles
+            await drawMedals(context, gameState, canvas.width, canvas.height);
 
             // Draw outlines around ordered units
             if (gameState.activePhase.type === PhaseType.ORDER) {
