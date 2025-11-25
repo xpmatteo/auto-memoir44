@@ -132,26 +132,6 @@ describe("BattleMove", () => {
             // Target should be removed despite overkill damage
             expect(gameState.getUnitAt(targetCoord)).toBeUndefined();
         });
-
-        it("should throw error if target unit position cannot be found", () => {
-            const deck = Deck.createStandardDeck();
-            const dice = diceReturningAlways([RESULT_INFANTRY, RESULT_INFANTRY]);
-            const gameState = new GameState(deck, dice);
-
-            const attacker = new Infantry(Side.ALLIES, 4);
-            const target = new Infantry(Side.AXIS, 1);
-
-            // Place attacker but not target (simulating inconsistent state)
-            gameState.placeUnit(new HexCoord(0, 0), attacker);
-            // Manually track strength without placing on board
-            gameState.setUnitCurrentStrength(target, 1);
-
-            const move = new BattleMove(attacker, target, 2);
-
-            expect(() => move.execute(gameState)).toThrow(
-                `Could not find position for target unit ${target.id}`
-            );
-        });
     });
 
     describe("medal table updates", () => {

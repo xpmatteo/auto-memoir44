@@ -21,7 +21,7 @@ export class GameState {
     private activePlayerIndex: 0 | 1;
     private currentCardId: string | null; // Currently selected card ID
     private unitPositions: Map<string, Unit>; // Map from coordinate key to Unit
-    private unitCurrentStrength: Map<string, number>; // Map from unit ID to current strength
+    private units: Map<string, Unit>; // Map from unit ID to unit
     private medalTables: [Unit[], Unit[]]; // Eliminated units by capturing player (0=Bottom, 1=Top)
     private orderedUnits: Set<Unit>; // Set of units that have been ordered this turn
     private movedUnits: Set<Unit>; // Set of units that have moved this turn
@@ -36,7 +36,7 @@ export class GameState {
         this.players = [createPlayer(Side.ALLIES, Position.BOTTOM), createPlayer(Side.AXIS, Position.TOP)];
         this.activePlayerIndex = 0;
         this.unitPositions = new Map<string, Unit>();
-        this.unitCurrentStrength = new Map<string, number>();
+        this.units = new Map<string, Unit>();
         this.medalTables = [[], []];
         this.currentCardId = null;
         this.orderedUnits = new Set<Unit>();
@@ -115,8 +115,7 @@ export class GameState {
             );
         }
         this.unitPositions.set(key, unit);
-        // Initialize unit's current strength to its initial strength
-        this.unitCurrentStrength.set(unit.id, unit.initialStrength);
+        this.units.set(unit.id, unit);
     }
 
 
@@ -200,22 +199,25 @@ export class GameState {
     /**
      * Get the current strength of a unit
      */
-    getUnitCurrentStrength(unit: Unit): number {
-        const strength = this.unitCurrentStrength.get(unit.id);
-        if (strength === undefined) {
-            throw new Error(`Unit ${unit.id} has no current strength tracked`);
+    getUnitCurrentStrength(u: Unit): number {
+        const unit = this.units.get(u.id);
+        if (unit === undefined) {
+            throw new Error(`Unit ${u.id} has no current strength tracked`);
         }
-        return strength;
+        return unit.strength;
     }
 
     /**
      * Set the current strength of a unit
      */
     setUnitCurrentStrength(unit: Unit, strength: number): void {
+        if (!this.units.has(unit.id)) {
+            throw new Error(`Unit not tracked ${unit.id}`);
+        }
         if (strength < 0) {
             throw new Error(`Unit strength cannot be negative: ${strength}`);
         }
-        this.unitCurrentStrength.set(unit.id, strength);
+        unit.strength = strength;
     }
 
     /**
@@ -225,8 +227,6 @@ export class GameState {
      */
     addToMedalTable(unit: Unit, capturingPlayerIndex: 0 | 1): void {
         this.medalTables[capturingPlayerIndex].push(unit);
-        // Remove from strength tracking
-        this.unitCurrentStrength.delete(unit.id);
     }
 
     /**
