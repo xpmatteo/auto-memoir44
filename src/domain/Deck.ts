@@ -19,70 +19,44 @@ import {
 } from "./CommandCard";
 
 export class Deck {
-    private cardLocations: Map<CommandCard, CardLocation>;
+    private locations: Map<CardLocation, CommandCard[]>;
     private cardIds: Map<string, CommandCard>;
-    private cardArray: CommandCard[];  // Stable ordered array of all cards
-    private sortOrder: number[];        // Indices into cardArray, defines draw order
 
     constructor(cards: CommandCard[]) {
-        this.cardLocations = new Map<CommandCard, CardLocation>();
+        this.locations = new Map<CardLocation, CommandCard[]>();
         this.cardIds = new Map<string, CommandCard>();
-        this.cardArray = [...cards];  // Store cards in stable array
-        this.sortOrder = cards.map((_, i) => i);  // Sequential by default
+
+        // Initialize all location arrays
+        this.locations.set(CardLocation.DECK, [...cards]);
+        this.locations.set(CardLocation.BOTTOM_PLAYER_HAND, []);
+        this.locations.set(CardLocation.TOP_PLAYER_HAND, []);
+        this.locations.set(CardLocation.DISCARD_PILE, []);
 
         cards.forEach(card => {
-            this.cardLocations.set(card, CardLocation.DECK)
-            this.cardIds.set(card.id, card)
+            this.cardIds.set(card.id, card);
         });
     }
 
     /**
      * Get all cards currently in a specific location
+     * Returns a copy of the array to prevent external mutation
      */
-    getCardsInLocation(desiredLocation: CardLocation): CommandCard[] {
-        let result = new Array<CommandCard>();
-        this.cardLocations.forEach((location, card) => {
-            if (location === desiredLocation) {
-                result.push(card);
-            }
-        });
-
-        // Special handling for DECK: use sortOrder
-        if (desiredLocation === CardLocation.DECK) {
-            // Create map from card to its sort index
-            const cardToIndex = new Map<CommandCard, number>();
-            this.cardArray.forEach((card, idx) => {
-                cardToIndex.set(card, this.sortOrder[idx]);
-            });
-
-            // Sort by sortOrder index
-            result.sort((a, b) => {
-                const indexA = cardToIndex.get(a) ?? Infinity;
-                const indexB = cardToIndex.get(b) ?? Infinity;
-                return indexA - indexB;
-            });
-        } else {
-            // Other locations: alphabetical by ID (current behavior)
-            result.sort((a, b) => {
-                return a.id.localeCompare(b.id);
-            });
-        }
-
-        return result;
+    getCardsInLocation(location: CardLocation): CommandCard[] {
+        return [...(this.locations.get(location) ?? [])];
     }
 
     /**
      * Draw a card from the deck to a new location
-     * Returns the drawn card, or null if deck is empty
+     * Draws from the front of the deck array
      */
     drawCard(toLocation: CardLocation): CommandCard {
-        const deckCards = this.getCardsInLocation(CardLocation.DECK);
-        if (deckCards.length === 0) {
+        const deckCards = this.locations.get(CardLocation.DECK);
+        if (!deckCards || deckCards.length === 0) {
             throw new Error("Deck is depleted, cannot draw");
         }
 
-        const card = deckCards[0];
-        this.moveCard(card.id, toLocation);
+        const card = deckCards.shift()!; // Remove from front
+        this.locations.get(toLocation)!.push(card); // Add to end
         return card;
     }
 
@@ -90,18 +64,29 @@ export class Deck {
      * Move a specific card to a new location
      */
     moveCard(cardId: string, toLocation: CardLocation): void {
-        let card = this.cardIds.get(cardId);
+        const card = this.cardIds.get(cardId);
         if (!card) {
             throw new Error(`No card with id ${cardId}`);
         }
-        this.cardLocations.set(card, toLocation);
+
+        // Find and remove from current location
+        for (const [, cards] of this.locations.entries()) {
+            const index = cards.indexOf(card);
+            if (index !== -1) {
+                cards.splice(index, 1);
+                break;
+            }
+        }
+
+        // Add to new location
+        this.locations.get(toLocation)!.push(card);
     }
 
     /**
      * Get a card by its ID
      */
     getCard(cardId: string): CommandCard {
-        let card = this.cardIds.get(cardId);
+        const card = this.cardIds.get(cardId);
         if (!card) {
             throw new Error(`No card with id ${cardId}`);
         }
@@ -110,13 +95,17 @@ export class Deck {
 
     /**
      * Shuffle the deck using Fisher-Yates algorithm
+     * Only shuffles cards in the DECK location
      * @param rng Random number generator function returning [0, 1)
      */
     shuffle(rng: () => number): void {
-        // Fisher-Yates shuffle on sortOrder
-        for (let i = this.sortOrder.length - 1; i > 0; i--) {
+        const deckCards = this.locations.get(CardLocation.DECK);
+        if (!deckCards) return;
+
+        // Fisher-Yates shuffle in-place
+        for (let i = deckCards.length - 1; i > 0; i--) {
             const j = Math.floor(rng() * (i + 1));
-            [this.sortOrder[i], this.sortOrder[j]] = [this.sortOrder[j], this.sortOrder[i]];
+            [deckCards[i], deckCards[j]] = [deckCards[j], deckCards[i]];
         }
     }
 
