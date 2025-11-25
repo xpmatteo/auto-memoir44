@@ -4,7 +4,7 @@
 import {expect, test, describe} from "vitest";
 import {RandomAIPlayer} from "../../../src/ai/AIPlayer";
 import {SeededRNG} from "../../../src/adapters/RNG";
-import {PlayCardMove} from "../../../src/domain/Move";
+import {PlayCardMove, ConfirmOrdersMove, EndMovementsMove, EndBattlesMove} from "../../../src/domain/Move";
 import {ProbeCenter} from "../../../src/domain/CommandCard";
 
 describe("RandomAIPlayer", () => {
@@ -107,5 +107,56 @@ describe("RandomAIPlayer", () => {
         expect(selected2).toBe(moves[1]); // 0.6 * 2 = 1.2, floor = 1
 
         expect(callCount).toBe(2);
+    });
+
+    test("avoids EndMovementsMove and EndBattlesMove when action moves are available", () => {
+        const aiPlayer = new RandomAIPlayer();
+        const card1 = new ProbeCenter();
+        const card2 = new ProbeCenter();
+        const moves = [
+            new PlayCardMove(card1),
+            new PlayCardMove(card2),
+            new ConfirmOrdersMove(),
+            new EndMovementsMove(),
+            new EndBattlesMove()
+        ];
+
+        // Run multiple selections
+        const selectedMoves = new Set();
+        for (let i = 0; i < 50; i++) {
+            const selected = aiPlayer.selectMove(moves, Math.random);
+            selectedMoves.add(selected.constructor.name);
+        }
+
+        // Should select PlayCardMove and ConfirmOrdersMove, but never EndMovementsMove or EndBattlesMove
+        expect(selectedMoves.has("PlayCardMove")).toBe(true);
+        expect(selectedMoves.has("ConfirmOrdersMove")).toBe(true); // Now allowed
+        expect(selectedMoves.has("EndMovementsMove")).toBe(false);
+        expect(selectedMoves.has("EndBattlesMove")).toBe(false);
+    });
+
+    test("selects phase-ending moves when they are the only option", () => {
+        const aiPlayer = new RandomAIPlayer();
+        const moves = [new ConfirmOrdersMove()];
+
+        const selected = aiPlayer.selectMove(moves, Math.random);
+        expect(selected).toBeInstanceOf(ConfirmOrdersMove);
+    });
+
+    test("can select EndMovementsMove and EndBattlesMove when only those are available", () => {
+        const aiPlayer = new RandomAIPlayer();
+        const moves = [
+            new EndMovementsMove(),
+            new EndBattlesMove()
+        ];
+
+        // All selections should be end moves
+        for (let i = 0; i < 10; i++) {
+            const selected = aiPlayer.selectMove(moves, Math.random);
+            expect(
+                selected instanceof EndMovementsMove ||
+                selected instanceof EndBattlesMove
+            ).toBe(true);
+        }
     });
 });

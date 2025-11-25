@@ -2,6 +2,7 @@
 // ABOUTME: Provides strategy pattern for different AI difficulty levels and behaviors
 
 import type {Move} from "../domain/Move";
+import {EndBattlesMove, EndMovementsMove} from "../domain/Move";
 
 /**
  * Interface for AI players that can select moves from legal options
@@ -19,6 +20,7 @@ export interface AIPlayer {
 /**
  * Simple AI that randomly selects from legal moves
  * Uses seeded RNG for reproducible behavior
+ * Prefers action moves over phase-ending moves to be more active
  */
 export class RandomAIPlayer implements AIPlayer {
     selectMove(legalMoves: Move[], rng: () => number): Move {
@@ -26,8 +28,18 @@ export class RandomAIPlayer implements AIPlayer {
             throw new Error("No legal moves available for AI to select");
         }
 
+        // Filter out phase-ending moves if there are other options
+        // Note: ConfirmOrdersMove is allowed to prevent infinite toggling of unit orders
+        const actionMoves = legalMoves.filter(move =>
+            !(move instanceof EndMovementsMove) &&
+            !(move instanceof EndBattlesMove)
+        );
+
+        // Use action moves if available, otherwise use all legal moves
+        const movesToChooseFrom = actionMoves.length > 0 ? actionMoves : legalMoves;
+
         // Use the same random selection pattern as Dice and Deck
-        const index = Math.floor(rng() * legalMoves.length);
-        return legalMoves[index];
+        const index = Math.floor(rng() * movesToChooseFrom.length);
+        return movesToChooseFrom[index];
     }
 }
