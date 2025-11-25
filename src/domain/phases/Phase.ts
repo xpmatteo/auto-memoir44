@@ -2,6 +2,7 @@ import {GameState} from "../GameState";
 import {Move} from "../Move";
 
 export const PhaseType = {
+    PLAY_CARD: "play_card",
     ORDER: "order",
     MOVE: "move",
     BATTLE: "battle",

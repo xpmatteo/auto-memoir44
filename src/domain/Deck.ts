@@ -21,10 +21,15 @@ import {
 export class Deck {
     private cardLocations: Map<CommandCard, CardLocation>;
     private cardIds: Map<string, CommandCard>;
+    private cardArray: CommandCard[];  // Stable ordered array of all cards
+    private sortOrder: number[];        // Indices into cardArray, defines draw order
 
     constructor(cards: CommandCard[]) {
         this.cardLocations = new Map<CommandCard, CardLocation>();
         this.cardIds = new Map<string, CommandCard>();
+        this.cardArray = [...cards];  // Store cards in stable array
+        this.sortOrder = cards.map((_, i) => i);  // Sequential by default
+
         cards.forEach(card => {
             this.cardLocations.set(card, CardLocation.DECK)
             this.cardIds.set(card.id, card)
@@ -41,9 +46,28 @@ export class Deck {
                 result.push(card);
             }
         });
-        result.sort((a, b) => {
-            return a.id.localeCompare(b.id);
-        });
+
+        // Special handling for DECK: use sortOrder
+        if (desiredLocation === CardLocation.DECK) {
+            // Create map from card to its sort index
+            const cardToIndex = new Map<CommandCard, number>();
+            this.cardArray.forEach((card, idx) => {
+                cardToIndex.set(card, this.sortOrder[idx]);
+            });
+
+            // Sort by sortOrder index
+            result.sort((a, b) => {
+                const indexA = cardToIndex.get(a) ?? Infinity;
+                const indexB = cardToIndex.get(b) ?? Infinity;
+                return indexA - indexB;
+            });
+        } else {
+            // Other locations: alphabetical by ID (current behavior)
+            result.sort((a, b) => {
+                return a.id.localeCompare(b.id);
+            });
+        }
+
         return result;
     }
 
@@ -82,6 +106,18 @@ export class Deck {
             throw new Error(`No card with id ${cardId}`);
         }
         return card;
+    }
+
+    /**
+     * Shuffle the deck using Fisher-Yates algorithm
+     * @param rng Random number generator function returning [0, 1)
+     */
+    shuffle(rng: () => number): void {
+        // Fisher-Yates shuffle on sortOrder
+        for (let i = this.sortOrder.length - 1; i > 0; i--) {
+            const j = Math.floor(rng() * (i + 1));
+            [this.sortOrder[i], this.sortOrder[j]] = [this.sortOrder[j], this.sortOrder[i]];
+        }
     }
 
     /**

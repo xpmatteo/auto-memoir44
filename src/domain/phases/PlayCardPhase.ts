@@ -2,10 +2,11 @@ import {GameState} from "../GameState";
 import {Move, PlayCardMove} from "../Move";
 import {Position} from "../Player";
 import {CardLocation} from "../CommandCard";
-import {Phase} from "./Phase";
+import {Phase, PhaseType} from "./Phase";
 
 export class PlayCardPhase implements Phase {
     name: string = "Play Card";
+    type = PhaseType.PLAY_CARD;
 
     legalMoves(gameState: GameState): Array<Move> {
         let location = (gameState.activePlayer.position === Position.BOTTOM) ?

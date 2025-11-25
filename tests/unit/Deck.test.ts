@@ -162,4 +162,98 @@ describe("Deck", () => {
             expect(deck.getCardsInLocation(CardLocation.DECK)).toHaveLength(25);
         });
     });
+
+    describe("shuffle", () => {
+        it("should change the order of cards in the deck", () => {
+            const deck = Deck.createStandardDeck();
+
+            // Get initial order
+            const cardsBeforeShuffle = deck.getCardsInLocation(CardLocation.DECK).map(c => c.id);
+
+            // Shuffle with a fixed RNG
+            let callCount = 0;
+            const fixedRng = () => {
+                callCount++;
+                return 0.5; // Fixed value for deterministic test
+            };
+            deck.shuffle(fixedRng);
+
+            // Get order after shuffle
+            const cardsAfterShuffle = deck.getCardsInLocation(CardLocation.DECK).map(c => c.id);
+
+            // Verify shuffle was called (Fisher-Yates makes n-1 random calls)
+            expect(callCount).toBeGreaterThan(0);
+
+            // Order should have changed
+            expect(cardsAfterShuffle).not.toEqual(cardsBeforeShuffle);
+        });
+
+        it("should produce a valid permutation of cards", () => {
+            const deck = Deck.createStandardDeck();
+
+            // Get all card IDs before shuffle
+            const cardsBefore = deck.getCardsInLocation(CardLocation.DECK).map(c => c.id).sort();
+
+            // Shuffle
+            deck.shuffle(() => Math.random());
+
+            // Get all card IDs after shuffle
+            const cardsAfter = deck.getCardsInLocation(CardLocation.DECK).map(c => c.id).sort();
+
+            // Same cards, just reordered
+            expect(cardsAfter).toEqual(cardsBefore);
+        });
+
+        it("should affect drawCard order", () => {
+            const deck = Deck.createStandardDeck();
+
+            // Get first card without shuffle
+            const firstCardUnshuffled = deck.getCardsInLocation(CardLocation.DECK)[0].id;
+
+            // Create new deck and shuffle
+            const deck2 = Deck.createStandardDeck();
+            deck2.shuffle(() => 0.99); // RNG that always returns high value
+
+            // Get first card after shuffle
+            const firstCardShuffled = deck2.getCardsInLocation(CardLocation.DECK)[0].id;
+
+            // They should be different (very high probability with 35 cards)
+            expect(firstCardShuffled).not.toEqual(firstCardUnshuffled);
+        });
+
+        it("should not affect cards already in hands", () => {
+            const deck = Deck.createStandardDeck();
+
+            // Draw 3 cards to hand
+            const handCards = [];
+            for (let i = 0; i < 3; i++) {
+                handCards.push(deck.drawCard(CardLocation.BOTTOM_PLAYER_HAND).id);
+            }
+
+            // Shuffle
+            deck.shuffle(() => Math.random());
+
+            // Cards in hand should still be there, in alphabetical order
+            const handCardsAfter = deck.getCardsInLocation(CardLocation.BOTTOM_PLAYER_HAND).map(c => c.id);
+            expect(handCardsAfter.sort()).toEqual(handCards.sort());
+        });
+
+        it("should handle empty deck gracefully", () => {
+            const deck = new Deck([]);
+
+            // Should not throw
+            expect(() => deck.shuffle(() => Math.random())).not.toThrow();
+        });
+
+        it("should handle single-card deck", () => {
+            const card = new TestCard("Single", "path.png");
+            const deck = new Deck([card]);
+
+            deck.shuffle(() => Math.random());
+
+            // Single card should still be drawable
+            const drawn = deck.drawCard(CardLocation.BOTTOM_PLAYER_HAND);
+            expect(drawn).toBe(card);
+        });
+    });
 });

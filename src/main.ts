@@ -78,6 +78,7 @@ function createGameStateFromURL(): GameState {
 
     // Create base game state with deck and dice
     const deck = Deck.createStandardDeck();
+    deck.shuffle(() => rng.random());  // Shuffle deck with seeded RNG
     const gameState = new GameState(deck, dice);
 
     // Load and setup scenario
