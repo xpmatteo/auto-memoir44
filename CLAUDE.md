@@ -31,7 +31,7 @@ All game logic flows through the `GameState` object:
 
 ### Phase-Based Turn Structure
 
-The game uses a phase system to manage turn progression. Each turn consists of phases that execute sequentially:
+The game uses a phase system to manage turn progression. Each turn consists of phases that execute sequentially. Typically they are:
 
 1. **PlayCardPhase** - Active player selects a command card from their hand
 2. **OrderUnitsPhase** - Active player orders units in the section(s) specified by the card
@@ -49,10 +49,12 @@ interface Phase {
 **Key principles:**
 - Phases are managed as a stack in GameState - `activePhase` returns the top of the stack
 - `GameState.legalMoves()` delegates to `activePhase.legalMoves(gameState)`
-- Executing certain moves (e.g., PlayCardMove, ConfirmOrdersMove) pushes new phases onto the stack
-- End-of-phase moves (e.g., EndMovementsMove, EndBattlesMove) pop phases off the stack
-- Phases are stateless - all state lives in GameState
-- Phase classes use interface segregation (e.g., `UnitMover`, `UnitBattler`) for testing and clarity
+- Executing certain moves (e.g., PlayCardMove) pushes new phases onto the stack
+- The card decides the sequence of phases that will make up the turn. Some tactics cards will use non-standard phase sequences.
+- End-of-phase moves (e.g., ConfirmOrdersMove, EndMovementsMove, EndBattlesMove) pop phases off the stack
+- When the phases stack is empty, the turn is finished and passes to the other player
+- Phases are stateless
+- Phase classes use interface segregation (e.g., `UnitMover`, `UnitBattler`) for easier testing
 
 ### Canvas Rendering
 
