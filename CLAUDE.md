@@ -52,7 +52,7 @@ interface Phase {
 - Executing certain moves (e.g., PlayCardMove) pushes new phases onto the stack
 - The card decides the sequence of phases that will make up the turn. Some tactics cards will use non-standard phase sequences.
 - End-of-phase moves (e.g., ConfirmOrdersMove, EndMovementsMove, EndBattlesMove) pop phases off the stack
-- When the phases stack is empty, the turn is finished and passes to the other player
+- When the phases stack is empty, the turn is finished; all turn-related state is reset, and the other player becomes the active player
 - Phases are stateless
 - Phase classes use interface segregation (e.g., `UnitMover`, `UnitBattler`) for easier testing
 

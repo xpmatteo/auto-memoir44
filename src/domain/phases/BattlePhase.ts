@@ -44,6 +44,11 @@ export class BattlePhase implements Phase {
                 continue;
             }
 
+            // Skip units that have already attacked this turn
+            if (fromUnit.battlesThisTurn > 0) {
+                continue;
+            }
+
             // Check if there are any adjacent enemies (close combat restriction)
             const hasAdjacentEnemy = allUnits.some(({coord, unit}) =>
                 unit.side !== activeSide && hexDistance(fromCoord, coord) === 1

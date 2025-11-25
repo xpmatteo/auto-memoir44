@@ -41,6 +41,7 @@ export abstract class Unit {
     isOrdered: boolean;
     hasMoved: boolean;
     skipsBattle: boolean;
+    battlesThisTurn: number;
 
     protected constructor(strength: number, owner: Side) {
         this.id = `unit-${nextUnitId++}`;
@@ -50,6 +51,7 @@ export abstract class Unit {
         this.isOrdered = false;
         this.hasMoved = false;
         this.skipsBattle = false;
+        this.battlesThisTurn = 0;
     }
 
     /**
@@ -59,6 +61,7 @@ export abstract class Unit {
         this.isOrdered = false;
         this.hasMoved = false;
         this.skipsBattle = false;
+        this.battlesThisTurn = 0;
     }
 }
 

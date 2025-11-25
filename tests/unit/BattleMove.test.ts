@@ -264,4 +264,93 @@ describe("BattleMove", () => {
             expect(gameState.getUnitCurrentStrength(target)).toBe(3); // 4 - 1 = 3
         });
     });
+
+    describe("attack tracking", () => {
+        it("should increment attacksThisTurn for attacking unit", () => {
+            const deck = Deck.createStandardDeck();
+            const dice = diceReturningAlways([RESULT_INFANTRY]);
+            const gameState = new GameState(deck, dice);
+
+            const attacker = new Infantry(Side.ALLIES, 4);
+            const target = new Infantry(Side.AXIS, 4);
+
+            gameState.placeUnit(new HexCoord(0, 0), attacker);
+            gameState.placeUnit(new HexCoord(1, 0), target);
+
+            expect(attacker.battlesThisTurn).toBe(0);
+
+            const move = new BattleMove(attacker, target, 3);
+            move.execute(gameState);
+
+            expect(attacker.battlesThisTurn).toBe(1);
+        });
+
+        it("should increment attacksThisTurn even when target is eliminated", () => {
+            const deck = Deck.createStandardDeck();
+            const dice = diceReturningAlways([RESULT_INFANTRY, RESULT_GRENADE]);
+            const gameState = new GameState(deck, dice);
+
+            const attacker = new Infantry(Side.ALLIES, 4);
+            const target = new Infantry(Side.AXIS, 2);
+
+            gameState.placeUnit(new HexCoord(0, 0), attacker);
+            gameState.placeUnit(new HexCoord(1, 0), target);
+
+            expect(attacker.battlesThisTurn).toBe(0);
+
+            const move = new BattleMove(attacker, target, 2);
+            move.execute(gameState);
+
+            // Attacker should still have attacksThisTurn incremented
+            expect(attacker.battlesThisTurn).toBe(1);
+            // Target should be eliminated
+            expect(gameState.getUnitAt(new HexCoord(1, 0))).toBeUndefined();
+        });
+
+        it("should increment attacksThisTurn even when no damage is dealt", () => {
+            const deck = Deck.createStandardDeck();
+            const dice = diceReturningAlways([RESULT_FLAG, RESULT_FLAG]);
+            const gameState = new GameState(deck, dice);
+
+            const attacker = new Infantry(Side.ALLIES, 4);
+            const target = new Infantry(Side.AXIS, 4);
+
+            gameState.placeUnit(new HexCoord(0, 0), attacker);
+            gameState.placeUnit(new HexCoord(1, 0), target);
+
+            expect(attacker.battlesThisTurn).toBe(0);
+
+            const move = new BattleMove(attacker, target, 2);
+            move.execute(gameState);
+
+            // Attacker should still have attacksThisTurn incremented even with no hits
+            expect(attacker.battlesThisTurn).toBe(1);
+        });
+
+        it("should track multiple attacks from same unit", () => {
+            const deck = Deck.createStandardDeck();
+            const dice = diceReturningAlways([RESULT_INFANTRY]);
+            const gameState = new GameState(deck, dice);
+
+            const attacker = new Infantry(Side.ALLIES, 4);
+            const target1 = new Infantry(Side.AXIS, 4);
+            const target2 = new Infantry(Side.AXIS, 4);
+
+            gameState.placeUnit(new HexCoord(0, 0), attacker);
+            gameState.placeUnit(new HexCoord(1, 0), target1);
+            gameState.placeUnit(new HexCoord(2, 0), target2);
+
+            expect(attacker.battlesThisTurn).toBe(0);
+
+            // First attack
+            const move1 = new BattleMove(attacker, target1, 1);
+            move1.execute(gameState);
+            expect(attacker.battlesThisTurn).toBe(1);
+
+            // Second attack
+            const move2 = new BattleMove(attacker, target2, 1);
+            move2.execute(gameState);
+            expect(attacker.battlesThisTurn).toBe(2);
+        });
+    });
 });

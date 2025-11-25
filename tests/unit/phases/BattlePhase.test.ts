@@ -647,4 +647,114 @@ describe("BattlePhase", () => {
             expect(actual.some(m => m instanceof BattleMove)).toBe(true);
         });
     });
+
+    describe("Attack Tracking", () => {
+        test("Unit with attacksThisTurn = 0 can generate battle moves", () => {
+            const friendlyUnit = new Infantry(Side.ALLIES);
+            const enemyUnit = new Infantry(Side.AXIS);
+
+            friendlyUnit.battlesThisTurn = 0;
+
+            fakeUnitBattler.orderedUnits = [{coord: new HexCoord(5, 5), unit: friendlyUnit}];
+            fakeUnitBattler.allUnits = [
+                {coord: new HexCoord(5, 5), unit: friendlyUnit},
+                {coord: new HexCoord(6, 5), unit: enemyUnit}
+            ];
+            fakeUnitBattler.unitsSkipBattle = [];
+            fakeUnitBattler.activePlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
+
+            const phase = new BattlePhase();
+            const actual = phase.doLegalMoves(fakeUnitBattler);
+
+            // Should have EndBattlesMove + BattleMove
+            const battleMoves = actual.filter(m => m instanceof BattleMove) as BattleMove[];
+            expect(battleMoves.length).toBe(1);
+            expect(battleMoves[0].fromUnit).toBe(friendlyUnit);
+        });
+
+        test("Does NOT return BattleMove for unit that has already attacked this turn (attacksThisTurn = 1)", () => {
+            const friendlyUnit = new Infantry(Side.ALLIES);
+            const enemyUnit = new Infantry(Side.AXIS);
+
+            friendlyUnit.battlesThisTurn = 1; // Already attacked
+
+            fakeUnitBattler.orderedUnits = [{coord: new HexCoord(5, 5), unit: friendlyUnit}];
+            fakeUnitBattler.allUnits = [
+                {coord: new HexCoord(5, 5), unit: friendlyUnit},
+                {coord: new HexCoord(6, 5), unit: enemyUnit}
+            ];
+            fakeUnitBattler.unitsSkipBattle = [];
+            fakeUnitBattler.activePlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
+
+            const phase = new BattlePhase();
+            const actual = phase.doLegalMoves(fakeUnitBattler);
+
+            // Should only have EndBattlesMove, no BattleMove
+            expect(actual.length).toBe(1);
+            expect(actual[0]).toBeInstanceOf(EndBattlesMove);
+        });
+
+        test("Multiple ordered units can each attack once", () => {
+            const friendly1 = new Infantry(Side.ALLIES);
+            const friendly2 = new Infantry(Side.ALLIES);
+            const enemy1 = new Infantry(Side.AXIS);
+            const enemy2 = new Infantry(Side.AXIS);
+
+            friendly1.battlesThisTurn = 0;
+            friendly2.battlesThisTurn = 0;
+
+            fakeUnitBattler.orderedUnits = [
+                {coord: new HexCoord(5, 5), unit: friendly1},
+                {coord: new HexCoord(10, 10), unit: friendly2}
+            ];
+            fakeUnitBattler.allUnits = [
+                {coord: new HexCoord(5, 5), unit: friendly1},
+                {coord: new HexCoord(6, 5), unit: enemy1},
+                {coord: new HexCoord(10, 10), unit: friendly2},
+                {coord: new HexCoord(11, 10), unit: enemy2}
+            ];
+            fakeUnitBattler.unitsSkipBattle = [];
+            fakeUnitBattler.activePlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
+
+            const phase = new BattlePhase();
+            const actual = phase.doLegalMoves(fakeUnitBattler);
+
+            // Should have EndBattlesMove + 2 BattleMoves
+            const battleMoves = actual.filter(m => m instanceof BattleMove) as BattleMove[];
+            expect(battleMoves.length).toBe(2);
+            expect(battleMoves.some(m => m.fromUnit === friendly1)).toBe(true);
+            expect(battleMoves.some(m => m.fromUnit === friendly2)).toBe(true);
+        });
+
+        test("When one unit has attacked, only the other unit generates battle moves", () => {
+            const friendly1 = new Infantry(Side.ALLIES);
+            const friendly2 = new Infantry(Side.ALLIES);
+            const enemy1 = new Infantry(Side.AXIS);
+            const enemy2 = new Infantry(Side.AXIS);
+
+            friendly1.battlesThisTurn = 1; // Already attacked
+            friendly2.battlesThisTurn = 0; // Can still attack
+
+            fakeUnitBattler.orderedUnits = [
+                {coord: new HexCoord(5, 5), unit: friendly1},
+                {coord: new HexCoord(10, 10), unit: friendly2}
+            ];
+            fakeUnitBattler.allUnits = [
+                {coord: new HexCoord(5, 5), unit: friendly1},
+                {coord: new HexCoord(6, 5), unit: enemy1},
+                {coord: new HexCoord(10, 10), unit: friendly2},
+                {coord: new HexCoord(11, 10), unit: enemy2}
+            ];
+            fakeUnitBattler.unitsSkipBattle = [];
+            fakeUnitBattler.activePlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
+
+            const phase = new BattlePhase();
+            const actual = phase.doLegalMoves(fakeUnitBattler);
+
+            // Should have EndBattlesMove + 1 BattleMove (only from friendly2)
+            const battleMoves = actual.filter(m => m instanceof BattleMove) as BattleMove[];
+            expect(battleMoves.length).toBe(1);
+            expect(battleMoves[0].fromUnit).toBe(friendly2);
+        });
+    });
 });
