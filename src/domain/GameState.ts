@@ -4,7 +4,7 @@
 import {createPlayer, Player, Position, Side} from "./Player";
 import {Deck} from "./Deck";
 import {Move} from "./Move";
-import {Unit, coordToKey, keyToCoord} from "./Unit";
+import {Unit, UnitState, coordToKey, keyToCoord} from "./Unit";
 import {HexCoord} from "../utils/hex";
 import {CardLocation, CommandCard} from "./CommandCard";
 import {isHexInSection, Section} from "./Section";
@@ -22,6 +22,7 @@ export class GameState {
     private currentCardId: string | null; // Currently selected card ID
     private unitPositions: Map<string, Unit>; // Map from coordinate key to Unit
     private units: Map<string, Unit>; // Map from unit ID to unit
+    private unitStates: Map<string, UnitState>; // Map from unit ID to unit state
     private medalTables: [Unit[], Unit[]]; // Eliminated units by capturing player (0=Bottom, 1=Top)
 
     constructor(
@@ -34,6 +35,7 @@ export class GameState {
         this.activePlayerIndex = 0;
         this.unitPositions = new Map<string, Unit>();
         this.units = new Map<string, Unit>();
+        this.unitStates = new Map<string, UnitState>();
         this.medalTables = [[], []];
         this.currentCardId = null;
         this.phases = new Array<Phase>();
@@ -108,10 +110,11 @@ export class GameState {
                 `Cannot place unit at (${coord.q}, ${coord.r}): coordinate already occupied`
             );
         }
-        // Clear any existing turn state when placing a unit
-        unit.clearTurnState();
+        // Create a new state for this unit
+        const unitState = new UnitState(unit.initialStrength);
         this.unitPositions.set(key, unit);
         this.units.set(unit.id, unit);
+        this.unitStates.set(unit.id, unitState);
     }
 
 
@@ -121,6 +124,17 @@ export class GameState {
      */
     getUnitAt(coord: HexCoord): Unit | undefined {
         return this.unitPositions.get(coordToKey(coord));
+    }
+
+    /**
+     * Get the state for a unit
+     */
+    private getUnitState(unit: Unit): UnitState {
+        const state = this.unitStates.get(unit.id);
+        if (!state) {
+            throw new Error(`No state found for unit ${unit.id}`);
+        }
+        return state;
     }
 
     /**
@@ -138,7 +152,7 @@ export class GameState {
      */
     getOrderedUnitsWithPositions(): Array<{ coord: HexCoord; unit: Unit }> {
         return Array.from(this.unitPositions.entries())
-            .filter(([_, unit]) => unit.isOrdered)
+            .filter(([_, unit]) => this.getUnitState(unit).isOrdered)
             .map(([key, unit]) => ({
                 coord: keyToCoord(key),
                 unit,
@@ -154,66 +168,73 @@ export class GameState {
     }
 
     getOrderedUnits(): Array<Unit> {
-        return Array.from(this.units.values()).filter(unit => unit.isOrdered);
+        return Array.from(this.units.values()).filter(unit => this.getUnitState(unit).isOrdered);
     }
 
     /**
      * Check if a unit has been ordered this turn
      */
     isUnitOrdered(unit: Unit): boolean {
-        return unit.isOrdered;
+        return this.getUnitState(unit).isOrdered;
     }
 
     /**
      * Check if a unit has moved this turn
      */
     isUnitMoved(unit: Unit): boolean {
-        return unit.hasMoved;
+        return this.getUnitState(unit).hasMoved;
     }
 
     /**
      * Mark a unit as having moved this turn
      */
     markUnitMoved(unit: Unit): void {
-        unit.hasMoved = true;
+        this.getUnitState(unit).hasMoved = true;
     }
 
     /**
      * Mark a unit to skip battle this turn (moved 2 hexes)
      */
     markUnitSkipsBattle(unit: Unit): void {
-        unit.skipsBattle = true;
+        this.getUnitState(unit).skipsBattle = true;
     }
 
     /**
      * Check if a unit skips battle this turn
      */
     unitSkipsBattle(unit: Unit): boolean {
-        return unit.skipsBattle;
+        return this.getUnitState(unit).skipsBattle;
+    }
+
+    /**
+     * Increment the number of battles a unit has participated in this turn
+     */
+    incrementUnitBattlesThisTurn(unit: Unit): void {
+        this.getUnitState(unit).battlesThisTurn++;
+    }
+
+    /**
+     * Get the number of battles a unit has participated in this turn
+     */
+    getUnitBattlesThisTurn(unit: Unit): number {
+        return this.getUnitState(unit).battlesThisTurn;
     }
 
     /**
      * Get the current strength of a unit
      */
     getUnitCurrentStrength(u: Unit): number {
-        const unit = this.units.get(u.id);
-        if (unit === undefined) {
-            throw new Error(`Unit ${u.id} has no current strength tracked`);
-        }
-        return unit.strength;
+        return this.getUnitState(u).strength;
     }
 
     /**
      * Set the current strength of a unit
      */
     setUnitCurrentStrength(unit: Unit, strength: number): void {
-        if (!this.units.has(unit.id)) {
-            throw new Error(`Unit not tracked ${unit.id}`);
-        }
         if (strength < 0) {
             throw new Error(`Unit strength cannot be negative: ${strength}`);
         }
-        unit.strength = strength;
+        this.getUnitState(unit).strength = strength;
     }
 
     /**
@@ -266,7 +287,7 @@ export class GameState {
 
             // Clear turn state for all units
             for (const unit of this.unitPositions.values()) {
-                unit.clearTurnState();
+                this.getUnitState(unit).clearTurnState();
             }
 
             // Switch to next player and start their turn
@@ -349,7 +370,8 @@ export class GameState {
         if (!unitExists) {
             throw new Error(`Unknown unit "${unit.id}"`)
         }
-        unit.isOrdered = !unit.isOrdered;
+        const state = this.getUnitState(unit);
+        state.isOrdered = !state.isOrdered;
     }
 
     orderAllFriendlyUnitsInSection(section: Section): void {
@@ -364,7 +386,7 @@ export class GameState {
 
             // Check if unit is in the target section
             if (isHexInSection(coord, section, activePlayer.position)) {
-                unit.isOrdered = true;
+                this.getUnitState(unit).isOrdered = true;
             }
         }
     }

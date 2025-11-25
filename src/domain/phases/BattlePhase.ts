@@ -16,6 +16,8 @@ export interface UnitBattler {
 
     unitSkipsBattle(unit: Unit): boolean;
 
+    getUnitBattlesThisTurn(unit: Unit): number;
+
     getAllUnitsWithPositions(): Array<{ coord: HexCoord; unit: Unit }>;
 
     activePlayer: Player;
@@ -46,7 +48,7 @@ export class BattlePhase implements Phase {
             }
 
             // Skip units that have already attacked this turn
-            if (fromUnit.battlesThisTurn > 0) {
+            if (unitBattler.getUnitBattlesThisTurn(fromUnit) > 0) {
                 continue;
             }
 

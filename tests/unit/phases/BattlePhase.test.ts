@@ -12,6 +12,7 @@ const fakeUnitBattler = {
     orderedUnits: [] as Array<{ coord: HexCoord, unit: Unit }>,
     allUnits: [] as Array<{ coord: HexCoord, unit: Unit }>,
     unitsSkipBattle: [] as Unit[],
+    unitBattlesMap: new Map<Unit, number>(),
     activePlayer: createPlayer(Side.ALLIES, Position.BOTTOM),
 
     getOrderedUnitsWithPositions() {
@@ -20,6 +21,10 @@ const fakeUnitBattler = {
 
     unitSkipsBattle(unit: Unit): boolean {
         return this.unitsSkipBattle.includes(unit);
+    },
+
+    getUnitBattlesThisTurn(unit: Unit): number {
+        return this.unitBattlesMap.get(unit) ?? 0;
     },
 
     getAllUnitsWithPositions() {
@@ -633,6 +638,10 @@ describe("BattlePhase", () => {
                     return this.unitsSkipBattle.includes(unit);
                 },
 
+                getUnitBattlesThisTurn(unit: Unit): number {
+                    return this.unitsSkipBattle.includes(unit) ? 0 : 0; // Always 0 for test
+                },
+
                 getAllUnitsWithPositions() {
                     return this.allUnits;
                 },
@@ -653,7 +662,7 @@ describe("BattlePhase", () => {
             const friendlyUnit = new Infantry(Side.ALLIES);
             const enemyUnit = new Infantry(Side.AXIS);
 
-            friendlyUnit.battlesThisTurn = 0;
+            fakeUnitBattler.unitBattlesMap = new Map([[friendlyUnit, 0]]);
 
             fakeUnitBattler.orderedUnits = [{coord: new HexCoord(5, 5), unit: friendlyUnit}];
             fakeUnitBattler.allUnits = [
@@ -676,7 +685,7 @@ describe("BattlePhase", () => {
             const friendlyUnit = new Infantry(Side.ALLIES);
             const enemyUnit = new Infantry(Side.AXIS);
 
-            friendlyUnit.battlesThisTurn = 1; // Already attacked
+            fakeUnitBattler.unitBattlesMap = new Map([[friendlyUnit, 1]]); // Already attacked
 
             fakeUnitBattler.orderedUnits = [{coord: new HexCoord(5, 5), unit: friendlyUnit}];
             fakeUnitBattler.allUnits = [
@@ -700,8 +709,10 @@ describe("BattlePhase", () => {
             const enemy1 = new Infantry(Side.AXIS);
             const enemy2 = new Infantry(Side.AXIS);
 
-            friendly1.battlesThisTurn = 0;
-            friendly2.battlesThisTurn = 0;
+            fakeUnitBattler.unitBattlesMap = new Map([
+                [friendly1, 0],
+                [friendly2, 0]
+            ]);
 
             fakeUnitBattler.orderedUnits = [
                 {coord: new HexCoord(5, 5), unit: friendly1},
@@ -732,8 +743,10 @@ describe("BattlePhase", () => {
             const enemy1 = new Infantry(Side.AXIS);
             const enemy2 = new Infantry(Side.AXIS);
 
-            friendly1.battlesThisTurn = 1; // Already attacked
-            friendly2.battlesThisTurn = 0; // Can still attack
+            fakeUnitBattler.unitBattlesMap = new Map([
+                [friendly1, 1],  // Already attacked
+                [friendly2, 0]   // Can still attack
+            ]);
 
             fakeUnitBattler.orderedUnits = [
                 {coord: new HexCoord(5, 5), unit: friendly1},

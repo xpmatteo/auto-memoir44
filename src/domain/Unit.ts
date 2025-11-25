@@ -26,28 +26,18 @@ export function keyToCoord(key: string): HexCoord {
     return new HexCoord(q, r);
 }
 
-let nextUnitId = 1;
-
 /**
- * Base class for all units
+ * Mutable state for a unit, managed by GameState
  */
-export abstract class Unit {
-    readonly id: string;
-    abstract readonly type: UnitType;
-    readonly initialStrength: number;
-    readonly side: Side;
-
+export class UnitState {
     strength: number;
     isOrdered: boolean;
     hasMoved: boolean;
     skipsBattle: boolean;
     battlesThisTurn: number;
 
-    protected constructor(strength: number, owner: Side) {
-        this.id = `unit-${nextUnitId++}`;
-        this.initialStrength = strength;
-        this.side = owner;
-        this.strength = strength;
+    constructor(initialStrength: number) {
+        this.strength = initialStrength;
         this.isOrdered = false;
         this.hasMoved = false;
         this.skipsBattle = false;
@@ -62,6 +52,25 @@ export abstract class Unit {
         this.hasMoved = false;
         this.skipsBattle = false;
         this.battlesThisTurn = 0;
+    }
+}
+
+let nextUnitId = 1;
+
+/**
+ * Base class for all units (immutable properties only)
+ * Mutable state is stored separately in UnitState within GameState
+ */
+export abstract class Unit {
+    readonly id: string;
+    abstract readonly type: UnitType;
+    readonly initialStrength: number;
+    readonly side: Side;
+
+    protected constructor(strength: number, owner: Side) {
+        this.id = `unit-${nextUnitId++}`;
+        this.initialStrength = strength;
+        this.side = owner;
     }
 }
 
