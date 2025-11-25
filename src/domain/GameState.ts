@@ -175,14 +175,14 @@ export class GameState {
      * Mark a unit as having moved this turn
      */
     markUnitMoved(unit: Unit): void {
-        unit.setMoved(true);
+        unit.hasMoved = true;
     }
 
     /**
      * Mark a unit to skip battle this turn (moved 2 hexes)
      */
     markUnitSkipsBattle(unit: Unit): void {
-        unit.setSkipsBattle(true);
+        unit.skipsBattle = true;
     }
 
     /**
@@ -349,7 +349,7 @@ export class GameState {
         if (!unitExists) {
             throw new Error(`Unknown unit "${unit.id}"`)
         }
-        unit.setOrdered(!unit.isOrdered);
+        unit.isOrdered = !unit.isOrdered;
     }
 
     orderAllFriendlyUnitsInSection(section: Section): void {
@@ -364,7 +364,7 @@ export class GameState {
 
             // Check if unit is in the target section
             if (isHexInSection(coord, section, activePlayer.position)) {
-                unit.setOrdered(true);
+                unit.isOrdered = true;
             }
         }
     }
