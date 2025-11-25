@@ -1,7 +1,7 @@
 // ABOUTME: Phase for moving ordered units
 // ABOUTME: Generates legal moves for infantry units (1-2 hexes) with pathfinding
 
-import {Phase} from "./Phase";
+import {Phase, PhaseType} from "./Phase";
 import {GameState} from "../GameState";
 import {EndMovementsMove, Move, MoveUnitMove} from "../Move";
 import {Unit} from "../Unit";
@@ -19,6 +19,7 @@ export interface UnitMover {
 
 export class MovePhase implements Phase {
     name: string = "Move Units";
+    type = PhaseType.MOVE;
 
     legalMoves(gameState: GameState): Array<Move> {
         return this.doLegalMoves(gameState);

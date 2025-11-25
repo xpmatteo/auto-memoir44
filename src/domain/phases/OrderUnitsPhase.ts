@@ -2,7 +2,7 @@ import {Section} from "../Section";
 import {Unit} from "../Unit";
 import {GameState} from "../GameState";
 import {ConfirmOrdersMove, Move, ToggleUnitOrderedMove} from "../Move";
-import {Phase} from "./Phase";
+import {Phase, PhaseType} from "./Phase";
 
 // Declare which methods from GameState we actually need to do our job
 interface UnitsOrderer {
@@ -13,6 +13,7 @@ interface UnitsOrderer {
 
 export class OrderUnitsPhase implements Phase {
     name: string = "Order Units";
+    type = PhaseType.ORDER;
     private readonly section;
     private readonly howManyUnits: number;
 

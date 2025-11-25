@@ -2,6 +2,8 @@
 // ABOUTME: Bootstraps canvas, rendering, and event handling
 
 // Log page loads for debugging
+import {PhaseType} from "./domain/phases/Phase";
+
 console.log(`[${new Date().toISOString()}] Page loaded/reloaded`);
 
 import "./style.css";
@@ -25,7 +27,7 @@ import {GameState} from "./domain/GameState.js";
 import {Deck} from "./domain/Deck.js";
 import {CanvasClickHandler} from "./ui/input/CanvasClickHandler.js";
 import {uiState} from "./ui/UIState.js";
-import {BattleMove} from "./domain/Move.js";
+import {BattleMove, MoveUnitMove} from "./domain/Move.js";
 import {SeededRNG} from "./adapters/RNG.js";
 import {Dice} from "./domain/Dice.js";
 
@@ -153,12 +155,22 @@ async function start() {
             await drawUnits(context, unitsWithStrength, defaultGrid);
 
             // Draw outlines around ordered units
-            const orderedUnits = gameState.getOrderedUnitsWithPositions();
-            const orderedCoords = orderedUnits.map(({coord}) => coord);
-            drawOrderedUnitOutlines(context, orderedCoords, defaultGrid);
+            if (gameState.activePhase.type === PhaseType.ORDER) {
+                const orderedUnits = gameState.getOrderedUnitsWithPositions();
+                const orderedCoords = orderedUnits.map(({coord}) => coord);
+                drawOrderedUnitOutlines(context, orderedCoords, defaultGrid);
+            }
+
+            // Draw outline around units that can move
+            if (gameState.activePhase.type === PhaseType.MOVE) {
+                const legalMoves = gameState.legalMoves();
+                const moves = legalMoves.filter(m => m instanceof MoveUnitMove) as MoveUnitMove[];
+                const moveHexes = moves.map(m => m.from);
+                drawOrderedUnitOutlines(context, moveHexes, defaultGrid);
+            }
 
             // Draw battle-ready unit outlines during BattlePhase
-            if (gameState.activePhase.name === "Battle") {
+            if (gameState.activePhase.type === PhaseType.BATTLE) {
                 const legalMoves = gameState.legalMoves();
                 const battleMoves = legalMoves.filter(m => m instanceof BattleMove) as BattleMove[];
                 const battleUnits = new Set(battleMoves.map(m => m.fromUnit));

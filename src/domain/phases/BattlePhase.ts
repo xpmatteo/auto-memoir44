@@ -1,7 +1,7 @@
 // ABOUTME: Phase for battling with ordered units
 // ABOUTME: Generates legal battle moves for units within 3 hexes of enemies
 
-import {Phase} from "./Phase";
+import {Phase, PhaseType} from "./Phase";
 import {GameState} from "../GameState";
 import {Move, BattleMove, EndBattlesMove} from "../Move";
 import {Unit} from "../Unit";
@@ -22,7 +22,8 @@ export interface UnitBattler {
 }
 
 export class BattlePhase implements Phase {
-    name: string = "Battle";
+    name = "Battle";
+    type = PhaseType.BATTLE;
 
     legalMoves(gameState: GameState): Array<Move> {
         return this.doLegalMoves(gameState);

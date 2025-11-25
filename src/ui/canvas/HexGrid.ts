@@ -80,7 +80,7 @@ export function drawGrid(context: CanvasRenderingContext2D, grid: GridConfig) {
  * Draw a single hexagon at the specified center point.
  * Uses pointy-top orientation (vertex at top).
  */
-export function drawHex(context: CanvasRenderingContext2D, cx: number, cy: number, radius: number) {
+function drawHex(context: CanvasRenderingContext2D, cx: number, cy: number, radius: number) {
     const corners = Array.from({length: 6}, (_, i) => {
         const angle = (Math.PI / 180) * (60 * i - 30); // pointy-top orientation
         return {
