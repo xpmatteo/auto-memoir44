@@ -277,12 +277,12 @@ describe("BattleMove", () => {
             gameState.placeUnit(new HexCoord(0, 0), attacker);
             gameState.placeUnit(new HexCoord(1, 0), target);
 
-            expect(attacker.battlesThisTurn).toBe(0);
+            expect(gameState.getUnitBattlesThisTurn(attacker)).toBe(0);
 
             const move = new BattleMove(attacker, target, 3);
             move.execute(gameState);
 
-            expect(attacker.battlesThisTurn).toBe(1);
+            expect(gameState.getUnitBattlesThisTurn(attacker)).toBe(1);
         });
 
         it("should increment attacksThisTurn even when target is eliminated", () => {
@@ -296,13 +296,13 @@ describe("BattleMove", () => {
             gameState.placeUnit(new HexCoord(0, 0), attacker);
             gameState.placeUnit(new HexCoord(1, 0), target);
 
-            expect(attacker.battlesThisTurn).toBe(0);
+            expect(gameState.getUnitBattlesThisTurn(attacker)).toBe(0);
 
             const move = new BattleMove(attacker, target, 2);
             move.execute(gameState);
 
             // Attacker should still have attacksThisTurn incremented
-            expect(attacker.battlesThisTurn).toBe(1);
+            expect(gameState.getUnitBattlesThisTurn(attacker)).toBe(1);
             // Target should be eliminated
             expect(gameState.getUnitAt(new HexCoord(1, 0))).toBeUndefined();
         });
@@ -318,13 +318,13 @@ describe("BattleMove", () => {
             gameState.placeUnit(new HexCoord(0, 0), attacker);
             gameState.placeUnit(new HexCoord(1, 0), target);
 
-            expect(attacker.battlesThisTurn).toBe(0);
+            expect(gameState.getUnitBattlesThisTurn(attacker)).toBe(0);
 
             const move = new BattleMove(attacker, target, 2);
             move.execute(gameState);
 
             // Attacker should still have attacksThisTurn incremented even with no hits
-            expect(attacker.battlesThisTurn).toBe(1);
+            expect(gameState.getUnitBattlesThisTurn(attacker)).toBe(1);
         });
 
         it("should track multiple attacks from same unit", () => {
@@ -340,17 +340,17 @@ describe("BattleMove", () => {
             gameState.placeUnit(new HexCoord(1, 0), target1);
             gameState.placeUnit(new HexCoord(2, 0), target2);
 
-            expect(attacker.battlesThisTurn).toBe(0);
+            expect(gameState.getUnitBattlesThisTurn(attacker)).toBe(0);
 
             // First attack
             const move1 = new BattleMove(attacker, target1, 1);
             move1.execute(gameState);
-            expect(attacker.battlesThisTurn).toBe(1);
+            expect(gameState.getUnitBattlesThisTurn(attacker)).toBe(1);
 
             // Second attack
             const move2 = new BattleMove(attacker, target2, 1);
             move2.execute(gameState);
-            expect(attacker.battlesThisTurn).toBe(2);
+            expect(gameState.getUnitBattlesThisTurn(attacker)).toBe(2);
         });
     });
 });

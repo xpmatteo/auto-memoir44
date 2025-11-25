@@ -129,7 +129,7 @@ export class BattleMove extends Move {
         const diceResults = gameState.rollDice(this.dice);
 
         // Track that this unit has attacked
-        this.fromUnit.battlesThisTurn++;
+        gameState.incrementUnitBattlesThisTurn(this.fromUnit);
 
         // Resolve hits
         const hits = resolveHits(diceResults, this.toUnit);
