@@ -30,6 +30,8 @@ import {uiState} from "./ui/UIState.js";
 import {BattleMove, MoveUnitMove} from "./domain/Move.js";
 import {SeededRNG} from "./adapters/RNG.js";
 import {Dice} from "./domain/Dice.js";
+import {RandomAIPlayer} from "./ai/AIPlayer.js";
+import {AIController} from "./ai/AIController.js";
 
 const BOARD_IMAGE_PATH = "/images/boards/memoir-desert-map.jpg";
 const BOARD_WIDTH = 2007;
@@ -63,7 +65,7 @@ function createBoardWrapper(canvas: HTMLCanvasElement, overlay: HTMLDivElement):
     return wrapper;
 }
 
-function createGameStateFromURL(): GameState {
+function createGameStateFromURL(): {gameState: GameState, rng: SeededRNG} {
     const params = new URLSearchParams(window.location.search);
     const scenarioCode = params.get("scenario");
     const seedParam = params.get("seed");
@@ -96,7 +98,7 @@ function createGameStateFromURL(): GameState {
     }
 
     scenario.setup(gameState);
-    return gameState;
+    return {gameState, rng};
 }
 
 
@@ -108,7 +110,12 @@ async function start() {
     }
 
     // Create game state and initialize with scenario
-    const gameState = createGameStateFromURL();
+    const {gameState, rng} = createGameStateFromURL();
+
+    // Parse AI delay from query parameters
+    const params = new URLSearchParams(window.location.search);
+    const aiDelayParam = params.get("aiDelay");
+    const aiDelay = aiDelayParam ? parseInt(aiDelayParam, 10) : 300;
 
     const canvas = createCanvas();
     const overlay = createOverlay();
@@ -213,21 +220,37 @@ async function start() {
         await renderCanvas();
     };
 
+    // Create AI player and controller
+    const aiPlayer = new RandomAIPlayer();
+    const aiController = new AIController(
+        gameState,
+        aiPlayer,
+        () => rng.random(),
+        () => renderAll().then(() => aiController.checkAndAct()),
+        aiDelay
+    );
+
+    // Wrap renderAll to include AI check
+    const renderAllWithAI = async () => {
+        await renderAll();
+        aiController.checkAndAct();
+    };
+
     // Set callback for card clicks to trigger re-render
-    handDisplay.setOnCardClick(renderAll);
+    handDisplay.setOnCardClick(renderAllWithAI);
 
     // Set callback for move button clicks to trigger re-render
-    moveButtons.setOnButtonClick(renderAll);
+    moveButtons.setOnButtonClick(renderAllWithAI);
 
-    // Initial render
-    await renderAll();
+    // Initial render (with AI check)
+    await renderAllWithAI();
 
     app.appendChild(handDisplay.getElement());
 
     applyResponsiveSizing(canvas);
     window.addEventListener("resize", () => applyResponsiveSizing(canvas));
 
-    attachHoverDisplay(canvas, overlay, defaultGrid, gameState, renderAll);
+    attachHoverDisplay(canvas, overlay, defaultGrid, gameState, renderAllWithAI);
 }
 
 function applyResponsiveSizing(canvas: HTMLCanvasElement) {
@@ -246,7 +269,7 @@ function attachHoverDisplay(
     overlay: HTMLDivElement,
     grid: GridConfig,
     gameState: GameState,
-    renderAll: () => void
+    renderAll: () => Promise<void>
 ) {
     const updateOverlay = (coords?: string) => {
         const phaseName = gameState.activePhase.name;
