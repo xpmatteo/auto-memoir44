@@ -38,7 +38,7 @@ const SQRT3 = Math.sqrt(3);
  * Draw a hex grid overlay on the canvas with optional coordinate labels.
  */
 export function drawGrid(context: CanvasRenderingContext2D, grid: GridConfig) {
-    const {cols, rows, hexRadius, originX, originY, lineWidth, strokeStyle, showCoords} = grid;
+    const {rows, hexRadius, originX, originY, lineWidth, strokeStyle, showCoords} = grid;
     const horizStep = SQRT3 * hexRadius; // width of a column offset
     const vertStep = hexRadius * 1.5; // vertical spacing for pointy-top
 
@@ -51,7 +51,7 @@ export function drawGrid(context: CanvasRenderingContext2D, grid: GridConfig) {
     context.textAlign = "center";
     context.textBaseline = "middle";
 
-    for (let q = 0; q < cols; q += 1) {
+    for (let q = -4; q < 12; q += 1) {
         for (let r = 0; r < rows; r += 1) {
             const centerX = originX + horizStep * (q + r / 2);
             const centerY = originY + vertStep * r;

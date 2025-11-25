@@ -66,15 +66,15 @@ export class BoardGeometry {
      */
     private isLeft(r: number, q: number): boolean {
         return (
-            (r === 0 && q <= 4) ||
+            (r === 0 && q < 4) ||
             (r === 1 && q <= 3) ||
-            (r === 2 && q <= 3) ||
+            (r === 2 && q < 3) ||
             (r === 3 && q <= 2) ||
-            (r === 4 && q <= 2) ||
+            (r === 4 && q < 2) ||
             (r === 5 && q <= 1) ||
-            (r === 6 && q <= 1) ||
+            (r === 6 && q < 1) ||
             (r === 7 && q <= 0) ||
-            (r === 8 && q <= 0)
+            (r === 8 && q < 0)
         );
     }
 
@@ -84,15 +84,15 @@ export class BoardGeometry {
      */
     private isRight(r: number, q: number): boolean {
         return (
-            (r === 0 && q >= 8) ||
+            (r === 0 && q > 8) ||
             (r === 1 && q >= 8) ||
-            (r === 2 && q >= 7) ||
+            (r === 2 && q > 7) ||
             (r === 3 && q >= 7) ||
-            (r === 4 && q >= 6) ||
+            (r === 4 && q > 6) ||
             (r === 5 && q >= 6) ||
-            (r === 6 && q >= 5) ||
+            (r === 6 && q > 5) ||
             (r === 7 && q >= 5) ||
-            (r === 8 && q >= 4)
+            (r === 8 && q > 4)
         );
     }
 
