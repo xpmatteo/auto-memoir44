@@ -138,7 +138,7 @@ export class BattleMove extends Move {
         if (newStrength <= 0) {
             // Unit is eliminated - find its position and remove it
             const allUnits = gameState.getAllUnitsWithPositions();
-            const targetPosition = allUnits.find(({ unit }) => unit.id === this.toUnit.id);
+            const targetPosition = allUnits.find(({unit}) => unit.id === this.toUnit.id);
 
             if (!targetPosition) {
                 throw new Error(`Could not find position for target unit ${this.toUnit.id}`);

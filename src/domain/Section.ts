@@ -1,14 +1,14 @@
 // ABOUTME: Board section logic for command card area restrictions
 // ABOUTME: Handles left/center/right section determination based on player perspective
 
-import { HexCoord } from "../utils/hex";
-import { Position } from "./Player";
-import { BOARD_GEOMETRY } from "./BoardGeometry";
+import {HexCoord} from "../utils/hex";
+import {Position} from "./Player";
+import {BOARD_GEOMETRY} from "./BoardGeometry";
 
 export const Section = {
-  LEFT: "Left",
-  CENTER: "Center",
-  RIGHT: "Right",
+    LEFT: "Left",
+    CENTER: "Center",
+    RIGHT: "Right",
 } as const;
 
 export type Section = typeof Section[keyof typeof Section];
@@ -21,5 +21,5 @@ export type Section = typeof Section[keyof typeof Section];
  * For TOP player, sections are flipped (screen-left becomes RIGHT, screen-right becomes LEFT).
  */
 export function isHexInSection(coord: HexCoord, section: Section, playerPosition: Position): boolean {
-  return BOARD_GEOMETRY.isHexInSection(coord, section, playerPosition);
+    return BOARD_GEOMETRY.isHexInSection(coord, section, playerPosition);
 }

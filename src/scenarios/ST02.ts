@@ -72,7 +72,7 @@ function parseAndSetupUnits(gameState: GameState, unitSetup: string[]): void {
 
             if (pattern === "" || trimmed === "....") {
                 // Empty hex
-                continue;
+
             } else if (pattern.toLowerCase() === "in") {
                 // Check if uppercase (Allies) or lowercase (Axis)
                 if (pattern === "IN") {

@@ -10,7 +10,8 @@ export class MoveButtons {
 
     constructor(gameState: GameState) {
         this.gameState = gameState;
-        this.onButtonClick = () => {};
+        this.onButtonClick = () => {
+        };
 
         // Create container matching ConfirmOrdersButton structure
         this.container = document.createElement("div");

@@ -11,7 +11,9 @@ import {BOARD_GEOMETRY} from "../BoardGeometry";
 // Declare which methods from GameState we actually need to do our job
 export interface UnitMover {
     getOrderedUnitsWithPositions(): Array<{ coord: HexCoord; unit: Unit }>;
+
     isUnitMoved(unit: Unit): boolean;
+
     getUnitAt(coord: HexCoord): Unit | undefined;
 }
 

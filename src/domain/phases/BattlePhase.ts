@@ -13,8 +13,11 @@ import {calculateDiceCount} from "../../rules/combat";
 // Declare which methods from GameState we actually need to do our job
 export interface UnitBattler {
     getOrderedUnitsWithPositions(): Array<{ coord: HexCoord; unit: Unit }>;
+
     unitSkipsBattle(unit: Unit): boolean;
+
     getAllUnitsWithPositions(): Array<{ coord: HexCoord; unit: Unit }>;
+
     activePlayer: Player;
 }
 

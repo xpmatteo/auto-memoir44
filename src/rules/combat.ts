@@ -1,8 +1,8 @@
 // ABOUTME: Combat rules for calculating dice counts based on unit type and distance
 // ABOUTME: Used by BattlePhase to determine how many dice a unit rolls in battle
 
-import { Unit, UnitType } from "../domain/Unit";
-import { DiceResult, RESULT_INFANTRY, RESULT_GRENADE } from "../domain/Dice";
+import {Unit, UnitType} from "../domain/Unit";
+import {DiceResult, RESULT_INFANTRY, RESULT_GRENADE} from "../domain/Dice";
 
 /**
  * Calculate the number of dice a unit rolls when battling at a given distance.
@@ -18,16 +18,16 @@ import { DiceResult, RESULT_INFANTRY, RESULT_GRENADE } from "../domain/Dice";
  * @throws Error if the unit type is unsupported or distance is invalid
  */
 export function calculateDiceCount(unit: Unit, distance: number): number {
-  if (distance < 1 || distance > 3) {
-    throw new Error(`Invalid battle distance: ${distance}. Valid range is 1-3.`);
-  }
+    if (distance < 1 || distance > 3) {
+        throw new Error(`Invalid battle distance: ${distance}. Valid range is 1-3.`);
+    }
 
-  if (unit.type === UnitType.INFANTRY) {
-    // Infantry: 3 dice at distance 1, 2 dice at distance 2, 1 die at distance 3
-    return 4 - distance;
-  }
+    if (unit.type === UnitType.INFANTRY) {
+        // Infantry: 3 dice at distance 1, 2 dice at distance 2, 1 die at distance 3
+        return 4 - distance;
+    }
 
-  throw new Error(`Unsupported unit type for dice calculation: ${unit.type}`);
+    throw new Error(`Unsupported unit type for dice calculation: ${unit.type}`);
 }
 
 /**
@@ -42,16 +42,16 @@ export function calculateDiceCount(unit: Unit, distance: number): number {
  * @returns The number of hits scored
  */
 export function resolveHits(diceResults: DiceResult[], targetUnit: Unit): number {
-  let hits = 0;
+    let hits = 0;
 
-  for (const result of diceResults) {
-    if (targetUnit.type === UnitType.INFANTRY) {
-      if (result === RESULT_INFANTRY || result === RESULT_GRENADE) {
-        hits++;
-      }
+    for (const result of diceResults) {
+        if (targetUnit.type === UnitType.INFANTRY) {
+            if (result === RESULT_INFANTRY || result === RESULT_GRENADE) {
+                hits++;
+            }
+        }
+        // Future: Add armor and other unit types here
     }
-    // Future: Add armor and other unit types here
-  }
 
-  return hits;
+    return hits;
 }

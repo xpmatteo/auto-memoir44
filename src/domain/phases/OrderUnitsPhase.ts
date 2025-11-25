@@ -31,7 +31,7 @@ export class OrderUnitsPhase implements Phase {
         let orderedUnits = friendlyUnitsInSection
             .filter(unit => unitsOrderer.isUnitOrdered(unit));
 
-        let moveOrders ;
+        let moveOrders;
         if (orderedUnits.length < this.howManyUnits) {
             moveOrders = friendlyUnitsInSection
                 .map(unit => new ToggleUnitOrderedMove(unit));

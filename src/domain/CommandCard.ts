@@ -47,6 +47,7 @@ export class AssaultCenter extends CommandCard {
     readonly imagePath = "images/cards/a2_assault_center.png";
     readonly section = Section.CENTER;
     readonly howManyUnits = 1000;
+
     onCardPlayed(gameState: GameState): void {
         super.onCardPlayed(gameState);
         gameState.orderAllFriendlyUnitsInSection(Section.CENTER);
@@ -58,6 +59,7 @@ export class AssaultLeft extends CommandCard {
     readonly imagePath = "images/cards/a2_assault_left.png";
     readonly section = Section.LEFT;
     readonly howManyUnits = 1000;
+
     onCardPlayed(gameState: GameState): void {
         super.onCardPlayed(gameState);
         gameState.orderAllFriendlyUnitsInSection(Section.LEFT);
@@ -69,6 +71,7 @@ export class AssaultRight extends CommandCard {
     readonly imagePath = "images/cards/a2_assault_right.png";
     readonly section = Section.RIGHT;
     readonly howManyUnits = 1000;
+
     onCardPlayed(gameState: GameState): void {
         super.onCardPlayed(gameState);
         gameState.orderAllFriendlyUnitsInSection(Section.RIGHT);

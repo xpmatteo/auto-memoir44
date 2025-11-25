@@ -4,19 +4,20 @@
 const SQRT3 = Math.sqrt(3);
 
 export type GridConfig = {
-  cols: number;
-  rows: number;
-  hexRadius: number;
-  originX: number;
-  originY: number;
-  lineWidth: number;
-  strokeStyle: string;
-  showCoords: boolean;
-  coordColor: string;
+    cols: number;
+    rows: number;
+    hexRadius: number;
+    originX: number;
+    originY: number;
+    lineWidth: number;
+    strokeStyle: string;
+    showCoords: boolean;
+    coordColor: string;
 };
 
 export class HexCoord {
-    constructor(public q: number, public r: number) {}
+    constructor(public q: number, public r: number) {
+    }
 
     // 6 axial directions (pointy-top, "q,r" layout)
 
@@ -46,8 +47,8 @@ export class HexCoord {
 }
 
 export type CanvasCoord = {
-  x: number;
-  y: number;
+    x: number;
+    y: number;
 };
 
 /**
@@ -55,13 +56,13 @@ export type CanvasCoord = {
  * accounting for canvas scaling.
  */
 export function toCanvasCoords(event: MouseEvent, canvas: HTMLCanvasElement): CanvasCoord {
-  const rect = canvas.getBoundingClientRect();
-  const scaleX = canvas.width / rect.width;
-  const scaleY = canvas.height / rect.height;
-  return {
-    x: (event.clientX - rect.left) * scaleX,
-    y: (event.clientY - rect.top) * scaleY
-  };
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    return {
+        x: (event.clientX - rect.left) * scaleX,
+        y: (event.clientY - rect.top) * scaleY
+    };
 }
 
 /**
@@ -69,11 +70,11 @@ export function toCanvasCoords(event: MouseEvent, canvas: HTMLCanvasElement): Ca
  * Uses pointy-top orientation.
  */
 export function pixelToHex(x: number, y: number, grid: GridConfig): HexCoord {
-  const px = x - grid.originX;
-  const py = y - grid.originY;
-  const q = (SQRT3 / 3 * px - py / 3) / grid.hexRadius;
-  const r = ((2 / 3) * py) / grid.hexRadius;
-  return axialRound(q, r);
+    const px = x - grid.originX;
+    const py = y - grid.originY;
+    const q = (SQRT3 / 3 * px - py / 3) / grid.hexRadius;
+    const r = ((2 / 3) * py) / grid.hexRadius;
+    return axialRound(q, r);
 }
 
 /**
@@ -81,24 +82,24 @@ export function pixelToHex(x: number, y: number, grid: GridConfig): HexCoord {
  * Uses cube coordinate constraint (q + r + s = 0) for accurate rounding.
  */
 export function axialRound(q: number, r: number): HexCoord {
-  const s = -q - r;
-  let rq = Math.round(q);
-  let rr = Math.round(r);
-  let rs = Math.round(s);
+    const s = -q - r;
+    let rq = Math.round(q);
+    let rr = Math.round(r);
+    let rs = Math.round(s);
 
-  const qDiff = Math.abs(rq - q);
-  const rDiff = Math.abs(rr - r);
-  const sDiff = Math.abs(rs - s);
+    const qDiff = Math.abs(rq - q);
+    const rDiff = Math.abs(rr - r);
+    const sDiff = Math.abs(rs - s);
 
-  if (qDiff > rDiff && qDiff > sDiff) {
-    rq = -rr - rs;
-  } else if (rDiff > sDiff) {
-    rr = -rq - rs;
-  } else {
-    rs = -rq - rr;
-  }
+    if (qDiff > rDiff && qDiff > sDiff) {
+        rq = -rr - rs;
+    } else if (rDiff > sDiff) {
+        rr = -rq - rs;
+    } else {
+        rs = -rq - rr;
+    }
 
-  return new HexCoord(rq, rr);
+    return new HexCoord(rq, rr);
 }
 
 /**
@@ -106,13 +107,13 @@ export function axialRound(q: number, r: number): HexCoord {
  * Returns the center point of the hex in canvas space.
  */
 export function hexToPixel(coord: HexCoord, grid: GridConfig): CanvasCoord {
-  const horizStep = SQRT3 * grid.hexRadius;
-  const vertStep = grid.hexRadius * 1.5;
+    const horizStep = SQRT3 * grid.hexRadius;
+    const vertStep = grid.hexRadius * 1.5;
 
-  return {
-    x: grid.originX + horizStep * (coord.q + coord.r / 2),
-    y: grid.originY + vertStep * coord.r
-  };
+    return {
+        x: grid.originX + horizStep * (coord.q + coord.r / 2),
+        y: grid.originY + vertStep * coord.r
+    };
 }
 
 /**
@@ -121,8 +122,8 @@ export function hexToPixel(coord: HexCoord, grid: GridConfig): CanvasCoord {
  * Based on the algorithm from doc/hexlib.js.
  */
 export function hexDistance(from: HexCoord, to: HexCoord): number {
-  const dq = Math.abs(from.q - to.q);
-  const dr = Math.abs(from.r - to.r);
-  const ds = Math.abs((from.q + from.r) - (to.q + to.r));
-  return Math.trunc((dq + dr + ds) / 2);
+    const dq = Math.abs(from.q - to.q);
+    const dr = Math.abs(from.r - to.r);
+    const ds = Math.abs((from.q + from.r) - (to.q + to.r));
+    return Math.trunc((dq + dr + ds) / 2);
 }

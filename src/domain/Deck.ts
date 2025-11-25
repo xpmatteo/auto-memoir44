@@ -41,7 +41,7 @@ export class Deck {
                 result.push(card);
             }
         });
-        result.sort((a,b) => {
+        result.sort((a, b) => {
             return a.id.localeCompare(b.id);
         });
         return result;

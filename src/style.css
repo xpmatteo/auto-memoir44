@@ -1,115 +1,115 @@
 *,
 *::before,
 *::after {
-  box-sizing: border-box;
+    box-sizing: border-box;
 }
 
 :root {
-  color: #0f172a;
-  background-color: #0b0c10;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    color: #0f172a;
+    background-color: #0b0c10;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
 body {
-  margin: 0;
-  min-height: 100vh;
+    margin: 0;
+    min-height: 100vh;
 }
 
 #app {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  align-items: center;
-  justify-content: center;
-  width: 100vw;
-  min-height: 100vh;
-  padding: 12px;
-  background: radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.07), transparent 45%),
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: center;
+    justify-content: center;
+    width: 100vw;
+    min-height: 100vh;
+    padding: 12px;
+    background: radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.07), transparent 45%),
     radial-gradient(circle at 80% 0%, rgba(255, 255, 255, 0.05), transparent 40%),
     #0b0c10;
 }
 
 #game-board-container {
-  display: flex;
-  flex-direction: row;
-  gap: 20px;
-  align-items: center;
-  justify-content: center;
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    align-items: center;
+    justify-content: center;
 }
 
 #current-card-display {
-  min-width: 160px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+    min-width: 160px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .board-wrapper {
-  position: relative;
-  display: inline-block;
+    position: relative;
+    display: inline-block;
 }
 
 .board-canvas {
-  max-width: 100vw;
-  max-height: calc(100vh - 120px);
-  border: 2px solid #1f2937;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.04);
-  background: #111827;
+    max-width: 100vw;
+    max-height: calc(100vh - 120px);
+    border: 2px solid #1f2937;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.04);
+    background: #111827;
 }
 
 .hover-overlay {
-  position: absolute;
-  top: 6px;
-  left: 8px;
-  padding: 6px 10px;
-  background: rgba(0, 0, 0, 0.6);
-  color: #e5e7eb;
-  font-weight: 700;
-  font-size: 14px;
-  letter-spacing: 0.03em;
-  border-radius: 8px;
-  pointer-events: none;
-  user-select: none;
-  min-width: 64px;
+    position: absolute;
+    top: 6px;
+    left: 8px;
+    padding: 6px 10px;
+    background: rgba(0, 0, 0, 0.6);
+    color: #e5e7eb;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 0.03em;
+    border-radius: 8px;
+    pointer-events: none;
+    user-select: none;
+    min-width: 64px;
 }
 
 .caption {
-  color: #e5e7eb;
-  font-weight: 600;
-  letter-spacing: 0.02em;
+    color: #e5e7eb;
+    font-weight: 600;
+    letter-spacing: 0.02em;
 }
 
 #move-buttons-container {
-  min-height: 48px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  width: 100%;
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    width: 100%;
 }
 
 .move-button {
-  padding: 10px 24px;
-  background: rgba(0, 0, 0, 0.6);
-  color: #e5e7eb;
-  border: 2px solid #1f2937;
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 16px;
-  letter-spacing: 0.02em;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    padding: 10px 24px;
+    background: rgba(0, 0, 0, 0.6);
+    color: #e5e7eb;
+    border: 2px solid #1f2937;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 16px;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .move-button:hover {
-  background: rgba(251, 191, 36, 0.2);
-  border-color: #fbbf24;
-  color: #fbbf24;
-  box-shadow: 0 6px 16px rgba(251, 191, 36, 0.2);
+    background: rgba(251, 191, 36, 0.2);
+    border-color: #fbbf24;
+    color: #fbbf24;
+    box-shadow: 0 6px 16px rgba(251, 191, 36, 0.2);
 }
 
 .move-button:active {
-  transform: translateY(1px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    transform: translateY(1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
