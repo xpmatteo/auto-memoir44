@@ -180,14 +180,26 @@ export class EndBattlesMove extends Move {
 }
 
 export class ReplenishHandMove extends Move {
-    //private card: CommandCard;
-    constructor(_card: CommandCard) {
+    private card: CommandCard;
+
+    constructor(card: CommandCard) {
         super();
-        //  this.card = card;
+        this.card = card;
     }
 
-    execute(_gameState: GameState): void {
+    execute(gameState: GameState): void {
+        gameState.discardActiveCard();
+        gameState.drawCards(1, gameState.activePlayerHand);
+        gameState.popPhase();
+    }
 
+    uiButton(): UiButton | null {
+        return {
+            label: `Draw "${this.card.name}"`,
+            callback: (gameState: GameState) => {
+                this.execute(gameState);
+            },
+        };
     }
 
 }

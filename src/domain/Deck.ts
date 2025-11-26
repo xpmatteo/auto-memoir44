@@ -187,4 +187,8 @@ export class Deck {
         }
         return cardsInDeck.slice(0, n);
     }
+
+    peekOneCard() {
+        return this.peekCards(1)[0];
+    }
 }

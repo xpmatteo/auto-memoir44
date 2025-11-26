@@ -6,6 +6,7 @@ export const PhaseType = {
     ORDER: "order",
     MOVE: "move",
     BATTLE: "battle",
+    REPLENISH_HAND: "replenish_hand"
 } as const;
 
 export type PhaseType = typeof PhaseType[keyof typeof PhaseType];

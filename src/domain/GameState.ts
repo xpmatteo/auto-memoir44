@@ -19,7 +19,7 @@ export class GameState {
     private readonly phases: Array<Phase>;
     private readonly players: [Player, Player];
     private activePlayerIndex: 0 | 1;
-    private currentCardId: string | null; // Currently selected card ID
+    private activeCardId: string | null; // Currently played card ID
     private unitPositions: Map<string, Unit>; // Map from coordinate key to Unit
     private units: Map<string, Unit>; // Map from unit ID to unit
     private unitStates: Map<string, UnitState>; // Map from unit ID to unit state
@@ -37,7 +37,7 @@ export class GameState {
         this.units = new Map<string, Unit>();
         this.unitStates = new Map<string, UnitState>();
         this.medalTables = [[], []];
-        this.currentCardId = null;
+        this.activeCardId = null;
         this.phases = new Array<Phase>();
         this.phases.push(new PlayCardPhase());
     }
@@ -45,6 +45,10 @@ export class GameState {
     // -- getters used in the UI
     get activePlayer(): Player {
         return this.players[this.activePlayerIndex];
+    }
+
+    get activePlayerHand(): CardLocation {
+        return this.activePlayerIndex === 0 ? CardLocation.BOTTOM_PLAYER_HAND : CardLocation.TOP_PLAYER_HAND;
     }
 
     get activePhase(): Phase {
@@ -58,10 +62,10 @@ export class GameState {
      * Get the current card, or null if none is selected
      */
     get activeCard(): CommandCard | null {
-        if (this.currentCardId === null) {
+        if (this.activeCardId === null) {
             return null;
         }
-        return this.deck.getCard(this.currentCardId);
+        return this.deck.getCard(this.activeCardId);
     }
 
     getCardsInLocation(location: CardLocation) {
@@ -273,18 +277,6 @@ export class GameState {
         this.phases.pop();
         // End of player turn?
         if (this.phases.length === 0) {
-            // Move the played card to discard pile
-            if (this.currentCardId !== null) {
-                this.deck.moveCard(this.currentCardId, CardLocation.DISCARD_PILE);
-                this.currentCardId = null;
-            }
-
-            // Draw replacement card for the player who just finished
-            const handLocation = this.activePlayer.position === Position.BOTTOM
-                ? CardLocation.BOTTOM_PLAYER_HAND
-                : CardLocation.TOP_PLAYER_HAND;
-            this.deck.drawCard(handLocation);
-
             // Clear turn state for all units
             for (const unit of this.unitPositions.values()) {
                 this.getUnitState(unit).clearTurnState();
@@ -309,6 +301,10 @@ export class GameState {
         return this.deck.peekCards(n);
     }
 
+    peekOneCard(): CommandCard {
+        return this.deck.peekOneCard();
+    }
+
     /**
      * Set the current card. Throws if a card is already selected.
      * Orders units based on the card type and section.
@@ -317,12 +313,12 @@ export class GameState {
      * UI code must use executeMove(PlayCardMove) instead of calling this directly.
      */
     setCurrentCard(cardId: string): void {
-        if (this.currentCardId !== null) {
+        if (this.activeCardId !== null) {
             throw new Error(
-                `Cannot select card: a card is already selected (${this.currentCardId}). Clear the current card first.`
+                `Cannot select card: a card is already selected (${this.activeCardId}). Clear the current card first.`
             );
         }
-        this.currentCardId = cardId;
+        this.activeCardId = cardId;
 
         // Get the card from the deck
         const card = this.deck.getCard(cardId);
@@ -395,4 +391,10 @@ export class GameState {
         }
     }
 
+    discardActiveCard() {
+        if (this.activeCardId !== null) {
+            this.deck.moveCard(this.activeCardId, CardLocation.DISCARD_PILE);
+            this.activeCardId = null;
+        }
+    }
 }

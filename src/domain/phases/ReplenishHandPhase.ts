@@ -3,12 +3,12 @@ import {Move, ReplenishHandMove} from "../Move";
 import {Phase, PhaseType} from "./Phase";
 
 export class ReplenishHandPhase implements Phase {
-    name: string = "Play Card";
-    type = PhaseType.PLAY_CARD;
+    name: string = "Replenish hand";
+    type = PhaseType.REPLENISH_HAND;
 
     legalMoves(gameState: GameState): Array<Move> {
         return [
-            new ReplenishHandMove(gameState.peekCards(1)[0])
+            new ReplenishHandMove(gameState.peekOneCard())
         ];
     }
 }
