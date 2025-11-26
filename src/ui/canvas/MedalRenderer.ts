@@ -7,27 +7,25 @@ import {getUnitImagePath, loadUnitImage} from "./UnitRenderer.js";
 
 // Medal circle positions as percentages of canvas dimensions
 // Top medals (for bottom player's eliminated units) - right side
-const TOP_MEDALS_BASE_X_PERCENT = 0.682;
+const TOP_MEDALS_BASE_X_PERCENT = 0.540;
 const TOP_MEDALS_BASE_Y_PERCENT = 0.031;
-const TOP_MEDALS_SPACING_X_PERCENT = 0.058;
+const TOP_MEDALS_SPACING_X_PERCENT = 0.075;
 const TOP_MEDALS_SPACING_Y_PERCENT = 0.0;
 
 // Bottom medals (for top player's eliminated units) - left side
-const BOTTOM_MEDALS_BASE_X_PERCENT = 0.072;
+const BOTTOM_MEDALS_BASE_X_PERCENT = 0.084;
 const BOTTOM_MEDALS_BASE_Y_PERCENT = 0.948;
-const BOTTOM_MEDALS_SPACING_X_PERCENT = 0.058;
-const BOTTOM_MEDALS_SPACING_Y_PERCENT = 0.0;
+const BOTTOM_MEDALS_SPACING_X_PERCENT = TOP_MEDALS_SPACING_X_PERCENT;
+const BOTTOM_MEDALS_SPACING_Y_PERCENT = TOP_MEDALS_SPACING_Y_PERCENT;
 
 // Scale factor for unit sprites in medal circles
-const MEDAL_SPRITE_SCALE = 2.2;
+const MEDAL_SPRITE_SCALE = 1.8;
 
 /**
  * Calculate pixel position for a medal at given index
- * Layout: 2 rows × 3 columns, continues for overflow
+ * Layout: Single row of 6 positions, continues for overflow
  *
- * [0] [1] [2]
- * [3] [4] [5]
- * [6] [7] [8] ...
+ * [0] [1] [2] [3] [4] [5] [6] [7] ...
  */
 function getMedalPosition(
     index: number,
@@ -35,8 +33,8 @@ function getMedalPosition(
     canvasWidth: number,
     canvasHeight: number
 ): {x: number; y: number} {
-    const row = Math.floor(index / 3);
-    const col = index % 3;
+    const row = Math.floor(index / 6);
+    const col = index % 6;
 
     if (isTopMedals) {
         const x = canvasWidth * (TOP_MEDALS_BASE_X_PERCENT + col * TOP_MEDALS_SPACING_X_PERCENT);
