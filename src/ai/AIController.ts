@@ -15,7 +15,6 @@ export class AIController {
     constructor(
         private gameState: GameState,
         private aiPlayer: AIPlayer,
-        private rng: () => number,
         private onMoveExecuted: () => void,
         private aiDelay: number = 300
     ) {}
@@ -47,7 +46,7 @@ export class AIController {
         // Schedule move execution after delay
         setTimeout(() => {
             try {
-                const selectedMove = this.aiPlayer.selectMove(legalMoves, this.rng);
+                const selectedMove = this.aiPlayer.selectMove(legalMoves);
 
                 // Log AI's move selection
                 const phaseName = this.gameState.activePhase.name;

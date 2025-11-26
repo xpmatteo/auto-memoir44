@@ -226,11 +226,10 @@ async function start() {
     };
 
     // Create AI player and controller
-    const aiPlayer = new RandomAIPlayer();
+    const aiPlayer = new RandomAIPlayer(rng);
     const aiController = new AIController(
         gameState,
         aiPlayer,
-        () => rng.random(),
         () => renderAll().then(() => aiController.checkAndAct()),
         aiDelay
     );

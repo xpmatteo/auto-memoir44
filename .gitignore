@@ -6,3 +6,4 @@ vite.log
 .DS_Store
 .worktrees
 test-output.log
+dist

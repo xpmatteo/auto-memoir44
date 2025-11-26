@@ -3,6 +3,7 @@
 
 import type {Move} from "../domain/Move";
 import {EndBattlesMove, EndMovementsMove} from "../domain/Move";
+import {SeededRNG} from "../adapters/RNG";
 
 /**
  * Interface for AI players that can select moves from legal options
@@ -11,10 +12,9 @@ export interface AIPlayer {
     /**
      * Select a move from the available legal moves
      * @param legalMoves Array of legal moves to choose from
-     * @param rng Random number generator function returning [0, 1)
      * @returns The selected move to execute
      */
-    selectMove(legalMoves: Move[], rng: () => number): Move;
+    selectMove(legalMoves: Move[]): Move;
 }
 
 /**
@@ -23,7 +23,12 @@ export interface AIPlayer {
  * Prefers action moves over phase-ending moves to be more active
  */
 export class RandomAIPlayer implements AIPlayer {
-    selectMove(legalMoves: Move[], rng: () => number): Move {
+    private readonly rng: SeededRNG;
+    constructor(rng: SeededRNG) {
+        this.rng = rng;
+    }
+
+    selectMove(legalMoves: Move[]): Move {
         if (legalMoves.length === 0) {
             throw new Error("No legal moves available for AI to select");
         }
@@ -39,7 +44,7 @@ export class RandomAIPlayer implements AIPlayer {
         const movesToChooseFrom = actionMoves.length > 0 ? actionMoves : legalMoves;
 
         // Use the same random selection pattern as Dice and Deck
-        const index = Math.floor(rng() * movesToChooseFrom.length);
+        const index = Math.floor(this.rng.random() * movesToChooseFrom.length);
         return movesToChooseFrom[index];
     }
 }
