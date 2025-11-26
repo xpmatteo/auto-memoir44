@@ -179,4 +179,12 @@ export class Deck {
             [ProbeRight, 4],
         ]);
     }
+
+    peekCards(n: number) {
+        let cardsInDeck = this.getCardsInLocation(CardLocation.DECK);
+        if (cardsInDeck.length < n) {
+            throw new Error("Not enough cards in the deck to peek")
+        }
+        return cardsInDeck.slice(0, n);
+    }
 }

@@ -179,3 +179,16 @@ export class EndBattlesMove extends Move {
     }
 }
 
+export class ReplenishHandMove extends Move {
+    //private card: CommandCard;
+    constructor(_card: CommandCard) {
+        super();
+        //  this.card = card;
+    }
+
+    execute(_gameState: GameState): void {
+
+    }
+
+}
+

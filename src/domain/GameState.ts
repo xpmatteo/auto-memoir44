@@ -305,6 +305,10 @@ export class GameState {
         this.phases.push(phase);
     }
 
+    peekCards(n: number): Array<CommandCard> {
+        return this.deck.peekCards(n);
+    }
+
     /**
      * Set the current card. Throws if a card is already selected.
      * Orders units based on the card type and section.

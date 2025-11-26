@@ -1,13 +1,13 @@
 // ABOUTME: Unit tests for Deck class
 // ABOUTME: Tests card location management and deck operations
 
-import {describe, expect, it} from "vitest";
+import {describe, expect, it, test} from "vitest";
 import {Deck} from "../../src/domain/Deck";
 import {CardLocation, CommandCard} from "../../src/domain/CommandCard";
 import {Section} from "../../src/domain/Section";
 
 // Test helper card class
-class TestCard extends CommandCard {
+export class TestCard extends CommandCard {
     readonly section = Section.CENTER;
     readonly howManyUnits = 1;
 
@@ -317,6 +317,18 @@ describe("Deck", () => {
             // Single card should still be drawable
             const drawn = deck.drawCard(CardLocation.BOTTOM_PLAYER_HAND);
             expect(drawn).toBe(card);
+        });
+
+        test('peek cards', () => {
+            const card1 = new TestCard("card1", "path.png");
+            const card2 = new TestCard("card2", "path.png");
+            const card3 = new TestCard("card3", "path.png");
+            const card4 = new TestCard("card4", "path.png");
+            const deck = new Deck([card1, card2, card3, card4]);
+
+            let topCards = deck.peekCards(3);
+
+            expect(topCards).toEqual([card1, card2, card3]);
         });
     });
 });
