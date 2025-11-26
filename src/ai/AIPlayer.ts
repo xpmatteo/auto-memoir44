@@ -2,9 +2,10 @@
 // ABOUTME: Provides strategy pattern for different AI difficulty levels and behaviors
 
 import type {Move} from "../domain/Move";
-import {EndBattlesMove, EndMovementsMove} from "../domain/Move";
+import {EndBattlesMove, EndMovementsMove, PlayCardMove} from "../domain/Move";
 import {SeededRNG} from "../adapters/RNG";
 import type {GameState} from "../domain/GameState";
+import type {CommandCard} from "../domain/CommandCard";
 
 /**
  * Interface for AI players that can select moves from legal options
@@ -20,7 +21,8 @@ export interface AIPlayer {
 }
 
 /**
- * Simple AI that randomly selects from legal moves
+ * AI player that makes smart decisions during card selection
+ * Selects cards that order the most units, with random tie-breaking
  * Uses seeded RNG for reproducible behavior
  * Prefers action moves over phase-ending moves to be more active
  */
@@ -30,23 +32,76 @@ export class RandomAIPlayer implements AIPlayer {
         this.rng = rng;
     }
 
-    selectMove(_gameState: GameState, legalMoves: Move[]): Move {
+    selectMove(gameState: GameState, legalMoves: Move[]): Move {
         if (legalMoves.length === 0) {
             throw new Error("No legal moves available for AI to select");
         }
 
         // Filter out phase-ending moves if there are other options
-        // Note: ConfirmOrdersMove is allowed to prevent infinite toggling of unit orders
-        const actionMoves = legalMoves.filter(move =>
+        const actionMoves = this.filterActionMoves(legalMoves);
+        const movesToChooseFrom = actionMoves.length > 0 ? actionMoves : legalMoves;
+
+        // Check if these are PlayCardMoves (card selection phase)
+        const playCardMoves = movesToChooseFrom.filter(m => m instanceof PlayCardMove);
+
+        // If PLAY_CARD phase, select best card(s)
+        if (playCardMoves.length > 0) {
+            return this.selectBestCard(gameState, playCardMoves as PlayCardMove[]);
+        }
+
+        // Otherwise, random selection (existing behavior)
+        return this.randomSelect(movesToChooseFrom);
+    }
+
+    /**
+     * Filter out phase-ending moves if there are other options
+     * Note: ConfirmOrdersMove is allowed to prevent infinite toggling of unit orders
+     */
+    private filterActionMoves(legalMoves: Move[]): Move[] {
+        return legalMoves.filter(move =>
             !(move instanceof EndMovementsMove) &&
             !(move instanceof EndBattlesMove)
         );
+    }
 
-        // Use action moves if available, otherwise use all legal moves
-        const movesToChooseFrom = actionMoves.length > 0 ? actionMoves : legalMoves;
+    /**
+     * Randomly select one move from the available moves
+     * Uses the same random selection pattern as Dice and Deck
+     */
+    private randomSelect(moves: Move[]): Move {
+        const index = Math.floor(this.rng.random() * moves.length);
+        return moves[index];
+    }
 
-        // Use the same random selection pattern as Dice and Deck
-        const index = Math.floor(this.rng.random() * movesToChooseFrom.length);
-        return movesToChooseFrom[index];
+    /**
+     * Select the card that orders the most units
+     * Breaks ties randomly using seeded RNG
+     */
+    private selectBestCard(gameState: GameState, moves: PlayCardMove[]): PlayCardMove {
+        // Calculate orderable units for each card
+        const movesWithCounts = moves.map(move => ({
+            move,
+            orderableUnits: this.calculateOrderableUnits(gameState, move.card)
+        }));
+
+        // Find maximum orderable count
+        const maxOrderable = Math.max(...movesWithCounts.map(m => m.orderableUnits));
+
+        // Filter to only best cards (handles ties)
+        const bestMoves = movesWithCounts
+            .filter(m => m.orderableUnits === maxOrderable)
+            .map(m => m.move);
+
+        // Random selection among ties (maintains seeded behavior)
+        return this.randomSelect(bestMoves) as PlayCardMove;
+    }
+
+    /**
+     * Calculate how many units a card would order
+     * Returns min(units in section, card's unit limit)
+     */
+    private calculateOrderableUnits(gameState: GameState, card: CommandCard): number {
+        const friendlyUnits = gameState.getFriendlyUnitsInSection(card.section);
+        return Math.min(friendlyUnits.length, card.howManyUnits);
     }
 }
