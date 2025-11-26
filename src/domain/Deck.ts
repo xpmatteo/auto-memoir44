@@ -120,7 +120,7 @@ export class Deck {
 
         for (const [CardClass, count] of composition) {
             for (let i = 0; i < count; i++) {
-                cards.push(new CardClass(CardLocation.DECK));
+                cards.push(new CardClass());
             }
         }
 
@@ -159,24 +159,19 @@ export class Deck {
          */
 
         return Deck.createFromComposition([
-            // Recon cards (2 each)
-            [ReconCenter, 2],
-            [ReconLeft, 2],
-            [ReconRight, 2],
-
-            // Assault cards (2 each)
-            [AssaultCenter, 2],
             [AssaultLeft, 2],
-            [AssaultRight, 2],
-
-            // Attack cards (4 Center, 3 Left, 3 Right)
-            [AttackCenter, 4],
             [AttackLeft, 3],
-            [AttackRight, 3],
-
-            // Probe cards (5 Center, 4 Left, 4 Right)
-            [ProbeCenter, 5],
             [ProbeLeft, 4],
+            [ReconLeft, 2],
+
+            [AssaultCenter, 2],
+            [AttackCenter, 4],
+            [ProbeCenter, 5],
+            [ReconCenter, 2],
+
+            [AssaultRight, 2],
+            [AttackRight, 3],
+            [ReconRight, 2],
             [ProbeRight, 4],
         ]);
     }
