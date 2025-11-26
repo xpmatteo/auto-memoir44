@@ -397,4 +397,49 @@ export class GameState {
             this.activeCardId = null;
         }
     }
+
+    /**
+     * Create a deep clone of this GameState for AI simulation
+     * The clone is fully independent and can execute moves without affecting the original
+     */
+    clone(): GameState {
+        // Create new GameState with cloned deck and dice
+        const cloned = new GameState(this.deck.clone(), this.dice.clone());
+
+        // Clone simple properties
+        cloned.activePlayerIndex = this.activePlayerIndex;
+        cloned.activeCardId = this.activeCardId;
+
+        // Clone players tuple (Players are immutable, shallow copy is safe)
+        cloned.players[0] = this.players[0];
+        cloned.players[1] = this.players[1];
+
+        // Clone phases array (Phase instances are stateless, shallow copy is safe)
+        cloned.phases.length = 0; // Clear the default PlayCardPhase
+        this.phases.forEach(phase => cloned.phases.push(phase));
+
+        // Clone unitPositions Map (Units are immutable, keys are strings)
+        cloned.unitPositions.clear();
+        for (const [key, unit] of this.unitPositions.entries()) {
+            cloned.unitPositions.set(key, unit);
+        }
+
+        // Clone units Map (Units are immutable)
+        cloned.units.clear();
+        for (const [id, unit] of this.units.entries()) {
+            cloned.units.set(id, unit);
+        }
+
+        // Clone unitStates Map (CRITICAL: deep clone each UnitState)
+        cloned.unitStates.clear();
+        for (const [id, unitState] of this.unitStates.entries()) {
+            cloned.unitStates.set(id, unitState.clone());
+        }
+
+        // Clone medalTables (shallow copy of arrays containing immutable Units)
+        cloned.medalTables[0] = [...this.medalTables[0]];
+        cloned.medalTables[1] = [...this.medalTables[1]];
+
+        return cloned;
+    }
 }

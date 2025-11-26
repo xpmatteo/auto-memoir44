@@ -53,6 +53,18 @@ export class UnitState {
         this.skipsBattle = false;
         this.battlesThisTurn = 0;
     }
+
+    /**
+     * Create a deep clone of this UnitState
+     */
+    clone(): UnitState {
+        const cloned = new UnitState(this.strength);
+        cloned.isOrdered = this.isOrdered;
+        cloned.hasMoved = this.hasMoved;
+        cloned.skipsBattle = this.skipsBattle;
+        cloned.battlesThisTurn = this.battlesThisTurn;
+        return cloned;
+    }
 }
 
 let nextUnitId = 1;

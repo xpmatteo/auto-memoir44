@@ -6,6 +6,60 @@ import {Infantry, UnitState} from "../../src/domain/Unit";
 import {Side} from "../../src/domain/Player";
 
 describe("UnitState", () => {
+    describe("clone", () => {
+        it("should clone all properties correctly", () => {
+            const state = new UnitState(4);
+            state.isOrdered = true;
+            state.hasMoved = true;
+            state.skipsBattle = true;
+            state.battlesThisTurn = 2;
+
+            const cloned = state.clone();
+
+            expect(cloned.strength).toBe(4);
+            expect(cloned.isOrdered).toBe(true);
+            expect(cloned.hasMoved).toBe(true);
+            expect(cloned.skipsBattle).toBe(true);
+            expect(cloned.battlesThisTurn).toBe(2);
+        });
+
+        it("should create independent copy - modifying clone doesn't affect original", () => {
+            const state = new UnitState(4);
+            state.isOrdered = false;
+
+            const cloned = state.clone();
+            cloned.isOrdered = true;
+            cloned.strength = 2;
+            cloned.hasMoved = true;
+            cloned.skipsBattle = true;
+            cloned.battlesThisTurn = 3;
+
+            // Original should be unchanged
+            expect(state.isOrdered).toBe(false);
+            expect(state.strength).toBe(4);
+            expect(state.hasMoved).toBe(false);
+            expect(state.skipsBattle).toBe(false);
+            expect(state.battlesThisTurn).toBe(0);
+        });
+
+        it("should create independent copy - clearTurnState on clone doesn't affect original", () => {
+            const state = new UnitState(4);
+            state.isOrdered = true;
+            state.hasMoved = true;
+            state.skipsBattle = true;
+            state.battlesThisTurn = 2;
+
+            const cloned = state.clone();
+            cloned.clearTurnState();
+
+            // Original should be unchanged
+            expect(state.isOrdered).toBe(true);
+            expect(state.hasMoved).toBe(true);
+            expect(state.skipsBattle).toBe(true);
+            expect(state.battlesThisTurn).toBe(2);
+        });
+    });
+
     describe("clearTurnState", () => {
         it("should reset isOrdered to false", () => {
             const state = new UnitState(4);

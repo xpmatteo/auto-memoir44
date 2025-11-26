@@ -331,4 +331,114 @@ describe("Deck", () => {
             expect(topCards).toEqual([card1, card2, card3]);
         });
     });
+
+    describe("clone", () => {
+        it("should clone all cards in correct locations", () => {
+            const cards = [
+                new TestCard("Card A", "path/a.png"),
+                new TestCard("Card B", "path/b.png"),
+                new TestCard("Card C", "path/c.png"),
+                new TestCard("Card D", "path/d.png"),
+            ];
+            const deck = new Deck(cards);
+            deck.drawCard(CardLocation.BOTTOM_PLAYER_HAND); // Card A
+            deck.drawCard(CardLocation.TOP_PLAYER_HAND); // Card B
+            deck.moveCard(cards[2].id, CardLocation.DISCARD_PILE); // Card C
+
+            const cloned = deck.clone();
+
+            // Verify all locations match
+            expect(cloned.getCardsInLocation(CardLocation.DECK)).toEqual([cards[3]]);
+            expect(cloned.getCardsInLocation(CardLocation.BOTTOM_PLAYER_HAND)).toEqual([cards[0]]);
+            expect(cloned.getCardsInLocation(CardLocation.TOP_PLAYER_HAND)).toEqual([cards[1]]);
+            expect(cloned.getCardsInLocation(CardLocation.DISCARD_PILE)).toEqual([cards[2]]);
+        });
+
+        it("should create independent copy - modifying clone locations doesn't affect original", () => {
+            const cards = [
+                new TestCard("Card A", "path/a.png"),
+                new TestCard("Card B", "path/b.png"),
+                new TestCard("Card C", "path/c.png"),
+            ];
+            const deck = new Deck(cards);
+
+            const cloned = deck.clone();
+
+            // Draw card from clone
+            cloned.drawCard(CardLocation.BOTTOM_PLAYER_HAND);
+
+            // Original should be unchanged
+            expect(deck.getCardsInLocation(CardLocation.DECK)).toHaveLength(3);
+            expect(deck.getCardsInLocation(CardLocation.BOTTOM_PLAYER_HAND)).toHaveLength(0);
+
+            // Clone should have changed
+            expect(cloned.getCardsInLocation(CardLocation.DECK)).toHaveLength(2);
+            expect(cloned.getCardsInLocation(CardLocation.BOTTOM_PLAYER_HAND)).toHaveLength(1);
+        });
+
+        it("should create independent copy - moving card in clone doesn't affect original", () => {
+            const cards = [
+                new TestCard("Card A", "path/a.png"),
+                new TestCard("Card B", "path/b.png"),
+            ];
+            const deck = new Deck(cards);
+            deck.drawCard(CardLocation.BOTTOM_PLAYER_HAND); // Card A
+
+            const cloned = deck.clone();
+
+            // Move card in clone
+            cloned.moveCard(cards[0].id, CardLocation.DISCARD_PILE);
+
+            // Original should be unchanged
+            expect(deck.getCardsInLocation(CardLocation.BOTTOM_PLAYER_HAND)).toEqual([cards[0]]);
+            expect(deck.getCardsInLocation(CardLocation.DISCARD_PILE)).toHaveLength(0);
+
+            // Clone should have changed
+            expect(cloned.getCardsInLocation(CardLocation.BOTTOM_PLAYER_HAND)).toHaveLength(0);
+            expect(cloned.getCardsInLocation(CardLocation.DISCARD_PILE)).toEqual([cards[0]]);
+        });
+
+        it("should preserve bottom player hand sorting in both original and clone", () => {
+            const cards = [
+                new TestCard("Card C", "path/c.png"),
+                new TestCard("Card A", "path/a.png"),
+                new TestCard("Card B", "path/b.png"),
+            ];
+            const deck = new Deck(cards);
+            deck.drawCard(CardLocation.BOTTOM_PLAYER_HAND); // Card C
+            deck.drawCard(CardLocation.BOTTOM_PLAYER_HAND); // Card A
+
+            const cloned = deck.clone();
+
+            // Draw another card in clone
+            cloned.drawCard(CardLocation.BOTTOM_PLAYER_HAND); // Card B
+
+            // Original hand should still be sorted
+            const originalHand = deck.getCardsInLocation(CardLocation.BOTTOM_PLAYER_HAND);
+            const originalIds = originalHand.map(c => c.id);
+            expect(originalIds).toEqual([...originalIds].sort());
+
+            // Clone hand should be sorted
+            const clonedHand = cloned.getCardsInLocation(CardLocation.BOTTOM_PLAYER_HAND);
+            const clonedIds = clonedHand.map(c => c.id);
+            expect(clonedIds).toEqual([...clonedIds].sort());
+        });
+
+        it("should share the same card instances (cards are immutable)", () => {
+            const cards = [
+                new TestCard("Card A", "path/a.png"),
+                new TestCard("Card B", "path/b.png"),
+            ];
+            const deck = new Deck(cards);
+
+            const cloned = deck.clone();
+
+            // Cards should be the same instances (not cloned)
+            const originalDeckCards = deck.getCardsInLocation(CardLocation.DECK);
+            const clonedDeckCards = cloned.getCardsInLocation(CardLocation.DECK);
+
+            expect(originalDeckCards[0]).toBe(clonedDeckCards[0]);
+            expect(originalDeckCards[1]).toBe(clonedDeckCards[1]);
+        });
+    });
 });

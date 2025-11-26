@@ -70,6 +70,14 @@ export class Dice {
         results.sort((a, b) => a.sortValue - b.sortValue);
         return results;
     }
+
+    /**
+     * Create a clone of this Dice that shares the same RNG function
+     * This ensures deterministic behavior across original and clone
+     */
+    clone(): Dice {
+        return new Dice(this.random);
+    }
 }
 
 /**

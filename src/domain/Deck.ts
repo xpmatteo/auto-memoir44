@@ -191,4 +191,24 @@ export class Deck {
     peekOneCard() {
         return this.peekCards(1)[0];
     }
+
+    /**
+     * Create a deep clone of this Deck with independent card locations
+     * Card instances themselves are shared (they're immutable)
+     */
+    clone(): Deck {
+        // Get all cards (they're immutable, so references are safe)
+        const allCards = Array.from(this.cardIds.values());
+        const clonedDeck = new Deck(allCards);
+
+        // Clear default initialization (constructor puts all cards in DECK)
+        clonedDeck.locations.clear();
+
+        // Deep clone the locations map
+        for (const [location, cards] of this.locations.entries()) {
+            clonedDeck.locations.set(location, [...cards]);
+        }
+
+        return clonedDeck;
+    }
 }
