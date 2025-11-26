@@ -5,7 +5,7 @@ import {expect, test} from "vitest";
 import {GameState} from "../../../src/domain/GameState";
 import {Deck} from "../../../src/domain/Deck";
 import {CardLocation, ProbeCenter} from "../../../src/domain/CommandCard";
-import {ConfirmOrdersMove, EndBattlesMove, EndMovementsMove, PlayCardMove} from "../../../src/domain/Move";
+import {ConfirmOrdersMove, EndBattlesMove, EndMovementsMove, PlayCardMove, ReplenishHandMove} from "../../../src/domain/Move";
 import {Position} from "../../../src/domain/Player";
 import {SeededRNG} from "../../../src/adapters/RNG";
 import {Dice} from "../../../src/domain/Dice";
@@ -52,6 +52,9 @@ test("AI player completes a full turn", () => {
     gameState.executeMove(new EndMovementsMove());
     gameState.executeMove(new EndBattlesMove());
 
+    const replenishMove = gameState.legalMoves().find(m => m instanceof ReplenishHandMove);
+    gameState.executeMove(replenishMove!);
+
     // Verify Top player is now active
     expect(gameState.activePlayer.position).toBe(Position.TOP);
     expect(gameState.activePhase.name).toBe("Play Card");
@@ -92,6 +95,9 @@ test("Seeded AI makes identical move sequences", () => {
     gameState1.executeMove(new EndMovementsMove());
     gameState1.executeMove(new EndBattlesMove());
 
+    const replenishMove1 = gameState1.legalMoves().find(m => m instanceof ReplenishHandMove);
+    gameState1.executeMove(replenishMove1!);
+
     // Record AI moves for first game
     const moves1: string[] = [];
     const aiPlayer1: AIPlayer = {
@@ -117,6 +123,9 @@ test("Seeded AI makes identical move sequences", () => {
     gameState2.executeMove(new ConfirmOrdersMove());
     gameState2.executeMove(new EndMovementsMove());
     gameState2.executeMove(new EndBattlesMove());
+
+    const replenishMove2 = gameState2.legalMoves().find(m => m instanceof ReplenishHandMove);
+    gameState2.executeMove(replenishMove2!);
 
     // Record AI moves for second game
     const moves2: string[] = [];

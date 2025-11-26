@@ -8,7 +8,7 @@ import {Deck} from "../../src/domain/Deck";
 import {Infantry} from "../../src/domain/Unit";
 import {HexCoord} from "../../src/utils/hex";
 import {CardLocation} from "../../src/domain/CommandCard";
-import {PlayCardMove, ToggleUnitOrderedMove, MoveUnitMove} from "../../src/domain/Move";
+import {PlayCardMove, ToggleUnitOrderedMove, MoveUnitMove, ReplenishHandMove, ConfirmOrdersMove, EndMovementsMove, EndBattlesMove} from "../../src/domain/Move";
 import {OrderUnitsPhase} from "../../src/domain/phases/OrderUnitsPhase";
 import {Section} from "../../src/domain/Section";
 
@@ -391,12 +391,19 @@ describe("GameState", () => {
       gameState.drawCards(3, CardLocation.BOTTOM_PLAYER_HAND);
       const [card] = gameState.getCardsInLocation(CardLocation.BOTTOM_PLAYER_HAND);
 
-      // Set up: play a card (replace PlayCardPhase with OrderUnitsPhase)
-      gameState.setCurrentCard(card.id);
-      gameState.replacePhase(new OrderUnitsPhase(Section.CENTER, 1));
+      // Play a card through PlayCardMove to set up proper phase structure
+      gameState.executeMove(new PlayCardMove(card));
 
-      // Complete turn by popping the last phase
-      gameState.popPhase();
+      // Complete all phases to finish the turn
+      gameState.executeMove(new ConfirmOrdersMove());
+      gameState.executeMove(new EndMovementsMove());
+      gameState.executeMove(new EndBattlesMove());
+
+      // Now execute the ReplenishHandMove to complete the turn
+      const moves = gameState.legalMoves();
+      const replenishMove = moves.find(m => m instanceof ReplenishHandMove);
+      expect(replenishMove).toBeDefined();
+      gameState.executeMove(replenishMove!);
 
       // Card should be in discard pile
       expect(gameState.getCardsInLocation(CardLocation.DISCARD_PILE)).toEqual([card]);
@@ -411,12 +418,14 @@ describe("GameState", () => {
 
       expect(gameState.activePlayer.position).toBe(Position.BOTTOM);
 
-      // Set up: play a card
-      gameState.setCurrentCard(card.id);
-      gameState.replacePhase(new OrderUnitsPhase(Section.CENTER, 1));
+      // Play a card and complete the turn
+      gameState.executeMove(new PlayCardMove(card));
+      gameState.executeMove(new ConfirmOrdersMove());
+      gameState.executeMove(new EndMovementsMove());
+      gameState.executeMove(new EndBattlesMove());
 
-      // Complete turn
-      gameState.popPhase();
+      const replenishMove = gameState.legalMoves().find(m => m instanceof ReplenishHandMove);
+      gameState.executeMove(replenishMove!);
 
       // Bottom player should have 3 cards again (2 remaining + 1 drawn)
       expect(gameState.getCardsInLocation(CardLocation.BOTTOM_PLAYER_HAND)).toHaveLength(3);
@@ -425,18 +434,30 @@ describe("GameState", () => {
     it("should draw a replacement card for top player when turn completes", () => {
       const deck = Deck.createStandardDeck();
       const gameState = new GameState(deck);
-      gameState.switchActivePlayer(); // Switch to top player
+      gameState.drawCards(3, CardLocation.BOTTOM_PLAYER_HAND);
       gameState.drawCards(3, CardLocation.TOP_PLAYER_HAND);
-      const [card] = gameState.getCardsInLocation(CardLocation.TOP_PLAYER_HAND);
+
+      // Complete bottom player's turn to switch to top player
+      const bottomCard = gameState.getCardsInLocation(CardLocation.BOTTOM_PLAYER_HAND)[0];
+      gameState.executeMove(new PlayCardMove(bottomCard));
+      gameState.executeMove(new ConfirmOrdersMove());
+      gameState.executeMove(new EndMovementsMove());
+      gameState.executeMove(new EndBattlesMove());
+
+      const bottomReplenishMove = gameState.legalMoves().find(m => m instanceof ReplenishHandMove);
+      gameState.executeMove(bottomReplenishMove!);
 
       expect(gameState.activePlayer.position).toBe(Position.TOP);
 
-      // Set up: play a card
-      gameState.setCurrentCard(card.id);
-      gameState.replacePhase(new OrderUnitsPhase(Section.CENTER, 1));
+      // Play a card and complete the turn
+      const [card] = gameState.getCardsInLocation(CardLocation.TOP_PLAYER_HAND);
+      gameState.executeMove(new PlayCardMove(card));
+      gameState.executeMove(new ConfirmOrdersMove());
+      gameState.executeMove(new EndMovementsMove());
+      gameState.executeMove(new EndBattlesMove());
 
-      // Complete turn
-      gameState.popPhase();
+      const replenishMove = gameState.legalMoves().find(m => m instanceof ReplenishHandMove);
+      gameState.executeMove(replenishMove!);
 
       // Top player should have 3 cards again
       expect(gameState.getCardsInLocation(CardLocation.TOP_PLAYER_HAND)).toHaveLength(3);
@@ -448,20 +469,23 @@ describe("GameState", () => {
       gameState.drawCards(3, CardLocation.BOTTOM_PLAYER_HAND);
       const [card] = gameState.getCardsInLocation(CardLocation.BOTTOM_PLAYER_HAND);
 
-      // Set up: play a card and toggle a unit to ordered
+      // Set up: place a unit
       const unit = new Infantry(Side.ALLIES);
       const coord = new HexCoord(5, 3 );
       gameState.placeUnit(coord, unit);
 
-      gameState.setCurrentCard(card.id);
-      gameState.replacePhase(new OrderUnitsPhase(Section.CENTER, 1));
-
-      // Toggle unit to ordered
+      // Play a card and toggle a unit to ordered
+      gameState.executeMove(new PlayCardMove(card));
       gameState.executeMove(new ToggleUnitOrderedMove(unit));
       expect(gameState.isUnitOrdered(unit)).toBe(true);
 
       // Complete turn
-      gameState.popPhase();
+      gameState.executeMove(new ConfirmOrdersMove());
+      gameState.executeMove(new EndMovementsMove());
+      gameState.executeMove(new EndBattlesMove());
+
+      const replenishMove = gameState.legalMoves().find(m => m instanceof ReplenishHandMove);
+      gameState.executeMove(replenishMove!);
 
       // Ordered units should be cleared
       expect(gameState.isUnitOrdered(unit)).toBe(false);
@@ -475,10 +499,14 @@ describe("GameState", () => {
 
       expect(gameState.activePlayer.position).toBe(Position.BOTTOM);
 
-      // Set up and complete turn
-      gameState.setCurrentCard(card.id);
-      gameState.replacePhase(new OrderUnitsPhase(Section.CENTER, 1));
-      gameState.popPhase();
+      // Play a card and complete turn
+      gameState.executeMove(new PlayCardMove(card));
+      gameState.executeMove(new ConfirmOrdersMove());
+      gameState.executeMove(new EndMovementsMove());
+      gameState.executeMove(new EndBattlesMove());
+
+      const replenishMove = gameState.legalMoves().find(m => m instanceof ReplenishHandMove);
+      gameState.executeMove(replenishMove!);
 
       // Player should have switched
       expect(gameState.activePlayer.position).toBe(Position.TOP);
@@ -490,29 +518,17 @@ describe("GameState", () => {
       gameState.drawCards(3, CardLocation.BOTTOM_PLAYER_HAND);
       const [card] = gameState.getCardsInLocation(CardLocation.BOTTOM_PLAYER_HAND);
 
-      // Set up and complete turn
-      gameState.setCurrentCard(card.id);
-      gameState.replacePhase(new OrderUnitsPhase(Section.CENTER, 1));
-      gameState.popPhase();
+      // Play a card and complete turn
+      gameState.executeMove(new PlayCardMove(card));
+      gameState.executeMove(new ConfirmOrdersMove());
+      gameState.executeMove(new EndMovementsMove());
+      gameState.executeMove(new EndBattlesMove());
+
+      const replenishMove = gameState.legalMoves().find(m => m instanceof ReplenishHandMove);
+      gameState.executeMove(replenishMove!);
 
       // Should have PlayCardPhase on stack
       expect(gameState.activePhase.name).toBe("Play Card");
-    });
-
-    it("should handle null currentCardId gracefully when turn completes", () => {
-      const deck = Deck.createStandardDeck();
-      const gameState = new GameState(deck);
-      gameState.drawCards(3, CardLocation.BOTTOM_PLAYER_HAND);
-
-      // Set up turn completion without setting a current card (edge case)
-      gameState.replacePhase(new OrderUnitsPhase(Section.CENTER, 1));
-
-      // Should not throw when popping with null currentCardId
-      expect(() => gameState.popPhase()).not.toThrow();
-
-      // Should still switch player and draw card
-      expect(gameState.activePlayer.position).toBe(Position.TOP);
-      expect(gameState.getCardsInLocation(CardLocation.BOTTOM_PLAYER_HAND)).toHaveLength(4);
     });
   });
 

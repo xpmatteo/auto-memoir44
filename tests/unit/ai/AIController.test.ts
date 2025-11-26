@@ -10,7 +10,7 @@ import {SeededRNG} from "../../../src/adapters/RNG";
 import {Dice} from "../../../src/domain/Dice";
 import {RandomAIPlayer} from "../../../src/ai/AIPlayer";
 import {AIController} from "../../../src/ai/AIController";
-import {ConfirmOrdersMove, EndBattlesMove, EndMovementsMove, PlayCardMove} from "../../../src/domain/Move";
+import {ConfirmOrdersMove, EndBattlesMove, EndMovementsMove, PlayCardMove, ReplenishHandMove} from "../../../src/domain/Move";
 
 describe("AIController", () => {
     test("only acts when Top player is active", () => {
@@ -56,6 +56,9 @@ describe("AIController", () => {
         gameState.executeMove(new ConfirmOrdersMove());
         gameState.executeMove(new EndMovementsMove());
         gameState.executeMove(new EndBattlesMove());
+
+        const replenishMove = gameState.legalMoves().find(m => m instanceof ReplenishHandMove);
+        gameState.executeMove(replenishMove!);
 
         expect(gameState.activePlayer.position).toBe(Position.TOP);
         const initialPhase = gameState.activePhase.name;
@@ -121,6 +124,9 @@ describe("AIController", () => {
         gameState.executeMove(new ConfirmOrdersMove());
         gameState.executeMove(new EndMovementsMove());
         gameState.executeMove(new EndBattlesMove());
+
+        const replenishMove = gameState.legalMoves().find(m => m instanceof ReplenishHandMove);
+        gameState.executeMove(replenishMove!);
 
         // Track RNG calls
         let rngCalled = false;
