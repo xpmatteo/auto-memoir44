@@ -163,6 +163,69 @@ describe("Deck", () => {
         });
     });
 
+    describe("bottom player hand sorting", () => {
+        it("should keep bottom player hand sorted by card ID when drawing cards", () => {
+            const cards = [
+                new TestCard("Card C", "path/c.png"),
+                new TestCard("Card A", "path/a.png"),
+                new TestCard("Card B", "path/b.png"),
+            ];
+            const deck = new Deck(cards);
+
+            // Draw cards in arbitrary order
+            deck.drawCard(CardLocation.BOTTOM_PLAYER_HAND); // Card C
+            deck.drawCard(CardLocation.BOTTOM_PLAYER_HAND); // Card A
+            deck.drawCard(CardLocation.BOTTOM_PLAYER_HAND); // Card B
+
+            const handCards = deck.getCardsInLocation(CardLocation.BOTTOM_PLAYER_HAND);
+            const cardIds = handCards.map(c => c.id);
+
+            // Should be sorted by ID
+            expect(cardIds).toEqual([...cardIds].sort());
+        });
+
+        it("should keep bottom player hand sorted by card ID when moving cards", () => {
+            const cards = [
+                new TestCard("Card A", "path/a.png"),
+                new TestCard("Card B", "path/b.png"),
+                new TestCard("Card C", "path/c.png"),
+                new TestCard("Card D", "path/d.png"),
+            ];
+            const deck = new Deck(cards);
+
+            // Move cards in non-sorted order
+            deck.moveCard(cards[2].id, CardLocation.BOTTOM_PLAYER_HAND); // Card C
+            deck.moveCard(cards[0].id, CardLocation.BOTTOM_PLAYER_HAND); // Card A
+            deck.moveCard(cards[3].id, CardLocation.BOTTOM_PLAYER_HAND); // Card D
+            deck.moveCard(cards[1].id, CardLocation.BOTTOM_PLAYER_HAND); // Card B
+
+            const handCards = deck.getCardsInLocation(CardLocation.BOTTOM_PLAYER_HAND);
+            const cardIds = handCards.map(c => c.id);
+
+            // Should be sorted by ID
+            expect(cardIds).toEqual([...cardIds].sort());
+        });
+
+        it("should not sort the top player hand", () => {
+            const cards = [
+                new TestCard("Card C", "path/c.png"),
+                new TestCard("Card A", "path/a.png"),
+                new TestCard("Card B", "path/b.png"),
+            ];
+            const deck = new Deck(cards);
+
+            // Draw cards to top player hand
+            deck.drawCard(CardLocation.TOP_PLAYER_HAND); // Card C
+            deck.drawCard(CardLocation.TOP_PLAYER_HAND); // Card A
+            deck.drawCard(CardLocation.TOP_PLAYER_HAND); // Card B
+
+            const handCards = deck.getCardsInLocation(CardLocation.TOP_PLAYER_HAND);
+
+            // Should preserve draw order, not be sorted
+            expect(handCards).toEqual([cards[0], cards[1], cards[2]]);
+        });
+    });
+
     describe("shuffle", () => {
         it("should change the order of cards in the deck", () => {
             const deck = Deck.createStandardDeck();

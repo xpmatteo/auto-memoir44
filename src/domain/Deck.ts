@@ -40,9 +40,14 @@ export class Deck {
     /**
      * Get all cards currently in a specific location
      * Returns a copy of the array to prevent external mutation
+     * Bottom player hand is always returned sorted by card ID
      */
     getCardsInLocation(location: CardLocation): CommandCard[] {
-        return [...(this.locations.get(location) ?? [])];
+        const cards = [...(this.locations.get(location) ?? [])];
+        if (location === CardLocation.BOTTOM_PLAYER_HAND) {
+            cards.sort((a, b) => a.id.localeCompare(b.id));
+        }
+        return cards;
     }
 
     /**
@@ -123,7 +128,6 @@ export class Deck {
                 cards.push(new CardClass());
             }
         }
-
         return new Deck(cards);
     }
 

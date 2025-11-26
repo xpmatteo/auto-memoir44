@@ -30,7 +30,9 @@ export abstract class CommandCard {
     abstract readonly howManyUnits: number;
 
     constructor() {
-        this.id = `card-${nextCardId++}`;
+        let idString = nextCardId < 10 ? `0${nextCardId}` : nextCardId;
+        this.id = `card-${idString}`;
+        nextCardId++;
     }
 
     onCardPlayed(gameState: GameState): void {
