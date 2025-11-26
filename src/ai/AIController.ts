@@ -46,7 +46,9 @@ export class AIController {
         // Schedule move execution after delay
         setTimeout(() => {
             try {
-                const selectedMove = this.aiPlayer.selectMove(legalMoves);
+                // Clone the game state to prevent AI from cheating
+                const clonedState = this.gameState.clone();
+                const selectedMove = this.aiPlayer.selectMove(clonedState, legalMoves);
 
                 // Log AI's move selection
                 const phaseName = this.gameState.activePhase.name;

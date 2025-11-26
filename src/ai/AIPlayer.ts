@@ -4,6 +4,7 @@
 import type {Move} from "../domain/Move";
 import {EndBattlesMove, EndMovementsMove} from "../domain/Move";
 import {SeededRNG} from "../adapters/RNG";
+import type {GameState} from "../domain/GameState";
 
 /**
  * Interface for AI players that can select moves from legal options
@@ -11,10 +12,11 @@ import {SeededRNG} from "../adapters/RNG";
 export interface AIPlayer {
     /**
      * Select a move from the available legal moves
+     * @param gameState Current game state (cloned for AI safety)
      * @param legalMoves Array of legal moves to choose from
      * @returns The selected move to execute
      */
-    selectMove(legalMoves: Move[]): Move;
+    selectMove(gameState: GameState, legalMoves: Move[]): Move;
 }
 
 /**
@@ -28,7 +30,7 @@ export class RandomAIPlayer implements AIPlayer {
         this.rng = rng;
     }
 
-    selectMove(legalMoves: Move[]): Move {
+    selectMove(_gameState: GameState, legalMoves: Move[]): Move {
         if (legalMoves.length === 0) {
             throw new Error("No legal moves available for AI to select");
         }

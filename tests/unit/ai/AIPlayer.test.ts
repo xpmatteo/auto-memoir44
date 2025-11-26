@@ -6,22 +6,35 @@ import {RandomAIPlayer} from "../../../src/ai/AIPlayer";
 import {SeededRNG} from "../../../src/adapters/RNG";
 import {PlayCardMove, ConfirmOrdersMove, EndMovementsMove, EndBattlesMove} from "../../../src/domain/Move";
 import {ProbeCenter} from "../../../src/domain/CommandCard";
+import {GameState} from "../../../src/domain/GameState";
+import {Deck} from "../../../src/domain/Deck";
+import {Dice} from "../../../src/domain/Dice";
+
+// Helper to create a minimal GameState for testing
+function createTestGameState(): GameState {
+    const rng = new SeededRNG(999); // Use a fixed seed for test consistency
+    const deck = Deck.createFromComposition([[ProbeCenter, 10]]);
+    const dice = new Dice(() => rng.random());
+    return new GameState(deck, dice);
+}
 
 describe("RandomAIPlayer", () => {
     test("selects a move from available legal moves", () => {
         const rng = new SeededRNG(1);
         const aiPlayer = new RandomAIPlayer(rng);
+        const gameState = createTestGameState();
         const card1 = new ProbeCenter();
         const card2 = new ProbeCenter();
         const moves = [new PlayCardMove(card1), new PlayCardMove(card2)];
 
-        const selected = aiPlayer.selectMove(moves);
+        const selected = aiPlayer.selectMove(gameState, moves);
 
         // Should select one of the available moves
         expect(moves).toContain(selected);
     });
 
     test("selection is deterministic with seeded RNG", () => {
+        const gameState = createTestGameState();
         const card1 = new ProbeCenter();
         const card2 = new ProbeCenter();
         const card3 = new ProbeCenter();
@@ -30,12 +43,12 @@ describe("RandomAIPlayer", () => {
         // First selection with seed 42
         const rng1 = new SeededRNG(42);
         const aiPlayer1 = new RandomAIPlayer(rng1);
-        const selected1 = aiPlayer1.selectMove(moves);
+        const selected1 = aiPlayer1.selectMove(gameState, moves);
 
         // Second selection with same seed
         const rng2 = new SeededRNG(42);
         const aiPlayer2 = new RandomAIPlayer(rng2);
-        const selected2 = aiPlayer2.selectMove(moves);
+        const selected2 = aiPlayer2.selectMove(gameState, moves);
 
         // Should select the same move
         expect(selected1).toBe(selected2);
@@ -44,6 +57,7 @@ describe("RandomAIPlayer", () => {
     test("distributes selections across multiple moves", () => {
         const rng = new SeededRNG(3);
         const aiPlayer = new RandomAIPlayer(rng);
+        const gameState = createTestGameState();
         const card1 = new ProbeCenter();
         const card2 = new ProbeCenter();
         const card3 = new ProbeCenter();
@@ -57,7 +71,7 @@ describe("RandomAIPlayer", () => {
 
         // Run 100 selections with different random values
         for (let i = 0; i < 100; i++) {
-            const selected = aiPlayer.selectMove(moves);
+            const selected = aiPlayer.selectMove(gameState, moves);
             selectedMoves.add(selected as PlayCardMove);
         }
 
@@ -68,12 +82,13 @@ describe("RandomAIPlayer", () => {
     test("always selects the single move when only one is available", () => {
         const rng = new SeededRNG(4);
         const aiPlayer = new RandomAIPlayer(rng);
+        const gameState = createTestGameState();
         const card = new ProbeCenter();
         const moves = [new PlayCardMove(card)];
 
         // Run multiple times to ensure consistent behavior
         for (let i = 0; i < 10; i++) {
-            const selected = aiPlayer.selectMove(moves);
+            const selected = aiPlayer.selectMove(gameState, moves);
             expect(selected).toBe(moves[0]);
         }
     });
@@ -81,14 +96,16 @@ describe("RandomAIPlayer", () => {
     test("throws error when no legal moves available", () => {
         const rng = new SeededRNG(5);
         const aiPlayer = new RandomAIPlayer(rng);
+        const gameState = createTestGameState();
         const moves: any[] = [];
 
         expect(() => {
-            aiPlayer.selectMove(moves);
+            aiPlayer.selectMove(gameState, moves);
         }).toThrow("No legal moves available for AI to select");
     });
 
     test("uses RNG function correctly following Dice/Deck pattern", () => {
+        const gameState = createTestGameState();
         const card1 = new ProbeCenter();
         const card2 = new ProbeCenter();
         const moves = [new PlayCardMove(card1), new PlayCardMove(card2)];
@@ -108,10 +125,10 @@ describe("RandomAIPlayer", () => {
 
         const aiPlayer = new RandomAIPlayer(controlledRng);
 
-        const selected1 = aiPlayer.selectMove(moves);
+        const selected1 = aiPlayer.selectMove(gameState, moves);
         expect(selected1).toBe(moves[0]); // 0.0 * 2 = 0, floor = 0
 
-        const selected2 = aiPlayer.selectMove(moves);
+        const selected2 = aiPlayer.selectMove(gameState, moves);
         expect(selected2).toBe(moves[1]); // 0.6 * 2 = 1.2, floor = 1
 
         expect(callCount).toBe(2);
@@ -120,6 +137,7 @@ describe("RandomAIPlayer", () => {
     test("avoids EndMovementsMove and EndBattlesMove when action moves are available", () => {
         const rng = new SeededRNG(6);
         const aiPlayer = new RandomAIPlayer(rng);
+        const gameState = createTestGameState();
         const card1 = new ProbeCenter();
         const card2 = new ProbeCenter();
         const moves = [
@@ -133,7 +151,7 @@ describe("RandomAIPlayer", () => {
         // Run multiple selections
         const selectedMoves = new Set();
         for (let i = 0; i < 50; i++) {
-            const selected = aiPlayer.selectMove(moves);
+            const selected = aiPlayer.selectMove(gameState, moves);
             selectedMoves.add(selected.constructor.name);
         }
 
@@ -147,15 +165,17 @@ describe("RandomAIPlayer", () => {
     test("selects phase-ending moves when they are the only option", () => {
         const rng = new SeededRNG(7);
         const aiPlayer = new RandomAIPlayer(rng);
+        const gameState = createTestGameState();
         const moves = [new ConfirmOrdersMove()];
 
-        const selected = aiPlayer.selectMove(moves);
+        const selected = aiPlayer.selectMove(gameState, moves);
         expect(selected).toBeInstanceOf(ConfirmOrdersMove);
     });
 
     test("can select EndMovementsMove and EndBattlesMove when only those are available", () => {
         const rng = new SeededRNG(8);
         const aiPlayer = new RandomAIPlayer(rng);
+        const gameState = createTestGameState();
         const moves = [
             new EndMovementsMove(),
             new EndBattlesMove()
@@ -163,7 +183,7 @@ describe("RandomAIPlayer", () => {
 
         // All selections should be end moves
         for (let i = 0; i < 10; i++) {
-            const selected = aiPlayer.selectMove(moves);
+            const selected = aiPlayer.selectMove(gameState, moves);
             expect(
                 selected instanceof EndMovementsMove ||
                 selected instanceof EndBattlesMove

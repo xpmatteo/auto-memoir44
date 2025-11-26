@@ -140,4 +140,50 @@ describe("AIController", () => {
         // Then: AI should have executed a move (test passes by not throwing)
         // The AI player internally uses the RNG passed to its constructor
     });
+
+    test("passes cloned GameState to AI player, not original", async () => {
+        const rng = new SeededRNG(999);
+        const deck = Deck.createFromComposition([[ProbeCenter, 60]]);
+        const gameState = new GameState(deck, new Dice(() => rng.random()));
+        gameState.drawCards(3, CardLocation.BOTTOM_PLAYER_HAND);
+        gameState.drawCards(3, CardLocation.TOP_PLAYER_HAND);
+
+        // Complete Bottom player's turn so Top player becomes active
+        const playedCard = gameState.getCardsInLocation(CardLocation.BOTTOM_PLAYER_HAND)[0];
+        gameState.executeMove(new PlayCardMove(playedCard));
+        gameState.executeMove(new ConfirmOrdersMove());
+        gameState.executeMove(new EndMovementsMove());
+        gameState.executeMove(new EndBattlesMove());
+
+        const replenishMove = gameState.legalMoves().find(m => m instanceof ReplenishHandMove);
+        gameState.executeMove(replenishMove!);
+
+        expect(gameState.activePlayer.position).toBe(Position.TOP);
+
+        // Create a spy AI player that captures the gameState it receives
+        let receivedGameState: GameState | null = null;
+        const spyAIPlayer = {
+            selectMove: (gameState: GameState, legalMoves: any[]) => {
+                receivedGameState = gameState;
+                return legalMoves[0];
+            }
+        };
+
+        const aiController = new AIController(
+            gameState,
+            spyAIPlayer as any,
+            () => {},
+            10
+        );
+
+        // When: AI makes a move
+        aiController.checkAndAct();
+        await new Promise(resolve => setTimeout(resolve, 50));
+
+        // Then: AI should have received a cloned GameState, not the original
+        expect(receivedGameState).not.toBeNull();
+        expect(receivedGameState).not.toBe(gameState);
+        // Verify it's a proper clone by checking it has the same structure
+        expect(receivedGameState!.activePlayer.position).toBe(Position.TOP);
+    });
 });

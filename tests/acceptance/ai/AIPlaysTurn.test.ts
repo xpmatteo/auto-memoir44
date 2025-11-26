@@ -10,14 +10,10 @@ import {Position} from "../../../src/domain/Player";
 import {SeededRNG} from "../../../src/adapters/RNG";
 import {Dice} from "../../../src/domain/Dice";
 import type {Move} from "../../../src/domain/Move";
-
-// AI Player interface (will be implemented in src/ai/AIPlayer.ts)
-interface AIPlayer {
-    selectMove(legalMoves: Move[], rng: () => number): Move;
-}
+import type {AIPlayer} from "../../../src/ai/AIPlayer";
 
 // Helper function for tests (bypasses setTimeout for synchronous execution)
-function playFullAITurn(gameState: GameState, aiPlayer: AIPlayer, rng: () => number): void {
+function playFullAITurn(gameState: GameState, aiPlayer: AIPlayer): void {
     const maxIterations = 100; // Safety limit to prevent infinite loops
     let iterations = 0;
 
@@ -26,7 +22,8 @@ function playFullAITurn(gameState: GameState, aiPlayer: AIPlayer, rng: () => num
         if (legalMoves.length === 0) {
             throw new Error("No legal moves available for AI");
         }
-        const move = aiPlayer.selectMove(legalMoves, rng);
+        const clonedState = gameState.clone();
+        const move = aiPlayer.selectMove(clonedState, legalMoves);
         gameState.executeMove(move);
         iterations++;
     }
@@ -60,14 +57,13 @@ test("AI player completes a full turn", () => {
     expect(gameState.activePhase.name).toBe("Play Card");
 
     // When: AI plays a complete turn (using synchronous helper)
-    // This will fail until we implement RandomAIPlayer
     const aiPlayer: AIPlayer = {
-        selectMove(legalMoves: Move[], rng: () => number): Move {
-            const index = Math.floor(rng() * legalMoves.length);
+        selectMove(_gameState: GameState, legalMoves: Move[]): Move {
+            const index = Math.floor(rng.random() * legalMoves.length);
             return legalMoves[index];
         }
     };
-    playFullAITurn(gameState, aiPlayer, () => rng.random());
+    playFullAITurn(gameState, aiPlayer);
 
     // Then: Bottom player is active again, AI's turn completed
     expect(gameState.activePlayer.position).toBe(Position.BOTTOM);
@@ -101,14 +97,14 @@ test("Seeded AI makes identical move sequences", () => {
     // Record AI moves for first game
     const moves1: string[] = [];
     const aiPlayer1: AIPlayer = {
-        selectMove(legalMoves: Move[], rng: () => number): Move {
-            const index = Math.floor(rng() * legalMoves.length);
+        selectMove(_gameState: GameState, legalMoves: Move[]): Move {
+            const index = Math.floor(rng1.random() * legalMoves.length);
             const move = legalMoves[index];
             moves1.push(`${move.constructor.name}:${index}`);
             return move;
         }
     };
-    playFullAITurn(gameState1, aiPlayer1, () => rng1.random());
+    playFullAITurn(gameState1, aiPlayer1);
 
     // Second game run with same seed
     const rng2 = new SeededRNG(seed);
@@ -130,14 +126,14 @@ test("Seeded AI makes identical move sequences", () => {
     // Record AI moves for second game
     const moves2: string[] = [];
     const aiPlayer2: AIPlayer = {
-        selectMove(legalMoves: Move[], rng: () => number): Move {
-            const index = Math.floor(rng() * legalMoves.length);
+        selectMove(_gameState: GameState, legalMoves: Move[]): Move {
+            const index = Math.floor(rng2.random() * legalMoves.length);
             const move = legalMoves[index];
             moves2.push(`${move.constructor.name}:${index}`);
             return move;
         }
     };
-    playFullAITurn(gameState2, aiPlayer2, () => rng2.random());
+    playFullAITurn(gameState2, aiPlayer2);
 
     // Then: Both AI players made identical move sequences
     expect(moves1).toEqual(moves2);
