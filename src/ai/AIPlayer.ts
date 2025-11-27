@@ -6,6 +6,7 @@ import {EndBattlesMove, EndMovementsMove, PlayCardMove} from "../domain/Move";
 import {SeededRNG} from "../adapters/RNG";
 import type {GameState} from "../domain/GameState";
 import type {CommandCard} from "../domain/CommandCard";
+import {PhaseType} from "../domain/phases/Phase";
 
 /**
  * Interface for AI players that can select moves from legal options
@@ -37,17 +38,18 @@ export class RandomAIPlayer implements AIPlayer {
             throw new Error("No legal moves available for AI to select");
         }
 
+        if (gameState.activePhase.type === PhaseType.PLAY_CARD) {
+            const playCardMoves = legalMoves.filter(m => m instanceof PlayCardMove);
+            if (playCardMoves.length <= 0) {
+                throw new Error("No cards to play?");
+            }
+            return this.selectBestCard(gameState, playCardMoves as PlayCardMove[]);
+        }
+
         // Filter out phase-ending moves if there are other options
         const actionMoves = this.filterActionMoves(legalMoves);
         const movesToChooseFrom = actionMoves.length > 0 ? actionMoves : legalMoves;
 
-        // Check if these are PlayCardMoves (card selection phase)
-        const playCardMoves = movesToChooseFrom.filter(m => m instanceof PlayCardMove);
-
-        // If PLAY_CARD phase, select best card(s)
-        if (playCardMoves.length > 0) {
-            return this.selectBestCard(gameState, playCardMoves as PlayCardMove[]);
-        }
 
         // Otherwise, random selection (existing behavior)
         return this.randomSelect(movesToChooseFrom);

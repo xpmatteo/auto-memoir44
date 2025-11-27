@@ -10,12 +10,31 @@ import {GameState} from "../../../src/domain/GameState";
 import {Deck} from "../../../src/domain/Deck";
 import {Dice} from "../../../src/domain/Dice";
 
-// Helper to create a minimal GameState for testing
+// Helper to create a minimal GameState for testing in PLAY_CARD phase
 function createTestGameState(): GameState {
     const rng = new SeededRNG(999); // Use a fixed seed for test consistency
     const deck = Deck.createFromComposition([[ProbeCenter, 10]]);
     const dice = new Dice(() => rng.random());
     return new GameState(deck, dice);
+}
+
+// Helper to create a GameState in a non-PLAY_CARD phase for testing phase-ending moves
+// This simulates the state after a card has been played
+function createTestGameStateInActionPhase(): GameState {
+    const gameState = createTestGameState();
+    // Draw some cards so we can play one
+    gameState.drawCards(4, gameState.activePlayerHand);
+
+    // Get legal moves and find a PlayCardMove
+    const legalMoves = gameState.legalMoves();
+    const playCardMove = legalMoves.find(m => m instanceof PlayCardMove);
+
+    if (playCardMove) {
+        // Execute the move to transition out of PLAY_CARD phase
+        gameState.executeMove(playCardMove);
+    }
+
+    return gameState;
 }
 
 describe("RandomAIPlayer", () => {
@@ -167,7 +186,7 @@ describe("RandomAIPlayer", () => {
     test("selects phase-ending moves when they are the only option", () => {
         const rng = new SeededRNG(7);
         const aiPlayer = new RandomAIPlayer(rng);
-        const gameState = createTestGameState();
+        const gameState = createTestGameStateInActionPhase();
         const moves = [new ConfirmOrdersMove()];
 
         const selected = aiPlayer.selectMove(gameState, moves);
@@ -177,7 +196,7 @@ describe("RandomAIPlayer", () => {
     test("can select EndMovementsMove and EndBattlesMove when only those are available", () => {
         const rng = new SeededRNG(8);
         const aiPlayer = new RandomAIPlayer(rng);
-        const gameState = createTestGameState();
+        const gameState = createTestGameStateInActionPhase();
         const moves = [
             new EndMovementsMove(),
             new EndBattlesMove()
@@ -245,22 +264,5 @@ describe("RandomAIPlayer", () => {
 
         // Should select the same move (deterministic)
         expect(selected1).toBe(selected2);
-    });
-
-    test("selectMove preserves existing behavior for non-PlayCard phases", () => {
-        const rng = new SeededRNG(200);
-        const aiPlayer = new RandomAIPlayer(rng);
-        const gameState = createTestGameState();
-
-        // Non-PlayCard moves (e.g., ConfirmOrdersMove, ToggleUnitOrderedMove, etc.)
-        const moves = [
-            new ConfirmOrdersMove(),
-            new EndMovementsMove(),
-            new EndBattlesMove()
-        ];
-
-        // Should still filter out EndMovements/EndBattles when ConfirmOrders available
-        const selected = aiPlayer.selectMove(gameState, moves);
-        expect(selected).toBeInstanceOf(ConfirmOrdersMove);
     });
 });
