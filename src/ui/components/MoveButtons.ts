@@ -26,12 +26,9 @@ export class MoveButtons {
         parent.appendChild(this.container);
     }
 
-    private handleClick(move: any): void {
-        const uiButton = move.uiButton();
-        if (uiButton && uiButton.callback) {
-            uiButton.callback(this.gameState);
-            this.onButtonClick();
-        }
+    private handleClick(buttonCallback: (gameState: GameState) => void): void {
+        buttonCallback(this.gameState);
+        this.onButtonClick();
     }
 
     render(): void {
@@ -40,9 +37,15 @@ export class MoveButtons {
 
         // Find all moves with UI buttons
         const moves = this.gameState.legalMoves();
-        const buttonMoves = moves.filter(m => m.uiButton() !== null);
+        const allButtons: Array<{label: string, callback: (gameState: GameState) => void}> = [];
 
-        if (buttonMoves.length === 0) {
+        // Collect all buttons from all moves
+        moves.forEach(move => {
+            const buttons = move.uiButton();
+            allButtons.push(...buttons);
+        });
+
+        if (allButtons.length === 0) {
             // Hide container when no buttons to maintain layout consistency
             this.container.style.visibility = "hidden";
             return;
@@ -50,15 +53,12 @@ export class MoveButtons {
 
         this.container.style.visibility = "visible";
 
-        // Create a button for each move
-        buttonMoves.forEach(move => {
-            const uiButton = move.uiButton();
-            if (!uiButton) return;
-
+        // Create a button element for each UI button
+        allButtons.forEach(uiButton => {
             const button = document.createElement("button");
             button.textContent = uiButton.label;
             button.className = "move-button";
-            button.addEventListener("click", () => this.handleClick(move));
+            button.addEventListener("click", () => this.handleClick(uiButton.callback));
 
             this.container.appendChild(button);
         });

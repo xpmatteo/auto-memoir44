@@ -16,8 +16,8 @@ interface UiButton {
 export abstract class Move {
     abstract execute(gameState: GameState): void;
 
-    uiButton(): UiButton | null {
-        return null;
+    uiButton(): UiButton[] {
+        return [];
     }
 }
 
@@ -52,13 +52,13 @@ export class ConfirmOrdersMove extends Move {
         gameState.popPhase();
     }
 
-    uiButton(): UiButton | null {
-        return {
+    uiButton(): UiButton[] {
+        return [{
             label: "Confirm Orders",
             callback: (gameState: GameState) => {
                 gameState.popPhase();
             },
-        };
+        }];
     }
 }
 
@@ -67,13 +67,13 @@ export class EndMovementsMove extends Move {
         gameState.popPhase();
     }
 
-    uiButton(): UiButton | null {
-        return {
+    uiButton(): UiButton[] {
+        return [{
             label: "End Movements",
             callback: (gameState: GameState) => {
                 gameState.popPhase();
             },
-        };
+        }];
     }
 }
 
@@ -169,13 +169,13 @@ export class EndBattlesMove extends Move {
         gameState.popPhase();
     }
 
-    uiButton(): UiButton | null {
-        return {
+    uiButton(): UiButton[] {
+        return [{
             label: "End Battles",
             callback: (gameState: GameState) => {
                 gameState.popPhase();
             },
-        };
+        }];
     }
 }
 
@@ -193,13 +193,13 @@ export class ReplenishHandMove extends Move {
         gameState.popPhase();
     }
 
-    uiButton(): UiButton | null {
-        return {
+    uiButton(): UiButton[] {
+        return [{
             label: `Draw "${this.card.name}"`,
             callback: (gameState: GameState) => {
                 this.execute(gameState);
             },
-        };
+        }];
     }
 
 }
