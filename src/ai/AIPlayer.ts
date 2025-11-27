@@ -2,11 +2,13 @@
 // ABOUTME: Provides strategy pattern for different AI difficulty levels and behaviors
 
 import type {Move} from "../domain/Move";
-import {EndBattlesMove, EndMovementsMove, PlayCardMove} from "../domain/Move";
+import {EndBattlesMove, EndMovementsMove, MoveUnitMove, PlayCardMove} from "../domain/Move";
 import {SeededRNG} from "../adapters/RNG";
 import type {GameState} from "../domain/GameState";
 import type {CommandCard} from "../domain/CommandCard";
 import {PhaseType} from "../domain/phases/Phase";
+import {hexDistance} from "../utils/hex";
+import type {HexCoord} from "../utils/hex";
 
 /**
  * Interface for AI players that can select moves from legal options
@@ -44,6 +46,13 @@ export class RandomAIPlayer implements AIPlayer {
                 throw new Error("No cards to play?");
             }
             return this.selectBestCard(gameState, playCardMoves as PlayCardMove[]);
+        }
+
+        if (gameState.activePhase.type === PhaseType.MOVE) {
+            const moveUnitMoves = legalMoves.filter(m => m instanceof MoveUnitMove);
+            if (moveUnitMoves.length > 0) {
+                return this.selectBestMove(gameState, moveUnitMoves as MoveUnitMove[]);
+            }
         }
 
         // Filter out phase-ending moves if there are other options
@@ -105,5 +114,68 @@ export class RandomAIPlayer implements AIPlayer {
     private calculateOrderableUnits(gameState: GameState, card: CommandCard): number {
         const friendlyUnits = gameState.getFriendlyUnitsInSection(card.section);
         return Math.min(friendlyUnits.length, card.howManyUnits);
+    }
+
+    /**
+     * Select the best unit movement move based on board position scoring
+     * Moves units closer to enemy units to maximize engagement opportunities
+     */
+    private selectBestMove(gameState: GameState, moves: MoveUnitMove[]): MoveUnitMove {
+        // Calculate position score for each move
+        const movesWithScores = moves.map(move => ({
+            move,
+            score: this.calculatePositionScore(gameState, move.to)
+        }));
+
+        // Find maximum score
+        const maxScore = Math.max(...movesWithScores.map(m => m.score));
+
+        // Filter to only best moves (handles ties)
+        const bestMoves = movesWithScores
+            .filter(m => m.score === maxScore)
+            .map(m => m.move);
+
+        // Random selection among ties (maintains seeded behavior)
+        return this.randomSelect(bestMoves) as MoveUnitMove;
+    }
+
+    /**
+     * Calculate a position score for a hex coordinate
+     * Higher scores indicate better positions (closer to enemy units)
+     *
+     * Score = sum of (1 / distance) for each enemy unit
+     * This rewards being close to multiple enemies
+     */
+    private calculatePositionScore(gameState: GameState, position: HexCoord): number {
+        // Get all enemy units
+        const enemyUnits = this.getEnemyUnitsWithPositions(gameState);
+
+        if (enemyUnits.length === 0) {
+            return 0;
+        }
+
+        // Calculate score as sum of inverse distances to all enemies
+        let score = 0;
+        for (const {coord} of enemyUnits) {
+            const distance = hexDistance(position, coord);
+            // Avoid division by zero (should never happen since we can't move onto enemy units)
+            // Add small bonus for very close positions
+            if (distance === 0) {
+                score += 1000; // Should never happen, but handle it
+            } else {
+                score += 1.0 / distance;
+            }
+        }
+
+        return score;
+    }
+
+    /**
+     * Get all enemy units with their positions
+     */
+    private getEnemyUnitsWithPositions(gameState: GameState): Array<{ coord: HexCoord; unit: any }> {
+        const activeSide = gameState.activePlayer.side;
+        return gameState.getAllUnitsWithPositions()
+            .filter(({unit}) => unit.side !== activeSide);
     }
 }
