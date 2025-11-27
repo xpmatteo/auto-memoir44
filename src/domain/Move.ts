@@ -204,3 +204,37 @@ export class ReplenishHandMove extends Move {
 
 }
 
+export class ReplenishHandChooseCardMove extends Move {
+    private chosenCard: CommandCard;
+    private rejectedCard: CommandCard;
+
+    constructor(chosenCard: CommandCard, rejectedCard: CommandCard) {
+        super();
+        this.chosenCard = chosenCard;
+        this.rejectedCard = rejectedCard;
+    }
+
+    execute(gameState: GameState): void {
+        // Draw the chosen card to the active player's hand
+        gameState.drawSpecificCard(this.chosenCard.id, gameState.activePlayerHand);
+
+        // Discard the rejected card
+        gameState.discardCard(this.rejectedCard.id);
+
+        // Discard the active card (the card that was played this turn)
+        gameState.discardActiveCard();
+
+        // End the replenish hand phase
+        gameState.popPhase();
+    }
+
+    uiButton(): UiButton[] {
+        return [{
+            label: `Draw "${this.chosenCard.name}"`,
+            callback: (gameState: GameState) => {
+                this.execute(gameState);
+            },
+        }];
+    }
+}
+

@@ -99,6 +99,14 @@ export class GameState {
         }
     }
 
+    drawSpecificCard(cardId: string, toLocation: CardLocation) {
+        this.deck.moveCard(cardId, toLocation);
+    }
+
+    discardCard(cardId: string) {
+        this.deck.moveCard(cardId, CardLocation.DISCARD_PILE);
+    }
+
     /**
      * Place a unit at a coordinate. Throws if coordinate is occupied or off-board.
      */

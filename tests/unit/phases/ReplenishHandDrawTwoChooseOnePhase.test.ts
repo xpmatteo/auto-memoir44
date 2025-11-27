@@ -1,0 +1,124 @@
+import {describe, expect, test} from "vitest";
+import {ReplenishHandDrawTwoChooseOnePhase} from "../../../src/domain/phases/ReplenishHandDrawTwoChooseOnePhase";
+import {GameState} from "../../../src/domain/GameState";
+import {Deck} from "../../../src/domain/Deck";
+import {TestCard} from "../Deck.test";
+import {ReplenishHandChooseCardMove} from "../../../src/domain/Move";
+import {CardLocation} from "../../../src/domain/CommandCard";
+import {PlayCardPhase} from "../../../src/domain/phases/PlayCardPhase";
+
+describe("ReplenishHandDrawTwoChooseOnePhase", () => {
+    test("returns two moves, one for each of the top 2 cards", () => {
+        const card1 = new TestCard("Card 1", "path1.png");
+        const card2 = new TestCard("Card 2", "path2.png");
+        const card3 = new TestCard("Card 3", "path3.png");
+        const deck = new Deck([card1, card2, card3]);
+        const gameState = new GameState(deck);
+        const phase = new ReplenishHandDrawTwoChooseOnePhase();
+
+        const moves = phase.legalMoves(gameState);
+
+        expect(moves).toHaveLength(2);
+        expect(moves[0]).toEqual(new ReplenishHandChooseCardMove(card1, card2));
+        expect(moves[1]).toEqual(new ReplenishHandChooseCardMove(card2, card1));
+    });
+
+    test("choosing first card draws it to hand and discards the second", () => {
+        const card1 = new TestCard("Card 1", "path1.png");
+        const card2 = new TestCard("Card 2", "path2.png");
+        const card3 = new TestCard("Card 3", "path3.png");
+
+        const deck = new Deck([card1, card2, card3]);
+        const gameState = new GameState(deck);
+
+        // Push the phase onto the stack
+        const phase = new ReplenishHandDrawTwoChooseOnePhase();
+        gameState.pushPhase(phase);
+
+        // Get moves and choose the first card
+        const moves = phase.legalMoves(gameState);
+        const chooseFirstCard = moves[0];
+        chooseFirstCard.execute(gameState);
+
+        // Verify card1 is in hand
+        const hand = gameState.getCardsInLocation(CardLocation.BOTTOM_PLAYER_HAND);
+        expect(hand).toContain(card1);
+        expect(hand).not.toContain(card2);
+
+        // Verify card2 is in discard pile
+        const discardPile = gameState.getCardsInLocation(CardLocation.DISCARD_PILE);
+        expect(discardPile).toContain(card2);
+
+        // Verify phase was popped (should be back to PlayCardPhase)
+        expect(gameState.activePhase).toBeInstanceOf(PlayCardPhase);
+    });
+
+    test("choosing second card draws it to hand and discards the first", () => {
+        const card1 = new TestCard("Card 1", "path1.png");
+        const card2 = new TestCard("Card 2", "path2.png");
+        const card3 = new TestCard("Card 3", "path3.png");
+
+        const deck = new Deck([card1, card2, card3]);
+        const gameState = new GameState(deck);
+
+        // Push the phase onto the stack
+        const phase = new ReplenishHandDrawTwoChooseOnePhase();
+        gameState.pushPhase(phase);
+
+        // Get moves and choose the second card
+        const moves = phase.legalMoves(gameState);
+        const chooseSecondCard = moves[1];
+        chooseSecondCard.execute(gameState);
+
+        // Verify card2 is in hand
+        const hand = gameState.getCardsInLocation(CardLocation.BOTTOM_PLAYER_HAND);
+        expect(hand).toContain(card2);
+        expect(hand).not.toContain(card1);
+
+        // Verify card1 is in discard pile
+        const discardPile = gameState.getCardsInLocation(CardLocation.DISCARD_PILE);
+        expect(discardPile).toContain(card1);
+
+        // Verify phase was popped (should be back to PlayCardPhase)
+        expect(gameState.activePhase).toBeInstanceOf(PlayCardPhase);
+    });
+
+    test("uiButton returns correct label for each card", () => {
+        const card1 = new TestCard("Probe Left", "path1.png");
+        const card2 = new TestCard("Attack Right", "path2.png");
+        const deck = new Deck([card1, card2]);
+        const gameState = new GameState(deck);
+        const phase = new ReplenishHandDrawTwoChooseOnePhase();
+
+        const moves = phase.legalMoves(gameState);
+        const buttons1 = moves[0].uiButton();
+        const buttons2 = moves[1].uiButton();
+
+        expect(buttons1).toHaveLength(1);
+        expect(buttons1[0].label).toBe('Draw "Probe Left"');
+
+        expect(buttons2).toHaveLength(1);
+        expect(buttons2[0].label).toBe('Draw "Attack Right"');
+    });
+
+    test("both buttons are shown simultaneously", () => {
+        const card1 = new TestCard("Probe Left", "path1.png");
+        const card2 = new TestCard("Attack Right", "path2.png");
+        const deck = new Deck([card1, card2]);
+        const gameState = new GameState(deck);
+        const phase = new ReplenishHandDrawTwoChooseOnePhase();
+
+        const moves = phase.legalMoves(gameState);
+
+        // Collect all buttons from all moves (this is what MoveButtons component does)
+        const allButtons: Array<{label: string}> = [];
+        moves.forEach(move => {
+            const buttons = move.uiButton();
+            allButtons.push(...buttons);
+        });
+
+        expect(allButtons).toHaveLength(2);
+        expect(allButtons[0].label).toBe('Draw "Probe Left"');
+        expect(allButtons[1].label).toBe('Draw "Attack Right"');
+    });
+});
