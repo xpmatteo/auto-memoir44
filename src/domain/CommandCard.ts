@@ -8,6 +8,7 @@ import {OrderUnitsPhase} from "./phases/OrderUnitsPhase";
 import {MovePhase} from "./phases/MovePhase";
 import {BattlePhase} from "./phases/BattlePhase";
 import {ReplenishHandPhase} from "./phases/ReplenishHandPhase";
+import {ReplenishHandDrawTwoChooseOnePhase} from "./phases/ReplenishHandDrawTwoChooseOnePhase";
 
 export const CardLocation = {
     DECK: "Deck",
@@ -127,11 +128,22 @@ export class ProbeRight extends CommandCard {
 }
 
 // Recon cards
+function onReconCardPlayed(card: CommandCard, gameState: GameState): void {
+    gameState.setCurrentCard(card.id);
+    gameState.replacePhase(new ReplenishHandDrawTwoChooseOnePhase());
+    gameState.pushPhase(new BattlePhase());
+    gameState.pushPhase(new MovePhase());
+    gameState.pushPhase(new OrderUnitsPhase(card.section, card.howManyUnits));
+}
+
 export class ReconCenter extends CommandCard {
     readonly name = "Recon Center";
     readonly imagePath = "images/cards/a4_recon_center.png";
     readonly section = Section.CENTER;
     readonly howManyUnits = 1;
+    onCardPlayed(gameState: GameState): void {
+        onReconCardPlayed(this, gameState);
+    }
 }
 
 export class ReconLeft extends CommandCard {
@@ -139,6 +151,9 @@ export class ReconLeft extends CommandCard {
     readonly imagePath = "images/cards/a2_recon_left.png";
     readonly section = Section.LEFT;
     readonly howManyUnits = 1;
+    onCardPlayed(gameState: GameState): void {
+        onReconCardPlayed(this, gameState);
+    }
 }
 
 export class ReconRight extends CommandCard {
@@ -146,4 +161,7 @@ export class ReconRight extends CommandCard {
     readonly imagePath = "images/cards/a2_recon_right.png";
     readonly section = Section.RIGHT;
     readonly howManyUnits = 1;
+    onCardPlayed(gameState: GameState): void {
+        onReconCardPlayed(this, gameState);
+    }
 }
