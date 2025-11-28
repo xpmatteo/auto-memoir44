@@ -12,6 +12,7 @@ import {Dice} from "../../../src/domain/Dice";
 import {Infantry} from "../../../src/domain/Unit";
 import {Side} from "../../../src/domain/Player";
 import {HexCoord, hexDistance} from "../../../src/utils/hex";
+import {BattlePhase} from "../../../src/domain/phases/BattlePhase";
 
 // Helper to create a minimal GameState for testing in PLAY_CARD phase
 function createTestGameState(): GameState {
@@ -278,6 +279,8 @@ describe("RandomAIPlayer.scoreMoveByDice", () => {
         const rng = new SeededRNG(1);
         aiPlayer = new RandomAIPlayer(rng);
         gameState = createTestGameState();
+        // Set up BATTLE phase for all scoreMoveByDice tests
+        gameState.pushPhase(new BattlePhase());
     });
 
     test("scores 300 for position that can target one enemy with 3 dice (distance 1)", () => {

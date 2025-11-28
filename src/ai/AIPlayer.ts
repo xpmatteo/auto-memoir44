@@ -7,7 +7,6 @@ import {SeededRNG} from "../adapters/RNG";
 import type {GameState} from "../domain/GameState";
 import type {CommandCard} from "../domain/CommandCard";
 import {PhaseType} from "../domain/phases/Phase";
-import {BattlePhase} from "../domain/phases/BattlePhase";
 import {hexDistance} from "../utils/hex";
 import type {HexCoord} from "../utils/hex";
 import {Unit} from "../domain/Unit";
@@ -211,8 +210,10 @@ export class RandomAIPlayer implements AIPlayer {
             clonedState.toggleUnitOrdered(unitInClone);
         }
 
-        // Step 5: Push battle phase
-        clonedState.pushPhase(new BattlePhase());
+        // Step 5: Verify we're in BATTLE phase
+        if (clonedState.activePhase.type !== PhaseType.BATTLE) {
+            throw new Error("Expected gameState to be in BATTLE phase");
+        }
 
         // Step 6: Get legal moves and filter to BattleMove
         const legalMoves = clonedState.legalMoves();
