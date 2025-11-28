@@ -2,11 +2,12 @@
 // ABOUTME: Provides strategy pattern for different AI difficulty levels and behaviors
 
 import type {Move} from "../domain/Move";
-import {EndBattlesMove, EndMovementsMove, MoveUnitMove, PlayCardMove} from "../domain/Move";
+import {EndBattlesMove, EndMovementsMove, MoveUnitMove, PlayCardMove, BattleMove} from "../domain/Move";
 import {SeededRNG} from "../adapters/RNG";
 import type {GameState} from "../domain/GameState";
 import type {CommandCard} from "../domain/CommandCard";
 import {PhaseType} from "../domain/phases/Phase";
+import {BattlePhase} from "../domain/phases/BattlePhase";
 import {hexDistance} from "../utils/hex";
 import type {HexCoord} from "../utils/hex";
 import {Unit} from "../domain/Unit";
@@ -180,8 +181,49 @@ export class RandomAIPlayer implements AIPlayer {
             .filter(({unit}) => unit.side !== activeSide);
     }
 
-    scoreMoveByDice(_gameState: GameState, _unit: Unit, _to: HexCoord): number {
-        return -1;
+    scoreMoveByDice(gameState: GameState, unit: Unit, to: HexCoord): number {
+        // Step 1: Find unit's current position
+        const allUnits = gameState.getAllUnitsWithPositions();
+        const unitPosition = allUnits.find(({unit: u}) => u.id === unit.id);
+
+        if (!unitPosition) {
+            throw new Error("Unit not on board - can't score");
+        }
+
+        const from = unitPosition.coord;
+
+        // Step 2: Clone the game state
+        const clonedState = gameState.clone();
+
+        // Step 3: Move unit to target position
+        if (from.q !== to.q || from.r !== to.r) {
+            clonedState.moveUnit(from, to);
+        }
+
+        // Step 4: Mark unit as ordered (get unit from cloned state)
+        const unitInClone = clonedState.getUnitAt(to);
+        if (!unitInClone) {
+            throw new Error("Should not happen: we lost the unit")
+        }
+
+        // Only toggle if not already ordered
+        if (!clonedState.isUnitOrdered(unitInClone)) {
+            clonedState.toggleUnitOrdered(unitInClone);
+        }
+
+        // Step 5: Push battle phase
+        clonedState.pushPhase(new BattlePhase());
+
+        // Step 6: Get legal moves and filter to BattleMove
+        const legalMoves = clonedState.legalMoves();
+        const battleMoves = legalMoves.filter(move => move instanceof BattleMove) as BattleMove[];
+
+        // Step 7: Filter to only moves from our unit
+        const ourBattleMoves = battleMoves.filter(move => move.fromUnit.id === unitInClone.id);
+
+        // Step 8: Sum dice and return score
+        const totalDice = ourBattleMoves.reduce((sum, move) => sum + move.dice, 0);
+        return totalDice * 100;
     }
 }
 

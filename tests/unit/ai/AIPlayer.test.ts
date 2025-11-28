@@ -11,7 +11,7 @@ import {Deck} from "../../../src/domain/Deck";
 import {Dice} from "../../../src/domain/Dice";
 import {Infantry} from "../../../src/domain/Unit";
 import {Side} from "../../../src/domain/Player";
-import {HexCoord} from "../../../src/utils/hex";
+import {HexCoord, hexDistance} from "../../../src/utils/hex";
 
 // Helper to create a minimal GameState for testing in PLAY_CARD phase
 function createTestGameState(): GameState {
@@ -281,28 +281,42 @@ describe("RandomAIPlayer.scoreMoveByDice", () => {
     });
 
     test("scores 300 for position that can target one enemy with 3 dice (distance 1)", () => {
-        // Set up board: friendly unit and one enemy at distance 1
+        // Set up board: friendly unit and one enemy at distance 1 (single row for clarity)
         const friendlyUnit = new Infantry(Side.ALLIES);
-        gameState.placeUnit(new HexCoord(5, 4), friendlyUnit);
-        gameState.placeUnit(new HexCoord(5, 3), new Infantry(Side.AXIS)); // Enemy at distance 1
+        const unitPos = new HexCoord(5, 4);
+        const enemyPos = new HexCoord(6, 4); // Distance 1 in same row
 
-        const score = aiPlayer.scoreMoveByDice(gameState, friendlyUnit, new HexCoord(5, 4));
+        gameState.placeUnit(unitPos, friendlyUnit);
+        gameState.placeUnit(enemyPos, new Infantry(Side.AXIS));
+
+        // Guard: verify expected distance
+        expect(hexDistance(unitPos, enemyPos)).toBe(1);
+
+        const score = aiPlayer.scoreMoveByDice(gameState, friendlyUnit, unitPos);
 
         // Infantry at distance 1 rolls 3 dice -> score 300
         expect(score).toBe(300);
     });
 
-    test("scores 500 for position that can target enemy with 2 dice and another with 3 dice", () => {
-        // Set up board: friendly unit, one enemy at distance 1, another at distance 2
+    test("scores 300 for position that can target enemy with 2 dice and another with 1 die", () => {
+        // Set up board: friendly unit with enemies at distance 2 and 3 (single row, no close combat)
         const friendlyUnit = new Infantry(Side.ALLIES);
-        gameState.placeUnit(new HexCoord(5, 4), friendlyUnit);
-        gameState.placeUnit(new HexCoord(5, 3), new Infantry(Side.AXIS)); // Enemy at distance 1 (3 dice)
-        gameState.placeUnit(new HexCoord(5, 2), new Infantry(Side.AXIS)); // Enemy at distance 2 (2 dice)
+        const unitPos = new HexCoord(5, 4);
+        const enemy1Pos = new HexCoord(7, 4); // Distance 2 in same row
+        const enemy2Pos = new HexCoord(8, 4); // Distance 3 in same row
 
-        const score = aiPlayer.scoreMoveByDice(gameState, friendlyUnit, new HexCoord(5, 4));
+        gameState.placeUnit(unitPos, friendlyUnit);
+        gameState.placeUnit(enemy1Pos, new Infantry(Side.AXIS));
+        gameState.placeUnit(enemy2Pos, new Infantry(Side.AXIS));
 
-        // 3 dice + 2 dice = 5 dice -> score 500
-        expect(score).toBe(500);
+        // Guard: verify expected distances
+        expect(hexDistance(unitPos, enemy1Pos)).toBe(2);
+        expect(hexDistance(unitPos, enemy2Pos)).toBe(3);
+
+        const score = aiPlayer.scoreMoveByDice(gameState, friendlyUnit, unitPos);
+
+        // 2 dice + 1 die = 3 dice -> score 300
+        expect(score).toBe(300);
     });
 
     test("scores 0 when unit cannot target any enemies", () => {
@@ -317,39 +331,58 @@ describe("RandomAIPlayer.scoreMoveByDice", () => {
         expect(score).toBe(0);
     });
 
-    test("scores 600 for position that can target enemies at distances 1, 2, and 3", () => {
-        // Set up board: friendly unit with enemies at all three battle distances
+    test("sums dice from multiple enemies at various distances without close combat", () => {
+        // Set up board: friendly unit with enemies at distance 2 and 3 (single row, no close combat)
         const friendlyUnit = new Infantry(Side.ALLIES);
-        gameState.placeUnit(new HexCoord(5, 4), friendlyUnit);
-        gameState.placeUnit(new HexCoord(5, 3), new Infantry(Side.AXIS)); // Enemy at distance 1 (3 dice)
-        gameState.placeUnit(new HexCoord(5, 2), new Infantry(Side.AXIS)); // Enemy at distance 2 (2 dice)
-        gameState.placeUnit(new HexCoord(5, 1), new Infantry(Side.AXIS)); // Enemy at distance 3 (1 die)
+        const unitPos = new HexCoord(5, 4);
+        const enemy1Pos = new HexCoord(7, 4); // Distance 2
+        const enemy2Pos = new HexCoord(8, 4); // Distance 3
 
-        const score = aiPlayer.scoreMoveByDice(gameState, friendlyUnit, new HexCoord(5, 4));
+        gameState.placeUnit(unitPos, friendlyUnit);
+        gameState.placeUnit(enemy1Pos, new Infantry(Side.AXIS));
+        gameState.placeUnit(enemy2Pos, new Infantry(Side.AXIS));
 
-        // 3 + 2 + 1 = 6 dice -> score 600
-        expect(score).toBe(600);
+        // Guard: verify expected distances
+        expect(hexDistance(unitPos, enemy1Pos)).toBe(2);
+        expect(hexDistance(unitPos, enemy2Pos)).toBe(3);
+
+        const score = aiPlayer.scoreMoveByDice(gameState, friendlyUnit, unitPos);
+
+        // 2 dice + 1 die = 3 dice -> score 300 (verifies no close combat restriction applies)
+        expect(score).toBe(300);
     });
 
     test("scores 200 for position that can target one enemy with 2 dice (distance 2)", () => {
-        // Set up board: friendly unit and one enemy at distance 2
+        // Set up board: friendly unit and one enemy at distance 2 (single row)
         const friendlyUnit = new Infantry(Side.ALLIES);
-        gameState.placeUnit(new HexCoord(5, 4), friendlyUnit);
-        gameState.placeUnit(new HexCoord(5, 2), new Infantry(Side.AXIS)); // Enemy at distance 2
+        const unitPos = new HexCoord(5, 4);
+        const enemyPos = new HexCoord(7, 4); // Distance 2 in same row
 
-        const score = aiPlayer.scoreMoveByDice(gameState, friendlyUnit, new HexCoord(5, 4));
+        gameState.placeUnit(unitPos, friendlyUnit);
+        gameState.placeUnit(enemyPos, new Infantry(Side.AXIS));
+
+        // Guard: verify expected distance
+        expect(hexDistance(unitPos, enemyPos)).toBe(2);
+
+        const score = aiPlayer.scoreMoveByDice(gameState, friendlyUnit, unitPos);
 
         // Infantry at distance 2 rolls 2 dice -> score 200
         expect(score).toBe(200);
     });
 
     test("scores 100 for position that can target one enemy with 1 die (distance 3)", () => {
-        // Set up board: friendly unit and one enemy at distance 3
+        // Set up board: friendly unit and one enemy at distance 3 (single row)
         const friendlyUnit = new Infantry(Side.ALLIES);
-        gameState.placeUnit(new HexCoord(5, 4), friendlyUnit);
-        gameState.placeUnit(new HexCoord(5, 1), new Infantry(Side.AXIS)); // Enemy at distance 3
+        const unitPos = new HexCoord(5, 4);
+        const enemyPos = new HexCoord(8, 4); // Distance 3 in same row
 
-        const score = aiPlayer.scoreMoveByDice(gameState, friendlyUnit, new HexCoord(5, 4));
+        gameState.placeUnit(unitPos, friendlyUnit);
+        gameState.placeUnit(enemyPos, new Infantry(Side.AXIS));
+
+        // Guard: verify expected distance
+        expect(hexDistance(unitPos, enemyPos)).toBe(3);
+
+        const score = aiPlayer.scoreMoveByDice(gameState, friendlyUnit, unitPos);
 
         // Infantry at distance 3 rolls 1 die -> score 100
         expect(score).toBe(100);
@@ -357,14 +390,22 @@ describe("RandomAIPlayer.scoreMoveByDice", () => {
 
     test("position at distance 1 from enemy scores higher than distance 2 from same enemy", () => {
         const friendlyUnit = new Infantry(Side.ALLIES);
-        gameState.placeUnit(new HexCoord(5, 4), friendlyUnit);
-        gameState.placeUnit(new HexCoord(5, 2), new Infantry(Side.AXIS)); // Enemy
+        const startPos = new HexCoord(5, 4);
+        const enemyPos = new HexCoord(7, 4); // Distance 2 from start
+        const closePos = new HexCoord(6, 4); // Distance 1 from enemy
 
-        // Position at distance 1 from enemy
-        const scoreClosePosition = aiPlayer.scoreMoveByDice(gameState, friendlyUnit, new HexCoord(5, 3));
+        gameState.placeUnit(startPos, friendlyUnit);
+        gameState.placeUnit(enemyPos, new Infantry(Side.AXIS));
 
-        // Position at distance 2 from enemy (current position)
-        const scoreFarPosition = aiPlayer.scoreMoveByDice(gameState, friendlyUnit, new HexCoord(5, 4));
+        // Guard: verify distances in single row
+        expect(hexDistance(closePos, enemyPos)).toBe(1);
+        expect(hexDistance(startPos, enemyPos)).toBe(2);
+
+        // Score from position at distance 1 from enemy
+        const scoreClosePosition = aiPlayer.scoreMoveByDice(gameState, friendlyUnit, closePos);
+
+        // Score from position at distance 2 from enemy (current position)
+        const scoreFarPosition = aiPlayer.scoreMoveByDice(gameState, friendlyUnit, startPos);
 
         expect(scoreClosePosition).toBe(300); // 3 dice
         expect(scoreFarPosition).toBe(200);   // 2 dice
@@ -397,13 +438,21 @@ describe("RandomAIPlayer.scoreMoveByDice", () => {
     });
 
     test("multiple enemies at same distance count separately", () => {
-        // Set up board: friendly unit with two enemies at distance 1
+        // Set up board: friendly unit with two enemies at distance 1 (single row)
         const friendlyUnit = new Infantry(Side.ALLIES);
-        gameState.placeUnit(new HexCoord(5, 4), friendlyUnit);
-        gameState.placeUnit(new HexCoord(5, 3), new Infantry(Side.AXIS)); // Enemy 1 at distance 1
-        gameState.placeUnit(new HexCoord(4, 4), new Infantry(Side.AXIS)); // Enemy 2 at distance 1
+        const unitPos = new HexCoord(5, 4);
+        const enemy1Pos = new HexCoord(6, 4); // Distance 1 in same row
+        const enemy2Pos = new HexCoord(4, 4); // Distance 1 in same row (opposite direction)
 
-        const score = aiPlayer.scoreMoveByDice(gameState, friendlyUnit, new HexCoord(5, 4));
+        gameState.placeUnit(unitPos, friendlyUnit);
+        gameState.placeUnit(enemy1Pos, new Infantry(Side.AXIS));
+        gameState.placeUnit(enemy2Pos, new Infantry(Side.AXIS));
+
+        // Guard: verify both enemies are at distance 1
+        expect(hexDistance(unitPos, enemy1Pos)).toBe(1);
+        expect(hexDistance(unitPos, enemy2Pos)).toBe(1);
+
+        const score = aiPlayer.scoreMoveByDice(gameState, friendlyUnit, unitPos);
 
         // Two enemies at distance 1: 3 dice + 3 dice = 600
         expect(score).toBe(600);
