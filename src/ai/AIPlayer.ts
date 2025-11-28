@@ -9,6 +9,7 @@ import type {CommandCard} from "../domain/CommandCard";
 import {PhaseType} from "../domain/phases/Phase";
 import {hexDistance} from "../utils/hex";
 import type {HexCoord} from "../utils/hex";
+import {Unit} from "../domain/Unit";
 
 /**
  * Interface for AI players that can select moves from legal options
@@ -178,4 +179,9 @@ export class RandomAIPlayer implements AIPlayer {
         return gameState.getAllUnitsWithPositions()
             .filter(({unit}) => unit.side !== activeSide);
     }
+
+    scoreMoveByDice(_gameState: GameState, _unit: Unit, _to: HexCoord): number {
+        return -1;
+    }
 }
+
