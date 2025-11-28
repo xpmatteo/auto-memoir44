@@ -473,4 +473,56 @@ describe("RandomAIPlayer.scoreMoveByDice", () => {
         // Only count the enemy: 3 dice -> score 300
         expect(score).toBe(300);
     });
+
+    test("scores 600 for 3 dice against strength 3 unit (200 per die)", () => {
+        // Lower strength units are more valuable targets (closer to elimination)
+        const friendlyUnit = new Infantry(Side.ALLIES);
+        const unitPos = new HexCoord(5, 4);
+        const enemyPos = new HexCoord(6, 4); // Distance 1
+
+        gameState.placeUnit(unitPos, friendlyUnit);
+        gameState.placeUnit(enemyPos, new Infantry(Side.AXIS, 3)); // Strength 3 enemy
+
+        // Guard: verify expected distance
+        expect(hexDistance(unitPos, enemyPos)).toBe(1);
+
+        const score = aiPlayer.scoreMoveByDice(gameState, friendlyUnit, unitPos);
+
+        // 3 dice against strength 3 unit: 3 × 200 = 600
+        expect(score).toBe(600);
+    });
+
+    test("scores 600 for 2 dice against strength 2 unit (300 per die)", () => {
+        const friendlyUnit = new Infantry(Side.ALLIES);
+        const unitPos = new HexCoord(5, 4);
+        const enemyPos = new HexCoord(7, 4); // Distance 2
+
+        gameState.placeUnit(unitPos, friendlyUnit);
+        gameState.placeUnit(enemyPos, new Infantry(Side.AXIS, 2)); // Strength 2 enemy
+
+        // Guard: verify expected distance
+        expect(hexDistance(unitPos, enemyPos)).toBe(2);
+
+        const score = aiPlayer.scoreMoveByDice(gameState, friendlyUnit, unitPos);
+
+        // 2 dice against strength 2 unit: 2 × 300 = 600
+        expect(score).toBe(600);
+    });
+
+    test("scores 400 for 1 die against strength 1 unit (400 per die)", () => {
+        const friendlyUnit = new Infantry(Side.ALLIES);
+        const unitPos = new HexCoord(5, 4);
+        const enemyPos = new HexCoord(8, 4); // Distance 3
+
+        gameState.placeUnit(unitPos, friendlyUnit);
+        gameState.placeUnit(enemyPos, new Infantry(Side.AXIS, 1)); // Strength 1 enemy (one hit away from elimination)
+
+        // Guard: verify expected distance
+        expect(hexDistance(unitPos, enemyPos)).toBe(3);
+
+        const score = aiPlayer.scoreMoveByDice(gameState, friendlyUnit, unitPos);
+
+        // 1 die against strength 1 unit: 1 × 400 = 400
+        expect(score).toBe(400);
+    });
 });

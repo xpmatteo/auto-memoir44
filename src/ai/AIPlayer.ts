@@ -222,9 +222,15 @@ export class RandomAIPlayer implements AIPlayer {
         // Step 7: Filter to only moves from our unit
         const ourBattleMoves = battleMoves.filter(move => move.fromUnit.id === unitInClone.id);
 
-        // Step 8: Sum dice and return score
-        const totalDice = ourBattleMoves.reduce((sum, move) => sum + move.dice, 0);
-        return totalDice * 100;
+        // Step 8: Sum dice weighted by target strength and return score
+        // Lower strength targets are more valuable (closer to elimination)
+        // Strength 4: 100/die, Strength 3: 200/die, Strength 2: 300/die, Strength 1: 400/die
+        const totalScore = ourBattleMoves.reduce((sum, move) => {
+            const targetStrength = clonedState.getUnitCurrentStrength(move.toUnit);
+            const diceValue = 100 * (5 - targetStrength);
+            return sum + (move.dice * diceValue);
+        }, 0);
+        return totalScore;
     }
 }
 
