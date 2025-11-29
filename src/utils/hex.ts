@@ -44,6 +44,10 @@ export class HexCoord {
     southwest(): HexCoord {
         return new HexCoord(this.q - 1, this.r + 1);
     }
+
+    toString(): string {
+        return `(${this.q},${this.r})`;
+    }
 }
 
 export type CanvasCoord = {

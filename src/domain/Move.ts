@@ -123,6 +123,10 @@ export class MoveUnitMove extends Move {
             }
         }
     }
+
+    toString(): string {
+        return `Move from ${this.from} to ${this.to}`;
+    }
 }
 
 export class BattleMove extends Move {

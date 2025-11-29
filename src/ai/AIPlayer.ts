@@ -141,6 +141,11 @@ export class RandomAIPlayer implements AIPlayer {
             score: scoreMoveByDice(clonedState, move.from, move.to),
         }));
 
+        movesWithScores.sort((a, b) => b.score - a.score);
+        for (const {move, score} of movesWithScores) {
+            console.log(score, move.toString());
+        }
+
         // Find maximum score
         const maxScore = Math.max(...movesWithScores.map(m => m.score));
 
