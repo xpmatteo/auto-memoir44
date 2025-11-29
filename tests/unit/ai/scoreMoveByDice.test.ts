@@ -129,7 +129,7 @@ describe("scoreMoveByDice", () => {
 
         const clonedState = gameState.clone();
         const score = scoreMoveByDice(gameState, fromHex, toHex);
-        
+
         expect(score, 'score expected to be').toEqual(expected);
         expect(gameState, 'should not be changed').toEqual(clonedState);
     })

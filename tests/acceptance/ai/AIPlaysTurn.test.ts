@@ -5,12 +5,16 @@ import {expect, test} from "vitest";
 import {GameState} from "../../../src/domain/GameState";
 import {Deck} from "../../../src/domain/Deck";
 import {CardLocation, ProbeCenter} from "../../../src/domain/CommandCard";
-import {ConfirmOrdersMove, EndBattlesMove, EndMovementsMove, PlayCardMove, ReplenishHandMove} from "../../../src/domain/Move";
-import {Position} from "../../../src/domain/Player";
+import {ConfirmOrdersMove, EndBattlesMove, EndMovementsMove, PlayCardMove, ReplenishHandMove, OrderUnitMove, UnOrderMove} from "../../../src/domain/Move";
+import {Position, Side} from "../../../src/domain/Player";
 import {SeededRNG} from "../../../src/adapters/RNG";
 import {Dice} from "../../../src/domain/Dice";
 import type {Move} from "../../../src/domain/Move";
 import type {AIPlayer} from "../../../src/ai/AIPlayer";
+import {RandomAIPlayer} from "../../../src/ai/AIPlayer";
+import {Infantry} from "../../../src/domain/Unit";
+import {HexCoord} from "../../../src/utils/hex";
+import {PhaseType} from "../../../src/domain/phases/Phase";
 
 // Helper function for tests (bypasses setTimeout for synchronous execution)
 function playFullAITurn(gameState: GameState, aiPlayer: AIPlayer): void {
@@ -138,4 +142,72 @@ test("Seeded AI makes identical move sequences", () => {
     // Then: Both AI players made identical move sequences
     expect(moves1).toEqual(moves2);
     expect(moves1.length).toBeGreaterThan(0); // Verify AI actually made moves
+});
+
+test("AI completes ORDER phase by ordering available units", () => {
+    // Given: Game state with units in CENTER section for TOP player (AI)
+    const seed = 54321;
+    const rng = new SeededRNG(seed);
+    const deck = Deck.createFromComposition([[ProbeCenter, 60]]);
+    const gameState = new GameState(deck, new Dice(() => rng.random()));
+
+    // Setup: Place some units in CENTER section for TOP player (AXIS)
+    // TOP player's center is q=6
+    gameState.placeUnit(new HexCoord(6, 1), new Infantry(Side.AXIS));
+    gameState.placeUnit(new HexCoord(6, 2), new Infantry(Side.AXIS));
+
+    gameState.drawCards(3, CardLocation.BOTTOM_PLAYER_HAND);
+    gameState.drawCards(3, CardLocation.TOP_PLAYER_HAND);
+
+    // Complete bottom player's turn
+    const playedCard = gameState.getCardsInLocation(CardLocation.BOTTOM_PLAYER_HAND)[0];
+    gameState.executeMove(new PlayCardMove(playedCard));
+    gameState.executeMove(new ConfirmOrdersMove());
+    gameState.executeMove(new EndMovementsMove());
+    gameState.executeMove(new EndBattlesMove());
+    const replenishMove = gameState.legalMoves().find(m => m instanceof ReplenishHandMove);
+    gameState.executeMove(replenishMove!);
+
+    // Verify TOP player is active
+    expect(gameState.activePlayer.position).toBe(Position.TOP);
+
+    // Track moves during ORDER phase
+    const orderPhaseMoves: Move[] = [];
+    const aiPlayer = new RandomAIPlayer(rng);
+
+    // When: AI plays through the ORDER phase
+    let inOrderPhase = false;
+    const maxIterations = 20;
+    let iterations = 0;
+
+    while (gameState.activePlayer.position === Position.TOP && iterations < maxIterations) {
+        const legalMoves = gameState.legalMoves();
+        const move = aiPlayer.selectMove(gameState.clone(), legalMoves);
+
+        // Track if we entered ORDER phase
+        if (gameState.activePhase.type === PhaseType.ORDER) {
+            inOrderPhase = true;
+            orderPhaseMoves.push(move);
+        }
+
+        gameState.executeMove(move);
+        iterations++;
+
+        // Stop after ORDER phase completes (we're no longer in ORDER phase after being in it)
+        if (inOrderPhase && gameState.activePhase.type !== PhaseType.ORDER) {
+            break;
+        }
+    }
+
+    // Then: Verify AI ordered units during ORDER phase
+    const orderMoves = orderPhaseMoves.filter(m => m instanceof OrderUnitMove);
+    expect(orderMoves.length).toBeGreaterThan(0);
+
+    // Verify AI never used UnOrderMove
+    const unorderMoves = orderPhaseMoves.filter(m => m instanceof UnOrderMove);
+    expect(unorderMoves.length).toBe(0);
+
+    // Verify AI eventually confirmed orders
+    const confirmMoves = orderPhaseMoves.filter(m => m instanceof ConfirmOrdersMove);
+    expect(confirmMoves.length).toBe(1);
 });

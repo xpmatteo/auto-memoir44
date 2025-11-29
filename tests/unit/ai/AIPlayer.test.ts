@@ -4,11 +4,14 @@
 import {expect, test, describe} from "vitest";
 import {RandomAIPlayer} from "../../../src/ai/AIPlayer";
 import {SeededRNG} from "../../../src/adapters/RNG";
-import {PlayCardMove, ConfirmOrdersMove, EndMovementsMove, EndBattlesMove} from "../../../src/domain/Move";
+import {PlayCardMove, ConfirmOrdersMove, EndMovementsMove, EndBattlesMove, OrderUnitMove} from "../../../src/domain/Move";
 import {ProbeCenter} from "../../../src/domain/CommandCard";
 import {GameState} from "../../../src/domain/GameState";
 import {Deck} from "../../../src/domain/Deck";
 import {Dice} from "../../../src/domain/Dice";
+import {Infantry} from "../../../src/domain/Unit";
+import {Side} from "../../../src/domain/Player";
+import {HexCoord} from "../../../src/utils/hex";
 
 // Helper to create a minimal GameState for testing in PLAY_CARD phase
 function createTestGameState(): GameState {
@@ -32,6 +35,53 @@ function createTestGameStateInActionPhase(): GameState {
     if (playCardMove) {
         // Execute the move to transition out of PLAY_CARD phase
         gameState.executeMove(playCardMove);
+    }
+
+    return gameState;
+}
+
+// Helper to create a GameState in ORDER phase with unordered units
+function createTestGameStateInOrderPhase(): GameState {
+    const gameState = createTestGameState();
+    // Place more units than the card limit (ProbeCenter orders 2) in center section
+    // This ensures there are always unordered units available
+    gameState.placeUnit(new HexCoord(6, 7), new Infantry(Side.ALLIES));
+    gameState.placeUnit(new HexCoord(6, 8), new Infantry(Side.ALLIES));
+    gameState.placeUnit(new HexCoord(5, 7), new Infantry(Side.ALLIES));
+    gameState.placeUnit(new HexCoord(7, 7), new Infantry(Side.ALLIES));
+
+    // Draw cards and play one to enter ORDER phase
+    gameState.drawCards(1, gameState.activePlayerHand);
+    const cards = gameState.getCardsInLocation(gameState.activePlayerHand);
+    const card = cards[0];
+    gameState.executeMove(new PlayCardMove(card));
+
+    return gameState;
+}
+
+// Helper to create a GameState in ORDER phase where all units are already ordered
+function createTestGameStateWithAllUnitsOrdered(): GameState {
+    const gameState = createTestGameStateInOrderPhase();
+    const legalMoves = gameState.legalMoves();
+    const orderMoves = legalMoves.filter(m => m instanceof OrderUnitMove);
+
+    // Order all available units
+    for (const move of orderMoves) {
+        gameState.executeMove(move);
+    }
+
+    return gameState;
+}
+
+// Helper to create a GameState in ORDER phase with some ordered and some unordered units
+function createTestGameStateInOrderPhaseWithMixedUnits(): GameState {
+    const gameState = createTestGameStateInOrderPhase();
+    const legalMoves = gameState.legalMoves();
+    const orderMoves = legalMoves.filter(m => m instanceof OrderUnitMove);
+
+    // Order the first unit if available
+    if (orderMoves.length > 0) {
+        gameState.executeMove(orderMoves[0]);
     }
 
     return gameState;
@@ -263,6 +313,81 @@ describe("RandomAIPlayer", () => {
         const selected2 = aiPlayer2.selectMove(gameState, moves);
 
         // Should select the same move (deterministic)
+        expect(selected1).toBe(selected2);
+    });
+
+    test("AI selects OrderUnitMove when in ORDER phase with orderable units", () => {
+        const rng = new SeededRNG(123);
+        const aiPlayer = new RandomAIPlayer(rng);
+
+        // Create game state in ORDER phase with OrderUnitMoves available
+        const gameState = createTestGameStateInOrderPhase();
+        const legalMoves = gameState.legalMoves();
+
+        // Verify we have OrderUnitMoves available
+        const orderMoves = legalMoves.filter(m => m instanceof OrderUnitMove);
+        expect(orderMoves.length).toBeGreaterThan(0);
+
+        // AI should select an OrderUnitMove
+        const selected = aiPlayer.selectMove(gameState, legalMoves);
+        expect(selected).toBeInstanceOf(OrderUnitMove);
+    });
+
+    test("AI selects ConfirmOrdersMove when no OrderUnitMove available", () => {
+        const rng = new SeededRNG(456);
+        const aiPlayer = new RandomAIPlayer(rng);
+
+        // Create game state in ORDER phase where all units are already ordered
+        const gameState = createTestGameStateWithAllUnitsOrdered();
+        const legalMoves = gameState.legalMoves();
+
+        // Verify no OrderUnitMoves available
+        const orderMoves = legalMoves.filter(m => m instanceof OrderUnitMove);
+        expect(orderMoves.length).toBe(0);
+
+        // AI should select ConfirmOrdersMove
+        const selected = aiPlayer.selectMove(gameState, legalMoves);
+        expect(selected).toBeInstanceOf(ConfirmOrdersMove);
+    });
+
+    test("AI never selects UnOrderMove even when available", () => {
+        const rng = new SeededRNG(789);
+        const aiPlayer = new RandomAIPlayer(rng);
+
+        // Create game state with both OrderUnitMove and UnOrderMove available
+        const gameState = createTestGameStateInOrderPhaseWithMixedUnits();
+
+        // Run multiple selections
+        for (let i = 0; i < 50; i++) {
+            const clonedState = gameState.clone();
+            const legalMoves = clonedState.legalMoves();
+            const orderMoves = legalMoves.filter(m => m instanceof OrderUnitMove);
+
+            // Only test when OrderUnitMoves exist
+            if (orderMoves.length > 0) {
+                const selected = aiPlayer.selectMove(clonedState, legalMoves);
+                // Should be either OrderUnitMove or ConfirmOrdersMove, never UnOrderMove
+                expect(selected.constructor.name).not.toBe("UnOrderMove");
+            }
+        }
+    });
+
+    test("AI ORDER phase selections are deterministic with same seed", () => {
+        const seed = 999;
+        const gameState = createTestGameStateInOrderPhase();
+        const legalMoves = gameState.legalMoves();
+
+        // First selection
+        const rng1 = new SeededRNG(seed);
+        const aiPlayer1 = new RandomAIPlayer(rng1);
+        const selected1 = aiPlayer1.selectMove(gameState.clone(), legalMoves);
+
+        // Second selection with same seed
+        const rng2 = new SeededRNG(seed);
+        const aiPlayer2 = new RandomAIPlayer(rng2);
+        const selected2 = aiPlayer2.selectMove(gameState.clone(), legalMoves);
+
+        // Should select the same move
         expect(selected1).toBe(selected2);
     });
 });

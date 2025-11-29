@@ -2,7 +2,7 @@
 // ABOUTME: Provides strategy pattern for different AI difficulty levels and behaviors
 
 import type {Move} from "../domain/Move";
-import {EndBattlesMove, EndMovementsMove, MoveUnitMove, PlayCardMove} from "../domain/Move";
+import {ConfirmOrdersMove, EndBattlesMove, EndMovementsMove, MoveUnitMove, OrderUnitMove, PlayCardMove} from "../domain/Move";
 import {SeededRNG} from "../adapters/RNG";
 import type {GameState} from "../domain/GameState";
 import type {CommandCard} from "../domain/CommandCard";
@@ -52,6 +52,18 @@ export class RandomAIPlayer implements AIPlayer {
             const moveUnitMoves = legalMoves.filter(m => m instanceof MoveUnitMove);
             if (moveUnitMoves.length > 0) {
                 return this.selectBestMove(gameState, moveUnitMoves as MoveUnitMove[]);
+            }
+        }
+
+        if (gameState.activePhase.type === PhaseType.ORDER) {
+            const orderUnitMoves = legalMoves.filter(m => m instanceof OrderUnitMove);
+            if (orderUnitMoves.length > 0) {
+                return this.randomSelect(orderUnitMoves);
+            }
+            // No OrderUnitMove available - select ConfirmOrdersMove to advance phase
+            const confirmMove = legalMoves.find(m => m instanceof ConfirmOrdersMove);
+            if (confirmMove) {
+                return confirmMove;
             }
         }
 
