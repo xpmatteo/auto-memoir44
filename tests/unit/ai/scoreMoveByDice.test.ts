@@ -116,6 +116,7 @@ describe("scoreMoveByDice", () => {
         const fromHex = new HexCoord(8, 8);
         const friendlyUnit = new Infantry(Side.ALLIES);
         gameState.placeUnit(fromHex, friendlyUnit);
+        gameState.orderUnit(friendlyUnit);
 
         for (const {hex, expectedDistance, strength} of enemies) {
             const enemyUnit = new Infantry(Side.AXIS);
@@ -126,7 +127,10 @@ describe("scoreMoveByDice", () => {
             }
         }
 
+        const clonedState = gameState.clone();
         const score = scoreMoveByDice(gameState, fromHex, toHex);
+        
         expect(score, 'score expected to be').toEqual(expected);
+        expect(gameState, 'should not be changed').toEqual(clonedState);
     })
 });

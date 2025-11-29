@@ -7,44 +7,41 @@ import {PhaseType} from "../domain/phases/Phase";
 import {BattleMove} from "../domain/Move";
 
 export function scoreMoveByDice(gameState: GameState, from: HexCoord, to: HexCoord) {
-    // Step 2: Clone the game state
-    const clonedState = gameState.clone();
-
-    // Step 3: Move unit to target position
-    if (from.q !== to.q || from.r !== to.r) {
-        clonedState.moveUnit(from, to);
+    const unit = gameState.getUnitAt(from);
+    if (!unit) {
+        throw new Error("Should not happen: unit not found")
     }
 
-    // Step 4: Mark unit as ordered (get unit from cloned state)
-    const unitInClone = clonedState.getUnitAt(to);
-    if (!unitInClone) {
-        throw new Error("Should not happen: we lost the unit")
+    // Expect unit to be ordered, or it will not get any BattleMove
+    if (!gameState.isUnitOrdered(unit)) {
+        throw new Error("Expecting units to be ordered");
     }
 
-    // Only toggle if not already ordered
-    if (!clonedState.isUnitOrdered(unitInClone)) {
-        clonedState.toggleUnitOrdered(unitInClone);
-    }
-
-    // Step 5: Verify we're in BATTLE phase
-    if (clonedState.activePhase.type !== PhaseType.BATTLE) {
+    // Verify we're in BATTLE phase, or we will get no BattleMove
+    if (gameState.activePhase.type !== PhaseType.BATTLE) {
         throw new Error("Expected gameState to be in BATTLE phase");
     }
 
-    // Step 6: Get legal moves and filter to BattleMove
-    const legalMoves = clonedState.legalMoves();
+    // Move unit to target position
+    gameState.moveUnit(from, to);
+
+    // Get legal moves and filter to BattleMove
+    const legalMoves = gameState.legalMoves();
     const battleMoves = legalMoves.filter(move => move instanceof BattleMove) as BattleMove[];
 
-    // Step 7: Filter to only moves from our unit
-    const ourBattleMoves = battleMoves.filter(move => move.fromUnit.id === unitInClone.id);
+    // Filter to only moves from our unit
+    const ourBattleMoves = battleMoves.filter(move => move.fromUnit.id === unit.id);
 
-    // Step 8: Sum dice weighted by target strength and return score
+    // Sum dice weighted by target strength and return score
     // Lower strength targets are more valuable (closer to elimination)
     // Strength 4: 100/die, Strength 3: 200/die, Strength 2: 300/die, Strength 1: 400/die
     const totalScore = ourBattleMoves.reduce((sum, move) => {
-        const targetStrength = clonedState.getUnitCurrentStrength(move.toUnit);
+        const targetStrength = gameState.getUnitCurrentStrength(move.toUnit);
         const diceValue = 100 * (5 - targetStrength);
         return sum + (move.dice * diceValue);
     }, 0);
+
+    // Move back the unit so that we restore the gameState as it was
+    gameState.moveUnit(to, from);
     return totalScore;
 }
