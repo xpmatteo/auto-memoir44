@@ -2,7 +2,7 @@
 
 import {describe, expect, test} from "vitest";
 import {Section} from "../../../src/domain/Section";
-import {ConfirmOrdersMove, ToggleUnitOrderedMove} from "../../../src/domain/Move";
+import {ConfirmOrdersMove, OrderUnitMove, UnOrderMove} from "../../../src/domain/Move";
 import {Infantry, Unit} from "../../../src/domain/Unit";
 import {Side} from "../../../src/domain/Player";
 import {OrderUnitsPhase} from "../../../src/domain/phases/OrderUnitsPhase";
@@ -33,11 +33,12 @@ describe("OrderUnitsPhase", () => {
 
         let actual = phase.doLegalMoves(fakeUnitsorder);
 
+        // Can order any unit (since 0 < 2)
         expect(actual).toEqual([
             new ConfirmOrdersMove(),
-            new ToggleUnitOrderedMove(unit1),
-            new ToggleUnitOrderedMove(unit2),
-            new ToggleUnitOrderedMove(unit3),
+            new OrderUnitMove(unit1),
+            new OrderUnitMove(unit2),
+            new OrderUnitMove(unit3),
         ]);
     });
 
@@ -47,11 +48,12 @@ describe("OrderUnitsPhase", () => {
 
         let actual = phase.doLegalMoves(fakeUnitsorder);
 
+        // Can unorder the ordered unit, and can order the unordered units (since 1 < 2)
         expect(actual).toEqual([
             new ConfirmOrdersMove(),
-            new ToggleUnitOrderedMove(unit1),
-            new ToggleUnitOrderedMove(unit2),
-            new ToggleUnitOrderedMove(unit3),
+            new UnOrderMove(unit1),
+            new OrderUnitMove(unit2),
+            new OrderUnitMove(unit3),
         ]);
     });
 
@@ -61,15 +63,16 @@ describe("OrderUnitsPhase", () => {
 
         let actual = phase.doLegalMoves(fakeUnitsorder);
 
-        // Only the ordered units can be toggled
+        // Can only unorder the ordered units (since 2 >= 2, we're at the limit)
         expect(actual).toEqual([
             new ConfirmOrdersMove(),
-            new ToggleUnitOrderedMove(unit1),
-            new ToggleUnitOrderedMove(unit2),
+            new UnOrderMove(unit1),
+            new UnOrderMove(unit2),
         ]);
     });
 
     test("With no units in the section", () => {
+        const originalUnits = fakeUnitsorder.units;
         fakeUnitsorder.units = [];
         const phase = new OrderUnitsPhase(Section.LEFT, 2);
 
@@ -79,6 +82,9 @@ describe("OrderUnitsPhase", () => {
         expect(actual).toEqual([
             new ConfirmOrdersMove(),
         ]);
+
+        // Restore original units for subsequent tests
+        fakeUnitsorder.units = originalUnits;
     });
 
 });

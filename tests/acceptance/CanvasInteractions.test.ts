@@ -1,5 +1,5 @@
 // ABOUTME: Acceptance tests for canvas click interactions
-// ABOUTME: Tests user clicking on units to toggle their ordered status
+// ABOUTME: Tests user clicking on units to order/unorder them
 
 import {describe, it, expect, beforeEach} from "vitest";
 import {GameState} from "../../src/domain/GameState";
@@ -7,7 +7,7 @@ import {Deck} from "../../src/domain/Deck";
 import {Infantry} from "../../src/domain/Unit";
 import {Side} from "../../src/domain/Player";
 import {ProbeLeft, CardLocation} from "../../src/domain/CommandCard";
-import {Move, PlayCardMove, ToggleUnitOrderedMove} from "../../src/domain/Move";
+import {Move, PlayCardMove, OrderUnitMove, UnOrderMove} from "../../src/domain/Move";
 import {HexCoord} from "../../src/utils/hex";
 
 describe("Canvas Interactions", () => {
@@ -18,7 +18,7 @@ describe("Canvas Interactions", () => {
         const unitCoord = new HexCoord(-4, 8); // Left section
 
         let gameState: GameState;
-        let toggleMove: Move;
+        let orderMove: Move;
 
         beforeEach(() => {
             const deck = new Deck([card]);
@@ -31,34 +31,34 @@ describe("Canvas Interactions", () => {
 
             // Verify unit can be ordered
             const legalMoves = gameState.legalMoves();
-            toggleMove = legalMoves.find(
-                move => move instanceof ToggleUnitOrderedMove &&
+            orderMove = legalMoves.find(
+                move => move instanceof OrderUnitMove &&
                     move.unit === unit
-            ) as ToggleUnitOrderedMove;
+            ) as OrderUnitMove;
 
-            expect(toggleMove).toBeDefined();
+            expect(orderMove).toBeDefined();
         })
 
-        it("should toggle unit order when clicking on a unit that can be ordered", () => {
-            // Act: Execute the toggle move (simulating what click handler would do)
-            gameState.executeMove(toggleMove);
+        it("should order unit when clicking on a unit that can be ordered", () => {
+            // Act: Execute the order move (simulating what click handler would do)
+            gameState.executeMove(orderMove);
 
             // Assert: Unit should now be ordered
             expect(gameState.getOrderedUnits()).toContain(unit);
         });
 
         it("should unorder a unit when clicking an already ordered unit", () => {
-            gameState.toggleUnitOrdered(unit);
+            gameState.orderUnit(unit);
 
             expect(gameState.getOrderedUnits()).toContain(unit);
 
             // Act: Click the unit again to unorder it
             const legalMoves2 = gameState.legalMoves();
-            const toggleMove2 = legalMoves2.find(
-                move => move instanceof ToggleUnitOrderedMove &&
+            const unorderMove = legalMoves2.find(
+                move => move instanceof UnOrderMove &&
                     move.unit === unit
-            ) as ToggleUnitOrderedMove;
-            gameState.executeMove(toggleMove2);
+            ) as UnOrderMove;
+            gameState.executeMove(unorderMove);
 
             // Assert: Unit should no longer be ordered
             expect(gameState.getOrderedUnits()).not.toContain(unit);

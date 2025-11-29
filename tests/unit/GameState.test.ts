@@ -8,7 +8,7 @@ import {Deck} from "../../src/domain/Deck";
 import {Infantry} from "../../src/domain/Unit";
 import {HexCoord} from "../../src/utils/hex";
 import {CardLocation} from "../../src/domain/CommandCard";
-import {PlayCardMove, ToggleUnitOrderedMove, MoveUnitMove, ReplenishHandMove, ConfirmOrdersMove, EndMovementsMove, EndBattlesMove} from "../../src/domain/Move";
+import {PlayCardMove, OrderUnitMove, MoveUnitMove, ReplenishHandMove, ConfirmOrdersMove, EndMovementsMove, EndBattlesMove} from "../../src/domain/Move";
 import {OrderUnitsPhase} from "../../src/domain/phases/OrderUnitsPhase";
 import {Section} from "../../src/domain/Section";
 
@@ -474,9 +474,9 @@ describe("GameState", () => {
       const coord = new HexCoord(5, 3 );
       gameState.placeUnit(coord, unit);
 
-      // Play a card and toggle a unit to ordered
+      // Play a card and order a unit
       gameState.executeMove(new PlayCardMove(card));
-      gameState.executeMove(new ToggleUnitOrderedMove(unit));
+      gameState.executeMove(new OrderUnitMove(unit));
       expect(gameState.isUnitOrdered(unit)).toBe(true);
 
       // Complete turn

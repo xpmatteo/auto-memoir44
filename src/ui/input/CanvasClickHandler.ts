@@ -5,7 +5,7 @@ import type {GameState} from "../../domain/GameState.js";
 import type {GridConfig} from "../../utils/hex.js";
 import type {Unit} from "../../domain/Unit.js";
 import {toCanvasCoords, pixelToHex, HexCoord} from "../../utils/hex.js";
-import {ToggleUnitOrderedMove, MoveUnitMove, BattleMove} from "../../domain/Move.js";
+import {OrderUnitMove, UnOrderMove, MoveUnitMove, BattleMove} from "../../domain/Move.js";
 import {OrderUnitsPhase} from "../../domain/phases/OrderUnitsPhase.js";
 import {MovePhase} from "../../domain/phases/MovePhase.js";
 import {BattlePhase} from "../../domain/phases/BattlePhase.js";
@@ -43,19 +43,19 @@ export class CanvasClickHandler {
 
     /**
      * Handle clicks during OrderUnitsPhase
-     * Toggles unit ordering when clicking on a unit
+     * Orders or unorders units when clicking on them
      */
     private handleOrderingClick(hexCoord: HexCoord): void {
         const unit = this.gameState.getUnitAt(hexCoord);
 
         if (unit) {
             const moves = this.gameState.legalMoves();
-            const toggleMove = moves.find(
-                (m) => m instanceof ToggleUnitOrderedMove && m.unit.id === unit.id
+            const orderMove = moves.find(
+                (m) => (m instanceof OrderUnitMove || m instanceof UnOrderMove) && m.unit.id === unit.id
             );
 
-            if (toggleMove) {
-                this.gameState.executeMove(toggleMove);
+            if (orderMove) {
+                this.gameState.executeMove(orderMove);
                 this.onUpdate();
             }
         }

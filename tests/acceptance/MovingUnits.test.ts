@@ -5,7 +5,7 @@ import {expect, test, describe} from "vitest";
 import {GameState} from "../../src/domain/GameState";
 import {Deck} from "../../src/domain/Deck";
 import {CardLocation, ProbeCenter} from "../../src/domain/CommandCard";
-import {ConfirmOrdersMove, MoveUnitMove, PlayCardMove, ToggleUnitOrderedMove} from "../../src/domain/Move";
+import {ConfirmOrdersMove, MoveUnitMove, PlayCardMove, OrderUnitMove} from "../../src/domain/Move";
 import {Infantry} from "../../src/domain/Unit";
 import {Side} from "../../src/domain/Player";
 import {HexCoord} from "../../src/utils/hex";
@@ -25,7 +25,7 @@ describe("Moving units", () => {
         // Play card and order the unit
         const card = gameState.getCardsInLocation(CardLocation.BOTTOM_PLAYER_HAND)[0];
         gameState.executeMove(new PlayCardMove(card));
-        gameState.executeMove(new ToggleUnitOrderedMove(unit));
+        gameState.executeMove(new OrderUnitMove(unit));
         gameState.executeMove(new ConfirmOrdersMove());
 
         // Assert: Should be in MovePhase
@@ -54,7 +54,7 @@ describe("Moving units", () => {
         // Play card and order the unit
         const card = gameState.getCardsInLocation(CardLocation.BOTTOM_PLAYER_HAND)[0];
         gameState.executeMove(new PlayCardMove(card));
-        gameState.executeMove(new ToggleUnitOrderedMove(unit));
+        gameState.executeMove(new OrderUnitMove(unit));
         gameState.executeMove(new ConfirmOrdersMove());
 
         // Assert: Should be in MovePhase
@@ -87,7 +87,7 @@ describe("Moving units", () => {
         // Play card and order unit1
         const card = gameState.getCardsInLocation(CardLocation.BOTTOM_PLAYER_HAND)[0];
         gameState.executeMove(new PlayCardMove(card));
-        gameState.executeMove(new ToggleUnitOrderedMove(unit1));
+        gameState.executeMove(new OrderUnitMove(unit1));
         gameState.executeMove(new ConfirmOrdersMove());
 
         // Assert: Should be in MovePhase
@@ -117,8 +117,8 @@ describe("Moving units", () => {
         // Play card and order both units
         const card = gameState.getCardsInLocation(CardLocation.BOTTOM_PLAYER_HAND)[0];
         gameState.executeMove(new PlayCardMove(card));
-        gameState.executeMove(new ToggleUnitOrderedMove(unit1));
-        gameState.executeMove(new ToggleUnitOrderedMove(unit2));
+        gameState.executeMove(new OrderUnitMove(unit1));
+        gameState.executeMove(new OrderUnitMove(unit2));
         gameState.executeMove(new ConfirmOrdersMove());
 
         // Act: Move only unit1, leave unit2 in place
@@ -159,8 +159,8 @@ describe("Moving units", () => {
         // Play card and order both units
         const card = gameState.getCardsInLocation(CardLocation.BOTTOM_PLAYER_HAND)[0];
         gameState.executeMove(new PlayCardMove(card));
-        gameState.executeMove(new ToggleUnitOrderedMove(unit1));
-        gameState.executeMove(new ToggleUnitOrderedMove(unit2));
+        gameState.executeMove(new OrderUnitMove(unit1));
+        gameState.executeMove(new OrderUnitMove(unit2));
         gameState.executeMove(new ConfirmOrdersMove());
 
         // Act: Move unit1 2 hexes

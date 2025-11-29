@@ -34,19 +34,6 @@ export class PlayCardMove extends Move {
     }
 }
 
-export class ToggleUnitOrderedMove extends Move {
-    readonly unit;
-
-    constructor(unit: Unit) {
-        super();
-        this.unit = unit;
-    }
-
-    execute(gameState: GameState): void {
-        gameState.toggleUnitOrdered(this.unit);
-    }
-}
-
 export class OrderUnitMove extends Move {
     readonly unit;
 
