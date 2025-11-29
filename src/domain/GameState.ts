@@ -373,13 +373,27 @@ export class GameState {
     }
 
     toggleUnitOrdered(unit: Unit) {
-        // Check if this unit exists in the game by searching through all placed units
-        const unitExists = Array.from(this.unitPositions.values()).some(u => u.id === unit.id);
-        if (!unitExists) {
-            throw new Error(`Unknown unit "${unit.id}"`)
-        }
+        this.validateUnit(unit);
         const state = this.getUnitState(unit);
         state.isOrdered = !state.isOrdered;
+    }
+
+    orderUnit(unit: Unit) {
+        this.validateUnit(unit);
+        const state = this.getUnitState(unit);
+        state.isOrdered = true;
+    }
+
+    unOrderUnit(unit: Unit) {
+        this.validateUnit(unit);
+        const state = this.getUnitState(unit);
+        state.isOrdered = false;
+    }
+
+    private validateUnit(unit: Unit) {
+        if (!this.unitStates.has(unit.id)) {
+            throw new Error(`Unknown unit "${unit.id}"`)
+        }
     }
 
     orderAllFriendlyUnitsInSection(section: Section): void {

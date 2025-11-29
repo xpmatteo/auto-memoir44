@@ -47,6 +47,32 @@ export class ToggleUnitOrderedMove extends Move {
     }
 }
 
+export class OrderUnitMove extends Move {
+    readonly unit;
+
+    constructor(unit: Unit) {
+        super();
+        this.unit = unit;
+    }
+
+    execute(gameState: GameState): void {
+        gameState.orderUnit(this.unit);
+    }
+}
+
+export class UnOrderMove extends Move {
+    readonly unit;
+
+    constructor(unit: Unit) {
+        super();
+        this.unit = unit;
+    }
+
+    execute(gameState: GameState): void {
+        gameState.unOrderUnit(this.unit);
+    }
+}
+
 export class ConfirmOrdersMove extends Move {
     execute(gameState: GameState): void {
         gameState.popPhase();
