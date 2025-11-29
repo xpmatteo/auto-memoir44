@@ -16,7 +16,7 @@ export class AIController {
         private gameState: GameState,
         private aiPlayer: AIPlayer,
         private onMoveExecuted: () => void,
-        private aiDelay: number = 300
+        private aiDelay: number = 600
     ) {}
 
     /**

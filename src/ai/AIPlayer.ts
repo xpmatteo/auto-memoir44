@@ -7,8 +7,8 @@ import {SeededRNG} from "../adapters/RNG";
 import type {GameState} from "../domain/GameState";
 import type {CommandCard} from "../domain/CommandCard";
 import {PhaseType} from "../domain/phases/Phase";
-import type {HexCoord} from "../utils/hex";
-import {hexDistance} from "../utils/hex";
+import {BattlePhase} from "../domain/phases/BattlePhase";
+import {scoreMoveByDice} from "./scoreMoveByDice";
 
 /**
  * Interface for AI players that can select moves from legal options
@@ -48,13 +48,6 @@ export class RandomAIPlayer implements AIPlayer {
             return this.selectBestCard(gameState, playCardMoves as PlayCardMove[]);
         }
 
-        if (gameState.activePhase.type === PhaseType.MOVE) {
-            const moveUnitMoves = legalMoves.filter(m => m instanceof MoveUnitMove);
-            if (moveUnitMoves.length > 0) {
-                return this.selectBestMove(gameState, moveUnitMoves as MoveUnitMove[]);
-            }
-        }
-
         if (gameState.activePhase.type === PhaseType.ORDER) {
             const orderUnitMoves = legalMoves.filter(m => m instanceof OrderUnitMove);
             if (orderUnitMoves.length > 0) {
@@ -67,10 +60,16 @@ export class RandomAIPlayer implements AIPlayer {
             }
         }
 
+        if (gameState.activePhase.type === PhaseType.MOVE) {
+            const moveUnitMoves = legalMoves.filter(m => m instanceof MoveUnitMove);
+            if (moveUnitMoves.length > 0) {
+                return this.selectBestMove(gameState, moveUnitMoves as MoveUnitMove[]);
+            }
+        }
+
         // Filter out phase-ending moves if there are other options
         const actionMoves = this.filterActionMoves(legalMoves);
         const movesToChooseFrom = actionMoves.length > 0 ? actionMoves : legalMoves;
-
 
         // Otherwise, random selection (existing behavior)
         return this.randomSelect(movesToChooseFrom);
@@ -133,10 +132,13 @@ export class RandomAIPlayer implements AIPlayer {
      * Moves units closer to enemy units to maximize engagement opportunities
      */
     private selectBestMove(gameState: GameState, moves: MoveUnitMove[]): MoveUnitMove {
+        const clonedState = gameState.clone();
+        clonedState.pushPhase(new BattlePhase());
+
         // Calculate position score for each move
         const movesWithScores = moves.map(move => ({
             move,
-            score: this.calculatePositionScore(gameState, move.to)
+            score: scoreMoveByDice(clonedState, move.from, move.to),
         }));
 
         // Find maximum score
@@ -150,46 +152,5 @@ export class RandomAIPlayer implements AIPlayer {
         // Random selection among ties (maintains seeded behavior)
         return this.randomSelect(bestMoves) as MoveUnitMove;
     }
-
-    /**
-     * Calculate a position score for a hex coordinate
-     * Higher scores indicate better positions (closer to enemy units)
-     *
-     * Score = sum of (1 / distance) for each enemy unit
-     * This rewards being close to multiple enemies
-     */
-    private calculatePositionScore(gameState: GameState, position: HexCoord): number {
-        // Get all enemy units
-        const enemyUnits = this.getEnemyUnitsWithPositions(gameState);
-
-        if (enemyUnits.length === 0) {
-            return 0;
-        }
-
-        // Calculate score as sum of inverse distances to all enemies
-        let score = 0;
-        for (const {coord} of enemyUnits) {
-            const distance = hexDistance(position, coord);
-            // Avoid division by zero (should never happen since we can't move onto enemy units)
-            // Add small bonus for very close positions
-            if (distance === 0) {
-                score += 1000; // Should never happen, but handle it
-            } else {
-                score += 1.0 / distance;
-            }
-        }
-
-        return score;
-    }
-
-    /**
-     * Get all enemy units with their positions
-     */
-    private getEnemyUnitsWithPositions(gameState: GameState): Array<{ coord: HexCoord; unit: any }> {
-        const activeSide = gameState.activePlayer.side;
-        return gameState.getAllUnitsWithPositions()
-            .filter(({unit}) => unit.side !== activeSide);
-    }
-
 }
 
