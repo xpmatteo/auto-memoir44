@@ -4,7 +4,7 @@
 import type {GameState} from "../domain/GameState";
 import type {HexCoord} from "../utils/hex";
 import {PhaseType} from "../domain/phases/Phase";
-import {BattleMove} from "../domain/Move";
+import {BattleMove, MoveUnitMove} from "../domain/Move";
 
 export function scoreMoveByDice(gameState: GameState, from: HexCoord, to: HexCoord) {
     const unit = gameState.getUnitAt(from);
@@ -23,10 +23,12 @@ export function scoreMoveByDice(gameState: GameState, from: HexCoord, to: HexCoo
     }
 
     // Move unit to target position
-    gameState.moveUnit(from, to);
+    const move = new MoveUnitMove(from, to);
+    const clonedState = gameState.clone();
+    clonedState.executeMove(move);
 
     // Get legal moves and filter to BattleMove
-    const legalMoves = gameState.legalMoves();
+    const legalMoves = clonedState.legalMoves();
     const battleMoves = legalMoves.filter(move => move instanceof BattleMove) as BattleMove[];
 
     // Filter to only moves from our unit
@@ -36,12 +38,12 @@ export function scoreMoveByDice(gameState: GameState, from: HexCoord, to: HexCoo
     // Lower strength targets are more valuable (closer to elimination)
     // Strength 4: 100/die, Strength 3: 200/die, Strength 2: 300/die, Strength 1: 400/die
     const totalScore = ourBattleMoves.reduce((sum, move) => {
-        const targetStrength = gameState.getUnitCurrentStrength(move.toUnit);
+        const targetStrength = clonedState.getUnitCurrentStrength(move.toUnit);
         const diceValue = 100 * (5 - targetStrength);
         return sum + (move.dice * diceValue);
     }, 0);
 
     // Move back the unit so that we restore the gameState as it was
-    gameState.moveUnit(to, from);
+    // move.undo(gameState);
     return totalScore;
 }

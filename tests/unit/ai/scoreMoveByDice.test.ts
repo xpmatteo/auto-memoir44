@@ -120,15 +120,15 @@ describe("scoreMoveByDice", () => {
             expected: 600,
         },
         // infantry moving twice cannot battle
-        // {
-        //     name: 'move 2 towards 1 targets at distance 1',
-        //     fromHex: new HexCoord(0, 0),
-        //     toHex: new HexCoord(2, 0),
-        //     enemies: [
-        //         {hex: new HexCoord(3, 0), expectedDistance: 1, strength: 4},
-        //     ],
-        //     expected: 0,
-        // },
+        {
+            name: 'move 2 towards 1 targets at distance 1',
+            fromHex: new HexCoord(0, 0),
+            toHex: new HexCoord(2, 0),
+            enemies: [
+                {hex: new HexCoord(3, 0), expectedDistance: 1, strength: 4},
+            ],
+            expected: 0,
+        },
     ];
 
     test.each(cases)('$name', ({fromHex, toHex, enemies, expected}) => {
