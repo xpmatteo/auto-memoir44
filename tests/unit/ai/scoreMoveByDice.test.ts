@@ -1,12 +1,10 @@
-import {beforeEach, describe, expect, test} from "vitest";
-import {RandomAIPlayer} from "../../../src/ai/AIPlayer";
-import {GameState} from "../../../src/domain/GameState";
-import {SeededRNG} from "../../../src/adapters/RNG";
+import { describe, expect, test} from "vitest";
 import {createTestGameState} from "../../helpers/testHelpers";
 import {BattlePhase} from "../../../src/domain/phases/BattlePhase";
 import {Infantry} from "../../../src/domain/Unit";
 import {Side} from "../../../src/domain/Player";
 import {HexCoord, hexDistance} from "../../../src/utils/hex";
+import {scoreMoveByDice} from "../../../src/ai/scoreMoveByDice";
 
 describe("scoreMoveByDice", () => {
     interface ScoreByDiceCase {
@@ -128,9 +126,7 @@ describe("scoreMoveByDice", () => {
             }
         }
 
-        const rng = new SeededRNG(1);
-        const aiPlayer = new RandomAIPlayer(rng);
-        const score = aiPlayer.doScoreMoveByDice(gameState, fromHex, toHex);
+        const score = scoreMoveByDice(gameState, fromHex, toHex);
         expect(score, 'score expected to be').toEqual(expected);
     })
 });

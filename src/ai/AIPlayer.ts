@@ -2,14 +2,13 @@
 // ABOUTME: Provides strategy pattern for different AI difficulty levels and behaviors
 
 import type {Move} from "../domain/Move";
-import {EndBattlesMove, EndMovementsMove, MoveUnitMove, PlayCardMove, BattleMove} from "../domain/Move";
+import {EndBattlesMove, EndMovementsMove, MoveUnitMove, PlayCardMove} from "../domain/Move";
 import {SeededRNG} from "../adapters/RNG";
 import type {GameState} from "../domain/GameState";
 import type {CommandCard} from "../domain/CommandCard";
 import {PhaseType} from "../domain/phases/Phase";
-import {hexDistance} from "../utils/hex";
 import type {HexCoord} from "../utils/hex";
-import {Unit} from "../domain/Unit";
+import {hexDistance} from "../utils/hex";
 
 /**
  * Interface for AI players that can select moves from legal options
@@ -180,58 +179,5 @@ export class RandomAIPlayer implements AIPlayer {
             .filter(({unit}) => unit.side !== activeSide);
     }
 
-    scoreMoveByDice(gameState: GameState, unit: Unit, to: HexCoord): number {
-        // Step 1: Find unit's current position
-        const allUnits = gameState.getAllUnitsWithPositions();
-        const unitPosition = allUnits.find(({unit: u}) => u.id === unit.id);
-
-        if (!unitPosition) {
-            throw new Error("Unit not on board - can't score");
-        }
-        return this.doScoreMoveByDice(gameState, unitPosition.coord, to);
-    }
-
-    public doScoreMoveByDice(gameState: GameState, from: HexCoord, to: HexCoord) {
-        // Step 2: Clone the game state
-        const clonedState = gameState.clone();
-
-        // Step 3: Move unit to target position
-        if (from.q !== to.q || from.r !== to.r) {
-            clonedState.moveUnit(from, to);
-        }
-
-        // Step 4: Mark unit as ordered (get unit from cloned state)
-        const unitInClone = clonedState.getUnitAt(to);
-        if (!unitInClone) {
-            throw new Error("Should not happen: we lost the unit")
-        }
-
-        // Only toggle if not already ordered
-        if (!clonedState.isUnitOrdered(unitInClone)) {
-            clonedState.toggleUnitOrdered(unitInClone);
-        }
-
-        // Step 5: Verify we're in BATTLE phase
-        if (clonedState.activePhase.type !== PhaseType.BATTLE) {
-            throw new Error("Expected gameState to be in BATTLE phase");
-        }
-
-        // Step 6: Get legal moves and filter to BattleMove
-        const legalMoves = clonedState.legalMoves();
-        const battleMoves = legalMoves.filter(move => move instanceof BattleMove) as BattleMove[];
-
-        // Step 7: Filter to only moves from our unit
-        const ourBattleMoves = battleMoves.filter(move => move.fromUnit.id === unitInClone.id);
-
-        // Step 8: Sum dice weighted by target strength and return score
-        // Lower strength targets are more valuable (closer to elimination)
-        // Strength 4: 100/die, Strength 3: 200/die, Strength 2: 300/die, Strength 1: 400/die
-        const totalScore = ourBattleMoves.reduce((sum, move) => {
-            const targetStrength = clonedState.getUnitCurrentStrength(move.toUnit);
-            const diceValue = 100 * (5 - targetStrength);
-            return sum + (move.dice * diceValue);
-        }, 0);
-        return totalScore;
-    }
 }
 
