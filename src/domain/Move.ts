@@ -93,11 +93,13 @@ export class EndMovementsMove extends Move {
 export class MoveUnitMove extends Move {
     readonly from: HexCoord;
     readonly to: HexCoord;
+    readonly autoAdvance: boolean;
 
-    constructor(from: HexCoord, to: HexCoord) {
+    constructor(from: HexCoord, to: HexCoord, autoAdvance: boolean = true) {
         super();
         this.from = from;
         this.to = to;
+        this.autoAdvance = autoAdvance;
     }
 
     execute(gameState: GameState): void {
@@ -115,11 +117,13 @@ export class MoveUnitMove extends Move {
         }
 
         // Check if all ordered units have moved (auto-advance phase)
-        const orderedUnits = gameState.getOrderedUnits();
-        if (orderedUnits.length > 0) {
-            const allMoved = orderedUnits.every(u => gameState.isUnitMoved(u));
-            if (allMoved) {
-                gameState.popPhase();
+        if (this.autoAdvance) {
+            const orderedUnits = gameState.getOrderedUnits();
+            if (orderedUnits.length > 0) {
+                const allMoved = orderedUnits.every(u => gameState.isUnitMoved(u));
+                if (allMoved) {
+                    gameState.popPhase();
+                }
             }
         }
     }

@@ -22,8 +22,8 @@ export function scoreMoveByDice(gameState: GameState, from: HexCoord, to: HexCoo
         throw new Error("Expected gameState to be in BATTLE phase");
     }
 
-    // Move unit to target position
-    const move = new MoveUnitMove(from, to);
+    // Move unit to target position (disable auto-advance to keep phase stable for scoring)
+    const move = new MoveUnitMove(from, to, false);
     const clonedState = gameState.clone();
     clonedState.executeMove(move);
 
