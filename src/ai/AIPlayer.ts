@@ -188,9 +188,10 @@ export class RandomAIPlayer implements AIPlayer {
         if (!unitPosition) {
             throw new Error("Unit not on board - can't score");
         }
+        return this.doScoreMoveByDice(gameState, unitPosition.coord, to);
+    }
 
-        const from = unitPosition.coord;
-
+    public doScoreMoveByDice(gameState: GameState, from: HexCoord, to: HexCoord) {
         // Step 2: Clone the game state
         const clonedState = gameState.clone();
 
