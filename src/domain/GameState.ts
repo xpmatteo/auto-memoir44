@@ -205,10 +205,24 @@ export class GameState {
     }
 
     /**
+     * Remove mark
+     */
+    unMarkUnitMoved(unit: Unit): void {
+        this.getUnitState(unit).hasMoved = false;
+    }
+
+    /**
      * Mark a unit to skip battle this turn (moved 2 hexes)
      */
     markUnitSkipsBattle(unit: Unit): void {
         this.getUnitState(unit).skipsBattle = true;
+    }
+
+    /**
+     * Remove mark
+     */
+    unMarkUnitSkipsBattle(unit: Unit): void {
+        this.getUnitState(unit).skipsBattle = false;
     }
 
     /**

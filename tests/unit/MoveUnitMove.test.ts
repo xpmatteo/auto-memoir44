@@ -84,4 +84,45 @@ describe("MoveUnitMove battle restrictions", () => {
         // Unit should skip battle
         expect(gameState.unitSkipsBattle(unit)).toBe(true);
     });
+
+    it('undoes movement', () => {
+        const deck = Deck.createStandardDeck();
+        const gameState = new GameState(deck);
+        const unit = new Infantry(Side.ALLIES);
+
+        const from = new HexCoord(1, 4);
+        const to = new HexCoord(2, 4); // 1 hexes away
+
+        gameState.placeUnit(from, unit);
+
+        const move = new MoveUnitMove(from, to);
+        const clonedState = gameState.clone();
+
+        move.execute(gameState);
+        move.undo(gameState);
+
+        // Gamestate should be back as it was
+        expect(gameState).toEqual(clonedState);
+    });
+
+    it('undoes skip battle', () => {
+        const deck = Deck.createStandardDeck();
+        const gameState = new GameState(deck);
+        const unit = new Infantry(Side.ALLIES);
+
+        const from = new HexCoord(1, 4);
+        const to = new HexCoord(3, 4); // 2 hexes away
+
+        gameState.placeUnit(from, unit);
+
+        const move = new MoveUnitMove(from, to);
+        const clonedState = gameState.clone();
+
+        move.execute(gameState);
+        move.undo(gameState);
+
+        // Gamestate should be back as it was
+        expect(gameState).toEqual(clonedState);
+    });
+
 });

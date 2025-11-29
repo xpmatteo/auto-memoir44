@@ -127,6 +127,13 @@ export class MoveUnitMove extends Move {
     toString(): string {
         return `Move from ${this.from} to ${this.to}`;
     }
+
+    undo(gameState: GameState) {
+        gameState.moveUnit(this.to, this.from);
+        let unit = gameState.getUnitAt(this.from)!;
+        gameState.unMarkUnitMoved(unit);
+        gameState.unMarkUnitSkipsBattle(unit);
+    }
 }
 
 export class BattleMove extends Move {
