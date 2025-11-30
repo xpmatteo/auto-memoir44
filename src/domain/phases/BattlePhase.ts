@@ -9,6 +9,7 @@ import {HexCoord} from "../../utils/hex";
 import {hexDistance} from "../../utils/hex";
 import type {Player} from "../Player";
 import {calculateDiceCount} from "../../rules/combat";
+import {clearTerrain} from "../terrain/Terrain";
 
 // Declare which methods from GameState we actually need to do our job
 export interface UnitBattler {
@@ -73,7 +74,7 @@ export class BattlePhase implements Phase {
 
                 // Otherwise, can battle enemies at distance 1-3
                 if (distance <= 3) {
-                    const dice = calculateDiceCount(fromUnit, distance);
+                    const dice = calculateDiceCount(fromUnit, clearTerrain, distance, clearTerrain);
                     moves.push(new BattleMove(fromUnit, toUnit, dice));
                 }
             }

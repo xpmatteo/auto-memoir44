@@ -3,6 +3,13 @@
 
 import {Unit, UnitType} from "../domain/Unit";
 import {DiceResult, RESULT_INFANTRY, RESULT_GRENADE} from "../domain/Dice";
+import {
+    hedgerowsTerrain,
+    hillTerrain,
+    Terrain,
+    TownTerrain,
+    woodsTerrain
+} from "../domain/terrain/Terrain";
 
 /**
  * Calculate the number of dice a unit rolls when battling at a given distance.
@@ -12,22 +19,27 @@ import {DiceResult, RESULT_INFANTRY, RESULT_GRENADE} from "../domain/Dice";
  * - Distance 2: 2 dice
  * - Distance 3: 1 die
  *
- * @param unit - The attacking unit
- * @param distance - The distance in hexes to the target
  * @returns The number of dice to roll
  * @throws Error if the unit type is unsupported or distance is invalid
  */
-export function calculateDiceCount(unit: Unit, distance: number): number {
+export function calculateDiceCount(attacker: Unit, attackerTerrain: Terrain, distance: number, defenderTerrain: Terrain): number {
     if (distance < 1) {
         throw new Error(`Invalid battle distance: ${distance}. Only positive numbers are valid.`);
     }
 
-    if (unit.type === UnitType.INFANTRY) {
+    if (attacker.type === UnitType.INFANTRY) {
         // Infantry: 3 dice at distance 1, 2 dice at distance 2, 1 die at distance 3
-        return 4 - distance;
+        let baseDice = 4 - distance;
+        if (defenderTerrain === woodsTerrain || defenderTerrain === hedgerowsTerrain || defenderTerrain instanceof TownTerrain) {
+            baseDice--;
+        }
+        if (attackerTerrain != hillTerrain && defenderTerrain === hillTerrain) {
+            baseDice--;
+        }
+        return Math.max(0, baseDice);
     }
 
-    throw new Error(`Unsupported unit type for dice calculation: ${unit.type}`);
+    throw new Error(`Unsupported unit type for dice calculation: ${attacker.type}`);
 }
 
 /**

@@ -1,28 +1,37 @@
 
 export abstract class Terrain {
     public imagePath: string | undefined;
+    public name: string = "";
+    toString(): string {
+        return this.name;
+    }
 }
 
 class ClearTerrain extends Terrain {
+    name = "Clear";
 }
 export const clearTerrain = new ClearTerrain();
 
 class HillTerrain extends Terrain {
+    name = "Hill";
     readonly imagePath = "images/terrain/hill.png";
 }
 export const hillTerrain = new HillTerrain();
 
 class WoodsTerrain extends Terrain {
+    name = "Woods";
     readonly imagePath = "images/terrain/woods.png";
 }
 export const woodsTerrain = new WoodsTerrain();
 
 class HedgerowsTerrain extends Terrain {
+    name = "Hedgerows";
     readonly imagePath = "images/terrain/hedgerows.png";
 }
 export const hedgerowsTerrain = new HedgerowsTerrain();
 
-class TownTerrain extends Terrain {
+export class TownTerrain extends Terrain {
+    name = "Town";
     constructor(imagePath: string) {
         super();
         this.imagePath = "images/terrain/" + imagePath;

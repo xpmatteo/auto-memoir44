@@ -5,12 +5,19 @@ Work in progress.  Don't hold your breath!
 
 TODO
 
+- DONE terrain: battle in modifications
+- terrain: stops movement
+- terrain: skips battle
+- hedgerows: entering
+- hedgerows: exiting
+- terrain: battle out for armor
+- hills: LOS
+
 - unit might be better off not moving
 - reshuffle the deck
 - ending the game
 - armor
 - line-of-sight
 - retreat
-- terrain
 - fortifications
 - game log
