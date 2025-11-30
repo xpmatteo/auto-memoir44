@@ -53,7 +53,7 @@ export function parseAndSetupUnits(gameState: GameState, unitSetup: string[]): v
             );
         }
 
-        // Place terrain and units based on patterns
+        // Place terrain and units
         for (let chunkIndex = 0; chunkIndex < chunks.length; chunkIndex++) {
             const chunk = chunks[chunkIndex];
             const q = colStart + chunkIndex;
@@ -69,39 +69,17 @@ export function parseAndSetupUnits(gameState: GameState, unitSetup: string[]): v
                 gameState.setTerrain(coord, town1Terrain);
             }
 
-            // Normalize patterns by trimming and checking for dots
-            const trimmed = chunk.trim();
-            const pattern = trimmed.replace(/\./g, ""); // Remove dots
-
-            if (pattern === "" || trimmed === "....") {
-                // Empty hex
-
-            } else if (pattern.toLowerCase() === "in") {
-                // Check if uppercase (Allies) or lowercase (Axis)
-                if (pattern === "IN") {
-                    // Allies infantry (uppercase IN)
-                    gameState.placeUnit(coord, new Infantry(Side.ALLIES));
-                } else {
-                    // Axis infantry (lowercase in)
-                    gameState.placeUnit(coord, new Infantry(Side.AXIS));
-                }
-            } else if (firstChar === 'W' || firstChar === 'H' || firstChar === 'T') {
-                // Terrain marker without unit - check if there's a unit in the chunk
-                const unitPattern = pattern.replace(/[WHT]/g, ""); // Remove terrain markers
-                if (unitPattern.toLowerCase() === "in") {
-                    if (unitPattern === "IN") {
-                        gameState.placeUnit(coord, new Infantry(Side.ALLIES));
-                    } else {
-                        gameState.placeUnit(coord, new Infantry(Side.AXIS));
-                    }
-                } else if (unitPattern !== "") {
-                    throw new Error(
-                        `Unknown unit pattern in terrain hex "${chunk}" at line ${lineIndex}, column ${chunkIndex} (${coord.q},${coord.r})`
-                    );
-                }
+            // Check for units (second and third characters)
+            const unit = chunk.substring(1, 3)
+            if (unit === "  " || unit === "..") {
+                // No unit
+            } else if (unit === "IN") {
+                gameState.placeUnit(coord, new Infantry(Side.ALLIES));
+            } else if (unit === "in") {
+                gameState.placeUnit(coord, new Infantry(Side.AXIS));
             } else {
                 throw new Error(
-                    `Unknown unit pattern "${chunk}" at line ${lineIndex}, column ${chunkIndex} (${coord.q},${coord.r})`
+                    `Unknown hex specification pattern "${chunk}" at line ${lineIndex}, column ${chunkIndex} (${coord.q},${coord.r})`
                 );
             }
         }
