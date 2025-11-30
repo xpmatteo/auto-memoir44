@@ -5,6 +5,7 @@ import type {GameState} from "../domain/GameState";
 import {HexCoord} from "../utils/hex";
 import {Infantry} from "../domain/Unit";
 import {Side} from "../domain/Player";
+import {hillTerrain, woodsTerrain, town1Terrain} from "../domain/terrain/Terrain";
 
 export interface Scenario {
     /**
@@ -52,11 +53,21 @@ export function parseAndSetupUnits(gameState: GameState, unitSetup: string[]): v
             );
         }
 
-        // Place units based on patterns
+        // Place terrain and units based on patterns
         for (let chunkIndex = 0; chunkIndex < chunks.length; chunkIndex++) {
             const chunk = chunks[chunkIndex];
             const q = colStart + chunkIndex;
             const coord = new HexCoord(q, r);
+
+            // Check for terrain markers (first character)
+            const firstChar = chunk.charAt(0);
+            if (firstChar === 'W') {
+                gameState.setTerrain(coord, woodsTerrain);
+            } else if (firstChar === 'H') {
+                gameState.setTerrain(coord, hillTerrain);
+            } else if (firstChar === 'T') {
+                gameState.setTerrain(coord, town1Terrain);
+            }
 
             // Normalize patterns by trimming and checking for dots
             const trimmed = chunk.trim();
@@ -73,6 +84,20 @@ export function parseAndSetupUnits(gameState: GameState, unitSetup: string[]): v
                 } else {
                     // Axis infantry (lowercase in)
                     gameState.placeUnit(coord, new Infantry(Side.AXIS));
+                }
+            } else if (firstChar === 'W' || firstChar === 'H' || firstChar === 'T') {
+                // Terrain marker without unit - check if there's a unit in the chunk
+                const unitPattern = pattern.replace(/[WHT]/g, ""); // Remove terrain markers
+                if (unitPattern.toLowerCase() === "in") {
+                    if (unitPattern === "IN") {
+                        gameState.placeUnit(coord, new Infantry(Side.ALLIES));
+                    } else {
+                        gameState.placeUnit(coord, new Infantry(Side.AXIS));
+                    }
+                } else if (unitPattern !== "") {
+                    throw new Error(
+                        `Unknown unit pattern in terrain hex "${chunk}" at line ${lineIndex}, column ${chunkIndex} (${coord.q},${coord.r})`
+                    );
                 }
             } else {
                 throw new Error(

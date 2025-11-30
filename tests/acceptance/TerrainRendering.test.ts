@@ -67,14 +67,14 @@ describe("Terrain Rendering", () => {
     });
 
     describe("ST02 scenario terrain setup", () => {
-        it("places hillTerrain at HexCoord(-4, 5)", () => {
+        it("places hillTerrain at HexCoord(-1, 5)", () => {
             const deck = Deck.createStandardDeck();
             const gameState = new GameState(deck);
 
             const scenario = new ST02Scenario();
             scenario.setup(gameState);
 
-            expect(gameState.getTerrain(new HexCoord(-4, 5))).toBe(hillTerrain);
+            expect(gameState.getTerrain(new HexCoord(-1, 5))).toBe(hillTerrain);
         });
 
         it("places woodsTerrain at HexCoord(3, 0)", () => {
