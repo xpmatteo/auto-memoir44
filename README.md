@@ -6,7 +6,7 @@ Work in progress.  Don't hold your breath!
 TODO
 
 - DONE terrain: battle in modifications
-- terrain: stops movement
+- DONE terrain: stops movement
 - terrain: skips battle
 - hedgerows: entering
 - hedgerows: exiting

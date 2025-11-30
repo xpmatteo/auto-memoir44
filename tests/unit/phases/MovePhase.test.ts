@@ -7,11 +7,12 @@ import {EndMovementsMove, Move, MoveUnitMove} from "../../../src/domain/Move";
 import {Infantry, Unit, UnitState} from "../../../src/domain/Unit";
 import {Side} from "../../../src/domain/Player";
 import {HexCoord} from "../../../src/utils/hex";
-import {clearTerrain, Terrain} from "../../../src/domain/terrain/Terrain";
+import {clearTerrain, Terrain, woodsTerrain, hedgerowsTerrain, hillTerrain, TownTerrain} from "../../../src/domain/terrain/Terrain";
 
 class FakeUnitMover {
     units = [] as Array<{ coord: HexCoord; unit: Unit; unitState: UnitState; terrain: Terrain }>;
     occupiedCoords = [] as HexCoord[];
+    terrains = new Map<string, Terrain>();  // Terrain storage
 
     setOrderedUnits(units: Array<{ coord: HexCoord; unit: Unit }>): FakeUnitMover {
         this.units = units.map(({coord, unit}) => ({
@@ -40,6 +41,11 @@ class FakeUnitMover {
         return this;
     }
 
+    setTerrain(coord: HexCoord, terrain: Terrain): FakeUnitMover {
+        this.terrains.set(`${coord.q},${coord.r}`, terrain);
+        return this;
+    }
+
     getAllUnits(): Array<{ unit: Unit; coord: HexCoord; terrain: Terrain; unitState: UnitState }> {
         return this.units;
     }
@@ -48,6 +54,11 @@ class FakeUnitMover {
         return this.occupiedCoords.some(c => c.q === coord.q && c.r === coord.r)
             ? this.units[0]?.unit // Return some unit if occupied
             : undefined;
+    }
+
+    getTerrain(coord: HexCoord): Terrain {
+        const key = `${coord.q},${coord.r}`;
+        return this.terrains.get(key) || clearTerrain;
     }
 }
 
@@ -277,6 +288,117 @@ describe("MovePhase", () => {
                 ];
                 return sortMoves(moves);
             })(),
+        },
+
+        // Terrain-Based Movement Restrictions
+        {
+            name: "Cannot move through Woods (unitMovingInMustStop=true)",
+            unitMover: new FakeUnitMover()
+                .setOrderedUnits([{coord: startPos, unit: unit1}])
+                .setMovedUnits([])
+                .setOccupiedCoords([])
+                .setTerrain(startPos.east(), woodsTerrain),
+            expected: sortMoves([
+                // Can move TO woods (east hex)
+                new MoveUnitMove(startPos, startPos.east()),
+
+                // Cannot move THROUGH woods to reach further hexes
+                // (no moves like east().east() that go through the woods hex)
+
+                // Other adjacent hexes (not blocked)
+                new MoveUnitMove(startPos, startPos.northeast()),
+                new MoveUnitMove(startPos, startPos.northwest()),
+                new MoveUnitMove(startPos, startPos.west()),
+                new MoveUnitMove(startPos, startPos.southwest()),
+                new MoveUnitMove(startPos, startPos.southeast()),
+
+                // 2-hex moves that don't go through woods
+                new MoveUnitMove(startPos, startPos.northeast().northeast()),
+                new MoveUnitMove(startPos, startPos.northeast().east()),  // Goes around woods
+                new MoveUnitMove(startPos, startPos.northeast().northwest()),
+                new MoveUnitMove(startPos, startPos.northwest().northwest()),
+                new MoveUnitMove(startPos, startPos.northwest().west()),
+                new MoveUnitMove(startPos, startPos.west().west()),
+                new MoveUnitMove(startPos, startPos.southwest().west()),
+                new MoveUnitMove(startPos, startPos.southwest().southwest()),
+                new MoveUnitMove(startPos, startPos.southeast().southwest()),
+                new MoveUnitMove(startPos, startPos.southeast().east()),  // Goes around woods
+                new MoveUnitMove(startPos, startPos.southeast().southeast()),
+
+                new EndMovementsMove(),
+            ]),
+        },
+        {
+            name: "Hedgerows and Town also block movement (same as Woods)",
+            unitMover: new FakeUnitMover()
+                .setOrderedUnits([{coord: startPos, unit: unit1}])
+                .setMovedUnits([])
+                .setOccupiedCoords([])
+                .setTerrain(startPos.west(), hedgerowsTerrain)
+                .setTerrain(startPos.east(), new TownTerrain("Town A")),
+            expected: (() => {
+                // Both west (hedgerows) and east (town) should block pass-through
+                // Only moves that don't go through these hexes should be valid
+                const moves = [
+                    // Can move TO the blocking hexes
+                    new MoveUnitMove(startPos, startPos.west()),
+                    new MoveUnitMove(startPos, startPos.east()),
+
+                    // Can move to other adjacent hexes
+                    new MoveUnitMove(startPos, startPos.northeast()),
+                    new MoveUnitMove(startPos, startPos.northwest()),
+                    new MoveUnitMove(startPos, startPos.southwest()),
+                    new MoveUnitMove(startPos, startPos.southeast()),
+
+                    // 2-hex moves that avoid both blocking hexes
+                    new MoveUnitMove(startPos, startPos.northeast().northeast()),
+                    new MoveUnitMove(startPos, startPos.northeast().east()),  // Around west blocker
+                    new MoveUnitMove(startPos, startPos.northeast().northwest()),
+                    new MoveUnitMove(startPos, startPos.northwest().northwest()),
+                    new MoveUnitMove(startPos, startPos.northwest().west()),  // Around east blocker
+                    new MoveUnitMove(startPos, startPos.southwest().southwest()),
+                    new MoveUnitMove(startPos, startPos.southwest().west()),  // Around east blocker
+                    new MoveUnitMove(startPos, startPos.southeast().southwest()),
+                    new MoveUnitMove(startPos, startPos.southeast().east()),  // Around west blocker
+                    new MoveUnitMove(startPos, startPos.southeast().southeast()),
+
+                    new EndMovementsMove(),
+                ];
+                return sortMoves(moves);
+            })(),
+        },
+        {
+            name: "Hills and clear terrain do NOT block movement",
+            unitMover: new FakeUnitMover()
+                .setOrderedUnits([{coord: startPos, unit: unit1}])
+                .setMovedUnits([])
+                .setOccupiedCoords([])
+                .setTerrain(startPos.east(), hillTerrain),
+            expected: sortMoves([
+                // Should have ALL normal moves (18 total)
+                // Including moves that go THROUGH the hill hex
+                new MoveUnitMove(startPos, startPos.east()),
+                new MoveUnitMove(startPos, startPos.southeast()),
+                new MoveUnitMove(startPos, startPos.southwest()),
+                new MoveUnitMove(startPos, startPos.west()),
+                new MoveUnitMove(startPos, startPos.northwest()),
+                new MoveUnitMove(startPos, startPos.northeast()),
+
+                new MoveUnitMove(startPos, startPos.northeast().northeast()),
+                new MoveUnitMove(startPos, startPos.northeast().east()),
+                new MoveUnitMove(startPos, startPos.east().east()),  // Through hill!
+                new MoveUnitMove(startPos, startPos.southeast().east()),  // Through hill!
+                new MoveUnitMove(startPos, startPos.southeast().southeast()),
+                new MoveUnitMove(startPos, startPos.southeast().southwest()),
+                new MoveUnitMove(startPos, startPos.southwest().southwest()),
+                new MoveUnitMove(startPos, startPos.southwest().west()),
+                new MoveUnitMove(startPos, startPos.west().west()),
+                new MoveUnitMove(startPos, startPos.northwest().west()),
+                new MoveUnitMove(startPos, startPos.northwest().northwest()),
+                new MoveUnitMove(startPos, startPos.northeast().northwest()),
+
+                new EndMovementsMove(),
+            ]),
         },
     ];
 

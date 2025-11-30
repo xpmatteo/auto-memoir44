@@ -10,6 +10,7 @@ import {Infantry} from "../../src/domain/Unit";
 import {Side} from "../../src/domain/Player";
 import {HexCoord} from "../../src/utils/hex";
 import {MovePhase} from "../../src/domain/phases/MovePhase";
+import {woodsTerrain, hedgerowsTerrain, hillTerrain, TownTerrain} from "../../src/domain/terrain/Terrain";
 
 describe("Moving units", () => {
     test("Infantry can move 1 or 2 hexes", () => {
@@ -180,5 +181,126 @@ describe("Moving units", () => {
 
         // Assert: Phase auto-advanced to next turn after all units moved
         expect(gameState.activePhase.name).toBe("Battle");
+    });
+
+    test("Unit can move TO stop-terrain hex (Woods) but movement ends there", () => {
+        const deck = Deck.createFromComposition([[ProbeCenter, 60]]);
+        const gameState = new GameState(deck);
+        gameState.drawCards(3, CardLocation.BOTTOM_PLAYER_HAND);
+
+        // Setup: unit at (5,5), woods at (6,5)
+        const unit = new Infantry(Side.ALLIES);
+        gameState.placeUnit(new HexCoord(5, 5), unit);
+        gameState.setTerrain(new HexCoord(6, 5), woodsTerrain);
+        gameState.finishSetup();
+
+        // Play card and order unit
+        const card = gameState.getCardsInLocation(CardLocation.BOTTOM_PLAYER_HAND)[0];
+        gameState.executeMove(new PlayCardMove(card));
+        gameState.executeMove(new OrderUnitMove(unit));
+        gameState.executeMove(new ConfirmOrdersMove());
+
+        // Should be able to move TO woods
+        const moves = gameState.legalMoves();
+        const moveToWoods = moves.find(m =>
+            m instanceof MoveUnitMove &&
+            m.to.q === 6 && m.to.r === 5
+        );
+        expect(moveToWoods).toBeDefined();
+
+        // Should NOT be able to move THROUGH woods to (7,5)
+        const moveThroughWoods = moves.find(m =>
+            m instanceof MoveUnitMove &&
+            m.to.q === 7 && m.to.r === 5
+        );
+        expect(moveThroughWoods).toBeUndefined();
+    });
+
+    test("Unit cannot move through stop-terrain to reach distant hex", () => {
+        const deck = Deck.createFromComposition([[ProbeCenter, 60]]);
+        const gameState = new GameState(deck);
+        gameState.drawCards(3, CardLocation.BOTTOM_PLAYER_HAND);
+
+        // Setup: unit at (5,5), hedgerows at (6,5) blocking path to (7,5)
+        const unit = new Infantry(Side.ALLIES);
+        gameState.placeUnit(new HexCoord(5, 5), unit);
+        gameState.setTerrain(new HexCoord(6, 5), hedgerowsTerrain);
+        gameState.finishSetup();
+
+        // Play card and order unit
+        const card = gameState.getCardsInLocation(CardLocation.BOTTOM_PLAYER_HAND)[0];
+        gameState.executeMove(new PlayCardMove(card));
+        gameState.executeMove(new OrderUnitMove(unit));
+        gameState.executeMove(new ConfirmOrdersMove());
+
+        const moves = gameState.legalMoves();
+
+        // Can move to hedgerows
+        expect(moves.some(m =>
+            m instanceof MoveUnitMove && m.to.q === 6 && m.to.r === 5
+        )).toBe(true);
+
+        // Cannot reach hex beyond hedgerows via that path
+        expect(moves.some(m =>
+            m instanceof MoveUnitMove && m.to.q === 7 && m.to.r === 5
+        )).toBe(false);
+    });
+
+    test("All stop-terrain types (Woods, Hedgerows, Town) block movement", () => {
+        const terrainTypes = [
+            {name: "Woods", terrain: woodsTerrain},
+            {name: "Hedgerows", terrain: hedgerowsTerrain},
+            {name: "Town", terrain: new TownTerrain("Town A")},
+        ];
+
+        for (const {name, terrain} of terrainTypes) {
+            const deck = Deck.createFromComposition([[ProbeCenter, 60]]);
+            const gameState = new GameState(deck);
+            gameState.drawCards(3, CardLocation.BOTTOM_PLAYER_HAND);
+
+            const unit = new Infantry(Side.ALLIES);
+            gameState.placeUnit(new HexCoord(5, 5), unit);
+            gameState.setTerrain(new HexCoord(6, 5), terrain);
+            gameState.finishSetup();
+
+            // Play card and order unit
+            const card = gameState.getCardsInLocation(CardLocation.BOTTOM_PLAYER_HAND)[0];
+            gameState.executeMove(new PlayCardMove(card));
+            gameState.executeMove(new OrderUnitMove(unit));
+            gameState.executeMove(new ConfirmOrdersMove());
+
+            const moves = gameState.legalMoves();
+
+            // Should NOT be able to move through stop-terrain
+            const moveThroughTerrain = moves.find(m =>
+                m instanceof MoveUnitMove && m.to.q === 7 && m.to.r === 5
+            );
+            expect(moveThroughTerrain, `${name} should block movement`).toBeUndefined();
+        }
+    });
+
+    test("Non-stop terrain (Hill, Clear) allows movement through", () => {
+        const deck = Deck.createFromComposition([[ProbeCenter, 60]]);
+        const gameState = new GameState(deck);
+        gameState.drawCards(3, CardLocation.BOTTOM_PLAYER_HAND);
+
+        const unit = new Infantry(Side.ALLIES);
+        gameState.placeUnit(new HexCoord(5, 5), unit);
+        gameState.setTerrain(new HexCoord(6, 5), hillTerrain);
+        gameState.finishSetup();
+
+        // Play card and order unit
+        const card = gameState.getCardsInLocation(CardLocation.BOTTOM_PLAYER_HAND)[0];
+        gameState.executeMove(new PlayCardMove(card));
+        gameState.executeMove(new OrderUnitMove(unit));
+        gameState.executeMove(new ConfirmOrdersMove());
+
+        const moves = gameState.legalMoves();
+
+        // SHOULD be able to move through hill to reach (7,5)
+        const moveThroughHill = moves.find(m =>
+            m instanceof MoveUnitMove && m.to.q === 7 && m.to.r === 5
+        );
+        expect(moveThroughHill).toBeDefined();
     });
 });

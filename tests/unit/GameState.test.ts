@@ -681,4 +681,34 @@ describe("GameState", () => {
       expect(() => gameState.executeMove(move)).toThrow();
     });
   });
+
+  describe("finishSetup", () => {
+    it("should freeze terrain map", () => {
+      const deck = Deck.createStandardDeck();
+      const gameState = new GameState(deck);
+      gameState.setTerrain(new HexCoord(5, 5), woodsTerrain);
+
+      gameState.finishSetup();
+
+      // Attempting to modify terrain after finishSetup should throw
+      expect(() => {
+        gameState.setTerrain(new HexCoord(6, 6), hillTerrain);
+      }).toThrow();
+    });
+
+    it("should allow cloned GameState to share frozen terrain map with original", () => {
+      const deck = Deck.createStandardDeck();
+      const gameState = new GameState(deck);
+      gameState.setTerrain(new HexCoord(5, 5), woodsTerrain);
+      gameState.finishSetup();
+
+      const cloned = gameState.clone();
+
+      // Both should have the same terrain
+      expect(cloned.getTerrain(new HexCoord(5, 5))).toBe(woodsTerrain);
+
+      // Both should reference the same terrain instance (shared, not cloned)
+      expect(cloned.getTerrain(new HexCoord(5, 5))).toBe(gameState.getTerrain(new HexCoord(5, 5)));
+    });
+  });
 });

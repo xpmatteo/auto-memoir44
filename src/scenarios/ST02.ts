@@ -26,5 +26,8 @@ export class ST02Scenario implements Scenario {
 
         // Parse and place units from the unitSetup constant
         parseAndSetupUnits(gameState, unitSetup);
+
+        // Finalize setup - terrain is now immutable
+        gameState.finishSetup();
     }
 }

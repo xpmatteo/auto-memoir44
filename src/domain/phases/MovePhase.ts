@@ -14,6 +14,8 @@ export interface UnitMover {
     getAllUnits(): Array<{ unit: Unit; coord: HexCoord; terrain: Terrain; unitState: UnitState }>;
 
     getUnitAt(coord: HexCoord): Unit | undefined;
+
+    getTerrain(coord: HexCoord): Terrain;
 }
 
 export class MovePhase implements Phase {
@@ -95,6 +97,13 @@ export class MovePhase implements Phase {
 
                 // This is a valid destination
                 validDestinations.push(neighbor);
+
+                // Check terrain to decide if we can move THROUGH this hex
+                const terrain = unitMover.getTerrain(neighbor);
+                if (terrain.unitMovingInMustStop) {
+                    // Can move TO this hex, but cannot move THROUGH it
+                    continue;
+                }
 
                 // Add to queue to continue searching from this hex
                 queue.push({coord: neighbor, distance: distance + 1});

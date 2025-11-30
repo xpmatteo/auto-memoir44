@@ -26,6 +26,7 @@ export class GameState {
     private unitStates: Map<string, UnitState>; // Map from unit ID to unit state
     private readonly medalTables: [Unit[], Unit[]]; // Eliminated units by capturing player (0=Bottom, 1=Top)
     private readonly terrain: Map<string, Terrain>;
+    private setupFinished: boolean = false; // True after finishSetup() is called
 
     constructor(
         deck: Deck,
@@ -76,6 +77,9 @@ export class GameState {
     }
 
     setTerrain(hex: HexCoord, terrain : Terrain) {
+        if (this.setupFinished) {
+            throw new Error("Cannot modify terrain after finishSetup() has been called");
+        }
         this.terrain.set(coordToKey(hex), terrain);
     }
 
@@ -89,6 +93,16 @@ export class GameState {
 
     forAllTerrain(callbackfn: (terrain: Terrain, hex: HexCoord) => void) {
         this.terrain.forEach((terrain: Terrain, key: string)=> callbackfn(terrain, keyToCoord(key)))
+    }
+
+    /**
+     * Finalize game setup by freezing the terrain map.
+     * After this is called, terrain cannot be modified.
+     * This should be called by scenarios after all terrain is placed.
+     */
+    finishSetup(): void {
+        this.setupFinished = true;
+        Object.freeze(this.terrain);
     }
 
 
@@ -509,6 +523,10 @@ export class GameState {
         // Clone medalTables (shallow copy of arrays containing immutable Units)
         cloned.medalTables[0] = [...this.medalTables[0]];
         cloned.medalTables[1] = [...this.medalTables[1]];
+
+        // Share frozen terrain map (terrain is immutable after finishSetup(), safe to share)
+        // Use type assertion to bypass readonly modifier
+        (cloned as any).terrain = this.terrain;
 
         return cloned;
     }
