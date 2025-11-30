@@ -15,6 +15,12 @@ class HillTerrain extends Terrain {
 
 export const hillTerrain = new HillTerrain();
 
+class WoodsTerrain extends Terrain {
+    readonly imagePath = "images/terrain/woods.png";
+}
+
+export const woodsTerrain = new WoodsTerrain();
+
 class TownTerrain extends Terrain {
     constructor(imagePath: string) {
         super();

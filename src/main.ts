@@ -20,6 +20,7 @@ import {
 } from "./ui/canvas/HexGrid.js";
 import {drawUnits} from "./ui/canvas/UnitRenderer.js";
 import {drawMedals} from "./ui/canvas/MedalRenderer.js";
+import {drawTerrain} from "./ui/canvas/TerrainRenderer.js";
 import {loadScenario, getDefaultScenario} from "./scenarios/index.js";
 import {HandDisplay} from "./ui/components/HandDisplay.js";
 import {CurrentCardDisplay} from "./ui/components/CurrentCardDisplay.js";
@@ -155,6 +156,9 @@ async function start() {
         try {
             drawBoard(context, boardImage);
             drawGrid(context, defaultGrid);
+
+            // Draw terrain after grid but before units
+            await drawTerrain(context, gameState, defaultGrid);
 
             // Prepare units with current strength for rendering
             const unitsWithStrength = gameState.getAllUnitsWithPositions().map(({coord, unit}) => ({
