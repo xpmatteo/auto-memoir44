@@ -9,7 +9,7 @@ import {HexCoord} from "../../utils/hex";
 import {hexDistance} from "../../utils/hex";
 import type {Player} from "../Player";
 import {calculateDiceCount} from "../../rules/combat";
-import {clearTerrain, Terrain} from "../terrain/Terrain";
+import {Terrain} from "../terrain/Terrain";
 
 // Declare which methods from GameState we actually need to do our job
 export interface UnitBattler {
@@ -38,7 +38,7 @@ export class BattlePhase implements Phase {
         // Filter for ordered units
         const orderedUnits = allUnits.filter(({unitState}) => unitState.isOrdered);
 
-        for (const {coord: fromCoord, unit: fromUnit, unitState: fromUnitState} of orderedUnits) {
+        for (const {coord: fromCoord, unit: fromUnit, unitState: fromUnitState, terrain: fromUnitTerrain} of orderedUnits) {
             // Skip units that skip battle
             if (fromUnitState.skipsBattle) {
                 continue;
@@ -55,7 +55,7 @@ export class BattlePhase implements Phase {
             );
 
             // Find all enemy units within range
-            for (const {coord: toCoord, unit: toUnit} of allUnits) {
+            for (const {coord: toCoord, unit: toUnit, terrain: defenderTerrain} of allUnits) {
                 // Skip friendly units
                 if (toUnit.side === activeSide) {
                     continue;
@@ -70,8 +70,10 @@ export class BattlePhase implements Phase {
 
                 // Otherwise, can battle enemies at distance 1-3
                 if (distance <= 3) {
-                    const dice = calculateDiceCount(fromUnit, clearTerrain, distance, clearTerrain);
-                    moves.push(new BattleMove(fromUnit, toUnit, dice));
+                    const dice = calculateDiceCount(fromUnit, fromUnitTerrain, distance, defenderTerrain);
+                    if (dice > 0) {
+                        moves.push(new BattleMove(fromUnit, toUnit, dice));
+                    }
                 }
             }
         }

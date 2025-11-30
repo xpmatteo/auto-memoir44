@@ -7,14 +7,17 @@ import {BattleMove, EndBattlesMove, Move} from "../../../src/domain/Move";
 import {Infantry, Unit, UnitState} from "../../../src/domain/Unit";
 import {Side, Position, createPlayer, Player} from "../../../src/domain/Player";
 import {HexCoord} from "../../../src/utils/hex";
-import {clearTerrain, Terrain} from "../../../src/domain/terrain/Terrain";
+import {clearTerrain, hillTerrain, Terrain, woodsTerrain} from "../../../src/domain/terrain/Terrain";
 
 class FakeUnitBattler {
     allUnitsData = [] as Array<{ coord: HexCoord, unit: Unit, unitState: UnitState, terrain: Terrain }>;
     activePlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
 
-    setAllUnits(units: Array<{ coord: HexCoord, unit: Unit, isOrdered?: boolean, skipsBattle?: boolean, battlesThisTurn?: number }>): FakeUnitBattler {
-        this.allUnitsData = units.map(({coord, unit, isOrdered = false, skipsBattle = false, battlesThisTurn = 0}) => {
+    setAllUnits(units: Array<{
+        coord: HexCoord, unit: Unit, isOrdered?: boolean, skipsBattle?: boolean, battlesThisTurn?: number,
+        terrain?: Terrain
+    }>): FakeUnitBattler {
+        this.allUnitsData = units.map(({coord, unit, isOrdered = false, skipsBattle = false, battlesThisTurn = 0, terrain = clearTerrain}) => {
             const unitState = new UnitState(unit.initialStrength);
             unitState.isOrdered = isOrdered;
             unitState.skipsBattle = skipsBattle;
@@ -23,7 +26,7 @@ class FakeUnitBattler {
                 coord,
                 unit,
                 unitState,
-                terrain: clearTerrain
+                terrain: terrain
             };
         });
         return this;
@@ -118,6 +121,43 @@ describe("BattlePhase", () => {
                     {coord: new HexCoord(9, 5), unit: enemyUnit1} // 4 hexes east
                 ]),
             expected: [new EndBattlesMove()],
+        },
+
+        // toUnit terrain modifications
+        {
+            name: "Uses defender terrain to influence the number of dice",
+            unitBattler: new FakeUnitBattler()
+                .setAllUnits([
+                    {coord: new HexCoord(5, 5), unit: friendlyUnit1, isOrdered: true},
+                    {coord: new HexCoord(6, 5), unit: enemyUnit1, terrain: woodsTerrain} // 1 hex in woods
+                ]),
+            expected: [
+                new EndBattlesMove(),
+                new BattleMove(friendlyUnit1, enemyUnit1, 2),
+            ],
+        },
+        {
+            name: "Uses attacker terrain to influence the number of dice",
+            unitBattler: new FakeUnitBattler()
+                .setAllUnits([
+                    {coord: new HexCoord(5, 5), unit: friendlyUnit1, isOrdered: true, terrain: hillTerrain},
+                    {coord: new HexCoord(6, 5), unit: enemyUnit1, terrain: hillTerrain} // 1 hex in hills
+                ]),
+            expected: [
+                new EndBattlesMove(),
+                new BattleMove(friendlyUnit1, enemyUnit1, 3), // hill-to-hill does not reduce dice
+            ],
+        },
+        {
+            name: "Does not return BattleMoves for zero dice",
+            unitBattler: new FakeUnitBattler()
+                .setAllUnits([
+                    {coord: new HexCoord(5, 5), unit: friendlyUnit1, isOrdered: true},
+                    {coord: new HexCoord(8, 5), unit: enemyUnit1, terrain: woodsTerrain} // 3 hexes away in woods
+                ]),
+            expected: [
+                new EndBattlesMove(),
+            ],
         },
 
         // Enemy Identification
