@@ -20,4 +20,5 @@ TODO
 - line-of-sight
 - retreat
 - fortifications
+- tactics cards
 - game log

@@ -4,22 +4,16 @@
 import {Phase, PhaseType} from "./Phase";
 import {GameState} from "../GameState";
 import {Move, BattleMove, EndBattlesMove} from "../Move";
-import {Unit} from "../Unit";
+import {Unit, UnitState} from "../Unit";
 import {HexCoord} from "../../utils/hex";
 import {hexDistance} from "../../utils/hex";
 import type {Player} from "../Player";
 import {calculateDiceCount} from "../../rules/combat";
-import {clearTerrain} from "../terrain/Terrain";
+import {clearTerrain, Terrain} from "../terrain/Terrain";
 
 // Declare which methods from GameState we actually need to do our job
 export interface UnitBattler {
-    getOrderedUnitsWithPositions(): Array<{ coord: HexCoord; unit: Unit }>;
-
-    unitSkipsBattle(unit: Unit): boolean;
-
-    getUnitBattlesThisTurn(unit: Unit): number;
-
-    getAllUnitsWithPositions(): Array<{ coord: HexCoord; unit: Unit }>;
+    getAllUnits(): Array<{ unit: Unit; coord: HexCoord; terrain: Terrain; unitState: UnitState }>;
 
     activePlayer: Player;
 }
@@ -38,18 +32,20 @@ export class BattlePhase implements Phase {
         // Always provide an EndBattlesMove
         moves.push(new EndBattlesMove());
 
-        const orderedUnits = unitBattler.getOrderedUnitsWithPositions();
-        const allUnits = unitBattler.getAllUnitsWithPositions();
+        const allUnits = unitBattler.getAllUnits();
         const activeSide = unitBattler.activePlayer.side;
 
-        for (const {coord: fromCoord, unit: fromUnit} of orderedUnits) {
+        // Filter for ordered units
+        const orderedUnits = allUnits.filter(({unitState}) => unitState.isOrdered);
+
+        for (const {coord: fromCoord, unit: fromUnit, unitState: fromUnitState} of orderedUnits) {
             // Skip units that skip battle
-            if (unitBattler.unitSkipsBattle(fromUnit)) {
+            if (fromUnitState.skipsBattle) {
                 continue;
             }
 
             // Skip units that have already attacked this turn
-            if (unitBattler.getUnitBattlesThisTurn(fromUnit) > 0) {
+            if (fromUnitState.battlesThisTurn > 0) {
                 continue;
             }
 
