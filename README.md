@@ -7,18 +7,19 @@ TODO
 
 - DONE terrain: battle in modifications
 - DONE terrain: stops movement
-- terrain: skips battle
-- hedgerows: entering
-- hedgerows: exiting
-- terrain: battle out for armor
-- hills: LOS
+- DONE terrain: skips battle
 
 - unit might be better off not moving
 - reshuffle the deck
 - ending the game
-- armor
 - line-of-sight
 - retreat
+- armor
 - fortifications
 - tactics cards
 - game log
+
+- hedgerows: entering
+- hedgerows: exiting
+- terrain: battle out for armor
+- hills: LOS

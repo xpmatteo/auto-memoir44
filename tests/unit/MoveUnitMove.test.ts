@@ -8,6 +8,7 @@ import {Infantry} from "../../src/domain/Unit";
 import {Side} from "../../src/domain/Player";
 import {HexCoord} from "../../src/utils/hex";
 import {MoveUnitMove} from "../../src/domain/Move";
+import {woodsTerrain} from "../../src/domain/terrain/Terrain";
 
 describe("MoveUnitMove battle restrictions", () => {
     it("should mark unit to skip battle when moving 2 hexes", () => {
@@ -68,22 +69,27 @@ describe("MoveUnitMove battle restrictions", () => {
         expect(gameState.unitSkipsBattle(unit)).toBe(true);
     });
 
-    it("should handle diagonal 2-hex moves correctly", () => {
+    it("should mark unit to skip battle when entering woods", () => {
         const deck = Deck.createStandardDeck();
         const gameState = new GameState(deck);
         const unit = new Infantry(Side.ALLIES);
 
-        const from = new HexCoord(0, 0);
-        const to = new HexCoord(1, 1); // 2 hexes away diagonally
+        const from = new HexCoord(1, 4);
+        const to = new HexCoord(2, 4); // 1 hex away
 
         gameState.placeUnit(from, unit);
+        gameState.setTerrain(to, woodsTerrain);
 
+        // Execute a 1-hex move
         const move = new MoveUnitMove(from, to);
         move.execute(gameState);
 
         // Unit should skip battle
         expect(gameState.unitSkipsBattle(unit)).toBe(true);
+        expect(gameState.getUnitAt(to)).toBe(unit);
     });
+
+
 
     it('undoes movement', () => {
         const deck = Deck.createStandardDeck();

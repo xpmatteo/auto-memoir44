@@ -116,6 +116,10 @@ export class MoveUnitMove extends Move {
             gameState.markUnitSkipsBattle(unit);
         }
 
+        if (gameState.getTerrain(this.to).unitMovingInCannotBattle) {
+            gameState.markUnitSkipsBattle(unit);
+        }
+
         // Check if all ordered units have moved (auto-advance phase)
         if (this.autoAdvance) {
             const orderedUnits = gameState.getOrderedUnits();
