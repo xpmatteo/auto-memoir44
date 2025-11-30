@@ -31,6 +31,7 @@ export class Deck {
         this.locations.set(CardLocation.BOTTOM_PLAYER_HAND, []);
         this.locations.set(CardLocation.TOP_PLAYER_HAND, []);
         this.locations.set(CardLocation.DISCARD_PILE, []);
+        this.locations.set(CardLocation.PEEK, []);
 
         cards.forEach(card => {
             this.cardIds.set(card.id, card);
@@ -52,16 +53,29 @@ export class Deck {
 
     /**
      * Draw a card from the deck to a new location
-     * Draws from the front of the deck array
+     * Prioritizes PEEK location, then falls back to DECK
+     * Draws from the front of the array
      */
     drawCard(toLocation: CardLocation): CommandCard {
-        const deckCards = this.locations.get(CardLocation.DECK);
-        if (!deckCards || deckCards.length === 0) {
+        const peekCards = this.locations.get(CardLocation.PEEK)!;
+        const deckCards = this.locations.get(CardLocation.DECK)!;
+
+        let card: CommandCard;
+
+        // First try to draw from PEEK
+        if (peekCards.length > 0) {
+            card = peekCards.shift()!;
+        }
+        // Otherwise draw from DECK
+        else if (deckCards.length > 0) {
+            card = deckCards.shift()!;
+        }
+        // No cards available
+        else {
             throw new Error("Deck is depleted, cannot draw");
         }
 
-        const card = deckCards.shift()!; // Remove from front
-        this.locations.get(toLocation)!.push(card); // Add to end
+        this.locations.get(toLocation)!.push(card);
         return card;
     }
 
@@ -181,11 +195,27 @@ export class Deck {
     }
 
     peekCards(n: number) {
-        let cardsInDeck = this.getCardsInLocation(CardLocation.DECK);
-        if (cardsInDeck.length < n) {
-            throw new Error("Not enough cards in the deck to peek")
+        const peekCards = this.locations.get(CardLocation.PEEK)!;
+        const deckCards = this.locations.get(CardLocation.DECK)!;
+
+        // If we already have enough cards in PEEK, just return them
+        if (peekCards.length >= n) {
+            return [...peekCards.slice(0, n)];
         }
-        return cardsInDeck.slice(0, n);
+
+        // Otherwise, move cards from DECK to PEEK
+        const cardsNeeded = n - peekCards.length;
+        if (deckCards.length < cardsNeeded) {
+            throw new Error("Not enough cards in the deck to peek");
+        }
+
+        // Move cards from front of DECK to end of PEEK
+        for (let i = 0; i < cardsNeeded; i++) {
+            const card = deckCards.shift()!;
+            peekCards.push(card);
+        }
+
+        return [...peekCards.slice(0, n)];
     }
 
     peekOneCard() {
