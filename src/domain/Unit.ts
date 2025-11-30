@@ -96,4 +96,8 @@ export class Infantry extends Unit {
     constructor(owner: Side, strength?: number) {
         super(strength ?? Infantry.defaultStrength, owner);
     }
+
+    toString(): string {
+        return `Infantry`;
+    }
 }

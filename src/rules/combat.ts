@@ -18,8 +18,8 @@ import {DiceResult, RESULT_INFANTRY, RESULT_GRENADE} from "../domain/Dice";
  * @throws Error if the unit type is unsupported or distance is invalid
  */
 export function calculateDiceCount(unit: Unit, distance: number): number {
-    if (distance < 1 || distance > 3) {
-        throw new Error(`Invalid battle distance: ${distance}. Valid range is 1-3.`);
+    if (distance < 1) {
+        throw new Error(`Invalid battle distance: ${distance}. Only positive numbers are valid.`);
     }
 
     if (unit.type === UnitType.INFANTRY) {
