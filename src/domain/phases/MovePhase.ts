@@ -4,15 +4,14 @@
 import {Phase, PhaseType} from "./Phase";
 import {GameState} from "../GameState";
 import {EndMovementsMove, Move, MoveUnitMove} from "../Move";
-import {Unit} from "../Unit";
+import {Unit, UnitState} from "../Unit";
 import {HexCoord} from "../../utils/hex";
 import {BOARD_GEOMETRY} from "../BoardGeometry";
+import {Terrain} from "../terrain/Terrain";
 
 // Declare which methods from GameState we actually need to do our job
 export interface UnitMover {
-    getOrderedUnitsWithPositions(): Array<{ coord: HexCoord; unit: Unit }>;
-
-    isUnitMoved(unit: Unit): boolean;
+    getAllUnits(): Array<{ unit: Unit; coord: HexCoord; terrain: Terrain; unitState: UnitState }>;
 
     getUnitAt(coord: HexCoord): Unit | undefined;
 }
@@ -26,12 +25,12 @@ export class MovePhase implements Phase {
     }
 
     doLegalMoves(unitMover: UnitMover): Array<Move> {
-        const orderedUnits = unitMover.getOrderedUnitsWithPositions();
+        const allUnits = unitMover.getAllUnits();
         const moves: Array<Move> = [];
 
-        for (const {coord, unit} of orderedUnits) {
-            // Skip units that have already moved
-            if (unitMover.isUnitMoved(unit)) {
+        for (const {coord, unitState} of allUnits) {
+            // Only consider ordered units that have not moved
+            if (!unitState.isOrdered || unitState.hasMoved) {
                 continue;
             }
 

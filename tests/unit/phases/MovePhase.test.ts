@@ -4,22 +4,34 @@
 import {describe, expect, test} from "vitest";
 import {MovePhase} from "../../../src/domain/phases/MovePhase";
 import {EndMovementsMove, Move, MoveUnitMove} from "../../../src/domain/Move";
-import {Infantry, Unit} from "../../../src/domain/Unit";
+import {Infantry, Unit, UnitState} from "../../../src/domain/Unit";
 import {Side} from "../../../src/domain/Player";
 import {HexCoord} from "../../../src/utils/hex";
+import {clearTerrain, Terrain} from "../../../src/domain/terrain/Terrain";
 
 class FakeUnitMover {
-    orderedUnits = [] as Array<{ coord: HexCoord; unit: Unit }>;
-    movedUnits = [] as Unit[];
+    units = [] as Array<{ coord: HexCoord; unit: Unit; unitState: UnitState; terrain: Terrain }>;
     occupiedCoords = [] as HexCoord[];
 
     setOrderedUnits(units: Array<{ coord: HexCoord; unit: Unit }>): FakeUnitMover {
-        this.orderedUnits = units;
+        this.units = units.map(({coord, unit}) => ({
+            coord,
+            unit,
+            unitState: new UnitState(unit.initialStrength),
+            terrain: clearTerrain
+        }));
+        // Mark all as ordered by default
+        this.units.forEach(u => u.unitState.isOrdered = true);
         return this;
     }
 
     setMovedUnits(units: Unit[]): FakeUnitMover {
-        this.movedUnits = units;
+        // Mark specified units as moved
+        this.units.forEach(u => {
+            if (units.includes(u.unit)) {
+                u.unitState.hasMoved = true;
+            }
+        });
         return this;
     }
 
@@ -28,17 +40,13 @@ class FakeUnitMover {
         return this;
     }
 
-    getOrderedUnitsWithPositions(): Array<{ coord: HexCoord; unit: Unit }> {
-        return this.orderedUnits;
-    }
-
-    isUnitMoved(unit: Unit): boolean {
-        return this.movedUnits.includes(unit);
+    getAllUnits(): Array<{ unit: Unit; coord: HexCoord; terrain: Terrain; unitState: UnitState }> {
+        return this.units;
     }
 
     getUnitAt(coord: HexCoord): Unit | undefined {
         return this.occupiedCoords.some(c => c.q === coord.q && c.r === coord.r)
-            ? this.orderedUnits[0]?.unit // Return some unit if occupied
+            ? this.units[0]?.unit // Return some unit if occupied
             : undefined;
     }
 }
