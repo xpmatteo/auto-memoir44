@@ -11,6 +11,7 @@ import {CardLocation} from "../../src/domain/CommandCard";
 import {PlayCardMove, OrderUnitMove, MoveUnitMove, ReplenishHandMove, ConfirmOrdersMove, EndMovementsMove, EndBattlesMove} from "../../src/domain/Move";
 import {OrderUnitsPhase} from "../../src/domain/phases/OrderUnitsPhase";
 import {Section} from "../../src/domain/Section";
+import {clearTerrain, hillTerrain, woodsTerrain} from "../../src/domain/terrain/Terrain";
 
 describe("GameState", () => {
   describe("setCurrentCard", () => {
@@ -264,6 +265,110 @@ describe("GameState", () => {
 
       expect(unitsWithPositions).toHaveLength(1);
       expect(unitsWithPositions).toContainEqual({ coord: coord2, unit: unit2 });
+    });
+  });
+
+  describe("getAllUnits", () => {
+    it("should return empty array when no units are on the board", () => {
+      const deck = Deck.createStandardDeck();
+      const gameState = new GameState(deck);
+
+      expect(gameState.getAllUnits()).toHaveLength(0);
+    });
+
+    it("should return all units with coordinates and terrain", () => {
+      const deck = Deck.createStandardDeck();
+      const gameState = new GameState(deck);
+
+      const unit1 = new Infantry(Side.ALLIES);
+      const unit2 = new Infantry(Side.AXIS);
+      const coord1 = new HexCoord(5, 3);
+      const coord2 = new HexCoord(6, 4);
+
+      gameState.placeUnit(coord1, unit1);
+      gameState.placeUnit(coord2, unit2);
+
+      // Set terrain for one of the coordinates
+      gameState.setTerrain(coord1, hillTerrain);
+
+      const allUnits = gameState.getAllUnits();
+
+      expect(allUnits).toHaveLength(2);
+
+      // Check unit1
+      const unit1Result = allUnits.find(u => u.unit === unit1);
+      expect(unit1Result).toBeDefined();
+      expect(unit1Result!.coord).toEqual(coord1);
+      expect(unit1Result!.terrain).toBe(hillTerrain);
+      expect(unit1Result!.unitState.strength).toBe(4);
+      expect(unit1Result!.unitState.isOrdered).toBe(false);
+      expect(unit1Result!.unitState.hasMoved).toBe(false);
+      expect(unit1Result!.unitState.skipsBattle).toBe(false);
+      expect(unit1Result!.unitState.battlesThisTurn).toBe(0);
+
+      // Check unit2
+      const unit2Result = allUnits.find(u => u.unit === unit2);
+      expect(unit2Result).toBeDefined();
+      expect(unit2Result!.coord).toEqual(coord2);
+      expect(unit2Result!.terrain).toBe(clearTerrain);
+      expect(unit2Result!.unitState.strength).toBe(4);
+      expect(unit2Result!.unitState.isOrdered).toBe(false);
+      expect(unit2Result!.unitState.hasMoved).toBe(false);
+      expect(unit2Result!.unitState.skipsBattle).toBe(false);
+      expect(unit2Result!.unitState.battlesThisTurn).toBe(0);
+    });
+
+    it("should reflect changes after removing a unit", () => {
+      const deck = Deck.createStandardDeck();
+      const gameState = new GameState(deck);
+
+      const unit1 = new Infantry(Side.ALLIES);
+      const unit2 = new Infantry(Side.AXIS);
+      const coord1 = new HexCoord(5, 3);
+      const coord2 = new HexCoord(6, 4);
+
+      gameState.placeUnit(coord1, unit1);
+      gameState.placeUnit(coord2, unit2);
+      gameState.setTerrain(coord2, woodsTerrain);
+      gameState.removeUnit(coord1);
+
+      const allUnits = gameState.getAllUnits();
+
+      expect(allUnits).toHaveLength(1);
+      expect(allUnits[0].unit).toBe(unit2);
+      expect(allUnits[0].coord).toEqual(coord2);
+      expect(allUnits[0].terrain).toBe(woodsTerrain);
+      expect(allUnits[0].unitState.strength).toBe(4);
+      expect(allUnits[0].unitState.isOrdered).toBe(false);
+      expect(allUnits[0].unitState.hasMoved).toBe(false);
+      expect(allUnits[0].unitState.skipsBattle).toBe(false);
+      expect(allUnits[0].unitState.battlesThisTurn).toBe(0);
+    });
+
+    it("should reflect mutable state changes in unitState", () => {
+      const deck = Deck.createStandardDeck();
+      const gameState = new GameState(deck);
+
+      const unit = new Infantry(Side.ALLIES);
+      const coord = new HexCoord(5, 3);
+
+      gameState.placeUnit(coord, unit);
+
+      // Modify unit state
+      gameState.orderUnit(unit);
+      gameState.markUnitMoved(unit);
+      gameState.setUnitCurrentStrength(unit, 2);
+      gameState.incrementUnitBattlesThisTurn(unit);
+      gameState.incrementUnitBattlesThisTurn(unit);
+
+      const allUnits = gameState.getAllUnits();
+
+      expect(allUnits).toHaveLength(1);
+      expect(allUnits[0].unitState.strength).toBe(2);
+      expect(allUnits[0].unitState.isOrdered).toBe(true);
+      expect(allUnits[0].unitState.hasMoved).toBe(true);
+      expect(allUnits[0].unitState.skipsBattle).toBe(false);
+      expect(allUnits[0].unitState.battlesThisTurn).toBe(2);
     });
   });
 

@@ -179,6 +179,21 @@ export class GameState {
     }
 
     /**
+     * Get all units with their coordinates, terrain, and mutable state
+     */
+    getAllUnits(): Array<{ unit: Unit; coord: HexCoord; terrain: Terrain; unitState: UnitState }> {
+        return Array.from(this.unitPositions.entries()).map(([key, unit]) => {
+            const coord = keyToCoord(key);
+            return {
+                unit,
+                coord,
+                terrain: this.getTerrain(coord),
+                unitState: this.getUnitState(unit).clone(),
+            };
+        });
+    }
+
+    /**
      * Get all ordered units with their coordinates
      */
     getOrderedUnitsWithPositions(): Array<{ coord: HexCoord; unit: Unit }> {
