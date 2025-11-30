@@ -12,6 +12,7 @@ import {Phase} from "./phases/Phase";
 import {PlayCardPhase} from "./phases/PlayCardPhase";
 import {BOARD_GEOMETRY} from "./BoardGeometry";
 import {Dice, DiceResult} from "./Dice";
+import {Terrain, clearTerrain} from "./terrain/Terrain";
 
 export class GameState {
     private readonly deck: Deck;
@@ -23,7 +24,8 @@ export class GameState {
     private unitPositions: Map<string, Unit>; // Map from coordinate key to Unit
     private units: Map<string, Unit>; // Map from unit ID to unit
     private unitStates: Map<string, UnitState>; // Map from unit ID to unit state
-    private medalTables: [Unit[], Unit[]]; // Eliminated units by capturing player (0=Bottom, 1=Top)
+    private readonly medalTables: [Unit[], Unit[]]; // Eliminated units by capturing player (0=Bottom, 1=Top)
+    private readonly terrain: Map<string, Terrain>;
 
     constructor(
         deck: Deck,
@@ -37,6 +39,7 @@ export class GameState {
         this.units = new Map<string, Unit>();
         this.unitStates = new Map<string, UnitState>();
         this.medalTables = [[], []];
+        this.terrain = new Map<string, Terrain>();
         this.activeCardId = null;
         this.phases = new Array<Phase>();
         this.phases.push(new PlayCardPhase());
@@ -70,6 +73,22 @@ export class GameState {
 
     getCardsInLocation(location: CardLocation) {
         return this.deck.getCardsInLocation(location);
+    }
+
+    setTerrain(hex: HexCoord, terrain : Terrain) {
+        this.terrain.set(coordToKey(hex), terrain);
+    }
+
+    getTerrain(hex: HexCoord): Terrain {
+        const key = coordToKey(hex);
+        if (!this.terrain.has(key)) {
+            return clearTerrain;
+        }
+        return this.terrain.get(key)!;
+    }
+
+    forAllTerrain(callbackfn: (terrain: Terrain, hex: HexCoord) => void) {
+        this.terrain.forEach((terrain: Terrain, key: string)=> callbackfn(terrain, keyToCoord(key)))
     }
 
 
