@@ -5,7 +5,7 @@ import type {GameState} from "../domain/GameState";
 import {HexCoord} from "../utils/hex";
 import {Infantry} from "../domain/Unit";
 import {Side} from "../domain/Player";
-import {hillTerrain, woodsTerrain, town1Terrain} from "../domain/terrain/Terrain";
+import {hillTerrain, woodsTerrain, town1Terrain, Terrain} from "../domain/terrain/Terrain";
 
 export interface Scenario {
     /**
@@ -13,6 +13,12 @@ export interface Scenario {
      */
     setup(gameState: GameState): void;
 }
+
+const terrainCodes = new Map(Object.entries({
+    "H": hillTerrain,
+    "T": town1Terrain,
+    "W": woodsTerrain,
+})) as Map<string, Terrain>;
 
 export function parseAndSetupUnits(gameState: GameState, unitSetup: string[]): void {
     // Skip line 0 (column header)
@@ -61,12 +67,12 @@ export function parseAndSetupUnits(gameState: GameState, unitSetup: string[]): v
 
             // Check for terrain markers (first character)
             const firstChar = chunk.charAt(0);
-            if (firstChar === 'W') {
-                gameState.setTerrain(coord, woodsTerrain);
-            } else if (firstChar === 'H') {
-                gameState.setTerrain(coord, hillTerrain);
-            } else if (firstChar === 'T') {
-                gameState.setTerrain(coord, town1Terrain);
+            if (firstChar != " " && firstChar != ".") {
+                if (terrainCodes.has(firstChar)) {
+                    gameState.setTerrain(coord, terrainCodes.get(firstChar)!);
+                } else {
+                    throw new Error(`Unknown terrain code: "${firstChar}"`)
+                }
             }
 
             // Check for units (second and third characters)
