@@ -106,3 +106,28 @@ High-level organization:
 - Always use named constants for enumerations
 - Check out the vite server log in `vite.log`
 - ALWAYS prefer to throw an error instead of silently doing nothing
+
+# Test style
+
+Try as much as possible to write tests in a Golang tabular style like the following example:
+
+```typescript
+interface AbsCase {
+  name: string
+  input: number
+  want: number
+}
+
+describe('abs', () => {
+  const cases: AbsCase[] = [
+    { name: 'zero', input: 0, want: 0 },
+    { name: 'positive', input: 5, want: 5 },
+    { name: 'negative', input: -7, want: 7 },
+  ]
+
+  test.each(cases)('$name', ({ input, want }) => {
+    const got = abs(input)
+    expect(got).toBe(want)
+  })
+})
+```
