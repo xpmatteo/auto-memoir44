@@ -5,7 +5,7 @@ import type {GameState} from "../domain/GameState";
 import {HexCoord} from "../utils/hex";
 import {Infantry} from "../domain/Unit";
 import {Side} from "../domain/Player";
-import {hillTerrain, woodsTerrain, town1Terrain, Terrain} from "../domain/terrain/Terrain";
+import {hillTerrain, woodsTerrain, town1Terrain, Terrain, hedgerowsTerrain} from "../domain/terrain/Terrain";
 
 export interface Scenario {
     /**
@@ -16,6 +16,7 @@ export interface Scenario {
 
 const terrainCodes = new Map(Object.entries({
     "H": hillTerrain,
+    "R": hedgerowsTerrain,
     "T": town1Terrain,
     "W": woodsTerrain,
 })) as Map<string, Terrain>;

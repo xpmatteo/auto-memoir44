@@ -9,7 +9,8 @@ TODO
 - reshuffle the deck
 - ending the game
 - armor
-- LOS
+- line-of-sight
 - retreat
 - terrain
+- fortifications
 - game log
