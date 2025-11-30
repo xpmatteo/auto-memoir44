@@ -15,6 +15,7 @@ export const CardLocation = {
     DISCARD_PILE: "DiscardPile",
     BOTTOM_PLAYER_HAND: "BottomPlayerHand",
     TOP_PLAYER_HAND: "TopPlayerHand",
+    PEEK: "Peek",
 } as const;
 
 export type CardLocation = typeof CardLocation[keyof typeof CardLocation];
