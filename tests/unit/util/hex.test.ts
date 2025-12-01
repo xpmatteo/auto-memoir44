@@ -50,7 +50,10 @@ describe('line of sight', () => {
 
     ].forEach(({from, to, withObstaclesAt, expected}) => {
         test(`Line of sight from ${from} to ${to} with obstacles at ${withObstaclesAt}: ${expected}`, () => {
-            const blocked = (hex: HexCoord) => withObstaclesAt.includes(hex)  || hex === from || hex === to;
+            const blocked = (hex: HexCoord) =>
+                withObstaclesAt.some(obs => obs.q === hex.q && obs.r === hex.r) ||
+                (hex.q === from.q && hex.r === from.r) ||
+                (hex.q === to.q && hex.r === to.r);
             expect(hasLineOfSight(to, from, blocked)).toBe(expected);
         });
     });

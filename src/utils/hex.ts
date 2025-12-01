@@ -144,11 +144,12 @@ export function hexDistance(from: HexCoord, to: HexCoord): number {
     return Math.trunc((dq + dr + ds) / 2);
 }
 
-function hexSubtract(a, b) {
+function hexSubtract(a: HexCoord, b: HexCoord) {
     return new HexCoord(a.q - b.q, a.r - b.r);
 }
 
-function hex_round(fracq: number, fracr: number, fracs: number) {
+function hexRound(fracq: number, fracr: number): HexCoord {
+    const fracs = -fracq - fracr;
     let q = Math.round(fracq);
     let r = Math.round(fracr);
     let s = Math.round(fracs);
@@ -171,7 +172,7 @@ export function hasLineOfSight(toHex: HexCoord, fromHex: HexCoord, isBlocked: (h
     const step = hexSubtract(toHex, fromHex);
     const stepSize = 1.0 / distance;
     for (let i = 1; i < distance; i++) {
-        const stepHex = new HexCoord(
+        const stepHex = hexRound(
             fromHex.q + (step.q * stepSize * i),
             fromHex.r + (step.r * stepSize * i));
         if (isBlocked(stepHex)) {
