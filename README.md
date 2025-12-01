@@ -12,6 +12,7 @@ TODO
   - hedgerows: entering
   - hedgerows: exiting
   - battle out for armor
+  - hills: LOS
 
 - unit might be better off not moving
 - ending the game
@@ -22,7 +23,9 @@ TODO
 - tactics cards
 - game log
 
-- hills: LOS
+- UI
+  - show the number of cards remaining in the deck 
+
 
 - AI
   - deploy inactive units

@@ -31,6 +31,15 @@ describe("GameState cloning for AI simulation", () => {
         expect(simulation.activeCard).toEqual(cards[0]);
     });
 
+    it("Clones all the state", () => {
+        const gameState = createTestGameState();
+        gameState.drawCards(3, CardLocation.BOTTOM_PLAYER_HAND);
+
+        const clone = gameState.clone();
+
+        expect(clone).toEqual(gameState);
+    });
+
     it("Clone can draw cards independently from original", () => {
         const gameState = createTestGameState();
 
