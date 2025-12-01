@@ -70,7 +70,7 @@ describe("Multi-Section Command Cards", () => {
             ]));
         });
 
-        it("should enforce limit of 2 units total across both sections", () => {
+        it("should enforce limit of 2 units for each section", () => {
             const deck = new Deck([card]);
             const gameState = new GameState(deck);
             gameState.drawCards(1, CardLocation.BOTTOM_PLAYER_HAND);
@@ -130,87 +130,88 @@ describe("Multi-Section Command Cards", () => {
             ]));
         });
 
-        it.skip("should enforce limit of 1 unit total across all sections", () => {
-            const card = new ReconInForce();
+        it("should enforce limit of 1 units for each section", () => {
             const deck = new Deck([card]);
             const gameState = new GameState(deck);
             gameState.drawCards(1, CardLocation.BOTTOM_PLAYER_HAND);
+            placeUnits(gameState);
+            gameState.executeMove(new PlayCardMove(card));
 
-            // Place units in all sections
-            const leftUnit = new Infantry(Side.ALLIES);
-            const centerUnit = new Infantry(Side.ALLIES);
-            const rightUnit = new Infantry(Side.ALLIES);
-            gameState.placeUnit(new HexCoord(1, 7), leftUnit);
-            gameState.placeUnit(new HexCoord(6, 7), centerUnit);
-            gameState.placeUnit(new HexCoord(9, 7), rightUnit);
+            // Order 1 unit from LEFT
+            gameState.executeMove(new OrderUnitMove(leftUnit1));
 
-            // Play the card
-            const playCardMove = gameState.legalMoves().find(
-                move => move.toString().includes("Play Card: Recon In Force")
-            );
-            gameState.executeMove(playCardMove!);
+            expect(sortMoves(gameState.legalMoves())).toEqual(sortMoves([
+                new ConfirmOrdersMove(),
+                new UnOrderMove(leftUnit1),
+                new OrderUnitMove(leftCenterUnit), // still orderable because it straddles left and center sections
+                new OrderUnitMove(centerUnit1),
+                new OrderUnitMove(centerUnit2),
+                new OrderUnitMove(centerUnit3),
+                new OrderUnitMove(centerRightUnit),
+                new OrderUnitMove(rightUnit2),
+                new OrderUnitMove(rightUnit3),
+            ]));
 
-            // Order 1 unit from center
-            const orderCenter = gameState.legalMoves().find(
-                move => move instanceof OrderUnitMove && move.unit === centerUnit
-            ) as OrderUnitMove;
-            gameState.executeMove(orderCenter);
+            // Order 1 units from CENTER
+            gameState.executeMove(new OrderUnitMove(leftCenterUnit));
 
-            // Should NOT be able to order any more units
-            const legalMoves = gameState.legalMoves();
-            const canOrderMore = legalMoves.some(move => move instanceof OrderUnitMove);
-            expect(canOrderMore).toBe(false);
+            expect(sortMoves(gameState.legalMoves())).toEqual(sortMoves([
+                new ConfirmOrdersMove(),
+                new UnOrderMove(leftUnit1),
+                new UnOrderMove(leftCenterUnit),
+                new OrderUnitMove(centerRightUnit), // still orderable because it straddles center and right sections
+                new OrderUnitMove(rightUnit2),
+                new OrderUnitMove(rightUnit3),
+            ]));
 
-            // Should have ConfirmOrdersMove and UnOrderMove
-            const confirmMove = legalMoves.find(move => move instanceof ConfirmOrdersMove);
-            const unorderMove = legalMoves.find(
-                move => move instanceof UnOrderMove && move.unit === centerUnit
-            );
-            expect(confirmMove).toBeDefined();
-            expect(unorderMove).toBeDefined();
+            // Order 1 units from RIGHT
+            gameState.executeMove(new OrderUnitMove(rightUnit2));
+
+            // At limit in all sections; we can only unorder now
+            expect(sortMoves(gameState.legalMoves())).toEqual(sortMoves([
+                new ConfirmOrdersMove(),
+                new UnOrderMove(leftUnit1),
+                new UnOrderMove(leftCenterUnit),
+                new UnOrderMove(rightUnit2),
+            ]));
         });
 
-        it.skip("should work correctly for top player with flipped perspective", () => {
-            const card = new ReconInForce();
+        it("order straddling unit first", () => {
             const deck = new Deck([card]);
             const gameState = new GameState(deck);
-            gameState.drawCards(1, CardLocation.TOP_PLAYER_HAND);
-            gameState.switchActivePlayer(); // Top player active
+            gameState.drawCards(1, CardLocation.BOTTOM_PLAYER_HAND);
+            placeUnits(gameState);
+            gameState.executeMove(new PlayCardMove(card));
 
-            // Place units in all three sections for top player
-            // Top player's LEFT is screen-right (q: 9-12)
-            const leftUnit = new Infantry(Side.AXIS);
-            gameState.placeUnit(new HexCoord(10, 1), leftUnit);
+            // Order 1 unit from LEFT CENTER
+            gameState.executeMove(new OrderUnitMove(leftCenterUnit));
 
-            // CENTER (q: 5-8)
-            const centerUnit = new Infantry(Side.AXIS);
-            gameState.placeUnit(new HexCoord(6, 1), centerUnit);
+            expect(sortMoves(gameState.legalMoves())).toEqual(sortMoves([
+                new ConfirmOrdersMove(),
+                new OrderUnitMove(leftUnit1),
+                new OrderUnitMove(leftUnit2),
+                new UnOrderMove(leftCenterUnit),
+                new OrderUnitMove(centerUnit1),
+                new OrderUnitMove(centerUnit2),
+                new OrderUnitMove(centerUnit3),
+                new OrderUnitMove(centerRightUnit),
+                new OrderUnitMove(rightUnit2),
+                new OrderUnitMove(rightUnit3),
+            ]));
 
-            // RIGHT is screen-left (q: 0-4)
-            const rightUnit = new Infantry(Side.AXIS);
-            gameState.placeUnit(new HexCoord(2, 1), rightUnit);
+            // Order 1 units from CENTER
+            gameState.executeMove(new OrderUnitMove(centerUnit1));
 
-            // Play the card
-            const playCardMove = gameState.legalMoves().find(
-                move => move.toString().includes("Play Card: Recon In Force")
-            );
-            gameState.executeMove(playCardMove!);
-
-            // Should be able to order any of the three units
-            const legalMoves = gameState.legalMoves();
-            const canOrderLeft = legalMoves.some(
-                move => move instanceof OrderUnitMove && move.unit === leftUnit
-            );
-            const canOrderCenter = legalMoves.some(
-                move => move instanceof OrderUnitMove && move.unit === centerUnit
-            );
-            const canOrderRight = legalMoves.some(
-                move => move instanceof OrderUnitMove && move.unit === rightUnit
-            );
-
-            expect(canOrderLeft).toBe(true);
-            expect(canOrderCenter).toBe(true);
-            expect(canOrderRight).toBe(true);
+            // Now we can only order units on the right
+            expect(sortMoves(gameState.legalMoves())).toEqual(sortMoves([
+                new ConfirmOrdersMove(),
+                new UnOrderMove(leftCenterUnit),
+                new UnOrderMove(centerUnit1),
+                new OrderUnitMove(centerRightUnit), // still orderable because it straddles center and right sections
+                new OrderUnitMove(rightUnit2),
+                new OrderUnitMove(rightUnit3),
+            ]));
         });
+
     });
 });

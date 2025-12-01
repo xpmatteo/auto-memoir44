@@ -37,19 +37,8 @@ export class OrderUnitsPhase implements Phase {
         let unorderedUnits = allFriendlyUnits.filter(unit => !unitsOrderer.isUnitOrdered(unit));
 
         // Track how many units have been ordered from each section
-        let sectionCounts = new Map<Section, number>();
-        for (const section of this.sections) {
-            sectionCounts.set(section, 0);
-        }
-
-        for (const unit of orderedUnits) {
-            const unitSections = unitsOrderer.getUnitSections(unit);
-            for (const section of unitSections) {
-                if (sectionCounts.has(section)) {
-                    sectionCounts.set(section, sectionCounts.get(section)! + 1);
-                }
-            }
-        }
+        // Use a greedy algorithm to assign units to sections optimally
+        let sectionCounts = this.assignUnitsToSections(orderedUnits, unitsOrderer);
 
         let moves: Array<Move> = [];
 
@@ -62,18 +51,18 @@ export class OrderUnitsPhase implements Phase {
         for (const unit of unorderedUnits) {
             const unitSections = unitsOrderer.getUnitSections(unit);
 
-            // Can only order if ALL of the unit's sections that are in the card's sections have quota available
-            let canOrder = true;
+            // Can order if ANY of the unit's sections that are in the card's sections have quota available
+            let hasAvailableSection = false;
             for (const unitSection of unitSections) {
                 if (sectionCounts.has(unitSection)) {
-                    if (sectionCounts.get(unitSection)! >= this.howManyUnits) {
-                        canOrder = false;
+                    if (sectionCounts.get(unitSection)! < this.howManyUnits) {
+                        hasAvailableSection = true;
                         break;
                     }
                 }
             }
 
-            if (canOrder) {
+            if (hasAvailableSection) {
                 moves.push(new OrderUnitMove(unit));
             }
         }
@@ -90,5 +79,67 @@ export class OrderUnitsPhase implements Phase {
             }
         }
         return [...allFriendlyUnits];
+    }
+
+    /**
+     * Count the minimum number of units that must be assigned to each section.
+     * Uses an iterative constraint propagation algorithm:
+     * - Units in only one section must be assigned to that section
+     * - Units whose other sections are full must be assigned to their remaining section
+     * - Repeat until no more forced assignments
+     */
+    private assignUnitsToSections(orderedUnits: Unit[], unitsOrderer: UnitsOrderer): Map<Section, number> {
+        let sectionCounts = new Map<Section, number>();
+        for (const section of this.sections) {
+            sectionCounts.set(section, 0);
+        }
+
+        // Get unit sections for all ordered units
+        let unitSectionMap = new Map<Unit, Section[]>();
+        for (const unit of orderedUnits) {
+            const unitSections = unitsOrderer.getUnitSections(unit);
+            const relevantSections = unitSections.filter(s => sectionCounts.has(s));
+            unitSectionMap.set(unit, relevantSections);
+        }
+
+        let assigned = new Set<Unit>();
+        let changed = true;
+
+        // Iteratively assign units that have no choice
+        while (changed) {
+            changed = false;
+
+            for (const unit of orderedUnits) {
+                if (assigned.has(unit)) continue;
+
+                const unitSections = unitSectionMap.get(unit)!;
+                if (unitSections.length === 0) {
+                    assigned.add(unit);
+                    continue;
+                }
+
+                // Find sections that still have room
+                let availableSections = unitSections.filter(s =>
+                    sectionCounts.get(s)! < this.howManyUnits
+                );
+
+                // If only one section available, must assign to it
+                if (availableSections.length === 1) {
+                    const section = availableSections[0];
+                    sectionCounts.set(section, sectionCounts.get(section)! + 1);
+                    assigned.add(unit);
+                    changed = true;
+                } else if (availableSections.length === 0) {
+                    // No room anywhere - this shouldn't happen in valid game state
+                    // Just assign to first section
+                    const section = unitSections[0];
+                    sectionCounts.set(section, sectionCounts.get(section)! + 1);
+                    assigned.add(unit);
+                    changed = true;
+                }
+            }
+        }
+
+        return sectionCounts;
     }
 }
