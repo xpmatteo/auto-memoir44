@@ -221,7 +221,7 @@ export class ReplenishHandMove extends Move {
 
     execute(gameState: GameState): void {
         gameState.discardActiveCard();
-        gameState.drawCards(1, gameState.activePlayerHand);
+        gameState.drawSpecificCard(this.card.id, gameState.activePlayerHand);
         gameState.popPhase();
     }
 

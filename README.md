@@ -5,9 +5,13 @@ Work in progress.  Don't hold your breath!
 
 TODO
 
-- DONE terrain: battle in modifications
-- DONE terrain: stops movement
-- DONE terrain: skips battle
+- terrain
+  - DONE terrain: battle in modifications
+  - DONE terrain: stops movement
+  - DONE terrain: skips battle
+  - hedgerows: entering
+  - hedgerows: exiting
+  - battle out for armor
 
 - unit might be better off not moving
 - reshuffle the deck
@@ -19,7 +23,11 @@ TODO
 - tactics cards
 - game log
 
-- hedgerows: entering
-- hedgerows: exiting
-- terrain: battle out for armor
 - hills: LOS
+
+- AI
+  - deploy inactive units
+  - protect weak units
+  - take cover
+  - leave retreat paths
+  - close retreat paths

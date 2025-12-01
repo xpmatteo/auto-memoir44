@@ -57,21 +57,14 @@ export class Deck {
      * Draws from the front of the array
      */
     drawCard(toLocation: CardLocation): CommandCard {
-        const peekCards = this.locations.get(CardLocation.PEEK)!;
         const deckCards = this.locations.get(CardLocation.DECK)!;
 
         let card: CommandCard;
 
-        // First try to draw from PEEK
-        if (peekCards.length > 0) {
-            card = peekCards.shift()!;
-        }
-        // Otherwise draw from DECK
-        else if (deckCards.length > 0) {
+        if (deckCards.length > 0) {
             card = deckCards.shift()!;
-        }
-        // No cards available
-        else {
+        } else {
+            // No cards available
             throw new Error("Deck is depleted, cannot draw");
         }
 

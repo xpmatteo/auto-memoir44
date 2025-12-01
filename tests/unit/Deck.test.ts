@@ -393,63 +393,6 @@ describe("Deck", () => {
             expect(deck.getCardsInLocation(CardLocation.DECK)).toHaveLength(1);
         });
 
-        it("should draw from PEEK before DECK", () => {
-            const card1 = new TestCard("Card A", "path/a.png");
-            const card2 = new TestCard("Card B", "path/b.png");
-            const card3 = new TestCard("Card C", "path/c.png");
-            const deck = new Deck([card1, card2, card3]);
-
-            // Peek 2 cards - moves them to PEEK
-            deck.peekCards(2);
-
-            // Draw a card - should come from PEEK
-            const drawn = deck.drawCard(CardLocation.BOTTOM_PLAYER_HAND);
-            expect(drawn).toBe(card1);
-
-            // PEEK should now have 1 card, DECK should still have 1
-            expect(deck.getCardsInLocation(CardLocation.PEEK)).toHaveLength(1);
-            expect(deck.getCardsInLocation(CardLocation.DECK)).toHaveLength(1);
-        });
-
-        it("should draw from DECK when PEEK is empty", () => {
-            const card1 = new TestCard("Card A", "path/a.png");
-            const card2 = new TestCard("Card B", "path/b.png");
-            const deck = new Deck([card1, card2]);
-
-            // Draw without peeking - should come from DECK
-            const drawn = deck.drawCard(CardLocation.BOTTOM_PLAYER_HAND);
-            expect(drawn).toBe(card1);
-
-            // PEEK should still be empty
-            expect(deck.getCardsInLocation(CardLocation.PEEK)).toHaveLength(0);
-            expect(deck.getCardsInLocation(CardLocation.DECK)).toHaveLength(1);
-        });
-
-        it("should preserve peek across multiple draws", () => {
-            const card1 = new TestCard("Card A", "path/a.png");
-            const card2 = new TestCard("Card B", "path/b.png");
-            const card3 = new TestCard("Card C", "path/c.png");
-            const card4 = new TestCard("Card D", "path/d.png");
-            const deck = new Deck([card1, card2, card3, card4]);
-
-            // Peek 3 cards
-            const peeked = deck.peekCards(3);
-            expect(peeked).toEqual([card1, card2, card3]);
-
-            // Draw 3 cards - should all come from PEEK in order
-            const drawn1 = deck.drawCard(CardLocation.BOTTOM_PLAYER_HAND);
-            const drawn2 = deck.drawCard(CardLocation.BOTTOM_PLAYER_HAND);
-            const drawn3 = deck.drawCard(CardLocation.BOTTOM_PLAYER_HAND);
-
-            expect(drawn1).toBe(card1);
-            expect(drawn2).toBe(card2);
-            expect(drawn3).toBe(card3);
-
-            // PEEK should now be empty, DECK should have 1 card
-            expect(deck.getCardsInLocation(CardLocation.PEEK)).toHaveLength(0);
-            expect(deck.getCardsInLocation(CardLocation.DECK)).toHaveLength(1);
-        });
-
         it("should clone PEEK location correctly", () => {
             const card1 = new TestCard("Card A", "path/a.png");
             const card2 = new TestCard("Card B", "path/b.png");
@@ -467,7 +410,7 @@ describe("Deck", () => {
             expect(deck.getCardsInLocation(CardLocation.PEEK)).toEqual([card1, card2]);
 
             // Drawing from clone should not affect original
-            cloned.drawCard(CardLocation.BOTTOM_PLAYER_HAND);
+            cloned.moveCard(card1.id, CardLocation.BOTTOM_PLAYER_HAND);
             expect(cloned.getCardsInLocation(CardLocation.PEEK)).toHaveLength(1);
             expect(deck.getCardsInLocation(CardLocation.PEEK)).toHaveLength(2);
         });
