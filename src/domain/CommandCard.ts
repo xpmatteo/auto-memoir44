@@ -181,3 +181,10 @@ export class ReconInForce extends CommandCard {
     readonly sections = [Section.LEFT, Section.CENTER, Section.RIGHT];
     readonly howManyUnits = 1;
 }
+
+export class GeneralAdvance extends CommandCard {
+    readonly name = "General Advance";
+    readonly imagePath = "images/cards/a1_general_advance.png";
+    readonly sections = [Section.LEFT, Section.CENTER, Section.RIGHT];
+    readonly howManyUnits = 2;
+}
