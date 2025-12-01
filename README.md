@@ -14,7 +14,6 @@ TODO
   - battle out for armor
 
 - unit might be better off not moving
-- reshuffle the deck
 - ending the game
 - line-of-sight
 - retreat

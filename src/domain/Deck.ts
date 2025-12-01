@@ -21,8 +21,10 @@ import {
 export class Deck {
     private locations: Map<CardLocation, CommandCard[]>;
     private cardIds: Map<string, CommandCard>;
+    private rng: () => number;
 
-    constructor(cards: CommandCard[]) {
+    constructor(cards: CommandCard[], rng: () => number = Math.random) {
+        this.rng = rng;
         this.locations = new Map<CardLocation, CommandCard[]>();
         this.cardIds = new Map<string, CommandCard>();
 
@@ -53,21 +55,30 @@ export class Deck {
 
     /**
      * Draw a card from the deck to a new location
-     * Prioritizes PEEK location, then falls back to DECK
+     * If DECK is empty, automatically moves DISCARD_PILE to DECK and shuffles
      * Draws from the front of the array
      */
     drawCard(toLocation: CardLocation): CommandCard {
         const deckCards = this.locations.get(CardLocation.DECK)!;
 
-        let card: CommandCard;
+        // Auto-reshuffle if deck is empty
+        if (deckCards.length === 0) {
+            const discardPile = this.locations.get(CardLocation.DISCARD_PILE)!;
 
-        if (deckCards.length > 0) {
-            card = deckCards.shift()!;
-        } else {
-            // No cards available
-            throw new Error("Deck is depleted, cannot draw");
+            if (discardPile.length === 0) {
+                throw new Error("Cannot draw: deck and discard pile are both empty");
+            }
+
+            // Move all discard pile cards to deck
+            deckCards.push(...discardPile);
+            discardPile.length = 0;
+
+            // Shuffle using stored RNG
+            this.shuffle();
         }
 
+        // Draw from deck
+        const card = deckCards.shift()!;
         this.locations.get(toLocation)!.push(card);
         return card;
     }
@@ -108,15 +119,15 @@ export class Deck {
     /**
      * Shuffle the deck using Fisher-Yates algorithm
      * Only shuffles cards in the DECK location
-     * @param rng Random number generator function returning [0, 1)
+     * Uses the RNG provided during construction
      */
-    shuffle(rng: () => number): void {
+    shuffle(): void {
         const deckCards = this.locations.get(CardLocation.DECK);
         if (!deckCards) return;
 
         // Fisher-Yates shuffle in-place
         for (let i = deckCards.length - 1; i > 0; i--) {
-            const j = Math.floor(rng() * (i + 1));
+            const j = Math.floor(this.rng() * (i + 1));
             [deckCards[i], deckCards[j]] = [deckCards[j], deckCards[i]];
         }
     }
@@ -126,7 +137,8 @@ export class Deck {
      * Composition is an array of [CommandCard class, count] tuples
      */
     static createFromComposition(
-        composition: Array<[new (location?: CardLocation) => CommandCard, number]>
+        composition: Array<[new (location?: CardLocation) => CommandCard, number]>,
+        rng?: () => number
     ): Deck {
         const cards: CommandCard[] = [];
 
@@ -135,13 +147,13 @@ export class Deck {
                 cards.push(new CardClass());
             }
         }
-        return new Deck(cards);
+        return new Deck(cards, rng);
     }
 
     /**
      * Create a standard deck with all command cards
      */
-    static createStandardDeck(): Deck {
+    static createStandardDeck(rng?: () => number): Deck {
         /*
         To be added later:
 
@@ -184,7 +196,7 @@ export class Deck {
             [AttackRight, 3],
             [ReconRight, 2],
             [ProbeRight, 4],
-        ]);
+        ], rng);
     }
 
     peekCards(n: number): CommandCard[] {
@@ -216,7 +228,7 @@ export class Deck {
     clone(): Deck {
         // Get all cards (they're immutable, so references are safe)
         const allCards = Array.from(this.cardIds.values());
-        const clonedDeck = new Deck(allCards);
+        const clonedDeck = new Deck(allCards, this.rng);
 
         // Clear default initialization (constructor puts all cards in DECK)
         clonedDeck.locations.clear();

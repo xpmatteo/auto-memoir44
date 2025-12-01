@@ -14,12 +14,12 @@ describe("Deck Shuffling", () => {
             const rng1 = new SeededRNG(seed);
             const rng2 = new SeededRNG(seed);
 
-            const deck1 = Deck.createStandardDeck();
-            const deck2 = Deck.createStandardDeck();
+            const deck1 = Deck.createStandardDeck(() => rng1.random());
+            const deck2 = Deck.createStandardDeck(() => rng2.random());
 
-            // When: Both decks are shuffled with same seed
-            deck1.shuffle(() => rng1.random());
-            deck2.shuffle(() => rng2.random());
+            // When: Both decks are shuffled with stored RNG
+            deck1.shuffle();
+            deck2.shuffle();
 
             // Then: Drawing 10 cards from each yields identical sequences (by card name)
             const cards1Names: string[] = [];
@@ -40,12 +40,12 @@ describe("Deck Shuffling", () => {
             const rng1 = new SeededRNG(11111);
             const rng2 = new SeededRNG(99999);
 
-            const deck1 = Deck.createStandardDeck();
-            const deck2 = Deck.createStandardDeck();
+            const deck1 = Deck.createStandardDeck(() => rng1.random());
+            const deck2 = Deck.createStandardDeck(() => rng2.random());
 
-            // When: Both decks are shuffled with different seeds
-            deck1.shuffle(() => rng1.random());
-            deck2.shuffle(() => rng2.random());
+            // When: Both decks are shuffled with stored RNG
+            deck1.shuffle();
+            deck2.shuffle();
 
             // Then: Drawing 10 cards from each yields different sequences
             const cards1: string[] = [];
@@ -63,8 +63,8 @@ describe("Deck Shuffling", () => {
     describe("Shuffle only affects deck location", () => {
         it("should randomize deck cards but keep hand cards in alphabetical order", () => {
             // Given: Deck with 5 cards dealt to hand
-            const deck = Deck.createStandardDeck();
             const rng = new SeededRNG(54321);
+            const deck = Deck.createStandardDeck(() => rng.random());
 
             // Draw 5 cards to hand BEFORE shuffling
             const handCardsBefore: string[] = [];
@@ -73,7 +73,7 @@ describe("Deck Shuffling", () => {
             }
 
             // When: Deck is shuffled
-            deck.shuffle(() => rng.random());
+            deck.shuffle();
 
             // Then: Cards in hand remain in alphabetical order
             const handCardsAfter = deck.getCardsInLocation(CardLocation.BOTTOM_PLAYER_HAND);
@@ -103,10 +103,10 @@ describe("Deck Shuffling", () => {
             // Given: A shuffled deck with known seed
             const seed = 42;
             const rng = new SeededRNG(seed);
-            const deck = Deck.createStandardDeck();
+            const deck = Deck.createStandardDeck(() => rng.random());
 
             // When: Deck is shuffled
-            deck.shuffle(() => rng.random());
+            deck.shuffle();
 
             // Then: First 5 drawn cards should NOT be in alphabetical order
             const drawnCards: string[] = [];
@@ -126,10 +126,10 @@ describe("Deck Shuffling", () => {
             // Given: A deck shuffled with a known seed
             const seed = 777;
             const rng = new SeededRNG(seed);
-            const deck = Deck.createStandardDeck();
+            const deck = Deck.createStandardDeck(() => rng.random());
 
             // When: Deck is shuffled
-            deck.shuffle(() => rng.random());
+            deck.shuffle();
 
             // Draw first 3 cards
             const card1 = deck.drawCard(CardLocation.BOTTOM_PLAYER_HAND).name;
@@ -138,8 +138,8 @@ describe("Deck Shuffling", () => {
 
             // Then: Another deck with same seed should produce same sequence
             const rng2 = new SeededRNG(seed);
-            const deck2 = Deck.createStandardDeck();
-            deck2.shuffle(() => rng2.random());
+            const deck2 = Deck.createStandardDeck(() => rng2.random());
+            deck2.shuffle();
 
             const card1_2 = deck2.drawCard(CardLocation.TOP_PLAYER_HAND).name;
             const card2_2 = deck2.drawCard(CardLocation.TOP_PLAYER_HAND).name;

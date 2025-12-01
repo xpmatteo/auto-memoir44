@@ -228,18 +228,18 @@ describe("Deck", () => {
 
     describe("shuffle", () => {
         it("should change the order of cards in the deck", () => {
-            const deck = Deck.createStandardDeck();
-
-            // Get initial order
-            const cardsBeforeShuffle = deck.getCardsInLocation(CardLocation.DECK).map(c => c.id);
-
             // Shuffle with a fixed RNG
             let callCount = 0;
             const fixedRng = () => {
                 callCount++;
                 return 0.5; // Fixed value for deterministic test
             };
-            deck.shuffle(fixedRng);
+            const deck = Deck.createStandardDeck(fixedRng);
+
+            // Get initial order
+            const cardsBeforeShuffle = deck.getCardsInLocation(CardLocation.DECK).map(c => c.id);
+
+            deck.shuffle();
 
             // Get order after shuffle
             const cardsAfterShuffle = deck.getCardsInLocation(CardLocation.DECK).map(c => c.id);
@@ -258,7 +258,7 @@ describe("Deck", () => {
             const cardsBefore = deck.getCardsInLocation(CardLocation.DECK).map(c => c.id).sort();
 
             // Shuffle
-            deck.shuffle(() => Math.random());
+            deck.shuffle();
 
             // Get all card IDs after shuffle
             const cardsAfter = deck.getCardsInLocation(CardLocation.DECK).map(c => c.id).sort();
@@ -274,8 +274,8 @@ describe("Deck", () => {
             const firstCardUnshuffled = deck.getCardsInLocation(CardLocation.DECK)[0].id;
 
             // Create new deck and shuffle
-            const deck2 = Deck.createStandardDeck();
-            deck2.shuffle(() => 0.99); // RNG that always returns high value
+            const deck2 = Deck.createStandardDeck(() => 0.99); // RNG that always returns high value
+            deck2.shuffle();
 
             // Get first card after shuffle
             const firstCardShuffled = deck2.getCardsInLocation(CardLocation.DECK)[0].id;
@@ -294,7 +294,7 @@ describe("Deck", () => {
             }
 
             // Shuffle
-            deck.shuffle(() => Math.random());
+            deck.shuffle();
 
             // Cards in hand should still be there, in alphabetical order
             const handCardsAfter = deck.getCardsInLocation(CardLocation.BOTTOM_PLAYER_HAND).map(c => c.id);
@@ -305,14 +305,14 @@ describe("Deck", () => {
             const deck = new Deck([]);
 
             // Should not throw
-            expect(() => deck.shuffle(() => Math.random())).not.toThrow();
+            expect(() => deck.shuffle()).not.toThrow();
         });
 
         it("should handle single-card deck", () => {
             const card = new TestCard("Single", "path.png");
             const deck = new Deck([card]);
 
-            deck.shuffle(() => Math.random());
+            deck.shuffle();
 
             // Single card should still be drawable
             const drawn = deck.drawCard(CardLocation.BOTTOM_PLAYER_HAND);
@@ -384,7 +384,7 @@ describe("Deck", () => {
             const deck = new Deck([card1, card2]);
 
             // Try to peek more cards than available
-            expect(() => deck.peekCards(3)).toThrow("Deck is depleted, cannot draw");
+            expect(() => deck.peekCards(3)).toThrow("Cannot draw: deck and discard pile are both empty");
         });
 
         test('should return same card when calling peekOneCard multiple times', () => {
