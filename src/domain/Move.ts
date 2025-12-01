@@ -130,8 +130,8 @@ export class MoveUnitMove extends Move {
 
         gameState.markUnitMoved(unit);
 
-        // Mark unit to skip battle if it moved 2 hexes
-        if (distance === 2) {
+        // Mark unit to skip battle if unit's movement rules dictate it
+        if (unit.movementSkipsBattle(distance)) {
             gameState.markUnitSkipsBattle(unit);
         }
 

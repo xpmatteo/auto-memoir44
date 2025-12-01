@@ -4,7 +4,7 @@
 import {describe, expect, test} from "vitest";
 import {MovePhase} from "../../../src/domain/phases/MovePhase";
 import {EndMovementsMove, Move, MoveUnitMove} from "../../../src/domain/Move";
-import {Infantry, Unit, UnitState} from "../../../src/domain/Unit";
+import {Infantry, Armor, Unit, UnitState} from "../../../src/domain/Unit";
 import {Side} from "../../../src/domain/Player";
 import {HexCoord} from "../../../src/utils/hex";
 import {clearTerrain, Terrain, woodsTerrain, hedgerowsTerrain, hillTerrain, TownTerrain} from "../../../src/domain/terrain/Terrain";
@@ -422,6 +422,104 @@ describe("MovePhase", () => {
                 new MoveUnitMove(startPos, startPos.west().west()),
                 new MoveUnitMove(startPos, startPos.northwest().west()),
                 new MoveUnitMove(startPos, startPos.northwest().northwest()),
+                new MoveUnitMove(startPos, startPos.northeast().northwest()),
+
+                new EndMovementsMove(),
+            ]),
+        },
+
+        // Armor Movement Range
+        {
+            name: "Armor can move 3 hexes in any direction",
+            unitMover: new FakeUnitMover()
+                .setOrderedUnits([{coord: startPos, unit: new Armor(Side.ALLIES)}])
+                .setMovedUnits([])
+                .setOccupiedCoords([]),
+            expected: sortMoves([
+                // no-op move - stay in place
+                new MoveUnitMove(startPos, startPos),
+
+                // 1-hex moves (6 adjacent hexes)
+                new MoveUnitMove(startPos, startPos.east()),
+                new MoveUnitMove(startPos, startPos.northeast()),
+                new MoveUnitMove(startPos, startPos.northwest()),
+                new MoveUnitMove(startPos, startPos.west()),
+                new MoveUnitMove(startPos, startPos.southwest()),
+                new MoveUnitMove(startPos, startPos.southeast()),
+
+                // 2-hex moves (12 hexes at distance 2)
+                new MoveUnitMove(startPos, startPos.northeast().northeast()),
+                new MoveUnitMove(startPos, startPos.northeast().east()),
+                new MoveUnitMove(startPos, startPos.east().east()),
+                new MoveUnitMove(startPos, startPos.southeast().east()),
+                new MoveUnitMove(startPos, startPos.southeast().southeast()),
+                new MoveUnitMove(startPos, startPos.southeast().southwest()),
+                new MoveUnitMove(startPos, startPos.southwest().southwest()),
+                new MoveUnitMove(startPos, startPos.southwest().west()),
+                new MoveUnitMove(startPos, startPos.west().west()),
+                new MoveUnitMove(startPos, startPos.northwest().west()),
+                new MoveUnitMove(startPos, startPos.northwest().northwest()),
+                new MoveUnitMove(startPos, startPos.northeast().northwest()),
+
+                // 3-hex moves (18 hexes at distance 3)
+                new MoveUnitMove(startPos, startPos.northeast().northeast().northeast()),
+                new MoveUnitMove(startPos, startPos.northeast().northeast().east()),
+                new MoveUnitMove(startPos, startPos.northeast().east().east()),
+                new MoveUnitMove(startPos, startPos.east().east().east()),
+                new MoveUnitMove(startPos, startPos.southeast().east().east()),
+                new MoveUnitMove(startPos, startPos.southeast().southeast().east()),
+                new MoveUnitMove(startPos, startPos.southeast().southeast().southeast()),
+                new MoveUnitMove(startPos, startPos.southeast().southwest().southeast()),
+                new MoveUnitMove(startPos, startPos.southeast().southwest().southwest()),
+                new MoveUnitMove(startPos, startPos.southwest().southwest().southwest()),
+                new MoveUnitMove(startPos, startPos.southwest().southwest().west()),
+                new MoveUnitMove(startPos, startPos.southwest().west().west()),
+                new MoveUnitMove(startPos, startPos.west().west().west()),
+                new MoveUnitMove(startPos, startPos.northwest().west().west()),
+                new MoveUnitMove(startPos, startPos.northwest().northwest().west()),
+                new MoveUnitMove(startPos, startPos.northwest().northwest().northwest()),
+                new MoveUnitMove(startPos, startPos.northeast().northwest().northwest()),
+                new MoveUnitMove(startPos, startPos.northeast().northeast().northwest()),
+
+                new EndMovementsMove(),
+            ]),
+        },
+        {
+            name: "Infantry still limited to 2 hexes (regression)",
+            unitMover: new FakeUnitMover()
+                .setOrderedUnits([{coord: startPos, unit: new Infantry(Side.ALLIES)}])
+                .setMovedUnits([])
+                .setOccupiedCoords([]),
+            expected: sortMoves([
+                // no-op move - stay in place
+                new MoveUnitMove(startPos, startPos),
+
+                // six surrounding hexes
+                new MoveUnitMove(startPos, startPos.east()),
+                new MoveUnitMove(startPos, startPos.southeast()),
+                new MoveUnitMove(startPos, startPos.southwest()),
+                new MoveUnitMove(startPos, startPos.west()),
+                new MoveUnitMove(startPos, startPos.northwest()),
+                new MoveUnitMove(startPos, startPos.northeast()),
+
+                // move 2 hexes on the right side
+                new MoveUnitMove(startPos, startPos.northeast().northeast()),
+                new MoveUnitMove(startPos, startPos.northeast().east()),
+                new MoveUnitMove(startPos, startPos.east().east()),
+                new MoveUnitMove(startPos, startPos.southeast().east()),
+                new MoveUnitMove(startPos, startPos.southeast().southeast()),
+
+                // move 2 hexes down
+                new MoveUnitMove(startPos, startPos.southeast().southwest()),
+
+                // move 2 hexes left side
+                new MoveUnitMove(startPos, startPos.northwest().northwest()),
+                new MoveUnitMove(startPos, startPos.northwest().west()),
+                new MoveUnitMove(startPos, startPos.west().west()),
+                new MoveUnitMove(startPos, startPos.southwest().west()),
+                new MoveUnitMove(startPos, startPos.southwest().southwest()),
+
+                // move 2 hexes top
                 new MoveUnitMove(startPos, startPos.northeast().northwest()),
 
                 new EndMovementsMove(),

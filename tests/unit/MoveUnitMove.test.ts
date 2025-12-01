@@ -1,10 +1,10 @@
 // ABOUTME: Unit tests for MoveUnitMove
-// ABOUTME: Tests that units moving 2 hexes are marked to skip battle
+// ABOUTME: Tests unit-specific battle restrictions after movement
 
 import {describe, expect, it} from "vitest";
 import {GameState} from "../../src/domain/GameState";
 import {Deck} from "../../src/domain/Deck";
-import {Infantry} from "../../src/domain/Unit";
+import {Infantry, Armor} from "../../src/domain/Unit";
 import {Side} from "../../src/domain/Player";
 import {HexCoord} from "../../src/utils/hex";
 import {MoveUnitMove} from "../../src/domain/Move";
@@ -89,7 +89,86 @@ describe("MoveUnitMove battle restrictions", () => {
         expect(gameState.getUnitAt(to)).toBe(unit);
     });
 
+    // Armor-specific movement tests
+    it("should NOT mark armor to skip battle when moving 2 hexes", () => {
+        const deck = Deck.createStandardDeck();
+        const gameState = new GameState(deck);
+        const armor = new Armor(Side.ALLIES);
 
+        const from = new HexCoord(1, 4);
+        const to = new HexCoord(3, 4); // 2 hexes away
+
+        gameState.placeUnit(from, armor);
+
+        // Unit does not skip battle before moving
+        expect(gameState.unitSkipsBattle(armor)).toBe(false);
+
+        // Execute a 2-hex move
+        const move = new MoveUnitMove(from, to);
+        move.execute(gameState);
+
+        // Armor should NOT skip battle (unlike infantry)
+        expect(gameState.unitSkipsBattle(armor)).toBe(false);
+        expect(gameState.getUnitAt(to)).toBe(armor);
+    });
+
+    it("should NOT mark armor to skip battle when moving 3 hexes", () => {
+        const deck = Deck.createStandardDeck();
+        const gameState = new GameState(deck);
+        const armor = new Armor(Side.ALLIES);
+
+        const from = new HexCoord(1, 4);
+        const to = new HexCoord(4, 4); // 3 hexes away
+
+        gameState.placeUnit(from, armor);
+
+        // Execute a 3-hex move
+        const move = new MoveUnitMove(from, to);
+        move.execute(gameState);
+
+        // Armor should NOT skip battle
+        expect(gameState.unitSkipsBattle(armor)).toBe(false);
+        expect(gameState.getUnitAt(to)).toBe(armor);
+    });
+
+    it("should mark armor to skip battle when entering woods (terrain rule)", () => {
+        const deck = Deck.createStandardDeck();
+        const gameState = new GameState(deck);
+        const armor = new Armor(Side.ALLIES);
+
+        const from = new HexCoord(1, 4);
+        const to = new HexCoord(2, 4); // 1 hex away into woods
+
+        gameState.placeUnit(from, armor);
+        gameState.setTerrain(to, woodsTerrain);
+
+        // Execute move into woods
+        const move = new MoveUnitMove(from, to);
+        move.execute(gameState);
+
+        // Armor should skip battle (terrain restriction applies to all unit types)
+        expect(gameState.unitSkipsBattle(armor)).toBe(true);
+        expect(gameState.getUnitAt(to)).toBe(armor);
+    });
+
+    it("should still mark infantry to skip battle when moving 2 hexes (regression)", () => {
+        const deck = Deck.createStandardDeck();
+        const gameState = new GameState(deck);
+        const infantry = new Infantry(Side.ALLIES);
+
+        const from = new HexCoord(1, 4);
+        const to = new HexCoord(3, 4); // 2 hexes away
+
+        gameState.placeUnit(from, infantry);
+
+        // Execute a 2-hex move
+        const move = new MoveUnitMove(from, to);
+        move.execute(gameState);
+
+        // Infantry should still skip battle
+        expect(gameState.unitSkipsBattle(infantry)).toBe(true);
+        expect(gameState.getUnitAt(to)).toBe(infantry);
+    });
 
     it('undoes movement', () => {
         const deck = Deck.createStandardDeck();

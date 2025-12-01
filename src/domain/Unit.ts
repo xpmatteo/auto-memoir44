@@ -89,7 +89,11 @@ export abstract class Unit {
         return `${this.constructor.name}/${this.side}`;
     }
 
-    abstract baseBattleDice(distance: number):number ;
+    abstract baseBattleDice(distance: number): number;
+
+    abstract maxMovementDistance(): number;
+
+    abstract movementSkipsBattle(distance: number): boolean;
 }
 
 export class Infantry extends Unit {
@@ -101,6 +105,14 @@ export class Infantry extends Unit {
 
     baseBattleDice(distance: number): number {
         return 4 - distance;
+    }
+
+    maxMovementDistance(): number {
+        return 2;
+    }
+
+    movementSkipsBattle(distance: number): boolean {
+        return distance === 2;
     }
 }
 
@@ -114,5 +126,13 @@ export class Armor extends Unit {
 
     baseBattleDice(distance: number): number {
         return (distance <= 3) ? 3 : 0;
+    }
+
+    maxMovementDistance(): number {
+        return 3;
+    }
+
+    movementSkipsBattle(_distance: number): boolean {
+        return false; // armor never skips battle based on movement distance
     }
 }

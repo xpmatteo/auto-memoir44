@@ -1,5 +1,5 @@
 // ABOUTME: Phase for moving ordered units
-// ABOUTME: Generates legal moves for infantry units (1-2 hexes) with pathfinding
+// ABOUTME: Generates legal moves with unit-specific ranges (infantry 1-2, armor 1-3) with pathfinding
 
 import {Phase, PhaseType} from "./Phase";
 import {GameState} from "../GameState";
@@ -30,7 +30,7 @@ export class MovePhase implements Phase {
         const allUnits = unitMover.getAllUnits();
         const moves: Array<Move> = [];
 
-        for (const {coord, unitState} of allUnits) {
+        for (const {coord, unit, unitState} of allUnits) {
             // Only consider ordered units that have not moved
             if (!unitState.isOrdered || unitState.hasMoved) {
                 continue;
@@ -39,8 +39,8 @@ export class MovePhase implements Phase {
             // Add "no-op" move - unit stays in place (for defensive positions)
             moves.push(new MoveUnitMove(coord, coord));
 
-            // Infantry can move 1 or 2 hexes
-            const maxDistance = 2;
+            // Use unit-specific movement range (infantry: 2, armor: 3)
+            const maxDistance = unit.maxMovementDistance();
             const validDestinations = this.findValidDestinations(
                 coord,
                 maxDistance,

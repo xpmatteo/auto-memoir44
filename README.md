@@ -14,15 +14,20 @@ TODO
   - battle out for armor
   - hills: LOS
 
+- bug: clicking twice on unit in movement phase should deselect it, not consume its movement
 - retreat
 - fortifications
 - tactics cards
+- take ground
+- armor overrun
+- auto advance phases
 - game log
 
 - UI
   - show the number of cards remaining in the deck 
 
 - AI
+  - prioritize battles
   - deploy inactive units
   - protect weak units
   - take cover
