@@ -166,8 +166,35 @@ function hexRound(fracq: number, fracr: number): HexCoord {
 
 /**
  * Returns true if there is a line of sight from fromHex to toHex.
+ * Based on the algorithm from doc/hexlib.js.
+ *
+ * Special handling for when LOS runs along a hex edge:
+ * LOS is blocked only if BOTH sides of the edge have obstacles.
  */
 export function hasLineOfSight(toHex: HexCoord, fromHex: HexCoord, isBlocked: (hexCoord: HexCoord) => boolean) {
+    // Handle edge cases where LOS runs along a hex edge
+    // These work for distance 2, which covers all cases up to range 3
+    if (fromHex.isNorthOf(toHex)) {
+        // Check both southern neighbors - blocked only if BOTH are blocked
+        return !isBlocked(fromHex.southwest()) || !isBlocked(fromHex.southeast());
+    }
+    if (toHex.isNorthOf(fromHex)) {
+        return !isBlocked(toHex.southwest()) || !isBlocked(toHex.southeast());
+    }
+    if (fromHex.isNorthWestOf(toHex)) {
+        return !isBlocked(fromHex.east()) || !isBlocked(fromHex.southeast());
+    }
+    if (toHex.isNorthWestOf(fromHex)) {
+        return !isBlocked(toHex.east()) || !isBlocked(toHex.southeast());
+    }
+    if (fromHex.isSouthWestOf(toHex)) {
+        return !isBlocked(fromHex.east()) || !isBlocked(fromHex.northeast());
+    }
+    if (toHex.isSouthWestOf(fromHex)) {
+        return !isBlocked(toHex.east()) || !isBlocked(toHex.northeast());
+    }
+
+    // Standard case: sample points along the line
     const distance = hexDistance(fromHex, toHex);
     const step = hexSubtract(toHex, fromHex);
     const stepSize = 1.0 / distance;
