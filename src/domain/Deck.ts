@@ -187,32 +187,16 @@ export class Deck {
         ]);
     }
 
-    peekCards(n: number) {
-        const peekCards = this.locations.get(CardLocation.PEEK)!;
-        const deckCards = this.locations.get(CardLocation.DECK)!;
-
-        // If we already have enough cards in PEEK, just return them
-        if (peekCards.length >= n) {
-            return [...peekCards.slice(0, n)];
+    peekCards(n: number): CommandCard[] {
+        let result = []
+        for (let i = 0; i <n; i++) {
+            result.push(this.peekOneCard());
         }
-
-        // Otherwise, move cards from DECK to PEEK
-        const cardsNeeded = n - peekCards.length;
-        if (deckCards.length < cardsNeeded) {
-            throw new Error("Not enough cards in the deck to peek");
-        }
-
-        // Move cards from front of DECK to end of PEEK
-        for (let i = 0; i < cardsNeeded; i++) {
-            const card = deckCards.shift()!;
-            peekCards.push(card);
-        }
-
-        return [...peekCards.slice(0, n)];
+        return result;
     }
 
-    peekOneCard() {
-        return this.peekCards(1)[0];
+    peekOneCard(): CommandCard {
+        return this.drawCard(CardLocation.PEEK);
     }
 
     /**

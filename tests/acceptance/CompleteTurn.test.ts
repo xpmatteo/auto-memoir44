@@ -43,13 +43,18 @@ test("Complete turn", () => {
 
     // Act (5): bottom player replenishes their hand
     expect(gameState.activePhase.type).toBe(PhaseType.REPLENISH_HAND);
-    let replenishHandMove = new ReplenishHandMove(gameState.peekOneCard());
-    expect(gameState.legalMoves()).toEqual([replenishHandMove]);
+    const moves = gameState.legalMoves();
+    expect(deck.getCardsInLocation(CardLocation.PEEK)).toHaveLength(1);
+    const replenishCard = deck.getCardsInLocation(CardLocation.PEEK)[0];
+    let replenishHandMove = new ReplenishHandMove(replenishCard);
+    expect(moves).toEqual([replenishHandMove]);
     gameState.executeMove(replenishHandMove);
 
     // Assert
     // - the played card is in the discards
     expect(gameState.getCardsInLocation(CardLocation.DISCARD_PILE)).toEqual([playedCard]);
+    // - no cards in PEEK
+    expect(gameState.getCardsInLocation(CardLocation.PEEK)).toEqual([]);
     // - there is no activeCard
     expect(gameState.activeCard).toBeNull();
     // - the bottom player has 3 cards again

@@ -356,43 +356,6 @@ describe("Deck", () => {
             expect(deck.getCardsInLocation(CardLocation.PEEK)).toEqual([card1, card2]);
         });
 
-        it("should return existing PEEK cards without moving more from DECK", () => {
-            const card1 = new TestCard("Card A", "path/a.png");
-            const card2 = new TestCard("Card B", "path/b.png");
-            const card3 = new TestCard("Card C", "path/c.png");
-            const deck = new Deck([card1, card2, card3]);
-
-            // First peek - moves 2 cards to PEEK
-            deck.peekCards(2);
-            expect(deck.getCardsInLocation(CardLocation.PEEK)).toHaveLength(2);
-            expect(deck.getCardsInLocation(CardLocation.DECK)).toHaveLength(1);
-
-            // Second peek of same amount - should not move more cards
-            const peeked = deck.peekCards(2);
-            expect(peeked).toEqual([card1, card2]);
-            expect(deck.getCardsInLocation(CardLocation.PEEK)).toHaveLength(2);
-            expect(deck.getCardsInLocation(CardLocation.DECK)).toHaveLength(1);
-        });
-
-        it("should move additional cards if peeking more than currently in PEEK", () => {
-            const card1 = new TestCard("Card A", "path/a.png");
-            const card2 = new TestCard("Card B", "path/b.png");
-            const card3 = new TestCard("Card C", "path/c.png");
-            const card4 = new TestCard("Card D", "path/d.png");
-            const deck = new Deck([card1, card2, card3, card4]);
-
-            // First peek 2 cards
-            deck.peekCards(2);
-            expect(deck.getCardsInLocation(CardLocation.PEEK)).toHaveLength(2);
-            expect(deck.getCardsInLocation(CardLocation.DECK)).toHaveLength(2);
-
-            // Now peek 3 cards - should move 1 more from DECK
-            const peeked = deck.peekCards(3);
-            expect(peeked).toEqual([card1, card2, card3]);
-            expect(deck.getCardsInLocation(CardLocation.PEEK)).toHaveLength(3);
-            expect(deck.getCardsInLocation(CardLocation.DECK)).toHaveLength(1);
-        });
-
         it("should clone PEEK location correctly", () => {
             const card1 = new TestCard("Card A", "path/a.png");
             const card2 = new TestCard("Card B", "path/b.png");
@@ -421,7 +384,7 @@ describe("Deck", () => {
             const deck = new Deck([card1, card2]);
 
             // Try to peek more cards than available
-            expect(() => deck.peekCards(3)).toThrow("Not enough cards in the deck to peek");
+            expect(() => deck.peekCards(3)).toThrow("Deck is depleted, cannot draw");
         });
     });
 
