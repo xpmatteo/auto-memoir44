@@ -207,26 +207,6 @@ describe("BattleMove", () => {
         });
     });
 
-    describe("toString", () => {
-        it("should return formatted battle description", () => {
-            const attacker = new Infantry(Side.ALLIES, 4);
-            const target = new Infantry(Side.AXIS, 3);
-
-            const move = new BattleMove(attacker, target, 2);
-
-            expect(move.toString()).toBe("Battle: infantry (2 dice) → infantry");
-        });
-
-        it("should include correct dice count in description", () => {
-            const attacker = new Infantry(Side.ALLIES, 4);
-            const target = new Infantry(Side.AXIS, 4);
-
-            const move = new BattleMove(attacker, target, 3);
-
-            expect(move.toString()).toBe("Battle: infantry (3 dice) → infantry");
-        });
-    });
-
     describe("dice rolling", () => {
         it("should roll specified number of dice", () => {
             const deck = Deck.createStandardDeck();

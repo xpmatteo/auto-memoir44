@@ -48,6 +48,18 @@ export class HexCoord {
     toString(): string {
         return `(${this.q},${this.r})`;
     }
+
+    isNorthOf(otherHex: HexCoord) {
+        return this.q - otherHex.q === 1 && this.r - otherHex.r === -2;
+    }
+
+    isNorthWestOf(otherHex: HexCoord) {
+        return this.q - otherHex.q === -1 && this.r - otherHex.r === -1;
+    }
+
+    isSouthWestOf(otherHex: HexCoord) {
+        return this.q - otherHex.q === -2 && this.r - otherHex.r === 1;
+    }
 }
 
 export type CanvasCoord = {
@@ -130,4 +142,41 @@ export function hexDistance(from: HexCoord, to: HexCoord): number {
     const dr = Math.abs(from.r - to.r);
     const ds = Math.abs((from.q + from.r) - (to.q + to.r));
     return Math.trunc((dq + dr + ds) / 2);
+}
+
+function hexSubtract(a, b) {
+    return new HexCoord(a.q - b.q, a.r - b.r);
+}
+
+function hex_round(fracq: number, fracr: number, fracs: number) {
+    let q = Math.round(fracq);
+    let r = Math.round(fracr);
+    let s = Math.round(fracs);
+    let q_diff = Math.abs(q - fracq);
+    let r_diff = Math.abs(r - fracr);
+    let s_diff = Math.abs(s - fracs);
+    if (q_diff > r_diff && q_diff > s_diff) {
+        q = -r - s;
+    } else if (r_diff > s_diff) {
+        r = -q - s;
+    }
+    return new HexCoord(q, r);
+}
+
+/**
+ * Returns true if there is a line of sight from fromHex to toHex.
+ */
+export function hasLineOfSight(toHex: HexCoord, fromHex: HexCoord, isBlocked: (hexCoord: HexCoord) => boolean) {
+    const distance = hexDistance(fromHex, toHex);
+    const step = hexSubtract(toHex, fromHex);
+    const stepSize = 1.0 / distance;
+    for (let i = 1; i < distance; i++) {
+        const stepHex = new HexCoord(
+            fromHex.q + (step.q * stepSize * i),
+            fromHex.r + (step.r * stepSize * i));
+        if (isBlocked(stepHex)) {
+            return false;
+        }
+    }
+    return true;
 }

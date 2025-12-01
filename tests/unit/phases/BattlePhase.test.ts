@@ -9,7 +9,7 @@ import {Side, Position, createPlayer, Player} from "../../../src/domain/Player";
 import {HexCoord} from "../../../src/utils/hex";
 import {clearTerrain, hillTerrain, Terrain, woodsTerrain} from "../../../src/domain/terrain/Terrain";
 
-class FakeUnitBattler {
+export class FakeUnitBattler {
     allUnitsData = [] as Array<{ coord: HexCoord, unit: Unit, unitState: UnitState, terrain: Terrain }>;
     activePlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
 

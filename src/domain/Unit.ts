@@ -84,6 +84,10 @@ export abstract class Unit {
         this.initialStrength = strength;
         this.side = owner;
     }
+
+    toString(): string {
+        return `${this.constructor.name}/${this.side}`;
+    }
 }
 
 /**
@@ -95,9 +99,5 @@ export class Infantry extends Unit {
 
     constructor(owner: Side, strength?: number) {
         super(strength ?? Infantry.defaultStrength, owner);
-    }
-
-    toString(): string {
-        return `Infantry`;
     }
 }

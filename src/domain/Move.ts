@@ -206,7 +206,7 @@ export class BattleMove extends Move {
     }
 
     toString(): string {
-        return `Battle: ${this.fromUnit.type} (${this.dice} dice) → ${this.toUnit.type}`;
+        return `Battle(${this.fromUnit}, ${this.toUnit}, ${this.dice})`;
     }
 }
 
@@ -222,6 +222,10 @@ export class EndBattlesMove extends Move {
                 gameState.popPhase();
             },
         }];
+    }
+
+    toString(): string {
+        return 'EndBattles';
     }
 }
 

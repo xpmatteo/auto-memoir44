@@ -8,11 +8,8 @@ import {Deck} from "../../src/domain/Deck";
 import {Infantry} from "../../src/domain/Unit";
 import {CardLocation, PincerMove, ReconInForce} from "../../src/domain/CommandCard";
 import {HexCoord} from "../../src/utils/hex";
-import {ConfirmOrdersMove, Move, OrderUnitMove, PlayCardMove, UnOrderMove} from "../../src/domain/Move";
-
-function sortMoves(moves: Move[]): string[] {
-    return moves.map(move => move.toString()).sort();
-}
+import {ConfirmOrdersMove, OrderUnitMove, PlayCardMove, UnOrderMove} from "../../src/domain/Move";
+import {toStringAndSort} from "../helpers/testHelpers";
 
 describe("Multi-Section Command Cards", () => {
     const leftUnit1 = new Infantry(Side.ALLIES);
@@ -59,7 +56,7 @@ describe("Multi-Section Command Cards", () => {
             // Play the card
             gameState.executeMove(new PlayCardMove(card));
 
-            expect(sortMoves(gameState.legalMoves())).toEqual(sortMoves([
+            expect(toStringAndSort(gameState.legalMoves())).toEqual(toStringAndSort([
                 new ConfirmOrdersMove(),
                 new OrderUnitMove(leftUnit1),
                 new OrderUnitMove(leftUnit2),
@@ -80,7 +77,7 @@ describe("Multi-Section Command Cards", () => {
             // Order 1 unit from LEFT
             gameState.executeMove(new OrderUnitMove(leftUnit1));
 
-            expect(sortMoves(gameState.legalMoves())).toEqual(sortMoves([
+            expect(toStringAndSort(gameState.legalMoves())).toEqual(toStringAndSort([
                 new ConfirmOrdersMove(),
                 new UnOrderMove(leftUnit1),
                 new OrderUnitMove(leftUnit2),
@@ -94,7 +91,7 @@ describe("Multi-Section Command Cards", () => {
             gameState.executeMove(new OrderUnitMove(leftUnit2));
 
             // can no longer order the third unit in the left
-            expect(sortMoves(gameState.legalMoves())).toEqual(sortMoves([
+            expect(toStringAndSort(gameState.legalMoves())).toEqual(toStringAndSort([
                 new ConfirmOrdersMove(),
                 new UnOrderMove(leftUnit1),
                 new UnOrderMove(leftUnit2),
@@ -116,7 +113,7 @@ describe("Multi-Section Command Cards", () => {
 
             gameState.executeMove(new PlayCardMove(card));
 
-            expect(sortMoves(gameState.legalMoves())).toEqual(sortMoves([
+            expect(toStringAndSort(gameState.legalMoves())).toEqual(toStringAndSort([
                 new ConfirmOrdersMove(),
                 new OrderUnitMove(leftUnit1),
                 new OrderUnitMove(leftUnit2),
@@ -140,7 +137,7 @@ describe("Multi-Section Command Cards", () => {
             // Order 1 unit from LEFT
             gameState.executeMove(new OrderUnitMove(leftUnit1));
 
-            expect(sortMoves(gameState.legalMoves())).toEqual(sortMoves([
+            expect(toStringAndSort(gameState.legalMoves())).toEqual(toStringAndSort([
                 new ConfirmOrdersMove(),
                 new UnOrderMove(leftUnit1),
                 new OrderUnitMove(leftCenterUnit), // still orderable because it straddles left and center sections
@@ -155,7 +152,7 @@ describe("Multi-Section Command Cards", () => {
             // Order 1 units from CENTER
             gameState.executeMove(new OrderUnitMove(leftCenterUnit));
 
-            expect(sortMoves(gameState.legalMoves())).toEqual(sortMoves([
+            expect(toStringAndSort(gameState.legalMoves())).toEqual(toStringAndSort([
                 new ConfirmOrdersMove(),
                 new UnOrderMove(leftUnit1),
                 new UnOrderMove(leftCenterUnit),
@@ -168,7 +165,7 @@ describe("Multi-Section Command Cards", () => {
             gameState.executeMove(new OrderUnitMove(rightUnit2));
 
             // At limit in all sections; we can only unorder now
-            expect(sortMoves(gameState.legalMoves())).toEqual(sortMoves([
+            expect(toStringAndSort(gameState.legalMoves())).toEqual(toStringAndSort([
                 new ConfirmOrdersMove(),
                 new UnOrderMove(leftUnit1),
                 new UnOrderMove(leftCenterUnit),
@@ -186,7 +183,7 @@ describe("Multi-Section Command Cards", () => {
             // Order 1 unit from LEFT CENTER
             gameState.executeMove(new OrderUnitMove(leftCenterUnit));
 
-            expect(sortMoves(gameState.legalMoves())).toEqual(sortMoves([
+            expect(toStringAndSort(gameState.legalMoves())).toEqual(toStringAndSort([
                 new ConfirmOrdersMove(),
                 new OrderUnitMove(leftUnit1),
                 new OrderUnitMove(leftUnit2),
@@ -203,7 +200,7 @@ describe("Multi-Section Command Cards", () => {
             gameState.executeMove(new OrderUnitMove(centerUnit1));
 
             // Now we can only order units on the right
-            expect(sortMoves(gameState.legalMoves())).toEqual(sortMoves([
+            expect(toStringAndSort(gameState.legalMoves())).toEqual(toStringAndSort([
                 new ConfirmOrdersMove(),
                 new UnOrderMove(leftCenterUnit),
                 new UnOrderMove(centerUnit1),

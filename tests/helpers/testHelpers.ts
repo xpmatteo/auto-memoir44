@@ -1,9 +1,10 @@
 // ABOUTME: Test helper functions for creating test fixtures
 // ABOUTME: Provides convenient factory functions for tests
 
-import { Deck } from "../../src/domain/Deck";
-import { GameState } from "../../src/domain/GameState";
-import { Dice } from "../../src/domain/Dice";
+import {Deck} from "../../src/domain/Deck";
+import {GameState} from "../../src/domain/GameState";
+import {Dice} from "../../src/domain/Dice";
+import {Move} from "../../src/domain/Move";
 
 /**
  * Create a GameState with a standard deck and default dice for testing
@@ -17,4 +18,8 @@ export function createTestGameState(): GameState {
     return counter / 6;
   });
   return new GameState(deck, testDice);
+}
+
+export function toStringAndSort(moves: Move[]): string[] {
+    return moves.map(move => move.toString()).sort();
 }

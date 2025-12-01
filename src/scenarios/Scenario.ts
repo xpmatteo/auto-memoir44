@@ -21,6 +21,25 @@ const terrainCodes = new Map(Object.entries({
     "W": woodsTerrain,
 })) as Map<string, Terrain>;
 
+/*
+Sample:
+
+const unitSetup = [
+    "   0   1   2   3   4   5   6   7   8   9  10  11  12",
+    "....    ....    ....    ....    ....    ....    ....",
+    "~~....    ....    ....    ....    ....    ....    ~~",
+    "....    ....    ....    ....    ....    ....    ....",
+    "~~....    ....    ....    ....    ....    ....    ~~",
+    "....    ....    ....    ....    ....    ....    ....",
+    "~~....    ....    ....    ....    ....    ....    ~~",
+    "....    ....    ....    ....    ....    ....    ....",
+    "~~....    ....    ....    ....    ....    ....    ~~",
+    "....    ....    ....    ....    ....    ....    ....",
+];
+
+
+ */
+
 export function parseAndSetupUnits(gameState: GameState, unitSetup: string[]): void {
     // Skip line 0 (column header)
     for (let lineIndex = 1; lineIndex < unitSetup.length; lineIndex++) {
