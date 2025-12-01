@@ -36,6 +36,9 @@ export class MovePhase implements Phase {
                 continue;
             }
 
+            // Add "no-op" move - unit stays in place (for defensive positions)
+            moves.push(new MoveUnitMove(coord, coord));
+
             // Infantry can move 1 or 2 hexes
             const maxDistance = 2;
             const validDestinations = this.findValidDestinations(

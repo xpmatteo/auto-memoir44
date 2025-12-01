@@ -121,11 +121,16 @@ export class MoveUnitMove extends Move {
         if (!unit) {
             throw new Error(`No unit found at (${this.from.q}, ${this.from.r})`);
         }
-        gameState.moveUnit(this.from, this.to);
+
+        // Handle no-op move (unit stays in place)
+        const distance = hexDistance(this.from, this.to);
+        if (distance > 0) {
+            gameState.moveUnit(this.from, this.to);
+        }
+
         gameState.markUnitMoved(unit);
 
         // Mark unit to skip battle if it moved 2 hexes
-        const distance = hexDistance(this.from, this.to);
         if (distance === 2) {
             gameState.markUnitSkipsBattle(unit);
         }

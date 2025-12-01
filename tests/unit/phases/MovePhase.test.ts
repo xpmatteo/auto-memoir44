@@ -113,6 +113,9 @@ describe("MovePhase", () => {
                 .setMovedUnits([])
                 .setOccupiedCoords([]),
             expected: sortMoves([
+                // no-op move - stay in place
+                new MoveUnitMove(startPos, startPos),
+
                 // six surrounding hexes
                 new MoveUnitMove(startPos, startPos.east()),
                 new MoveUnitMove(startPos, startPos.southeast()),
@@ -159,6 +162,9 @@ describe("MovePhase", () => {
                 const pos1 = new HexCoord(5, 5);
                 const pos2 = new HexCoord(8, 8);
                 const moves = [
+                    // Unit 1 no-op move
+                    new MoveUnitMove(pos1, pos1),
+
                     // Unit 1 moves (from 5,5) - all 18 moves
                     new MoveUnitMove(pos1, pos1.east()),
                     new MoveUnitMove(pos1, pos1.northeast()),
@@ -178,6 +184,9 @@ describe("MovePhase", () => {
                     new MoveUnitMove(pos1, pos1.southeast().southwest()),
                     new MoveUnitMove(pos1, pos1.southeast().east()),
                     new MoveUnitMove(pos1, pos1.southeast().southeast()),
+
+                    // Unit 2 no-op move
+                    new MoveUnitMove(pos2, pos2),
 
                     // Unit 2 moves (from 8,8) - only 6 moves (near board edge, r=8 is last row)
                     new MoveUnitMove(pos2, pos2.northwest()),
@@ -201,6 +210,9 @@ describe("MovePhase", () => {
                 .setMovedUnits([])
                 .setOccupiedCoords([new HexCoord(6, 5)]), // East hex occupied
             expected: sortMoves([
+                // no-op move - stay in place
+                new MoveUnitMove(startPos, startPos),
+
                 // Adjacent hexes (except east which is occupied)
                 new MoveUnitMove(startPos, startPos.northeast()),
                 new MoveUnitMove(startPos, startPos.northwest()),
@@ -231,6 +243,9 @@ describe("MovePhase", () => {
                 .setMovedUnits([])
                 .setOccupiedCoords([new HexCoord(6, 5)]), // Blocking hex to the east
             expected: sortMoves([
+                // no-op move - stay in place
+                new MoveUnitMove(startPos, startPos),
+
                 // Adjacent hexes (except east which is blocked)
                 new MoveUnitMove(startPos, startPos.northeast()),
                 new MoveUnitMove(startPos, startPos.northwest()),
@@ -265,6 +280,9 @@ describe("MovePhase", () => {
             expected: (() => {
                 const edgePos = new HexCoord(0, 7);
                 const moves = [
+                    // no-op move - stay in place
+                    new MoveUnitMove(edgePos, edgePos),
+
                     // Adjacent hexes (some directions lead off-board)
                     new MoveUnitMove(edgePos, edgePos.east()),
                     new MoveUnitMove(edgePos, edgePos.northeast()),
@@ -299,6 +317,9 @@ describe("MovePhase", () => {
                 .setOccupiedCoords([])
                 .setTerrain(startPos.east(), woodsTerrain),
             expected: sortMoves([
+                // no-op move - stay in place
+                new MoveUnitMove(startPos, startPos),
+
                 // Can move TO woods (east hex)
                 new MoveUnitMove(startPos, startPos.east()),
 
@@ -340,6 +361,9 @@ describe("MovePhase", () => {
                 // Both west (hedgerows) and east (town) should block pass-through
                 // Only moves that don't go through these hexes should be valid
                 const moves = [
+                    // no-op move - stay in place
+                    new MoveUnitMove(startPos, startPos),
+
                     // Can move TO the blocking hexes
                     new MoveUnitMove(startPos, startPos.west()),
                     new MoveUnitMove(startPos, startPos.east()),
@@ -375,6 +399,9 @@ describe("MovePhase", () => {
                 .setOccupiedCoords([])
                 .setTerrain(startPos.east(), hillTerrain),
             expected: sortMoves([
+                // no-op move - stay in place
+                new MoveUnitMove(startPos, startPos),
+
                 // Should have ALL normal moves (18 total)
                 // Including moves that go THROUGH the hill hex
                 new MoveUnitMove(startPos, startPos.east()),
