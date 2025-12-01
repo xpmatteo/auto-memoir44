@@ -2,7 +2,7 @@
 // ABOUTME: Used by BattlePhase to determine how many dice a unit rolls in battle
 
 import {Unit, UnitType} from "../domain/Unit";
-import {DiceResult, RESULT_INFANTRY, RESULT_GRENADE} from "../domain/Dice";
+import {DiceResult, RESULT_INFANTRY, RESULT_GRENADE, RESULT_ARMOR} from "../domain/Dice";
 import {
     hillTerrain,
     Terrain,
@@ -40,10 +40,6 @@ export function calculateDiceCount(attacker: Unit, attackerTerrain: Terrain, dis
 /**
  * Resolve hits from dice results against a target unit.
  *
- * Infantry units are hit by:
- * - RESULT_INFANTRY
- * - RESULT_GRENADE
- *
  * @param diceResults - The results from rolling dice
  * @param targetUnit - The unit being attacked
  * @returns The number of hits scored
@@ -56,8 +52,13 @@ export function resolveHits(diceResults: DiceResult[], targetUnit: Unit): number
             if (result === RESULT_INFANTRY || result === RESULT_GRENADE) {
                 hits++;
             }
+        } else if (targetUnit.type === UnitType.ARMOR) {
+            if (result === RESULT_ARMOR || result === RESULT_GRENADE) {
+                hits++;
+            }
+        } else {
+            throw new Error("Artillery not implemented");
         }
-        // Future: Add armor and other unit types here
     }
 
     return hits;

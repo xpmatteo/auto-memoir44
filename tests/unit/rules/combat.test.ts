@@ -2,9 +2,17 @@
 // ABOUTME: Verifies that units roll the correct number of dice based on type and distance
 
 import {describe, test, expect} from "vitest";
-import {calculateDiceCount} from "../../../src/rules/combat";
+import {calculateDiceCount, resolveHits} from "../../../src/rules/combat";
 import {Armor, Infantry, Unit} from "../../../src/domain/Unit";
 import {Side} from "../../../src/domain/Player";
+import {
+    DiceResult,
+    RESULT_INFANTRY,
+    RESULT_ARMOR,
+    RESULT_GRENADE,
+    RESULT_STAR,
+    RESULT_FLAG
+} from "../../../src/domain/Dice";
 import {
     clearTerrain,
     hedgerowsTerrain,
@@ -94,4 +102,47 @@ describe("calculateDiceCount", () => {
         });
     });
 
+});
+
+describe("resolveHits", () => {
+    const infantry = new Infantry(Side.ALLIES);
+    const armor = new Armor(Side.ALLIES);
+
+    interface ResolveHitsCase {
+        name: string;
+        diceResults: DiceResult[];
+        target: Unit;
+        expectedHits: number;
+    }
+
+    const cases: ResolveHitsCase[] = [
+        // Infantry target cases
+        {name: "no dice vs infantry", diceResults: [], target: infantry, expectedHits: 0},
+        {name: "1 infantry symbol vs infantry", diceResults: [RESULT_INFANTRY], target: infantry, expectedHits: 1},
+        {name: "2 infantry symbols vs infantry", diceResults: [RESULT_INFANTRY, RESULT_INFANTRY], target: infantry, expectedHits: 2},
+        {name: "1 grenade vs infantry", diceResults: [RESULT_GRENADE], target: infantry, expectedHits: 1},
+        {name: "1 armor symbol vs infantry", diceResults: [RESULT_ARMOR], target: infantry, expectedHits: 0},
+        {name: "1 star vs infantry", diceResults: [RESULT_STAR], target: infantry, expectedHits: 0},
+        {name: "1 flag vs infantry", diceResults: [RESULT_FLAG], target: infantry, expectedHits: 0},
+        {name: "mixed hits vs infantry", diceResults: [RESULT_INFANTRY, RESULT_GRENADE, RESULT_INFANTRY], target: infantry, expectedHits: 3},
+        {name: "mixed with misses vs infantry", diceResults: [RESULT_INFANTRY, RESULT_ARMOR, RESULT_GRENADE, RESULT_STAR, RESULT_FLAG], target: infantry, expectedHits: 2},
+        {name: "all misses vs infantry", diceResults: [RESULT_ARMOR, RESULT_STAR, RESULT_FLAG], target: infantry, expectedHits: 0},
+
+        // Armor target cases
+        {name: "no dice vs armor", diceResults: [], target: armor, expectedHits: 0},
+        {name: "1 armor symbol vs armor", diceResults: [RESULT_ARMOR], target: armor, expectedHits: 1},
+        {name: "2 armor symbols vs armor", diceResults: [RESULT_ARMOR, RESULT_ARMOR], target: armor, expectedHits: 2},
+        {name: "1 grenade vs armor", diceResults: [RESULT_GRENADE], target: armor, expectedHits: 1},
+        {name: "1 infantry symbol vs armor", diceResults: [RESULT_INFANTRY], target: armor, expectedHits: 0},
+        {name: "1 star vs armor", diceResults: [RESULT_STAR], target: armor, expectedHits: 0},
+        {name: "1 flag vs armor", diceResults: [RESULT_FLAG], target: armor, expectedHits: 0},
+        {name: "mixed hits vs armor", diceResults: [RESULT_ARMOR, RESULT_GRENADE, RESULT_ARMOR], target: armor, expectedHits: 3},
+        {name: "mixed with misses vs armor", diceResults: [RESULT_ARMOR, RESULT_INFANTRY, RESULT_GRENADE, RESULT_STAR, RESULT_FLAG], target: armor, expectedHits: 2},
+        {name: "all misses vs armor", diceResults: [RESULT_INFANTRY, RESULT_STAR, RESULT_FLAG], target: armor, expectedHits: 0},
+    ];
+
+    test.each(cases)('$name', ({diceResults, target, expectedHits}) => {
+        const hits = resolveHits(diceResults, target);
+        expect(hits).toBe(expectedHits);
+    });
 });
