@@ -188,15 +188,25 @@ export class Deck {
     }
 
     peekCards(n: number): CommandCard[] {
-        let result = []
-        for (let i = 0; i <n; i++) {
-            result.push(this.peekOneCard());
+        const peekLocation = this.locations.get(CardLocation.PEEK)!;
+
+        // If we already have enough cards in PEEK, return them (idempotent!)
+        if (peekLocation.length >= n) {
+            return peekLocation.slice(0, n);
         }
-        return result;
+
+        // Otherwise, draw only the remaining cards we need
+        const remainingNeeded = n - peekLocation.length;
+        for (let i = 0; i < remainingNeeded; i++) {
+            this.drawCard(CardLocation.PEEK);
+        }
+
+        return peekLocation.slice(0, n);
     }
 
     peekOneCard(): CommandCard {
-        return this.drawCard(CardLocation.PEEK);
+        const cards = this.peekCards(1);
+        return cards[0];
     }
 
     /**

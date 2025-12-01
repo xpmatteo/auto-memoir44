@@ -386,6 +386,28 @@ describe("Deck", () => {
             // Try to peek more cards than available
             expect(() => deck.peekCards(3)).toThrow("Deck is depleted, cannot draw");
         });
+
+        test('should return same card when calling peekOneCard multiple times', () => {
+            const deck = Deck.createStandardDeck();
+            const firstPeek = deck.peekOneCard();
+            const secondPeek = deck.peekOneCard();
+            expect(secondPeek).toBe(firstPeek);
+        });
+
+        test('should return same cards when calling peekCards multiple times', () => {
+            const deck = Deck.createStandardDeck();
+            const firstPeek = deck.peekCards(3);
+            const secondPeek = deck.peekCards(3);
+            expect(secondPeek).toEqual(firstPeek);
+        });
+
+        test('should draw additional cards if peeking more than previously peeked', () => {
+            const deck = Deck.createStandardDeck();
+            const firstCard = deck.peekCards(1)[0];
+            const threeCards = deck.peekCards(3);
+            expect(threeCards[0]).toBe(firstCard); // First card unchanged
+            expect(threeCards.length).toBe(3);
+        });
     });
 
     describe("clone", () => {

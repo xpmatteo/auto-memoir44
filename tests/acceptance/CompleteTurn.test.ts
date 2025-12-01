@@ -61,7 +61,7 @@ test("Complete turn", () => {
     expect(gameState.getCardsInLocation(CardLocation.TOP_PLAYER_HAND)).toHaveLength(3);
     // - the current phase is play a card for the top player
     expect(gameState.activePlayer.position).toBe(Position.TOP);
-    expect(gameState.activePhase.name).toBe("Play Card");
+    expect(gameState.activePhase.type).toBe(PhaseType.PLAY_CARD);
     expect(gameState.legalMoves()).toEqual([
         new PlayCardMove(deck.getCardsInLocation(CardLocation.TOP_PLAYER_HAND)[0]),
         new PlayCardMove(deck.getCardsInLocation(CardLocation.TOP_PLAYER_HAND)[1]),

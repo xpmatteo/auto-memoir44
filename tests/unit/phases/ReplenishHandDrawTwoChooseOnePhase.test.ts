@@ -121,4 +121,33 @@ describe("ReplenishHandDrawTwoChooseOnePhase", () => {
         expect(allButtons[0].label).toBe('Draw "Probe Left"');
         expect(allButtons[1].label).toBe('Draw "Attack Right"');
     });
+
+    test('calling legalMoves multiple times returns same cards', () => {
+        const card1 = new TestCard("Card 1", "path1.png");
+        const card2 = new TestCard("Card 2", "path2.png");
+        const card3 = new TestCard("Card 3", "path3.png");
+        const deck = new Deck([card1, card2, card3]);
+        const gameState = new GameState(deck);
+        const phase = new ReplenishHandDrawTwoChooseOnePhase();
+
+        const firstMoves = phase.legalMoves(gameState);
+        const secondMoves = phase.legalMoves(gameState);
+
+        expect(firstMoves).toEqual(secondMoves);
+    });
+
+    test('executing move clears peek for next turn', () => {
+        const card1 = new TestCard("Card 1", "path1.png");
+        const card2 = new TestCard("Card 2", "path2.png");
+        const card3 = new TestCard("Card 3", "path3.png");
+        const deck = new Deck([card1, card2, card3]);
+        const gameState = new GameState(deck);
+        const phase = new ReplenishHandDrawTwoChooseOnePhase();
+
+        gameState.pushPhase(phase);
+        const moves = phase.legalMoves(gameState);
+        moves[0].execute(gameState);
+
+        expect(gameState.getCardsInLocation(CardLocation.PEEK)).toEqual([]);
+    });
 });
