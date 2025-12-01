@@ -6,7 +6,7 @@ import {Unit} from "./Unit";
 import {HexCoord} from "../utils/hex";
 import {hexDistance} from "../utils/hex";
 import {resolveHits} from "../rules/combat";
-import {Position} from "./Player";
+import {Position, Side} from "./Player";
 
 interface UiButton {
     label: string,
@@ -265,6 +265,28 @@ export class ReplenishHandChooseCardMove extends Move {
             label: `Draw "${this.chosenCard.name}"`,
             callback: (gameState: GameState) => {
                 this.execute(gameState);
+            },
+        }];
+    }
+}
+
+export class GameVictoryMove extends Move {
+    readonly winningPlayerSide: Side;
+
+    constructor(winningPlayerSide: Side) {
+        super();
+        this.winningPlayerSide = winningPlayerSide;
+    }
+
+    execute(_gameState: GameState): void {
+        // No-op: game is over, no state changes needed
+    }
+
+    uiButton(): UiButton[] {
+        return [{
+            label: `The ${this.winningPlayerSide} player won! New game?`,
+            callback: () => {
+                window.location.reload();
             },
         }];
     }

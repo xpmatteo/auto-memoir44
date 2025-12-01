@@ -27,6 +27,9 @@ export class ST02Scenario implements Scenario {
         // Parse and place units from the unitSetup constant
         parseAndSetupUnits(gameState, unitSetup);
 
+        // Set the prerequisite number of medals
+        gameState.setPrerequisiteNumberOfMedals(4);
+
         // Finalize setup - terrain is now immutable
         gameState.finishSetup();
     }

@@ -3,7 +3,7 @@
 
 import {createPlayer, Player, Position, Side} from "./Player";
 import {Deck} from "./Deck";
-import {Move} from "./Move";
+import {GameVictoryMove, Move} from "./Move";
 import {Unit, UnitState, coordToKey, keyToCoord} from "./Unit";
 import {HexCoord} from "../utils/hex";
 import {CardLocation, CommandCard} from "./CommandCard";
@@ -27,6 +27,7 @@ export class GameState {
     private readonly medalTables: [Unit[], Unit[]]; // Eliminated units by capturing player (0=Bottom, 1=Top)
     private readonly terrain: Map<string, Terrain>;
     private setupFinished: boolean = false; // True after finishSetup() is called
+    private prerequisiteNumberOfMedals = 4;
 
     constructor(
         deck: Deck,
@@ -76,6 +77,10 @@ export class GameState {
         return this.deck.getCardsInLocation(location);
     }
 
+    setPrerequisiteNumberOfMedals(medals: number): void {
+        this.prerequisiteNumberOfMedals = medals;
+    }
+
     setTerrain(hex: HexCoord, terrain : Terrain) {
         if (this.setupFinished) {
             throw new Error("Cannot modify terrain after finishSetup() has been called");
@@ -108,9 +113,32 @@ export class GameState {
 
     // -- GameState pattern
     /**
+     * Check if any player has won by reaching the prerequisite number of medals
+     * @returns GameVictoryMove if a player has won, null otherwise
+     */
+    private checkVictory(): GameVictoryMove | null {
+        // Check bottom player (index 0)
+        if (this.medalTables[0].length >= this.prerequisiteNumberOfMedals) {
+            return new GameVictoryMove(this.players[0].side);
+        }
+        // Check top player (index 1)
+        if (this.medalTables[1].length >= this.prerequisiteNumberOfMedals) {
+            return new GameVictoryMove(this.players[1].side);
+        }
+        return null;
+    }
+
+    /**
      * Returns all valid moves for the active player
      */
     legalMoves(): Move[] {
+        // Check victory condition first
+        const victory = this.checkVictory();
+        if (victory) {
+            return [victory];
+        }
+
+        // Otherwise, delegate to active phase
         return this.activePhase.legalMoves(this);
     }
 
@@ -493,6 +521,7 @@ export class GameState {
         // Clone simple properties
         cloned.activePlayerIndex = this.activePlayerIndex;
         cloned.activeCardId = this.activeCardId;
+        cloned.prerequisiteNumberOfMedals = this.prerequisiteNumberOfMedals;
 
         // Clone players tuple (Players are immutable, shallow copy is safe)
         cloned.players[0] = this.players[0];
