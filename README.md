@@ -14,9 +14,6 @@ TODO
   - battle out for armor
   - hills: LOS
 
-- unit might be better off not moving
-- ending the game
-- line-of-sight
 - retreat
 - armor
 - fortifications
@@ -26,10 +23,11 @@ TODO
 - UI
   - show the number of cards remaining in the deck 
 
-
 - AI
   - deploy inactive units
   - protect weak units
   - take cover
   - leave retreat paths
   - close retreat paths
+
+- line-of-sight across hex edges for artillery
