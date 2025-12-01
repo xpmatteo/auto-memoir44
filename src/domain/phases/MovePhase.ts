@@ -30,7 +30,7 @@ export class MovePhase implements Phase {
         const allUnits = unitMover.getAllUnits();
         const moves: Array<Move> = [];
 
-        for (const {coord, unit, unitState} of allUnits) {
+        for (const {coord, unit, unitState, terrain} of allUnits) {
             // Only consider ordered units that have not moved
             if (!unitState.isOrdered || unitState.hasMoved) {
                 continue;
@@ -40,7 +40,13 @@ export class MovePhase implements Phase {
             moves.push(new MoveUnitMove(coord, coord));
 
             // Use unit-specific movement range (infantry: 2, armor: 3)
-            const maxDistance = unit.maxMovementDistance();
+            let maxDistance = unit.maxMovementDistance();
+
+            // If unit is in terrain requiring adjacent movement, limit to 1 hex
+            if (terrain.requiresAdjacentMovement) {
+                maxDistance = 1;
+            }
+
             const validDestinations = this.findValidDestinations(
                 coord,
                 maxDistance,
@@ -98,11 +104,19 @@ export class MovePhase implements Phase {
                     continue;
                 }
 
+                // Check terrain restrictions for destination
+                const terrain = unitMover.getTerrain(neighbor);
+
+                // If destination requires adjacent movement, only allow at distance 1
+                if (terrain.requiresAdjacentMovement && distance + 1 > 1) {
+                    // Can't move to this restricted terrain from distance > 1
+                    continue;
+                }
+
                 // This is a valid destination
                 validDestinations.push(neighbor);
 
-                // Check terrain to decide if we can move THROUGH this hex
-                const terrain = unitMover.getTerrain(neighbor);
+                // Check if we can move THROUGH this hex
                 if (terrain.unitMovingInMustStop) {
                     // Can move TO this hex, but cannot move THROUGH it
                     continue;

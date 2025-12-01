@@ -6,11 +6,6 @@ Work in progress.  Don't hold your breath!
 TODO
 
 - terrain
-  - DONE terrain: battle in modifications
-  - DONE terrain: stops movement
-  - DONE terrain: skips battle
-  - hedgerows: entering
-  - hedgerows: exiting
   - battle out for armor
   - hills: LOS
 

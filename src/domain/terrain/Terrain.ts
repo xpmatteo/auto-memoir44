@@ -4,6 +4,7 @@ export abstract class Terrain {
     public name: string = "";
     public unitMovingInMustStop = false;
     public unitMovingInCannotBattle = false;
+    public requiresAdjacentMovement = false;
     public blocksLineOfSight = false;
     public infantryBattleInReduction = 0;
     public armorBattleInReduction = 0;
@@ -40,6 +41,7 @@ class HedgerowsTerrain extends Terrain {
     name = "Hedgerows";
     unitMovingInMustStop = true;
     unitMovingInCannotBattle = true;
+    requiresAdjacentMovement = true;
     blocksLineOfSight = true;
     infantryBattleInReduction = 1;
     armorBattleInReduction = 2;

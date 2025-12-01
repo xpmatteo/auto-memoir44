@@ -525,6 +525,133 @@ describe("MovePhase", () => {
                 new EndMovementsMove(),
             ]),
         },
+
+        // Hedgerows Adjacent Movement Restrictions
+        {
+            name: "Infantry starting on hedgerows can only move 1 hex",
+            unitMover: (() => {
+                const mover = new FakeUnitMover()
+                    .setOrderedUnits([{coord: startPos, unit: new Infantry(Side.ALLIES)}])
+                    .setMovedUnits([])
+                    .setOccupiedCoords([]);
+                // Set the starting position to hedgerows terrain
+                mover.units[0].terrain = hedgerowsTerrain;
+                return mover;
+            })(),
+            expected: sortMoves([
+                // no-op move - stay in place
+                new MoveUnitMove(startPos, startPos),
+
+                // Can only move to 6 adjacent hexes (not 2-hex moves)
+                new MoveUnitMove(startPos, startPos.east()),
+                new MoveUnitMove(startPos, startPos.northeast()),
+                new MoveUnitMove(startPos, startPos.northwest()),
+                new MoveUnitMove(startPos, startPos.west()),
+                new MoveUnitMove(startPos, startPos.southwest()),
+                new MoveUnitMove(startPos, startPos.southeast()),
+
+                new EndMovementsMove(),
+            ]),
+        },
+        {
+            name: "Armor starting on hedgerows can only move 1 hex",
+            unitMover: (() => {
+                const mover = new FakeUnitMover()
+                    .setOrderedUnits([{coord: startPos, unit: new Armor(Side.ALLIES)}])
+                    .setMovedUnits([])
+                    .setOccupiedCoords([]);
+                // Set the starting position to hedgerows terrain
+                mover.units[0].terrain = hedgerowsTerrain;
+                return mover;
+            })(),
+            expected: sortMoves([
+                // no-op move - stay in place
+                new MoveUnitMove(startPos, startPos),
+
+                // Can only move to 6 adjacent hexes (not 2-hex or 3-hex moves)
+                new MoveUnitMove(startPos, startPos.east()),
+                new MoveUnitMove(startPos, startPos.northeast()),
+                new MoveUnitMove(startPos, startPos.northwest()),
+                new MoveUnitMove(startPos, startPos.west()),
+                new MoveUnitMove(startPos, startPos.southwest()),
+                new MoveUnitMove(startPos, startPos.southeast()),
+
+                new EndMovementsMove(),
+            ]),
+        },
+        {
+            name: "Cannot move TO hedgerows from distance 2",
+            unitMover: new FakeUnitMover()
+                .setOrderedUnits([{coord: startPos, unit: new Infantry(Side.ALLIES)}])
+                .setMovedUnits([])
+                .setOccupiedCoords([])
+                .setTerrain(startPos.east().east(), hedgerowsTerrain), // Distance 2
+            expected: sortMoves([
+                // no-op move - stay in place
+                new MoveUnitMove(startPos, startPos),
+
+                // Adjacent hexes (all 6)
+                new MoveUnitMove(startPos, startPos.east()),
+                new MoveUnitMove(startPos, startPos.northeast()),
+                new MoveUnitMove(startPos, startPos.northwest()),
+                new MoveUnitMove(startPos, startPos.west()),
+                new MoveUnitMove(startPos, startPos.southwest()),
+                new MoveUnitMove(startPos, startPos.southeast()),
+
+                // 2-hex moves EXCEPT the one to hedgerows at distance 2
+                new MoveUnitMove(startPos, startPos.northeast().northeast()),
+                new MoveUnitMove(startPos, startPos.northeast().east()),
+                // NOT: startPos.east().east() - this is hedgerows at distance 2
+                new MoveUnitMove(startPos, startPos.southeast().east()),
+                new MoveUnitMove(startPos, startPos.southeast().southeast()),
+                new MoveUnitMove(startPos, startPos.southeast().southwest()),
+                new MoveUnitMove(startPos, startPos.southwest().southwest()),
+                new MoveUnitMove(startPos, startPos.southwest().west()),
+                new MoveUnitMove(startPos, startPos.west().west()),
+                new MoveUnitMove(startPos, startPos.northwest().west()),
+                new MoveUnitMove(startPos, startPos.northwest().northwest()),
+                new MoveUnitMove(startPos, startPos.northeast().northwest()),
+
+                new EndMovementsMove(),
+            ]),
+        },
+        {
+            name: "CAN move TO hedgerows from adjacent hex",
+            unitMover: new FakeUnitMover()
+                .setOrderedUnits([{coord: startPos, unit: new Infantry(Side.ALLIES)}])
+                .setMovedUnits([])
+                .setOccupiedCoords([])
+                .setTerrain(startPos.east(), hedgerowsTerrain), // Adjacent
+            expected: sortMoves([
+                // no-op move - stay in place
+                new MoveUnitMove(startPos, startPos),
+
+                // Can move TO adjacent hedgerows
+                new MoveUnitMove(startPos, startPos.east()),
+
+                // Other adjacent hexes
+                new MoveUnitMove(startPos, startPos.northeast()),
+                new MoveUnitMove(startPos, startPos.northwest()),
+                new MoveUnitMove(startPos, startPos.west()),
+                new MoveUnitMove(startPos, startPos.southwest()),
+                new MoveUnitMove(startPos, startPos.southeast()),
+
+                // 2-hex moves (cannot go THROUGH hedgerows)
+                new MoveUnitMove(startPos, startPos.northeast().northeast()),
+                new MoveUnitMove(startPos, startPos.northeast().east()),  // Around hedgerows
+                new MoveUnitMove(startPos, startPos.northeast().northwest()),
+                new MoveUnitMove(startPos, startPos.northwest().northwest()),
+                new MoveUnitMove(startPos, startPos.northwest().west()),
+                new MoveUnitMove(startPos, startPos.west().west()),
+                new MoveUnitMove(startPos, startPos.southwest().west()),
+                new MoveUnitMove(startPos, startPos.southwest().southwest()),
+                new MoveUnitMove(startPos, startPos.southeast().southwest()),
+                new MoveUnitMove(startPos, startPos.southeast().east()),  // Around hedgerows
+                new MoveUnitMove(startPos, startPos.southeast().southeast()),
+
+                new EndMovementsMove(),
+            ]),
+        },
     ];
 
     test.each(cases)('$name', ({unitMover, expected}) => {
