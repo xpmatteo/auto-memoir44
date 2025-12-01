@@ -15,7 +15,6 @@ TODO
   - hills: LOS
 
 - retreat
-- armor
 - fortifications
 - tactics cards
 - game log

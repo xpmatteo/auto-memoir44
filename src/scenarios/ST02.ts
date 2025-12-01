@@ -7,15 +7,15 @@ import {CardLocation} from "../domain/CommandCard";
 
 const unitSetup = [
     "   0   1   2   3   4   5   6   7   8   9  10  11  12",
-    ".in. in W...W   W...    ....    W...W   .... in .in.",
+    ".in. in W...W   W...    ....    W...W   .... in .ar.",
     "~~.in.    W...W   ....    ....W   W...    .in. in ~~",
-    ".in.    ....T   W...    ....    ....W   .in.W   T...",
+    ".ar.    ....T   W...    ....    ....W   .in.W   T...",
     "~~....    T...    ....    T...    ....    ....    ~~",
     "....    ....    R...    Tin.T   ....    ....W   ....",
     "~~....HIN ....    ....    ....    ....R   ....    ~~",
     "....    ....    ....    .IN.    ....    ....    ....",
     "~~....    ....W   ....    W... IN R...    .IN.    ~~",
-    "....    ....    .IN.    .... IN ....    ....    ....",
+    "....    ....    .AR.    .... IN ....    ....    ....",
 ];
 
 export class ST02Scenario implements Scenario {

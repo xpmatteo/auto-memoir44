@@ -4,11 +4,8 @@
 import {Unit, UnitType} from "../domain/Unit";
 import {DiceResult, RESULT_INFANTRY, RESULT_GRENADE} from "../domain/Dice";
 import {
-    hedgerowsTerrain,
     hillTerrain,
     Terrain,
-    TownTerrain,
-    woodsTerrain
 } from "../domain/terrain/Terrain";
 
 /**
@@ -27,19 +24,17 @@ export function calculateDiceCount(attacker: Unit, attackerTerrain: Terrain, dis
         throw new Error(`Invalid battle distance: ${distance}. Only positive numbers are valid.`);
     }
 
-    if (attacker.type === UnitType.INFANTRY) {
-        // Infantry: 3 dice at distance 1, 2 dice at distance 2, 1 die at distance 3
-        let baseDice = 4 - distance;
-        if (defenderTerrain === woodsTerrain || defenderTerrain === hedgerowsTerrain || defenderTerrain instanceof TownTerrain) {
-            baseDice--;
-        }
-        if (attackerTerrain != hillTerrain && defenderTerrain === hillTerrain) {
-            baseDice--;
-        }
-        return Math.max(0, baseDice);
+    let baseDice = attacker.baseBattleDice(distance);
+    if (attacker.type == UnitType.INFANTRY) {
+        baseDice -= defenderTerrain.infantryBattleInReduction;
+    } else if (attacker.type == UnitType.ARMOR) {
+        baseDice -= defenderTerrain.armorBattleInReduction;
     }
+    if (attackerTerrain != hillTerrain && defenderTerrain === hillTerrain) {
+        baseDice--;
+    }
+    return Math.max(0, baseDice);
 
-    throw new Error(`Unsupported unit type for dice calculation: ${attacker.type}`);
 }
 
 /**

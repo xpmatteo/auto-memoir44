@@ -88,16 +88,31 @@ export abstract class Unit {
     toString(): string {
         return `${this.constructor.name}/${this.side}`;
     }
+
+    abstract baseBattleDice(distance: number):number ;
 }
 
-/**
- * Infantry unit type
- */
 export class Infantry extends Unit {
     readonly type = UnitType.INFANTRY;
     static readonly defaultStrength = 4;
-
     constructor(owner: Side, strength?: number) {
         super(strength ?? Infantry.defaultStrength, owner);
+    }
+
+    baseBattleDice(distance: number): number {
+        return 4 - distance;
+    }
+}
+
+export class Armor extends Unit {
+    readonly type = UnitType.ARMOR;
+    static readonly defaultStrength = 3;
+
+    constructor(owner: Side, strength?: number) {
+        super(strength ?? Armor.defaultStrength, owner);
+    }
+
+    baseBattleDice(distance: number): number {
+        return (distance <= 3) ? 3 : 0;
     }
 }
