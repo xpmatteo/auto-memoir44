@@ -12,6 +12,15 @@ Browser-based Memoir '44 board game implementation using TypeScript + Vite. No s
 # Development server with hot reload (runs on port 5173)
 npm run dev
 
+# Run tests in watch mode
+npm test
+
+# Run tests once (with type checking)
+npm run test:run
+
+# Type checking only
+npm run typecheck
+
 # Production build
 npm run build
 
@@ -81,8 +90,10 @@ High-level organization:
 
 - **`src/domain/`** - Pure game logic: GameState, Move types, Unit, Player, Deck, Dice, CommandCard, Section, BoardGeometry
   - **`src/domain/phases/`** - Phase implementations (PlayCardPhase, OrderUnitsPhase, MovePhase, BattlePhase)
+  - **`src/domain/terrain/`** - Terrain type definitions and terrain effects
 - **`src/scenarios/`** - Scenario definitions (currently ST02)
 - **`src/adapters/`** - External integrations (RNG for seeded randomness)
+- **`src/ai/`** - AI player implementation
 - **`src/ui/`** - All UI code: canvas rendering, components, input handlers, UIState
 - **`src/rules/`** - Game mechanics (combat resolution, etc.)
 - **`src/utils/`** - Shared utilities (hex math, constants)
