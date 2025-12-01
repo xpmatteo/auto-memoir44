@@ -6,7 +6,7 @@ import {GameState} from "../GameState";
 import {Move, BattleMove, EndBattlesMove} from "../Move";
 import {Unit, UnitState} from "../Unit";
 import {HexCoord} from "../../utils/hex";
-import {hexDistance} from "../../utils/hex";
+import {hexDistance, hasLineOfSight} from "../../utils/hex";
 import type {Player} from "../Player";
 import {calculateDiceCount} from "../../rules/combat";
 import {Terrain} from "../terrain/Terrain";
@@ -14,6 +14,7 @@ import {Terrain} from "../terrain/Terrain";
 // Declare which methods from GameState we actually need to do our job
 export interface UnitBattler {
     getAllUnits(): Array<{ unit: Unit; coord: HexCoord; terrain: Terrain; unitState: UnitState }>;
+    getTerrain(coord: HexCoord): Terrain;
 
     activePlayer: Player;
 }
@@ -70,6 +71,29 @@ export class BattlePhase implements Phase {
 
                 // Otherwise, can battle enemies at distance 1-3
                 if (distance <= 3) {
+                    // Check line of sight
+                    const isBlocked = (hexCoord: HexCoord): boolean => {
+                        // Check if there's a unit at this hex
+                        const unitAtHex = allUnits.find(({coord}) =>
+                            coord.q === hexCoord.q && coord.r === hexCoord.r
+                        );
+                        if (unitAtHex) {
+                            return true;
+                        }
+
+                        // Check if terrain blocks LOS
+                        const terrainAtHex = unitBattler.getTerrain(hexCoord);
+                        if (terrainAtHex.blocksLineOfSight) {
+                            return true;
+                        }
+
+                        return false;
+                    };
+
+                    if (!hasLineOfSight(toCoord, fromCoord, isBlocked)) {
+                        continue;
+                    }
+
                     const dice = calculateDiceCount(fromUnit, fromUnitTerrain, distance, defenderTerrain);
                     if (dice > 0) {
                         moves.push(new BattleMove(fromUnit, toUnit, dice));

@@ -4,6 +4,7 @@ export abstract class Terrain {
     public name: string = "";
     public unitMovingInMustStop = false;
     public unitMovingInCannotBattle = false;
+    public blocksLineOfSight = false;
     public infantryBattleInReduction = 0;
     public armorBattleInReduction = 0;
     public armorBattleOutReduction = 0;
@@ -19,6 +20,7 @@ export const clearTerrain = new ClearTerrain();
 
 class HillTerrain extends Terrain {
     name = "Hill";
+    blocksLineOfSight = true;
     readonly imagePath = "images/terrain/hill.png";
 }
 export const hillTerrain = new HillTerrain();
@@ -27,6 +29,7 @@ class WoodsTerrain extends Terrain {
     name = "Woods";
     unitMovingInMustStop = true;
     unitMovingInCannotBattle = true;
+    blocksLineOfSight = true;
     infantryBattleInReduction = 1;
     armorBattleInReduction = 2;
     readonly imagePath = "images/terrain/woods.png";
@@ -37,6 +40,7 @@ class HedgerowsTerrain extends Terrain {
     name = "Hedgerows";
     unitMovingInMustStop = true;
     unitMovingInCannotBattle = true;
+    blocksLineOfSight = true;
     infantryBattleInReduction = 1;
     armorBattleInReduction = 2;
     readonly imagePath = "images/terrain/hedgerows.png";
@@ -47,6 +51,7 @@ export class TownTerrain extends Terrain {
     name = "Town";
     unitMovingInMustStop = true;
     unitMovingInCannotBattle = true;
+    blocksLineOfSight = true;
     infantryBattleInReduction = 1;
     armorBattleInReduction = 2;
     armorBattleOutReduction = 2;

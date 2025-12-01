@@ -18,7 +18,7 @@ function orderAllFriendlyUnits(gameState: GameState) {
     });
 }
 
-describe.skip('Line of sight', () => {
+describe('Line of sight', () => {
     const phase = new BattlePhase();
     const cases: TestCase[] = [
         {

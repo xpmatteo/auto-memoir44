@@ -12,6 +12,7 @@ import {clearTerrain, hillTerrain, Terrain, woodsTerrain} from "../../../src/dom
 export class FakeUnitBattler {
     allUnitsData = [] as Array<{ coord: HexCoord, unit: Unit, unitState: UnitState, terrain: Terrain }>;
     activePlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
+    terrainMap = new Map<string, Terrain>();
 
     setAllUnits(units: Array<{
         coord: HexCoord, unit: Unit, isOrdered?: boolean, skipsBattle?: boolean, battlesThisTurn?: number,
@@ -22,6 +23,8 @@ export class FakeUnitBattler {
             unitState.isOrdered = isOrdered;
             unitState.skipsBattle = skipsBattle;
             unitState.battlesThisTurn = battlesThisTurn;
+            // Store terrain in map for getTerrain lookups
+            this.terrainMap.set(`${coord.q},${coord.r}`, terrain);
             return {
                 coord,
                 unit,
@@ -39,6 +42,10 @@ export class FakeUnitBattler {
 
     getAllUnits() {
         return this.allUnitsData;
+    }
+
+    getTerrain(coord: HexCoord): Terrain {
+        return this.terrainMap.get(`${coord.q},${coord.r}`) || clearTerrain;
     }
 }
 
@@ -166,7 +173,7 @@ describe("BattlePhase", () => {
             unitBattler: new FakeUnitBattler()
                 .setAllUnits([
                     {coord: new HexCoord(5, 5), unit: friendlyUnit1, isOrdered: true},
-                    {coord: new HexCoord(6, 5), unit: friendlyUnit2}, // Same side
+                    {coord: new HexCoord(5, 6), unit: friendlyUnit2}, // Same side, not blocking LOS
                     {coord: new HexCoord(7, 5), unit: enemyUnit1}     // Enemy
                 ]),
             expected: [
@@ -204,8 +211,8 @@ describe("BattlePhase", () => {
                 .setAllUnits([
                     {coord: new HexCoord(5, 5), unit: friendlyUnit1, isOrdered: true},
                     {coord: new HexCoord(7, 5), unit: enemyUnit1},  // Distance 2
-                    {coord: new HexCoord(8, 5), unit: enemyUnit2},  // Distance 3
-                    {coord: new HexCoord(5, 7), unit: enemyUnit3}   // Distance 2 (vertical)
+                    {coord: new HexCoord(2, 5), unit: enemyUnit2},  // Distance 3 (west, not blocked)
+                    {coord: new HexCoord(5, 7), unit: enemyUnit3}   // Distance 2 (south)
                 ]),
             expected: [
                 new EndBattlesMove(),
@@ -220,7 +227,7 @@ describe("BattlePhase", () => {
                 .setAllUnits([
                     {coord: new HexCoord(5, 5), unit: friendlyUnit1, isOrdered: true},
                     {coord: new HexCoord(7, 5), unit: enemyUnit1},  // Distance 2
-                    {coord: new HexCoord(8, 5), unit: enemyUnit2}   // Distance 3
+                    {coord: new HexCoord(5, 8), unit: enemyUnit2}   // Distance 3 (south, not blocked)
                 ]),
             expected: [
                 new EndBattlesMove(),
@@ -335,7 +342,7 @@ describe("BattlePhase", () => {
                     {coord: new HexCoord(5, 5), unit: friendlyUnit1, isOrdered: true},
                     {coord: new HexCoord(6, 6), unit: enemyUnit1},  // Distance 2 (diagonal)
                     {coord: new HexCoord(7, 5), unit: enemyUnit2},  // Distance 2
-                    {coord: new HexCoord(8, 5), unit: enemyUnit3}   // Distance 3
+                    {coord: new HexCoord(5, 8), unit: enemyUnit3}   // Distance 3 (not blocked)
                 ]),
             expected: [
                 new EndBattlesMove(),
