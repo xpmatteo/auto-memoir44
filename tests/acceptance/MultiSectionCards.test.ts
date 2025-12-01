@@ -105,7 +105,7 @@ describe("Multi-Section Command Cards", () => {
         });
     });
 
-    describe.skip("Recon In Force card", () => {
+    describe("Recon In Force card", () => {
         const card = new ReconInForce();
 
         it("should allow ordering 1 unit total from any of the three sections", () => {

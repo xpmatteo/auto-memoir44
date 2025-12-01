@@ -31,10 +31,7 @@ export class OrderUnitsPhase implements Phase {
 
     doLegalMoves(unitsOrderer: UnitsOrderer) {
         // Gather all friendly units from ALL target sections
-        let allFriendlyUnits: Unit[] = [];
-        for (const section of this.sections) {
-            allFriendlyUnits.push(...unitsOrderer.getFriendlyUnitsInSection(section));
-        }
+        let allFriendlyUnits = this.allFriendlyUnits(unitsOrderer);
 
         let orderedUnits = allFriendlyUnits.filter(unit => unitsOrderer.isUnitOrdered(unit));
         let unorderedUnits = allFriendlyUnits.filter(unit => !unitsOrderer.isUnitOrdered(unit));
@@ -82,5 +79,16 @@ export class OrderUnitsPhase implements Phase {
         }
 
         return [new ConfirmOrdersMove(), ...moves];
+    }
+
+    private allFriendlyUnits(unitsOrderer: UnitsOrderer):Unit[] {
+        let allFriendlyUnits = new Set<Unit>();
+        for (const section of this.sections) {
+            const units = unitsOrderer.getFriendlyUnitsInSection(section);
+            for (const unit of units) {
+                allFriendlyUnits.add(unit);
+            }
+        }
+        return [...allFriendlyUnits];
     }
 }
