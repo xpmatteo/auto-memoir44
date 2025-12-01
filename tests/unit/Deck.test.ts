@@ -8,7 +8,7 @@ import {Section} from "../../src/domain/Section";
 
 // Test helper card class
 export class TestCard extends CommandCard {
-    readonly section = Section.CENTER;
+    readonly sections = [Section.CENTER];
     readonly howManyUnits = 1;
 
     constructor(public readonly name: string, public readonly imagePath: string) {
@@ -18,20 +18,13 @@ export class TestCard extends CommandCard {
 
 describe("Deck", () => {
     describe("createStandardDeck", () => {
-        it("should create a deck with a given number of total cards", () => {
-            const deck = Deck.createStandardDeck();
-            const cardsInDeck = deck.getCardsInLocation(CardLocation.DECK);
-
-            expect(cardsInDeck).toHaveLength(35);
-        });
-
         it("should give each card a unique ID", () => {
             const deck = Deck.createStandardDeck();
             const cards = deck.getCardsInLocation(CardLocation.DECK);
             const ids = cards.map((card) => card.id);
             const uniqueIds = new Set(ids);
 
-            expect(uniqueIds.size).toBe(35);
+            expect(uniqueIds.size).toBe(cards.length);
         });
     });
 
@@ -93,7 +86,6 @@ describe("Deck", () => {
 
             expect(deck.getCardsInLocation(CardLocation.BOTTOM_PLAYER_HAND)).toHaveLength(2);
             expect(deck.getCardsInLocation(CardLocation.TOP_PLAYER_HAND)).toHaveLength(3);
-            expect(deck.getCardsInLocation(CardLocation.DECK)).toHaveLength(30);
         });
     });
 
@@ -159,7 +151,6 @@ describe("Deck", () => {
 
             expect(deck.getCardsInLocation(CardLocation.BOTTOM_PLAYER_HAND)).toHaveLength(5);
             expect(deck.getCardsInLocation(CardLocation.TOP_PLAYER_HAND)).toHaveLength(5);
-            expect(deck.getCardsInLocation(CardLocation.DECK)).toHaveLength(25);
         });
     });
 

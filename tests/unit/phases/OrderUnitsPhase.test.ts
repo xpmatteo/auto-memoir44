@@ -23,13 +23,17 @@ const fakeUnitsorder = {
     },
     isUnitOrdered(unit: Unit): boolean {
         return this.orderedUnits.includes(unit);
+    },
+    getUnitSections(_unit: Unit): Section[] {
+        // For these tests, all units are in LEFT section only
+        return [Section.LEFT];
     }
 };
 
 describe("OrderUnitsPhase", () => {
     test("With no ordered units", () => {
         fakeUnitsorder.orderedUnits = [];
-        const phase = new OrderUnitsPhase(Section.LEFT, 2);
+        const phase = new OrderUnitsPhase([Section.LEFT], 2);
 
         let actual = phase.doLegalMoves(fakeUnitsorder);
 
@@ -44,7 +48,7 @@ describe("OrderUnitsPhase", () => {
 
     test("With less ordered units than card allows", () => {
         fakeUnitsorder.orderedUnits = [unit1];
-        const phase = new OrderUnitsPhase(Section.LEFT, 2);
+        const phase = new OrderUnitsPhase([Section.LEFT], 2);
 
         let actual = phase.doLegalMoves(fakeUnitsorder);
 
@@ -59,7 +63,7 @@ describe("OrderUnitsPhase", () => {
 
     test("With as many ordered units as card allows", () => {
         fakeUnitsorder.orderedUnits = [unit1, unit2];
-        const phase = new OrderUnitsPhase(Section.LEFT, 2);
+        const phase = new OrderUnitsPhase([Section.LEFT], 2);
 
         let actual = phase.doLegalMoves(fakeUnitsorder);
 
@@ -74,7 +78,7 @@ describe("OrderUnitsPhase", () => {
     test("With no units in the section", () => {
         const originalUnits = fakeUnitsorder.units;
         fakeUnitsorder.units = [];
-        const phase = new OrderUnitsPhase(Section.LEFT, 2);
+        const phase = new OrderUnitsPhase([Section.LEFT], 2);
 
         let actual = phase.doLegalMoves(fakeUnitsorder);
 

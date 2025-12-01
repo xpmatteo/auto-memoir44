@@ -120,11 +120,15 @@ export class RandomAIPlayer implements AIPlayer {
 
     /**
      * Calculate how many units a card would order
-     * Returns min(units in section, card's unit limit)
+     * Returns min(total units across all sections, card's unit limit)
      */
     private calculateOrderableUnits(gameState: GameState, card: CommandCard): number {
-        const friendlyUnits = gameState.getFriendlyUnitsInSection(card.section);
-        return Math.min(friendlyUnits.length, card.howManyUnits);
+        let totalOrderable = 0;
+        for (const section of card.sections) {
+            const friendlyUnits = gameState.getFriendlyUnitsInSection(section);
+            totalOrderable += friendlyUnits.length;
+        }
+        return Math.min(totalOrderable, card.howManyUnits);
     }
 
     /**

@@ -476,8 +476,8 @@ describe("GameState", () => {
 
       // Set up a card and push extra phases
       gameState.setCurrentCard(card.id);
-      gameState.replacePhase(new OrderUnitsPhase(Section.CENTER, 1));
-      gameState.pushPhase(new OrderUnitsPhase(Section.CENTER, 1));
+      gameState.replacePhase(new OrderUnitsPhase([Section.CENTER], 1));
+      gameState.pushPhase(new OrderUnitsPhase([Section.CENTER], 1));
 
       const initialPlayer = gameState.activePlayer.position;
 

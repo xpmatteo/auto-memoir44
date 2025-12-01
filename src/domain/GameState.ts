@@ -255,6 +255,23 @@ export class GameState {
             .map(({unit}) => unit);
     }
 
+    getUnitSections(unit: Unit): Section[] {
+        // Find the unit's position
+        const unitWithPos = this.getAllUnitsWithPositions().find(({unit: u}) => u === unit);
+        if (!unitWithPos) {
+            return [];
+        }
+
+        // Check which sections this position belongs to
+        const sections: Section[] = [];
+        for (const section of [Section.LEFT, Section.CENTER, Section.RIGHT]) {
+            if (isHexInSection(unitWithPos.coord, section, this.activePlayer.position)) {
+                sections.push(section);
+            }
+        }
+        return sections;
+    }
+
     getOrderedUnits(): Array<Unit> {
         return Array.from(this.units.values()).filter(unit => this.getUnitState(unit).isOrdered);
     }

@@ -50,7 +50,7 @@ describe("GameState movement tracking", () => {
 
         // Set up and complete turn
         gameState.setCurrentCard(card.id);
-        gameState.replacePhase(new OrderUnitsPhase(Section.CENTER, 1));
+        gameState.replacePhase(new OrderUnitsPhase([Section.CENTER], 1));
         gameState.popPhase();
 
         expect(gameState.isUnitMoved(unit)).toBe(false);
@@ -113,7 +113,7 @@ describe("GameState battle restriction tracking", () => {
 
         // Set up and complete turn
         gameState.setCurrentCard(card.id);
-        gameState.replacePhase(new OrderUnitsPhase(Section.CENTER, 1));
+        gameState.replacePhase(new OrderUnitsPhase([Section.CENTER], 1));
         gameState.popPhase();
 
         expect(gameState.unitSkipsBattle(unit)).toBe(false);

@@ -9,17 +9,19 @@ interface UnitsOrderer {
     getFriendlyUnitsInSection(section: Section): Array<Unit>;
 
     isUnitOrdered(unit: Unit): boolean;
+
+    getUnitSections(unit: Unit): Section[];
 }
 
 export class OrderUnitsPhase implements Phase {
     name: string = "Order Units";
     type = PhaseType.ORDER;
-    private readonly section;
+    private readonly sections: Section[];
     private readonly howManyUnits: number;
 
-    constructor(section: Section, howManyUnits: number) {
+    constructor(sections: Section[], howManyUnits: number) {
+        this.sections = sections;
         this.howManyUnits = howManyUnits;
-        this.section = section;
     }
 
     legalMoves(gameState: GameState): Array<Move> {
@@ -28,11 +30,29 @@ export class OrderUnitsPhase implements Phase {
     }
 
     doLegalMoves(unitsOrderer: UnitsOrderer) {
-        let friendlyUnitsInSection = unitsOrderer.getFriendlyUnitsInSection(this.section);
-        let orderedUnits = friendlyUnitsInSection
-            .filter(unit => unitsOrderer.isUnitOrdered(unit));
-        let unorderedUnits = friendlyUnitsInSection
-            .filter(unit => !unitsOrderer.isUnitOrdered(unit));
+        // Gather all friendly units from ALL target sections
+        let allFriendlyUnits: Unit[] = [];
+        for (const section of this.sections) {
+            allFriendlyUnits.push(...unitsOrderer.getFriendlyUnitsInSection(section));
+        }
+
+        let orderedUnits = allFriendlyUnits.filter(unit => unitsOrderer.isUnitOrdered(unit));
+        let unorderedUnits = allFriendlyUnits.filter(unit => !unitsOrderer.isUnitOrdered(unit));
+
+        // Track how many units have been ordered from each section
+        let sectionCounts = new Map<Section, number>();
+        for (const section of this.sections) {
+            sectionCounts.set(section, 0);
+        }
+
+        for (const unit of orderedUnits) {
+            const unitSections = unitsOrderer.getUnitSections(unit);
+            for (const section of unitSections) {
+                if (sectionCounts.has(section)) {
+                    sectionCounts.set(section, sectionCounts.get(section)! + 1);
+                }
+            }
+        }
 
         let moves: Array<Move> = [];
 
@@ -41,9 +61,22 @@ export class OrderUnitsPhase implements Phase {
             moves.push(new UnOrderMove(unit));
         }
 
-        // If we haven't reached the limit, allow ordering unordered units
-        if (orderedUnits.length < this.howManyUnits) {
-            for (const unit of unorderedUnits) {
+        // Check if we can order each unordered unit
+        for (const unit of unorderedUnits) {
+            const unitSections = unitsOrderer.getUnitSections(unit);
+
+            // Can only order if ALL of the unit's sections that are in the card's sections have quota available
+            let canOrder = true;
+            for (const unitSection of unitSections) {
+                if (sectionCounts.has(unitSection)) {
+                    if (sectionCounts.get(unitSection)! >= this.howManyUnits) {
+                        canOrder = false;
+                        break;
+                    }
+                }
+            }
+
+            if (canOrder) {
                 moves.push(new OrderUnitMove(unit));
             }
         }

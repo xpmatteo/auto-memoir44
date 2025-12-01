@@ -45,6 +45,10 @@ export class OrderUnitMove extends Move {
     execute(gameState: GameState): void {
         gameState.orderUnit(this.unit);
     }
+
+    toString(): string {
+        return `OrderUnitMove(${this.unit.id}/${this.unit.side})`
+    }
 }
 
 export class UnOrderMove extends Move {
@@ -58,6 +62,11 @@ export class UnOrderMove extends Move {
     execute(gameState: GameState): void {
         gameState.unOrderUnit(this.unit);
     }
+
+    toString(): string {
+        return `UnOrderMove(${this.unit.id}/${this.unit.side})`
+    }
+
 }
 
 export class ConfirmOrdersMove extends Move {
@@ -73,6 +82,11 @@ export class ConfirmOrdersMove extends Move {
             },
         }];
     }
+
+    toString(): string {
+        return `ConfirmOrdersMove`
+    }
+
 }
 
 export class EndMovementsMove extends Move {

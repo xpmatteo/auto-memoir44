@@ -15,7 +15,7 @@ import {
     ProbeRight,
     ReconCenter,
     ReconLeft,
-    ReconRight,
+    ReconRight, PincerMove, ReconInForce,
 } from "./CommandCard";
 
 export class Deck {
@@ -158,8 +158,6 @@ export class Deck {
         To be added later:
 
         General Advance (1)
-        Recon In Force (3)
-        Pincer Move (1)
         Their Finest Hour (1)
 
         Armor Assault (2)
@@ -196,6 +194,9 @@ export class Deck {
             [AttackRight, 3],
             [ReconRight, 2],
             [ProbeRight, 4],
+
+            [PincerMove, 1],
+            [ReconInForce, 3],
         ], rng);
     }
 

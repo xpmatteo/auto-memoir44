@@ -29,7 +29,7 @@ export abstract class CommandCard {
     readonly id: string;
     abstract readonly name: string;
     abstract readonly imagePath: string;
-    abstract readonly section: Section;
+    abstract readonly sections: Section[];
     abstract readonly howManyUnits: number;
 
     constructor() {
@@ -43,7 +43,7 @@ export abstract class CommandCard {
         gameState.replacePhase(new ReplenishHandPhase());
         gameState.pushPhase(new BattlePhase());
         gameState.pushPhase(new MovePhase());
-        gameState.pushPhase(new OrderUnitsPhase(this.section, this.howManyUnits));
+        gameState.pushPhase(new OrderUnitsPhase(this.sections, this.howManyUnits));
     }
 }
 
@@ -51,36 +51,36 @@ export abstract class CommandCard {
 export class AssaultCenter extends CommandCard {
     readonly name = "Assault Center";
     readonly imagePath = "images/cards/a2_assault_center.png";
-    readonly section = Section.CENTER;
+    readonly sections = [Section.CENTER];
     readonly howManyUnits = 1000;
 
     onCardPlayed(gameState: GameState): void {
         super.onCardPlayed(gameState);
-        gameState.orderAllFriendlyUnitsInSection(Section.CENTER);
+        gameState.orderAllFriendlyUnitsInSection(this.sections[0]);
     }
 }
 
 export class AssaultLeft extends CommandCard {
     readonly name = "Assault Left";
     readonly imagePath = "images/cards/a2_assault_left.png";
-    readonly section = Section.LEFT;
+    readonly sections = [Section.LEFT];
     readonly howManyUnits = 1000;
 
     onCardPlayed(gameState: GameState): void {
         super.onCardPlayed(gameState);
-        gameState.orderAllFriendlyUnitsInSection(Section.LEFT);
+        gameState.orderAllFriendlyUnitsInSection(this.sections[0]);
     }
 }
 
 export class AssaultRight extends CommandCard {
     readonly name = "Assault Right";
     readonly imagePath = "images/cards/a2_assault_right.png";
-    readonly section = Section.RIGHT;
+    readonly sections = [Section.RIGHT];
     readonly howManyUnits = 1000;
 
     onCardPlayed(gameState: GameState): void {
         super.onCardPlayed(gameState);
-        gameState.orderAllFriendlyUnitsInSection(Section.RIGHT);
+        gameState.orderAllFriendlyUnitsInSection(this.sections[0]);
     }
 }
 
@@ -88,21 +88,21 @@ export class AssaultRight extends CommandCard {
 export class AttackCenter extends CommandCard {
     readonly name = "Attack Center";
     readonly imagePath = "images/cards/a4_attack_center.png";
-    readonly section = Section.CENTER;
+    readonly sections = [Section.CENTER];
     readonly howManyUnits = 3;
 }
 
 export class AttackLeft extends CommandCard {
     readonly name = "Attack Left";
     readonly imagePath = "images/cards/a3_attack_left.png";
-    readonly section = Section.LEFT;
+    readonly sections = [Section.LEFT];
     readonly howManyUnits = 3;
 }
 
 export class AttackRight extends CommandCard {
     readonly name = "Attack Right";
     readonly imagePath = "images/cards/a3_attack_right.png";
-    readonly section = Section.RIGHT;
+    readonly sections = [Section.RIGHT];
     readonly howManyUnits = 3;
 }
 
@@ -110,21 +110,21 @@ export class AttackRight extends CommandCard {
 export class ProbeCenter extends CommandCard {
     readonly name = "Probe Center";
     readonly imagePath = "images/cards/a5_probe_center.png";
-    readonly section = Section.CENTER;
+    readonly sections = [Section.CENTER];
     readonly howManyUnits = 2;
 }
 
 export class ProbeLeft extends CommandCard {
     readonly name = "Probe Left";
     readonly imagePath = "images/cards/a4_probe_left.png";
-    readonly section = Section.LEFT;
+    readonly sections = [Section.LEFT];
     readonly howManyUnits = 2;
 }
 
 export class ProbeRight extends CommandCard {
     readonly name = "Probe Right";
     readonly imagePath = "images/cards/a4_probe_right.png";
-    readonly section = Section.RIGHT;
+    readonly sections = [Section.RIGHT];
     readonly howManyUnits = 2;
 }
 
@@ -134,13 +134,13 @@ function onReconCardPlayed(card: CommandCard, gameState: GameState): void {
     gameState.replacePhase(new ReplenishHandDrawTwoChooseOnePhase());
     gameState.pushPhase(new BattlePhase());
     gameState.pushPhase(new MovePhase());
-    gameState.pushPhase(new OrderUnitsPhase(card.section, card.howManyUnits));
+    gameState.pushPhase(new OrderUnitsPhase(card.sections, card.howManyUnits));
 }
 
 export class ReconCenter extends CommandCard {
     readonly name = "Recon Center";
     readonly imagePath = "images/cards/a4_recon_center.png";
-    readonly section = Section.CENTER;
+    readonly sections = [Section.CENTER];
     readonly howManyUnits = 1;
     onCardPlayed(gameState: GameState): void {
         onReconCardPlayed(this, gameState);
@@ -150,7 +150,7 @@ export class ReconCenter extends CommandCard {
 export class ReconLeft extends CommandCard {
     readonly name = "Recon Left";
     readonly imagePath = "images/cards/a2_recon_left.png";
-    readonly section = Section.LEFT;
+    readonly sections = [Section.LEFT];
     readonly howManyUnits = 1;
     onCardPlayed(gameState: GameState): void {
         onReconCardPlayed(this, gameState);
@@ -160,9 +160,24 @@ export class ReconLeft extends CommandCard {
 export class ReconRight extends CommandCard {
     readonly name = "Recon Right";
     readonly imagePath = "images/cards/a2_recon_right.png";
-    readonly section = Section.RIGHT;
+    readonly sections = [Section.RIGHT];
     readonly howManyUnits = 1;
     onCardPlayed(gameState: GameState): void {
         onReconCardPlayed(this, gameState);
     }
+}
+
+// Multi-section cards
+export class PincerMove extends CommandCard {
+    readonly name = "Pincer Move";
+    readonly imagePath = "images/cards/a1_pincer.png";
+    readonly sections = [Section.LEFT, Section.RIGHT];
+    readonly howManyUnits = 2;
+}
+
+export class ReconInForce extends CommandCard {
+    readonly name = "Recon In Force";
+    readonly imagePath = "images/cards/a3_recon_in_force.png";
+    readonly sections = [Section.LEFT, Section.CENTER, Section.RIGHT];
+    readonly howManyUnits = 1;
 }
