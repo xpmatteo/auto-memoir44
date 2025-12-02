@@ -112,6 +112,19 @@ High-level organization:
 - Optional `seed` query parameter for reproducible RNG (dice rolls and deck shuffling)
 - Auto-resume on page load with full turn context
 
+## IMPORTANT: board geometry
+
+The coordinates of the board are as follow:
+1st row from 0,0 to 12,0
+2nd row from 0,1 to 11,1
+3rd row from -1,2 to 11,2
+4th row from -1,3 to 10,3
+5th row from -2,4 to 10,4
+6th row from -2,5 to 9,5
+7th row from -3,6 to 9,6
+8th row from -3,7 tp 8,7
+9th row from -4,8 to 8,8
+
 ## Notes
 - Important: never restart the vite server.  It is always running and it hot-reloads changes
 - Always use named constants for enumerations
