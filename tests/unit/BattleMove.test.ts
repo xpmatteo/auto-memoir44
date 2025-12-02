@@ -14,7 +14,7 @@ describe("BattleMove", () => {
     describe("unit damage", () => {
         it("should reduce target unit strength by number of hits", () => {
             const deck = Deck.createStandardDeck();
-            const dice = diceReturningAlways([RESULT_INFANTRY, RESULT_INFANTRY, RESULT_FLAG]);
+            const dice = diceReturningAlways([RESULT_INFANTRY, RESULT_INFANTRY, RESULT_ARMOR]);
             const gameState = new GameState(deck, dice);
 
             const attacker = new Infantry(Side.ALLIES, 4);
@@ -51,7 +51,7 @@ describe("BattleMove", () => {
 
         it("should handle mixed infantry and grenade hits", () => {
             const deck = Deck.createStandardDeck();
-            const dice = diceReturningAlways([RESULT_INFANTRY, RESULT_GRENADE, RESULT_FLAG]);
+            const dice = diceReturningAlways([RESULT_INFANTRY, RESULT_GRENADE, RESULT_ARMOR]);
             const gameState = new GameState(deck, dice);
 
             const attacker = new Infantry(Side.ALLIES, 4);
@@ -68,7 +68,7 @@ describe("BattleMove", () => {
 
         it("should not apply damage when no hits are scored", () => {
             const deck = Deck.createStandardDeck();
-            const dice = diceReturningAlways([RESULT_ARMOR, RESULT_FLAG, RESULT_FLAG]);
+            const dice = diceReturningAlways([RESULT_ARMOR, RESULT_ARMOR, RESULT_ARMOR]);
             const gameState = new GameState(deck, dice);
 
             const attacker = new Infantry(Side.ALLIES, 4);
@@ -210,7 +210,7 @@ describe("BattleMove", () => {
     describe("dice rolling", () => {
         it("should roll specified number of dice", () => {
             const deck = Deck.createStandardDeck();
-            const dice = diceReturningAlways([RESULT_INFANTRY, RESULT_GRENADE, RESULT_FLAG]);
+            const dice = diceReturningAlways([RESULT_INFANTRY, RESULT_GRENADE, RESULT_ARMOR]);
             const gameState = new GameState(deck, dice);
 
             const attacker = new Infantry(Side.ALLIES, 4);
