@@ -6,6 +6,7 @@ export const PhaseType = {
     ORDER: "order",
     MOVE: "move",
     BATTLE: "battle",
+    RETREAT: "retreat",
     REPLENISH_HAND: "replenish_hand"
 } as const;
 

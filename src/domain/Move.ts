@@ -7,6 +7,9 @@ import {HexCoord} from "../utils/hex";
 import {hexDistance} from "../utils/hex";
 import {resolveHits} from "../rules/combat";
 import {Position, Side} from "./Player";
+import {RESULT_FLAG} from "./Dice";
+import {RetreatPhase} from "./phases/RetreatPhase";
+import {BOARD_GEOMETRY} from "./BoardGeometry";
 
 interface UiButton {
     label: string,
@@ -185,6 +188,10 @@ export class BattleMove extends Move {
         // Resolve hits
         const hits = resolveHits(diceResults, this.toUnit);
 
+        // Count flags (treat multiple flags as a single flag for now)
+        const flagCount = diceResults.filter(result => result === RESULT_FLAG).length;
+        const hasFlag = flagCount > 0;
+
         // Apply casualties to target unit
         const currentStrength = gameState.getUnitCurrentStrength(this.toUnit);
         const newStrength = currentStrength - hits;
@@ -207,6 +214,62 @@ export class BattleMove extends Move {
         } else {
             // Unit survives with reduced strength
             gameState.setUnitCurrentStrength(this.toUnit, newStrength);
+
+            // Handle flag results (retreat)
+            if (hasFlag) {
+                // Find target unit's current position
+                const allUnits = gameState.getAllUnitsWithPositions();
+                const targetPosition = allUnits.find(({unit}) => unit.id === this.toUnit.id);
+
+                if (!targetPosition) {
+                    throw new Error(`Could not find position for target unit ${this.toUnit.id}`);
+                }
+
+                // Determine retreat directions based on target unit owner's position
+                const targetOwnerPosition = gameState.getAllUnitsWithPositions()
+                    .find(({unit}) => unit.id === this.toUnit.id)!.unit.side === Side.ALLIES
+                    ? Position.BOTTOM
+                    : Position.TOP;
+
+                const retreatHexes: HexCoord[] = [];
+                if (targetOwnerPosition === Position.TOP) {
+                    // Top player retreats NW or NE
+                    retreatHexes.push(targetPosition.coord.northwest());
+                    retreatHexes.push(targetPosition.coord.northeast());
+                } else {
+                    // Bottom player retreats SW or SE
+                    retreatHexes.push(targetPosition.coord.southwest());
+                    retreatHexes.push(targetPosition.coord.southeast());
+                }
+
+                // Filter out blocked hexes (units or board edges)
+                const availableHexes = retreatHexes.filter(hex =>
+                    BOARD_GEOMETRY.contains(hex) && !gameState.getUnitAt(hex)
+                );
+
+                if (availableHexes.length === 0) {
+                    // No retreat path available - unit takes a hit
+                    const newStrengthAfterRetreat = gameState.getUnitCurrentStrength(this.toUnit) - 1;
+                    if (newStrengthAfterRetreat <= 0) {
+                        // Unit is eliminated
+                        gameState.removeUnit(targetPosition.coord);
+                        const attackerPlayerIndex = gameState.activePlayer.position === Position.BOTTOM ? 0 : 1;
+                        gameState.addToMedalTable(this.toUnit, attackerPlayerIndex as 0 | 1);
+                    } else {
+                        gameState.setUnitCurrentStrength(this.toUnit, newStrengthAfterRetreat);
+                    }
+                } else if (availableHexes.length === 1) {
+                    // Only one retreat path - automatically move unit
+                    gameState.moveUnit(targetPosition.coord, availableHexes[0]);
+                } else {
+                    // Multiple retreat paths - push RetreatPhase so owner can choose
+                    gameState.pushPhase(new RetreatPhase(
+                        this.toUnit,
+                        targetPosition.coord,
+                        availableHexes
+                    ));
+                }
+            }
         }
     }
 
@@ -290,6 +353,28 @@ export class ReplenishHandChooseCardMove extends Move {
                 this.execute(gameState);
             },
         }];
+    }
+}
+
+export class RetreatMove extends Move {
+    readonly unit: Unit;
+    readonly from: HexCoord;
+    readonly to: HexCoord;
+
+    constructor(unit: Unit, from: HexCoord, to: HexCoord) {
+        super();
+        this.unit = unit;
+        this.from = from;
+        this.to = to;
+    }
+
+    execute(gameState: GameState): void {
+        gameState.moveUnit(this.from, this.to);
+        gameState.popPhase();
+    }
+
+    toString(): string {
+        return `RetreatMove(${this.unit.id} from ${this.from} to ${this.to})`;
     }
 }
 
