@@ -2,6 +2,7 @@
 // ABOUTME: Positioned to the left of the game board
 
 import {GameState} from "../../domain/GameState";
+import {CardLocation} from "../../domain/CommandCard";
 
 export class CurrentCardDisplay {
     private container: HTMLDivElement;
@@ -16,6 +17,7 @@ export class CurrentCardDisplay {
 
     private setupStyles(): void {
         this.container.style.display = "flex";
+        this.container.style.flexDirection = "column";
         this.container.style.alignItems = "center";
         this.container.style.justifyContent = "center";
         this.container.style.padding = "20px";
@@ -35,6 +37,18 @@ export class CurrentCardDisplay {
             return;
         }
 
+        // Get the number of remaining cards in the deck
+        const remainingCards = this.gameState.getCardsInLocation(CardLocation.DECK).length;
+
+        // Create and display the deck count above the card
+        const deckCount = document.createElement("div");
+        deckCount.textContent = String(remainingCards);
+        deckCount.style.fontSize = "48px";
+        deckCount.style.fontWeight = "bold";
+        deckCount.style.color = "white";
+        deckCount.style.marginBottom = "10px";
+        deckCount.style.textShadow = "2px 2px 4px rgba(0, 0, 0, 0.8)";
+
         // Create and display the card image
         const cardImg = document.createElement("img");
         cardImg.src = card.imagePath;
@@ -46,6 +60,7 @@ export class CurrentCardDisplay {
         cardImg.style.borderRadius = "6px";
         cardImg.style.boxShadow = "0 4px 12px rgba(251, 191, 36, 0.3)";
 
+        this.container.appendChild(deckCount);
         this.container.appendChild(cardImg);
     }
 
