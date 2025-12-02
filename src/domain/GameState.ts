@@ -49,6 +49,12 @@ export class GameState {
 
     // -- getters used in the UI
     get activePlayer(): Player {
+        // Check if active phase has temporary player switch enabled
+        if (this.phases.length > 0 && this.activePhase.temporaryPlayerSwitch) {
+            // Return the opposite player
+            const oppositeIndex = this.activePlayerIndex === 0 ? 1 : 0;
+            return this.players[oppositeIndex];
+        }
         return this.players[this.activePlayerIndex];
     }
 

@@ -8,10 +8,11 @@ import {Deck} from "../../src/domain/Deck";
 import {Infantry} from "../../src/domain/Unit";
 import {HexCoord} from "../../src/utils/hex";
 import {CardLocation} from "../../src/domain/CommandCard";
-import {PlayCardMove, OrderUnitMove, MoveUnitMove, ReplenishHandMove, ConfirmOrdersMove, EndMovementsMove, EndBattlesMove} from "../../src/domain/Move";
+import {PlayCardMove, OrderUnitMove, MoveUnitMove, ReplenishHandMove, ConfirmOrdersMove, EndMovementsMove, EndBattlesMove, Move} from "../../src/domain/Move";
 import {OrderUnitsPhase} from "../../src/domain/phases/OrderUnitsPhase";
 import {Section} from "../../src/domain/Section";
 import {clearTerrain, hillTerrain, woodsTerrain} from "../../src/domain/terrain/Terrain";
+import {Phase, PhaseType} from "../../src/domain/phases/Phase";
 
 describe("GameState", () => {
   describe("setCurrentCard", () => {
@@ -709,6 +710,134 @@ describe("GameState", () => {
 
       // Both should reference the same terrain instance (shared, not cloned)
       expect(cloned.getTerrain(new HexCoord(5, 5))).toBe(gameState.getTerrain(new HexCoord(5, 5)));
+    });
+  });
+
+  describe("activePlayer with temporary player switch", () => {
+    // Mock phase that implements temporary player switch
+    class MockPhaseWithSwitch implements Phase {
+      readonly name = "Mock Phase with Switch";
+      readonly type = PhaseType.BATTLE;
+      readonly temporaryPlayerSwitch = true;
+
+      legalMoves(_gameState: GameState): Array<Move> {
+        return [];
+      }
+    }
+
+    // Mock phase without temporary player switch
+    class MockPhaseWithoutSwitch implements Phase {
+      readonly name = "Mock Phase without Switch";
+      readonly type = PhaseType.BATTLE;
+      // temporaryPlayerSwitch is undefined (defaults to false)
+
+      legalMoves(_gameState: GameState): Array<Move> {
+        return [];
+      }
+    }
+
+    interface ActivePlayerTestCase {
+      name: string;
+      initialPlayerIndex: 0 | 1;
+      phaseHasSwitch: boolean;
+      expectedPlayerPosition: Position;
+    }
+
+    describe("temporary player switch behavior", () => {
+      const cases: ActivePlayerTestCase[] = [
+        {
+          name: "bottom player without switch returns bottom player",
+          initialPlayerIndex: 0,
+          phaseHasSwitch: false,
+          expectedPlayerPosition: Position.BOTTOM,
+        },
+        {
+          name: "bottom player with switch returns top player",
+          initialPlayerIndex: 0,
+          phaseHasSwitch: true,
+          expectedPlayerPosition: Position.TOP,
+        },
+        {
+          name: "top player without switch returns top player",
+          initialPlayerIndex: 1,
+          phaseHasSwitch: false,
+          expectedPlayerPosition: Position.TOP,
+        },
+        {
+          name: "top player with switch returns bottom player",
+          initialPlayerIndex: 1,
+          phaseHasSwitch: true,
+          expectedPlayerPosition: Position.BOTTOM,
+        },
+      ];
+
+      it.each(cases)("$name", ({ initialPlayerIndex, phaseHasSwitch, expectedPlayerPosition }) => {
+        const deck = Deck.createStandardDeck();
+        const gameState = new GameState(deck);
+
+        // Set initial player
+        if (initialPlayerIndex === 1) {
+          gameState.switchActivePlayer();
+        }
+
+        // Replace the active phase with our mock phase
+        const phase = phaseHasSwitch ? new MockPhaseWithSwitch() : new MockPhaseWithoutSwitch();
+        gameState.replacePhase(phase);
+
+        // Check active player
+        expect(gameState.activePlayer.position).toBe(expectedPlayerPosition);
+      });
+    });
+
+    it("should return opposite player when temporaryPlayerSwitch is true", () => {
+      const deck = Deck.createStandardDeck();
+      const gameState = new GameState(deck);
+
+      // Initially active player is bottom
+      expect(gameState.activePlayer.position).toBe(Position.BOTTOM);
+      expect(gameState.activePlayer.side).toBe(Side.ALLIES);
+
+      // Replace with phase that has temporary switch
+      gameState.replacePhase(new MockPhaseWithSwitch());
+
+      // Active player should now be top
+      expect(gameState.activePlayer.position).toBe(Position.TOP);
+      expect(gameState.activePlayer.side).toBe(Side.AXIS);
+    });
+
+    it("should return normal player when temporaryPlayerSwitch is false or undefined", () => {
+      const deck = Deck.createStandardDeck();
+      const gameState = new GameState(deck);
+
+      // Initially active player is bottom
+      expect(gameState.activePlayer.position).toBe(Position.BOTTOM);
+
+      // Replace with phase without temporary switch
+      gameState.replacePhase(new MockPhaseWithoutSwitch());
+
+      // Active player should still be bottom
+      expect(gameState.activePlayer.position).toBe(Position.BOTTOM);
+      expect(gameState.activePlayer.side).toBe(Side.ALLIES);
+    });
+
+    it("should work correctly when stacking phases with different switch values", () => {
+      const deck = Deck.createStandardDeck();
+      const gameState = new GameState(deck);
+
+      // Initially active player is bottom
+      expect(gameState.activePlayer.position).toBe(Position.BOTTOM);
+
+      // Replace with normal phase
+      gameState.replacePhase(new MockPhaseWithoutSwitch());
+      expect(gameState.activePlayer.position).toBe(Position.BOTTOM);
+
+      // Push a phase with switch
+      gameState.pushPhase(new MockPhaseWithSwitch());
+      expect(gameState.activePlayer.position).toBe(Position.TOP);
+
+      // Pop the switch phase
+      gameState.popPhase();
+      expect(gameState.activePlayer.position).toBe(Position.BOTTOM);
     });
   });
 });
