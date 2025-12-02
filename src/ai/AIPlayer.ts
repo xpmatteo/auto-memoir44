@@ -2,7 +2,7 @@
 // ABOUTME: Provides strategy pattern for different AI difficulty levels and behaviors
 
 import type {Move} from "../domain/Move";
-import {ConfirmOrdersMove, EndBattlesMove, EndMovementsMove, MoveUnitMove, OrderUnitMove, PlayCardMove} from "../domain/Move";
+import {BattleMove, ConfirmOrdersMove, EndBattlesMove, EndMovementsMove, MoveUnitMove, OrderUnitMove, PlayCardMove} from "../domain/Move";
 import {SeededRNG} from "../adapters/RNG";
 import type {GameState} from "../domain/GameState";
 import type {CommandCard} from "../domain/CommandCard";
@@ -64,6 +64,13 @@ export class RandomAIPlayer implements AIPlayer {
             const moveUnitMoves = legalMoves.filter(m => m instanceof MoveUnitMove);
             if (moveUnitMoves.length > 0) {
                 return this.selectBestMove(gameState, moveUnitMoves as MoveUnitMove[]);
+            }
+        }
+
+        if (gameState.activePhase.type === PhaseType.BATTLE) {
+            const battleMoves = legalMoves.filter(m => m instanceof BattleMove);
+            if (battleMoves.length > 0) {
+                return this.selectBestBattle(gameState, battleMoves as BattleMove[]);
             }
         }
 
@@ -160,6 +167,70 @@ export class RandomAIPlayer implements AIPlayer {
 
         // Random selection among ties (maintains seeded behavior)
         return this.randomSelect(bestMoves) as MoveUnitMove;
+    }
+
+    /**
+     * Select the best battle move based on prioritization criteria:
+     * 1. Prioritize units with fewer target options (focus fire from constrained units)
+     * 2. Break ties by targeting weaker units (closer to elimination)
+     * 3. Break ties by targeting more threatened units (coordinate attacks)
+     */
+    private selectBestBattle(gameState: GameState, battleMoves: BattleMove[]): BattleMove {
+        // Count how many targets each attacking unit can hit
+        const targetCountByUnit = new Map<string, number>();
+        for (const move of battleMoves) {
+            const unitId = move.fromUnit.id;
+            const count = targetCountByUnit.get(unitId) || 0;
+            targetCountByUnit.set(unitId, count + 1);
+        }
+
+        // Calculate total dice threat to each target
+        const totalDiceByTarget = new Map<string, number>();
+        for (const move of battleMoves) {
+            const targetId = move.toUnit.id;
+            const currentDice = totalDiceByTarget.get(targetId) || 0;
+            totalDiceByTarget.set(targetId, currentDice + move.dice);
+        }
+
+        // Score each battle move
+        interface ScoredBattleMove {
+            move: BattleMove;
+            targetCount: number;
+            targetStrength: number;
+            totalThreatDice: number;
+        }
+
+        const scoredMoves: ScoredBattleMove[] = battleMoves.map(move => ({
+            move,
+            targetCount: targetCountByUnit.get(move.fromUnit.id) || 0,
+            targetStrength: gameState.getUnitCurrentStrength(move.toUnit),
+            totalThreatDice: totalDiceByTarget.get(move.toUnit.id) || 0,
+        }));
+
+        // Sort by criteria (ascending target count, ascending strength, descending threat)
+        scoredMoves.sort((a, b) => {
+            // Primary: fewer targets is better (ascending)
+            if (a.targetCount !== b.targetCount) {
+                return a.targetCount - b.targetCount;
+            }
+            // Secondary: lower strength is better (ascending)
+            if (a.targetStrength !== b.targetStrength) {
+                return a.targetStrength - b.targetStrength;
+            }
+            // Tertiary: more threat is better (descending)
+            return b.totalThreatDice - a.totalThreatDice;
+        });
+
+        // Find all moves tied for first place
+        const best = scoredMoves[0];
+        const bestMoves = scoredMoves.filter(scored =>
+            scored.targetCount === best.targetCount &&
+            scored.targetStrength === best.targetStrength &&
+            scored.totalThreatDice === best.totalThreatDice
+        ).map(scored => scored.move);
+
+        // Random selection among ties (maintains seeded behavior)
+        return this.randomSelect(bestMoves) as BattleMove;
     }
 }
 
