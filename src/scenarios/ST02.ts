@@ -58,7 +58,7 @@ export class ST02Scenario implements Scenario {
             }
 
             // Pick a random hex
-            const randomIndex = this.getRandomInt(this.rng.random, 0, candidateHexes.length - 1);
+            const randomIndex = this.getRandomInt(0, candidateHexes.length - 1);
             const selectedHex = candidateHexes[randomIndex];
 
             // Remove from candidates so we don't pick it again
@@ -73,8 +73,8 @@ export class ST02Scenario implements Scenario {
         }
     }
 
-    private getRandomInt(rng: () => number, min: number, max: number): number {
-        return Math.floor(rng() * (max - min + 1)) + min;
+    private getRandomInt(min: number, max: number): number {
+        return Math.floor(this.rng.random() * (max - min + 1)) + min;
     }
 
     private getCandidateHexesForParachute(): HexCoord[] {
