@@ -10,10 +10,11 @@ import {hexDistance, hasLineOfSight} from "../../utils/hex";
 import type {Player} from "../Player";
 import {calculateDiceCount} from "../../rules/combat";
 import {Terrain} from "../terrain/Terrain";
+import {Fortification} from "../fortification/Fortification";
 
 // Declare which methods from GameState we actually need to do our job
 export interface UnitBattler {
-    getAllUnits(): Array<{ unit: Unit; coord: HexCoord; terrain: Terrain; unitState: UnitState }>;
+    getAllUnits(): Array<{ unit: Unit; coord: HexCoord; terrain: Terrain; fortification: Fortification; unitState: UnitState }>;
     getTerrain(coord: HexCoord): Terrain;
 
     activePlayer: Player;
@@ -56,7 +57,7 @@ export class BattlePhase implements Phase {
             );
 
             // Find all enemy units within range
-            for (const {coord: toCoord, unit: toUnit, terrain: defenderTerrain} of allUnits) {
+            for (const {coord: toCoord, unit: toUnit, terrain: defenderTerrain, fortification: defenderFortification} of allUnits) {
                 // Skip friendly units
                 if (toUnit.side === activeSide) {
                     continue;
@@ -94,7 +95,7 @@ export class BattlePhase implements Phase {
                         continue;
                     }
 
-                    const dice = calculateDiceCount(fromUnit, fromUnitTerrain, distance, defenderTerrain);
+                    const dice = calculateDiceCount(fromUnit, fromUnitTerrain, distance, defenderTerrain, defenderFortification);
                     if (dice > 0) {
                         moves.push(new BattleMove(fromUnit, toUnit, dice));
                     }

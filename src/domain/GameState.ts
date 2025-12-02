@@ -13,6 +13,7 @@ import {PlayCardPhase} from "./phases/PlayCardPhase";
 import {BOARD_GEOMETRY} from "./BoardGeometry";
 import {Dice, DiceResult} from "./Dice";
 import {Terrain, clearTerrain} from "./terrain/Terrain";
+import {Fortification, noFortification} from "./fortification/Fortification";
 
 export class GameState {
     private readonly deck: Deck;
@@ -26,6 +27,7 @@ export class GameState {
     private unitStates: Map<string, UnitState>; // Map from unit ID to unit state
     private readonly medalTables: [Unit[], Unit[]]; // Eliminated units by capturing player (0=Bottom, 1=Top)
     private readonly terrain: Map<string, Terrain>;
+    private readonly fortifications: Map<string, Fortification>;
     private setupFinished: boolean = false; // True after finishSetup() is called
     private prerequisiteNumberOfMedals = 4;
 
@@ -42,6 +44,7 @@ export class GameState {
         this.unitStates = new Map<string, UnitState>();
         this.medalTables = [[], []];
         this.terrain = new Map<string, Terrain>();
+        this.fortifications = new Map<string, Fortification>();
         this.activeCardId = null;
         this.phases = new Array<Phase>();
         this.phases.push(new PlayCardPhase());
@@ -104,6 +107,26 @@ export class GameState {
 
     forAllTerrain(callbackfn: (terrain: Terrain, hex: HexCoord) => void) {
         this.terrain.forEach((terrain: Terrain, key: string)=> callbackfn(terrain, keyToCoord(key)))
+    }
+
+    setFortification(hex: HexCoord, fortification: Fortification) {
+        if (this.setupFinished) {
+            throw new Error("Cannot modify fortification after finishSetup() has been called");
+        }
+        this.fortifications.set(coordToKey(hex), fortification);
+    }
+
+    getFortification(hex: HexCoord): Fortification {
+        const key = coordToKey(hex);
+        if (!this.fortifications.has(key)) {
+            return noFortification;
+        }
+        return this.fortifications.get(key)!;
+    }
+
+    removeFortification(hex: HexCoord): void {
+        const key = coordToKey(hex);
+        this.fortifications.delete(key);
     }
 
     /**
@@ -229,13 +252,14 @@ export class GameState {
     /**
      * Get all units with their coordinates, terrain, and mutable state
      */
-    getAllUnits(): Array<{ unit: Unit; coord: HexCoord; terrain: Terrain; unitState: UnitState }> {
+    getAllUnits(): Array<{ unit: Unit; coord: HexCoord; terrain: Terrain; fortification: Fortification; unitState: UnitState }> {
         return Array.from(this.unitPositions.entries()).map(([key, unit]) => {
             const coord = keyToCoord(key);
             return {
                 unit,
                 coord,
                 terrain: this.getTerrain(coord),
+                fortification: this.getFortification(coord),
                 unitState: this.getUnitState(unit).clone(),
             };
         });
@@ -476,6 +500,9 @@ export class GameState {
 
         this.unitPositions.delete(fromKey);
         this.unitPositions.set(toKey, unit);
+
+        // Remove fortification from the hex the unit is leaving
+        this.removeFortification(from);
     }
 
     /**

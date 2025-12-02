@@ -8,17 +8,18 @@ import {Infantry, Unit, UnitState} from "../../../src/domain/Unit";
 import {Side, Position, createPlayer, Player} from "../../../src/domain/Player";
 import {HexCoord} from "../../../src/utils/hex";
 import {clearTerrain, hillTerrain, Terrain, woodsTerrain} from "../../../src/domain/terrain/Terrain";
+import {Fortification, noFortification} from "../../../src/domain/fortification/Fortification";
 
 export class FakeUnitBattler {
-    allUnitsData = [] as Array<{ coord: HexCoord, unit: Unit, unitState: UnitState, terrain: Terrain }>;
+    allUnitsData = [] as Array<{ coord: HexCoord, unit: Unit, unitState: UnitState, terrain: Terrain, fortification: Fortification }>;
     activePlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
     terrainMap = new Map<string, Terrain>();
 
     setAllUnits(units: Array<{
         coord: HexCoord, unit: Unit, isOrdered?: boolean, skipsBattle?: boolean, battlesThisTurn?: number,
-        terrain?: Terrain
+        terrain?: Terrain, fortification?: Fortification
     }>): FakeUnitBattler {
-        this.allUnitsData = units.map(({coord, unit, isOrdered = false, skipsBattle = false, battlesThisTurn = 0, terrain = clearTerrain}) => {
+        this.allUnitsData = units.map(({coord, unit, isOrdered = false, skipsBattle = false, battlesThisTurn = 0, terrain = clearTerrain, fortification = noFortification}) => {
             const unitState = new UnitState(unit.initialStrength);
             unitState.isOrdered = isOrdered;
             unitState.skipsBattle = skipsBattle;
@@ -29,7 +30,8 @@ export class FakeUnitBattler {
                 coord,
                 unit,
                 unitState,
-                terrain: terrain
+                terrain: terrain,
+                fortification: fortification
             };
         });
         return this;

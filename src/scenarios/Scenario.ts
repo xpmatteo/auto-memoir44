@@ -6,6 +6,7 @@ import {HexCoord} from "../utils/hex";
 import {Armor, Infantry} from "../domain/Unit";
 import {Side} from "../domain/Player";
 import {hillTerrain, woodsTerrain, town1Terrain, Terrain, hedgerowsTerrain} from "../domain/terrain/Terrain";
+import {Fortification, sandbagsFortification} from "../domain/fortification/Fortification";
 
 export interface Scenario {
     /**
@@ -20,6 +21,10 @@ const terrainCodes = new Map(Object.entries({
     "T": town1Terrain,
     "W": woodsTerrain,
 })) as Map<string, Terrain>;
+
+const fortificationCodes = new Map(Object.entries({
+    "S": sandbagsFortification,
+})) as Map<string, Fortification>;
 
 /*
 Sample:
@@ -111,6 +116,16 @@ export function parseAndSetupUnits(gameState: GameState, unitSetup: string[]): v
                 throw new Error(
                     `Unknown hex specification pattern "${chunk}" at line ${lineIndex}, column ${chunkIndex} (${coord.q},${coord.r})`
                 );
+            }
+
+            // Check for fortification markers (fourth character)
+            const fourthChar = chunk.charAt(3);
+            if (fourthChar != " " && fourthChar != ".") {
+                if (fortificationCodes.has(fourthChar)) {
+                    gameState.setFortification(coord, fortificationCodes.get(fourthChar)!);
+                } else {
+                    throw new Error(`Unknown fortification code: "${fourthChar}"`);
+                }
             }
         }
     }

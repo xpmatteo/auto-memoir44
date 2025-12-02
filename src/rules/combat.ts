@@ -7,6 +7,7 @@ import {
     hillTerrain,
     Terrain,
 } from "../domain/terrain/Terrain";
+import {Fortification, noFortification} from "../domain/fortification/Fortification";
 
 /**
  * Calculate the number of dice a unit rolls when battling at a given distance.
@@ -16,25 +17,46 @@ import {
  * - Distance 2: 2 dice
  * - Distance 3: 1 die
  *
+ * Terrain and fortifications reduce attack dice. The reduction is NOT cumulative -
+ * only the maximum reduction applies.
+ *
  * @returns The number of dice to roll
  * @throws Error if the unit type is unsupported or distance is invalid
  */
-export function calculateDiceCount(attacker: Unit, attackerTerrain: Terrain, distance: number, defenderTerrain: Terrain): number {
+export function calculateDiceCount(
+    attacker: Unit,
+    attackerTerrain: Terrain,
+    distance: number,
+    defenderTerrain: Terrain,
+    defenderFortification: Fortification = noFortification
+): number {
     if (distance < 1) {
         throw new Error(`Invalid battle distance: ${distance}. Only positive numbers are valid.`);
     }
 
     let baseDice = attacker.baseBattleDice(distance);
+
+    // Calculate terrain reduction
+    let terrainReduction = 0;
     if (attacker.type == UnitType.INFANTRY) {
-        baseDice -= defenderTerrain.infantryBattleInReduction;
+        terrainReduction = defenderTerrain.infantryBattleInReduction;
     } else if (attacker.type == UnitType.ARMOR) {
-        baseDice -= defenderTerrain.armorBattleInReduction;
+        terrainReduction = defenderTerrain.armorBattleInReduction;
     }
+
+    // Calculate fortification reduction
+    const fortificationReduction = defenderFortification.battleInReduction;
+
+    // Apply the maximum reduction (non-cumulative)
+    const maxReduction = Math.max(terrainReduction, fortificationReduction);
+    baseDice -= maxReduction;
+
+    // Apply hill penalty
     if (attackerTerrain != hillTerrain && defenderTerrain === hillTerrain) {
         baseDice--;
     }
-    return Math.max(0, baseDice);
 
+    return Math.max(0, baseDice);
 }
 
 /**
