@@ -29,7 +29,10 @@ import {
     DICE_INDICATOR_CIRCLE_COLOR,
     DICE_INDICATOR_TEXT_COLOR,
     DICE_INDICATOR_RADIUS,
-    DICE_INDICATOR_FONT_SIZE
+    DICE_INDICATOR_FONT_SIZE,
+    RETREAT_HEX_FILL_COLOR,
+    RETREAT_HEX_OUTLINE_COLOR,
+    RETREAT_HEX_OUTLINE_WIDTH
 } from "../../utils/constants.js";
 
 const SQRT3 = Math.sqrt(3);
@@ -247,6 +250,41 @@ export function drawBattleTargets(
         context.textAlign = "center";
         context.textBaseline = "middle";
         context.fillText(target.dice.toString(), diceX, diceY);
+    }
+
+    context.restore();
+}
+
+/**
+ * Draw highlighting on available retreat hexes.
+ * Uses semi-transparent orange fill with orange outline.
+ */
+export function drawRetreatHexes(
+    context: CanvasRenderingContext2D,
+    retreatHexes: HexCoord[],
+    grid: GridConfig
+) {
+    context.save();
+    context.lineWidth = RETREAT_HEX_OUTLINE_WIDTH;
+    context.strokeStyle = RETREAT_HEX_OUTLINE_COLOR;
+    context.fillStyle = RETREAT_HEX_FILL_COLOR;
+
+    for (const coord of retreatHexes) {
+        const {x, y} = hexToPixel(coord, grid);
+        const corners = Array.from({length: 6}, (_, i) => {
+            const angle = (Math.PI / 180) * (60 * i - 30); // pointy-top orientation
+            return {
+                x: x + grid.hexRadius * Math.cos(angle),
+                y: y + grid.hexRadius * Math.sin(angle)
+            };
+        });
+
+        context.beginPath();
+        context.moveTo(corners[0].x, corners[0].y);
+        corners.slice(1).forEach((corner) => context.lineTo(corner.x, corner.y));
+        context.closePath();
+        context.fill();
+        context.stroke();
     }
 
     context.restore();

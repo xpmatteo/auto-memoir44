@@ -3,6 +3,8 @@
 
 // Log page loads for debugging
 import {PhaseType} from "./domain/phases/Phase";
+import {RetreatPhase} from "./domain/phases/RetreatPhase";
+import {Position} from "./domain/Player";
 
 console.log(`[${new Date().toISOString()}] Page loaded/reloaded`);
 
@@ -16,7 +18,8 @@ import {
     drawSelectedUnit,
     drawValidDestinations,
     drawBattleUnitOutlines,
-    drawBattleTargets
+    drawBattleTargets,
+    drawRetreatHexes
 } from "./ui/canvas/HexGrid.js";
 import {drawUnits} from "./ui/canvas/UnitRenderer.js";
 import {drawMedals} from "./ui/canvas/MedalRenderer.js";
@@ -195,6 +198,17 @@ async function start() {
                     .filter(({unit}) => battleUnits.has(unit))
                     .map(({coord}) => coord);
                 drawBattleUnitOutlines(context, battleCoords, defaultGrid);
+            }
+
+            // Draw retreat hex highlights during RetreatPhase (only for human player at bottom)
+            if (gameState.activePhase.type === PhaseType.RETREAT &&
+                gameState.activePlayer.position === Position.BOTTOM) {
+                const retreatPhase = gameState.activePhase as RetreatPhase;
+                // Highlight the retreating unit
+                drawOrderedUnitOutlines(context, [retreatPhase.currentPosition], defaultGrid);
+                // Highlight available retreat hexes
+                uiState.selectRetreatHexes(retreatPhase.availableRetreatHexes);
+                drawRetreatHexes(context, uiState.validRetreatHexes, defaultGrid);
             }
 
             // Draw valid destination highlights

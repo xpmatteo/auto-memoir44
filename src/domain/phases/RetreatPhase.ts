@@ -12,9 +12,9 @@ export class RetreatPhase implements Phase {
     readonly type = PhaseType.RETREAT;
     readonly temporaryPlayerSwitch = true;
 
-    private readonly unit: Unit;
-    private readonly currentPosition: HexCoord;
-    private readonly availableRetreatHexes: HexCoord[];
+    readonly unit: Unit;
+    readonly currentPosition: HexCoord;
+    readonly availableRetreatHexes: HexCoord[];
 
     constructor(unit: Unit, currentPosition: HexCoord, availableRetreatHexes: HexCoord[]) {
         this.unit = unit;

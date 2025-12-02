@@ -47,3 +47,10 @@ export const DICE_INDICATOR_CIRCLE_COLOR = "rgba(200, 0, 0, 0.9)"; // Dark red c
 export const DICE_INDICATOR_TEXT_COLOR = "white";
 export const DICE_INDICATOR_RADIUS = 25; // Radius of the circle in pixels
 export const DICE_INDICATOR_FONT_SIZE = 36; // Font size for the dice count
+
+/**
+ * Color constants for retreat hex highlighting
+ */
+export const RETREAT_HEX_FILL_COLOR = "rgba(255, 165, 0, 0.3)"; // Semi-transparent orange
+export const RETREAT_HEX_OUTLINE_COLOR = "rgba(255, 165, 0, 0.8)"; // Orange outline
+export const RETREAT_HEX_OUTLINE_WIDTH = 3;

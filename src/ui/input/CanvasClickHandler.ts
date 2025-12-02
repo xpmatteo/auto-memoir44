@@ -5,10 +5,11 @@ import type {GameState} from "../../domain/GameState.js";
 import type {GridConfig} from "../../utils/hex.js";
 import type {Unit} from "../../domain/Unit.js";
 import {toCanvasCoords, pixelToHex, HexCoord} from "../../utils/hex.js";
-import {OrderUnitMove, UnOrderMove, MoveUnitMove, BattleMove} from "../../domain/Move.js";
+import {OrderUnitMove, UnOrderMove, MoveUnitMove, BattleMove, RetreatMove} from "../../domain/Move.js";
 import {OrderUnitsPhase} from "../../domain/phases/OrderUnitsPhase.js";
 import {MovePhase} from "../../domain/phases/MovePhase.js";
 import {BattlePhase} from "../../domain/phases/BattlePhase.js";
+import {RetreatPhase} from "../../domain/phases/RetreatPhase.js";
 import {uiState, BattleTarget} from "../UIState.js";
 
 export class CanvasClickHandler {
@@ -38,6 +39,8 @@ export class CanvasClickHandler {
             this.handleMovementClick(hexCoord);
         } else if (currentPhase instanceof BattlePhase) {
             this.handleBattleClick(hexCoord);
+        } else if (currentPhase instanceof RetreatPhase) {
+            this.handleRetreatClick(hexCoord);
         }
     }
 
@@ -176,6 +179,33 @@ export class CanvasClickHandler {
         // Clicked elsewhere - clear selection
         uiState.clearSelection();
         this.onUpdate();
+    }
+
+    /**
+     * Handle clicks during RetreatPhase
+     * Single-click flow: click on valid retreat hex -> execute retreat
+     */
+    private handleRetreatClick(hexCoord: HexCoord): void {
+        // Check if clicking on a valid retreat hex
+        if (!uiState.isRetreatHexValid(hexCoord)) {
+            uiState.clearSelection();
+            this.onUpdate();
+            return;
+        }
+
+        // Find matching RetreatMove from legalMoves
+        const legalMoves = this.gameState.legalMoves();
+        const retreatMove = legalMoves.find(
+            m => m instanceof RetreatMove &&
+                 m.to.q === hexCoord.q &&
+                 m.to.r === hexCoord.r
+        ) as RetreatMove | undefined;
+
+        if (retreatMove) {
+            this.gameState.executeMove(retreatMove);
+            uiState.clearSelection();
+            this.onUpdate();
+        }
     }
 
     /**

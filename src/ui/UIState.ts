@@ -14,6 +14,7 @@ export class UIState {
     selectedUnitLocation: HexCoord | null = null;
     validDestinations: HexCoord[] = [];
     validBattleTargets: BattleTarget[] = [];
+    validRetreatHexes: HexCoord[] = [];
 
     selectUnit(unit: Unit, location: HexCoord, destinations: HexCoord[]): void {
         this.selectedUnit = unit;
@@ -27,11 +28,16 @@ export class UIState {
         this.validBattleTargets = targets;
     }
 
+    selectRetreatHexes(hexes: HexCoord[]): void {
+        this.validRetreatHexes = hexes;
+    }
+
     clearSelection(): void {
         this.selectedUnit = null;
         this.selectedUnitLocation = null;
         this.validDestinations = [];
         this.validBattleTargets = [];
+        this.validRetreatHexes = [];
     }
 
     isDestinationValid(hex: HexCoord): boolean {
@@ -45,6 +51,10 @@ export class UIState {
     getBattleTargetDice(hex: HexCoord): number | null {
         const target = this.validBattleTargets.find(t => t.coord.q === hex.q && t.coord.r === hex.r);
         return target ? target.dice : null;
+    }
+
+    isRetreatHexValid(hex: HexCoord): boolean {
+        return this.validRetreatHexes.some(retreat => retreat.q === hex.q && retreat.r === hex.r);
     }
 }
 
