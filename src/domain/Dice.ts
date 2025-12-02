@@ -72,10 +72,10 @@ export class Dice {
     }
 
     /**
-     * Get a random integer in the range [min, max] (inclusive)
+     * Get the underlying RNG function for use in scenarios
      */
-    getRandomInt(min: number, max: number): number {
-        return Math.floor(this.random() * (max - min + 1)) + min;
+    getRNG(): () => number {
+        return this.random;
     }
 
     /**

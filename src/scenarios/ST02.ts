@@ -43,6 +43,7 @@ export class ST02Scenario implements Scenario {
     private placeParachuteUnits(gameState: GameState): void {
         // Get all valid hexes from rows 2-8 (3rd row downwards)
         const candidateHexes = this.getCandidateHexesForParachute();
+        const rng = gameState.getRNG();
 
         // Try to place 4 parachute units
         for (let i = 0; i < 4; i++) {
@@ -52,7 +53,7 @@ export class ST02Scenario implements Scenario {
             }
 
             // Pick a random hex
-            const randomIndex = gameState.getRandomInt(0, candidateHexes.length - 1);
+            const randomIndex = this.getRandomInt(rng, 0, candidateHexes.length - 1);
             const selectedHex = candidateHexes[randomIndex];
 
             // Remove from candidates so we don't pick it again
@@ -65,6 +66,10 @@ export class ST02Scenario implements Scenario {
                 // Hex is occupied - skip this unit (no deployment)
             }
         }
+    }
+
+    private getRandomInt(rng: () => number, min: number, max: number): number {
+        return Math.floor(rng() * (max - min + 1)) + min;
     }
 
     private getCandidateHexesForParachute(): HexCoord[] {

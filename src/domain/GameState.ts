@@ -382,11 +382,12 @@ export class GameState {
     }
 
     /**
-     * Get a random integer in the range [min, max] (inclusive)
-     * Uses the same RNG as dice rolls for deterministic gameplay
+     * Get the underlying RNG function for use in scenarios
+     * This allows scenarios to perform random operations (e.g., unit placement)
+     * using the same seeded RNG as dice rolls for deterministic gameplay
      */
-    getRandomInt(min: number, max: number): number {
-        return this.dice.getRandomInt(min, max);
+    getRNG(): () => number {
+        return this.dice.getRNG();
     }
 
     // -- Commands used by CommandCards
