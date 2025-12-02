@@ -9,6 +9,7 @@ import {resolveHits} from "../rules/combat";
 import {Position, Side} from "./Player";
 import {RESULT_FLAG} from "./Dice";
 import {RetreatPhase} from "./phases/RetreatPhase";
+import {TakeGroundPhase} from "./phases/TakeGroundPhase";
 import {BOARD_GEOMETRY} from "./BoardGeometry";
 
 interface UiButton {
@@ -179,6 +180,22 @@ export class BattleMove extends Move {
     }
 
     execute(gameState: GameState): void {
+        // Find positions of both units to determine if this is close combat
+        const allUnits = gameState.getAllUnitsWithPositions();
+        const attackerPosition = allUnits.find(({unit}) => unit.id === this.fromUnit.id);
+        const targetPosition = allUnits.find(({unit}) => unit.id === this.toUnit.id);
+
+        if (!attackerPosition) {
+            throw new Error(`Could not find position for attacker unit ${this.fromUnit.id}`);
+        }
+        if (!targetPosition) {
+            throw new Error(`Could not find position for target unit ${this.toUnit.id}`);
+        }
+
+        const distance = hexDistance(attackerPosition.coord, targetPosition.coord);
+        const isCloseCombat = distance === 1;
+        const vacatedHex = targetPosition.coord;
+
         // Roll dice
         const diceResults = gameState.rollDice(this.dice);
 
@@ -196,17 +213,12 @@ export class BattleMove extends Move {
         const currentStrength = gameState.getUnitCurrentStrength(this.toUnit);
         const newStrength = currentStrength - hits;
 
+        let targetHexVacated = false;
+
         if (newStrength <= 0) {
-            // Unit is eliminated - find its position and remove it
-            const allUnits = gameState.getAllUnitsWithPositions();
-            const targetPosition = allUnits.find(({unit}) => unit.id === this.toUnit.id);
-
-            if (!targetPosition) {
-                throw new Error(`Could not find position for target unit ${this.toUnit.id}`);
-            }
-
-            // Remove from board
+            // Unit is eliminated - remove from board
             gameState.removeUnit(targetPosition.coord);
+            targetHexVacated = true;
 
             // Add to attacker's medal table
             const attackerPlayerIndex = gameState.activePlayer.position === Position.BOTTOM ? 0 : 1;
@@ -217,14 +229,6 @@ export class BattleMove extends Move {
 
             // Handle flag results (retreat)
             if (hasFlag) {
-                // Find target unit's current position
-                const allUnits = gameState.getAllUnitsWithPositions();
-                const targetPosition = allUnits.find(({unit}) => unit.id === this.toUnit.id);
-
-                if (!targetPosition) {
-                    throw new Error(`Could not find position for target unit ${this.toUnit.id}`);
-                }
-
                 // Determine retreat directions based on target unit owner's position
                 const targetOwnerPosition = gameState.getAllUnitsWithPositions()
                     .find(({unit}) => unit.id === this.toUnit.id)!.unit.side === Side.ALLIES
@@ -253,6 +257,7 @@ export class BattleMove extends Move {
                     if (newStrengthAfterRetreat <= 0) {
                         // Unit is eliminated
                         gameState.removeUnit(targetPosition.coord);
+                        targetHexVacated = true;
                         const attackerPlayerIndex = gameState.activePlayer.position === Position.BOTTOM ? 0 : 1;
                         gameState.addToMedalTable(this.toUnit, attackerPlayerIndex as 0 | 1);
                     } else {
@@ -261,15 +266,29 @@ export class BattleMove extends Move {
                 } else if (availableHexes.length === 1) {
                     // Only one retreat path - automatically move unit
                     gameState.moveUnit(targetPosition.coord, availableHexes[0]);
+                    targetHexVacated = true;
                 } else {
                     // Multiple retreat paths - push RetreatPhase so owner can choose
+                    // If this is close combat, pass attacker info so TakeGroundPhase can be offered after retreat
                     gameState.pushPhase(new RetreatPhase(
                         this.toUnit,
                         targetPosition.coord,
-                        availableHexes
+                        availableHexes,
+                        isCloseCombat ? this.fromUnit : undefined,
+                        isCloseCombat ? attackerPosition.coord : undefined
                     ));
+                    // Don't set targetHexVacated yet - will be set when RetreatMove executes
                 }
             }
+        }
+
+        // If this was close combat and the target hex was vacated, offer to take ground
+        if (isCloseCombat && targetHexVacated) {
+            gameState.pushPhase(new TakeGroundPhase(
+                this.fromUnit,
+                attackerPosition.coord,
+                vacatedHex
+            ));
         }
     }
 
@@ -360,6 +379,47 @@ export class RetreatMove extends Move {
     readonly unit: Unit;
     readonly from: HexCoord;
     readonly to: HexCoord;
+    readonly attackingUnit?: Unit;
+    readonly attackerPosition?: HexCoord;
+
+    constructor(
+        unit: Unit,
+        from: HexCoord,
+        to: HexCoord,
+        attackingUnit?: Unit,
+        attackerPosition?: HexCoord
+    ) {
+        super();
+        this.unit = unit;
+        this.from = from;
+        this.to = to;
+        this.attackingUnit = attackingUnit;
+        this.attackerPosition = attackerPosition;
+    }
+
+    execute(gameState: GameState): void {
+        gameState.moveUnit(this.from, this.to);
+        gameState.popPhase();
+
+        // If this retreat was due to close combat, offer attacker the option to take ground
+        if (this.attackingUnit && this.attackerPosition) {
+            gameState.pushPhase(new TakeGroundPhase(
+                this.attackingUnit,
+                this.attackerPosition,
+                this.from
+            ));
+        }
+    }
+
+    toString(): string {
+        return `RetreatMove(${this.unit.id} from ${this.from} to ${this.to})`;
+    }
+}
+
+export class TakeGroundMove extends Move {
+    readonly unit: Unit;
+    readonly from: HexCoord;
+    readonly to: HexCoord;
 
     constructor(unit: Unit, from: HexCoord, to: HexCoord) {
         super();
@@ -373,8 +433,36 @@ export class RetreatMove extends Move {
         gameState.popPhase();
     }
 
+    uiButton(): UiButton[] {
+        return [{
+            label: "Advance",
+            callback: (gameState: GameState) => {
+                this.execute(gameState);
+            },
+        }];
+    }
+
     toString(): string {
-        return `RetreatMove(${this.unit.id} from ${this.from} to ${this.to})`;
+        return `TakeGroundMove(${this.unit.id} from ${this.from} to ${this.to})`;
+    }
+}
+
+export class DoNotTakeGroundMove extends Move {
+    execute(gameState: GameState): void {
+        gameState.popPhase();
+    }
+
+    uiButton(): UiButton[] {
+        return [{
+            label: "Stay",
+            callback: (gameState: GameState) => {
+                this.execute(gameState);
+            },
+        }];
+    }
+
+    toString(): string {
+        return `DoNotTakeGroundMove`;
     }
 }
 
