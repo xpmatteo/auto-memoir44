@@ -72,6 +72,13 @@ export class Dice {
     }
 
     /**
+     * Get a random integer in the range [min, max] (inclusive)
+     */
+    getRandomInt(min: number, max: number): number {
+        return Math.floor(this.random() * (max - min + 1)) + min;
+    }
+
+    /**
      * Create a clone of this Dice that shares the same RNG function
      * This ensures deterministic behavior across original and clone
      */

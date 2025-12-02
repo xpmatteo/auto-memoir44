@@ -381,6 +381,14 @@ export class GameState {
         return results;
     }
 
+    /**
+     * Get a random integer in the range [min, max] (inclusive)
+     * Uses the same RNG as dice rolls for deterministic gameplay
+     */
+    getRandomInt(min: number, max: number): number {
+        return this.dice.getRandomInt(min, max);
+    }
+
     // -- Commands used by CommandCards
 
     // popPhase ends the current phase and starts the next phase, or the next player turn.
