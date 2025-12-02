@@ -7,6 +7,7 @@ import {CardLocation} from "../domain/CommandCard";
 import {HexCoord} from "../utils/hex";
 import {Infantry} from "../domain/Unit";
 import {Side} from "../domain/Player";
+import {SeededRNG} from "../adapters/RNG";
 
 const unitSetup = [
     "   0   1   2   3   4   5   6   7   8   9  10  11  12",
@@ -22,6 +23,11 @@ const unitSetup = [
 ];
 
 export class ST02Scenario implements Scenario {
+    private rng: SeededRNG;
+    constructor(rng: SeededRNG = new SeededRNG()) {
+        this.rng = rng;
+    }
+
     setup(gameState: GameState): void {
         // Draw 5 cards for bottom player, 4 cards for top player
         gameState.drawCards(5, CardLocation.BOTTOM_PLAYER_HAND);
@@ -43,7 +49,6 @@ export class ST02Scenario implements Scenario {
     private placeParachuteUnits(gameState: GameState): void {
         // Get all valid hexes from rows 2-8 (3rd row downwards)
         const candidateHexes = this.getCandidateHexesForParachute();
-        const rng = gameState.getRNG();
 
         // Try to place 4 parachute units
         for (let i = 0; i < 4; i++) {
@@ -53,7 +58,7 @@ export class ST02Scenario implements Scenario {
             }
 
             // Pick a random hex
-            const randomIndex = this.getRandomInt(rng, 0, candidateHexes.length - 1);
+            const randomIndex = this.getRandomInt(this.rng.random, 0, candidateHexes.length - 1);
             const selectedHex = candidateHexes[randomIndex];
 
             // Remove from candidates so we don't pick it again

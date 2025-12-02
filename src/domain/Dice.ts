@@ -72,13 +72,6 @@ export class Dice {
     }
 
     /**
-     * Get the underlying RNG function for use in scenarios
-     */
-    getRNG(): () => number {
-        return this.random;
-    }
-
-    /**
      * Create a clone of this Dice that shares the same RNG function
      * This ensures deterministic behavior across original and clone
      */

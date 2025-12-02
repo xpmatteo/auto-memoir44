@@ -387,15 +387,6 @@ export class GameState {
         return results;
     }
 
-    /**
-     * Get the underlying RNG function for use in scenarios
-     * This allows scenarios to perform random operations (e.g., unit placement)
-     * using the same seeded RNG as dice rolls for deterministic gameplay
-     */
-    getRNG(): () => number {
-        return this.dice.getRNG();
-    }
-
     // -- Commands used by CommandCards
 
     // popPhase ends the current phase and starts the next phase, or the next player turn.
