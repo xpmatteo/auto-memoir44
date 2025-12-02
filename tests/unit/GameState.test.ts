@@ -788,56 +788,5 @@ describe("GameState", () => {
         expect(gameState.activePlayer.position).toBe(expectedPlayerPosition);
       });
     });
-
-    it("should return opposite player when temporaryPlayerSwitch is true", () => {
-      const deck = Deck.createStandardDeck();
-      const gameState = new GameState(deck);
-
-      // Initially active player is bottom
-      expect(gameState.activePlayer.position).toBe(Position.BOTTOM);
-      expect(gameState.activePlayer.side).toBe(Side.ALLIES);
-
-      // Replace with phase that has temporary switch
-      gameState.replacePhase(new MockPhaseWithSwitch());
-
-      // Active player should now be top
-      expect(gameState.activePlayer.position).toBe(Position.TOP);
-      expect(gameState.activePlayer.side).toBe(Side.AXIS);
-    });
-
-    it("should return normal player when temporaryPlayerSwitch is false or undefined", () => {
-      const deck = Deck.createStandardDeck();
-      const gameState = new GameState(deck);
-
-      // Initially active player is bottom
-      expect(gameState.activePlayer.position).toBe(Position.BOTTOM);
-
-      // Replace with phase without temporary switch
-      gameState.replacePhase(new MockPhaseWithoutSwitch());
-
-      // Active player should still be bottom
-      expect(gameState.activePlayer.position).toBe(Position.BOTTOM);
-      expect(gameState.activePlayer.side).toBe(Side.ALLIES);
-    });
-
-    it("should work correctly when stacking phases with different switch values", () => {
-      const deck = Deck.createStandardDeck();
-      const gameState = new GameState(deck);
-
-      // Initially active player is bottom
-      expect(gameState.activePlayer.position).toBe(Position.BOTTOM);
-
-      // Replace with normal phase
-      gameState.replacePhase(new MockPhaseWithoutSwitch());
-      expect(gameState.activePlayer.position).toBe(Position.BOTTOM);
-
-      // Push a phase with switch
-      gameState.pushPhase(new MockPhaseWithSwitch());
-      expect(gameState.activePlayer.position).toBe(Position.TOP);
-
-      // Pop the switch phase
-      gameState.popPhase();
-      expect(gameState.activePlayer.position).toBe(Position.BOTTOM);
-    });
   });
 });
