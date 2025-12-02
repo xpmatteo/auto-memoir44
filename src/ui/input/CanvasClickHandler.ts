@@ -72,6 +72,15 @@ export class CanvasClickHandler {
         const unit = this.gameState.getUnitAt(hexCoord);
         const legalMoves = this.gameState.legalMoves();
 
+        // Check if clicking on the currently selected unit - deselect it
+        if (uiState.selectedUnit && uiState.selectedUnitLocation &&
+            hexCoord.q === uiState.selectedUnitLocation.q &&
+            hexCoord.r === uiState.selectedUnitLocation.r) {
+            uiState.clearSelection();
+            this.onUpdate();
+            return;
+        }
+
         // Check if clicking on a valid destination for selected unit
         if (uiState.selectedUnit && uiState.isDestinationValid(hexCoord)) {
             // Find the selected unit's location in the game state

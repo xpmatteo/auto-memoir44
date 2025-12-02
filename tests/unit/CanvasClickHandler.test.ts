@@ -1,16 +1,18 @@
 // ABOUTME: Unit tests for canvas click handler
 // ABOUTME: Tests that clicks on units execute the appropriate toggle moves
 
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import { CanvasClickHandler } from "../../src/ui/input/CanvasClickHandler";
 import { GameState } from "../../src/domain/GameState";
 import { Deck } from "../../src/domain/Deck";
 import { Infantry } from "../../src/domain/Unit";
 import { Side } from "../../src/domain/Player";
 import { ProbeLeft, CardLocation } from "../../src/domain/CommandCard";
-import { PlayCardMove } from "../../src/domain/Move";
+import { PlayCardMove, ConfirmOrdersMove } from "../../src/domain/Move";
 import type { GridConfig } from "../../src/utils/hex";
 import { HexCoord } from "../../src/utils/hex";
+import { uiState } from "../../src/ui/UIState";
+import * as hexUtils from "../../src/utils/hex";
 
 describe("CanvasClickHandler", () => {
   const testGrid: GridConfig = {
@@ -130,5 +132,70 @@ describe("CanvasClickHandler", () => {
 
     handler.detach();
     expect(removeSpy).toHaveBeenCalledWith("click", expect.any(Function));
+  });
+
+  describe("MovePhase", () => {
+    beforeEach(() => {
+      // Clear UI state before each test
+      uiState.clearSelection();
+    });
+
+    function setupGameInMovePhase() {
+      const card = new ProbeLeft();
+      const deck = new Deck([card]);
+      const gameState = new GameState(deck);
+      gameState.drawCards(1, CardLocation.BOTTOM_PLAYER_HAND);
+
+      const unit = new Infantry(Side.ALLIES);
+      const unitCoord = new HexCoord(-4, 8); // Left section
+      gameState.placeUnit(unitCoord, unit);
+
+      // Play card and order the unit
+      gameState.executeMove(new PlayCardMove(card));
+      gameState.orderUnit(unit);
+
+      // Confirm orders to enter MovePhase
+      gameState.executeMove(new ConfirmOrdersMove());
+
+      return { gameState, unit, unitCoord };
+    }
+
+    it("should deselect unit when clicking on selected unit again", () => {
+      const { gameState, unit, unitCoord } = setupGameInMovePhase();
+
+      // Verify game state setup
+      expect(gameState.isUnitOrdered(unit)).toBe(true);
+      expect(gameState.isUnitMoved(unit)).toBe(false);
+      expect(gameState.activePhase.name).toContain("Move");
+
+      const canvas = document.createElement("canvas");
+      const updateCallback = vi.fn();
+      const handler = new CanvasClickHandler(canvas, gameState, testGrid, updateCallback);
+
+      // Mock pixelToHex to always return our unit's coordinate
+      vi.spyOn(hexUtils, "pixelToHex").mockReturnValue(unitCoord);
+      vi.spyOn(hexUtils, "toCanvasCoords").mockReturnValue({ x: 0, y: 0 });
+
+      const mockEvent = { clientX: 0, clientY: 0 } as MouseEvent;
+
+      // First click: select the unit
+      handler.handleClick(mockEvent);
+
+      // Verify unit is selected
+      expect(uiState.selectedUnit).toBe(unit);
+      expect(uiState.selectedUnitLocation).toEqual(unitCoord);
+      expect(updateCallback).toHaveBeenCalledTimes(1);
+
+      // Second click: click on the same unit
+      handler.handleClick(mockEvent);
+
+      // Verify unit is deselected
+      expect(uiState.selectedUnit).toBeNull();
+      expect(uiState.selectedUnitLocation).toBeNull();
+      expect(updateCallback).toHaveBeenCalledTimes(2);
+
+      // Verify unit has not moved
+      expect(gameState.isUnitMoved(unit)).toBe(false);
+    });
   });
 });

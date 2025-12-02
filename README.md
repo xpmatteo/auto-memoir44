@@ -5,12 +5,8 @@ Work in progress.  Don't hold your breath!
 
 TODO
 
-- terrain
-  - battle out for armor
-  - hills: LOS
 
-- bug: clicking twice on unit in movement phase should deselect it, not consume its movement
-- retreat
+- retreat with more than one flag
 - fortifications
 - tactics cards
 - take ground
@@ -28,5 +24,9 @@ TODO
   - take cover
   - leave retreat paths
   - close retreat paths
+
+- terrain
+  - battle out for armor
+  - hills: LOS
 
 - line-of-sight across hex edges for artillery
