@@ -15,18 +15,20 @@ TODO
 - game log
 
 - UI
-  - show the number of cards remaining in the deck 
+  - make the number of cards remaining in the deck permanent 
 
 - AI
-  - prioritize battles
   - deploy inactive units
   - protect weak units
   - take cover
-  - leave retreat paths
-  - close retreat paths
+  - keep own retreat paths open 
+  - close enemy retreat paths
 
 - terrain
   - battle out for armor
   - hills: LOS
 
 - line-of-sight across hex edges for artillery
+- persistency
+- export game
+- scenario chooser
