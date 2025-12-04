@@ -223,25 +223,7 @@ export class BattleMove extends Move {
                 if (!targetPosition) {
                     throw new Error(`Could not find position for target unit ${this.toUnit.id}`);
                 }
-
-                // Determine retreat directions based on target unit owner's position
-                const targetOwnerPosition = gameState.positionOf(this.toUnit);
-
-                const retreatHexes: HexCoord[] = [];
-                if (targetOwnerPosition === Position.TOP) {
-                    // Top player retreats NW or NE
-                    retreatHexes.push(targetPosition.coord.northwest());
-                    retreatHexes.push(targetPosition.coord.northeast());
-                } else {
-                    // Bottom player retreats SW or SE
-                    retreatHexes.push(targetPosition.coord.southwest());
-                    retreatHexes.push(targetPosition.coord.southeast());
-                }
-
-                // Filter out blocked hexes (units or board edges)
-                const availableHexes = retreatHexes.filter(hex =>
-                    BOARD_GEOMETRY.contains(hex) && !gameState.getUnitAt(hex)
-                );
+                const availableHexes = this.retreatHexes(gameState, targetPosition);
 
                 if (availableHexes.length === 0) {
                     // No retreat path available - unit takes a hit
@@ -267,6 +249,28 @@ export class BattleMove extends Move {
                 }
             }
         }
+    }
+
+    private retreatHexes(gameState: GameState, targetPosition: { coord: HexCoord; unit: Unit }) {
+        // Determine retreat directions based on target unit owner's position
+        const targetOwnerPosition = gameState.positionOf(this.toUnit);
+
+        const retreatHexes: HexCoord[] = [];
+        if (targetOwnerPosition === Position.TOP) {
+            // Top player retreats NW or NE
+            retreatHexes.push(targetPosition.coord.northwest());
+            retreatHexes.push(targetPosition.coord.northeast());
+        } else {
+            // Bottom player retreats SW or SE
+            retreatHexes.push(targetPosition.coord.southwest());
+            retreatHexes.push(targetPosition.coord.southeast());
+        }
+
+        // Filter out blocked hexes (units or board edges)
+        const availableHexes = retreatHexes.filter(hex =>
+            BOARD_GEOMETRY.contains(hex) && !gameState.getUnitAt(hex)
+        );
+        return availableHexes;
     }
 
     toString(): string {
