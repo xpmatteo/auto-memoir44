@@ -12,7 +12,8 @@ import {Phase} from "./phases/Phase";
 import {PlayCardPhase} from "./phases/PlayCardPhase";
 import {BOARD_GEOMETRY} from "./BoardGeometry";
 import {Dice, DiceResult} from "./Dice";
-import {Terrain, clearTerrain} from "./terrain/Terrain";
+import {Terrain} from "./terrain/Terrain";
+import {TerrainMap} from "./TerrainMap";
 
 export class GameState {
     private readonly deck: Deck;
@@ -25,8 +26,7 @@ export class GameState {
     private units: Map<string, Unit>; // Map from unit ID to unit
     private unitStates: Map<string, UnitState>; // Map from unit ID to unit state
     private readonly medalTables: [Unit[], Unit[]]; // Eliminated units by capturing player (0=Bottom, 1=Top)
-    private readonly terrain: Map<string, Terrain>;
-    private setupFinished: boolean = false; // True after finishSetup() is called
+    private readonly terrainMap: TerrainMap;
     private prerequisiteNumberOfMedals = 4;
 
     constructor(
@@ -41,7 +41,7 @@ export class GameState {
         this.units = new Map<string, Unit>();
         this.unitStates = new Map<string, UnitState>();
         this.medalTables = [[], []];
-        this.terrain = new Map<string, Terrain>();
+        this.terrainMap = new TerrainMap();
         this.activeCardId = null;
         this.phases = new Array<Phase>();
         this.phases.push(new PlayCardPhase());
@@ -88,22 +88,15 @@ export class GameState {
     }
 
     setTerrain(hex: HexCoord, terrain: Terrain) {
-        if (this.setupFinished) {
-            throw new Error("Cannot modify terrain after finishSetup() has been called");
-        }
-        this.terrain.set(coordToKey(hex), terrain);
+        this.terrainMap.set(hex, terrain);
     }
 
     getTerrain(hex: HexCoord): Terrain {
-        const key = coordToKey(hex);
-        if (!this.terrain.has(key)) {
-            return clearTerrain;
-        }
-        return this.terrain.get(key)!;
+        return this.terrainMap.get(hex);
     }
 
     forAllTerrain(callbackfn: (terrain: Terrain, hex: HexCoord) => void) {
-        this.terrain.forEach((terrain: Terrain, key: string) => callbackfn(terrain, keyToCoord(key)))
+        this.terrainMap.forEach(callbackfn);
     }
 
     /**
@@ -112,8 +105,7 @@ export class GameState {
      * This should be called by scenarios after all terrain is placed.
      */
     finishSetup(): void {
-        this.setupFinished = true;
-        Object.freeze(this.terrain);
+        this.terrainMap.freeze();
     }
 
 
@@ -582,9 +574,9 @@ export class GameState {
         cloned.medalTables[0] = [...this.medalTables[0]];
         cloned.medalTables[1] = [...this.medalTables[1]];
 
-        // Share frozen terrain map (terrain is immutable after finishSetup(), safe to share)
+        // Share frozen terrain map (terrain is immutable after freeze(), safe to share)
         // Use type assertion to bypass readonly modifier
-        (cloned as any).terrain = this.terrain;
+        (cloned as any).terrainMap = this.terrainMap;
 
         return cloned;
     }
