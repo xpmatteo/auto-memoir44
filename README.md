@@ -3,9 +3,11 @@ Play the Memoir '44 boardgame from Days Of Wonder against a human opponent
 Work in progress.  Don't hold your breath!
 
 
+REFACTOR
+
+the array of players has redundant information; player 0 should always be the one at the bottom?
+
 TODO
-
-
 - retreat with more than one flag
 - fortifications
 - tactics cards

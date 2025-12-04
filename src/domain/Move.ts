@@ -220,16 +220,12 @@ export class BattleMove extends Move {
                 // Find target unit's current position
                 const allUnits = gameState.getAllUnitsWithPositions();
                 const targetPosition = allUnits.find(({unit}) => unit.id === this.toUnit.id);
-
                 if (!targetPosition) {
                     throw new Error(`Could not find position for target unit ${this.toUnit.id}`);
                 }
 
                 // Determine retreat directions based on target unit owner's position
-                const targetOwnerPosition = gameState.getAllUnitsWithPositions()
-                    .find(({unit}) => unit.id === this.toUnit.id)!.unit.side === Side.ALLIES
-                    ? Position.BOTTOM
-                    : Position.TOP;
+                const targetOwnerPosition = gameState.positionOf(this.toUnit);
 
                 const retreatHexes: HexCoord[] = [];
                 if (targetOwnerPosition === Position.TOP) {

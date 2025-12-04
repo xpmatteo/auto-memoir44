@@ -87,7 +87,7 @@ export class GameState {
         this.prerequisiteNumberOfMedals = medals;
     }
 
-    setTerrain(hex: HexCoord, terrain : Terrain) {
+    setTerrain(hex: HexCoord, terrain: Terrain) {
         if (this.setupFinished) {
             throw new Error("Cannot modify terrain after finishSetup() has been called");
         }
@@ -103,7 +103,7 @@ export class GameState {
     }
 
     forAllTerrain(callbackfn: (terrain: Terrain, hex: HexCoord) => void) {
-        this.terrain.forEach((terrain: Terrain, key: string)=> callbackfn(terrain, keyToCoord(key)))
+        this.terrain.forEach((terrain: Terrain, key: string) => callbackfn(terrain, keyToCoord(key)))
     }
 
     /**
@@ -587,5 +587,20 @@ export class GameState {
         (cloned as any).terrain = this.terrain;
 
         return cloned;
+    }
+
+    positionOf(unit: Unit): Position {
+        if (unit.side == this.players[0].side)
+            return Position.BOTTOM;
+        if (unit.side == this.players[1].side)
+            return Position.TOP;
+        throw new Error(`Unknown player side: ${unit.side}`);
+    }
+
+    // Experimental; not used yet
+    reverseBoard() {
+        let temp = this.players[0];
+        this.players[0] = this.players[1];
+        this.players[1] = temp;
     }
 }
