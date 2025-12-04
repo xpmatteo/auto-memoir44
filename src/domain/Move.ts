@@ -3,8 +3,7 @@
 import {CommandCard} from "./CommandCard";
 import {GameState} from "./GameState";
 import {Unit} from "./Unit";
-import {HexCoord} from "../utils/hex";
-import {hexDistance} from "../utils/hex";
+import {HexCoord, hexDistance} from "../utils/hex";
 import {resolveHits} from "../rules/combat";
 import {Position, Side} from "./Player";
 import {RESULT_FLAG} from "./Dice";
@@ -198,57 +197,54 @@ export class BattleMove extends Move {
 
         if (newStrength <= 0) {
             // Unit is eliminated - find its position and remove it
-            const allUnits = gameState.getAllUnitsWithPositions();
-            const targetPosition = allUnits.find(({unit}) => unit.id === this.toUnit.id);
-
-            if (!targetPosition) {
-                throw new Error(`Could not find position for target unit ${this.toUnit.id}`);
-            }
-
-            // Remove from board
-            gameState.removeUnit(targetPosition.coord);
-
-            // Add to attacker's medal table
-            const attackerPlayerIndex = gameState.activePlayer.position === Position.BOTTOM ? 0 : 1;
-            gameState.addToMedalTable(this.toUnit, attackerPlayerIndex as 0 | 1);
+            const targetPosition = this.findTarget(gameState);
+            this.eliminateUnit(gameState, targetPosition.coord);
         } else {
-            // Unit survives with reduced strength
+            // Unit might survive with reduced strength
             gameState.setUnitCurrentStrength(this.toUnit, newStrength);
 
             // Handle flag results (retreat)
             if (hasFlag) {
                 // Find target unit's current position
-                const allUnits = gameState.getAllUnitsWithPositions();
-                const targetPosition = allUnits.find(({unit}) => unit.id === this.toUnit.id);
-                if (!targetPosition) {
-                    throw new Error(`Could not find position for target unit ${this.toUnit.id}`);
-                }
-                const availableHexes = this.retreatHexes(gameState, targetPosition);
+                const target = this.findTarget(gameState);
+                const availableHexes = this.retreatHexes(gameState, target);
 
                 if (availableHexes.length === 0) {
                     // No retreat path available - unit takes a hit
                     const newStrengthAfterRetreat = gameState.getUnitCurrentStrength(this.toUnit) - 1;
                     if (newStrengthAfterRetreat <= 0) {
-                        // Unit is eliminated
-                        gameState.removeUnit(targetPosition.coord);
-                        const attackerPlayerIndex = gameState.activePlayer.position === Position.BOTTOM ? 0 : 1;
-                        gameState.addToMedalTable(this.toUnit, attackerPlayerIndex as 0 | 1);
+                        this.eliminateUnit(gameState, target.coord);
                     } else {
                         gameState.setUnitCurrentStrength(this.toUnit, newStrengthAfterRetreat);
                     }
                 } else if (availableHexes.length === 1) {
                     // Only one retreat path - automatically move unit
-                    gameState.moveUnit(targetPosition.coord, availableHexes[0]);
+                    gameState.moveUnit(target.coord, availableHexes[0]);
                 } else {
                     // Multiple retreat paths - push RetreatPhase so owner can choose
                     gameState.pushPhase(new RetreatPhase(
                         this.toUnit,
-                        targetPosition.coord,
+                        target.coord,
                         availableHexes
                     ));
                 }
             }
         }
+    }
+
+    private findTarget(gameState: GameState) {
+        const allUnits = gameState.getAllUnitsWithPositions();
+        const target = allUnits.find(({unit}) => unit.id === this.toUnit.id);
+        if (!target) {
+            throw new Error(`Could not find position for target unit ${this.toUnit.id}`);
+        }
+        return target;
+    }
+
+    private eliminateUnit(gameState: GameState, coord: HexCoord) {
+        gameState.removeUnit(coord);
+        const attackerPlayerIndex = gameState.activePlayer.position === Position.BOTTOM ? 0 : 1;
+        gameState.addToMedalTable(this.toUnit, attackerPlayerIndex as 0 | 1);
     }
 
     private retreatHexes(gameState: GameState, targetPosition: { coord: HexCoord; unit: Unit }) {
@@ -267,10 +263,9 @@ export class BattleMove extends Move {
         }
 
         // Filter out blocked hexes (units or board edges)
-        const availableHexes = retreatHexes.filter(hex =>
+        return retreatHexes.filter(hex =>
             BOARD_GEOMETRY.contains(hex) && !gameState.getUnitAt(hex)
         );
-        return availableHexes;
     }
 
     toString(): string {
