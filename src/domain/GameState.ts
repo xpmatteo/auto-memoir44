@@ -253,6 +253,12 @@ export class GameState {
             }));
     }
 
+    getFriendlyUnits(): Array<Unit> {
+        return this.getAllUnitsWithPositions()
+            .filter(({unit}) => unit.side == this.activePlayer.side)
+            .map(({unit}) => unit);
+    }
+
     getFriendlyUnitsInSection(section: Section): Array<Unit> {
         return this.getAllUnitsWithPositions()
             .filter(({coord}) =>

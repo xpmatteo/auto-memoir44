@@ -5,10 +5,12 @@ import {GameState} from "./GameState";
 import {Section} from "./Section";
 
 import {OrderUnitsPhase} from "./phases/OrderUnitsPhase";
+import {OrderUnitsByPredicatePhase} from "./phases/OrderUnitsByPredicatePhase";
 import {MovePhase} from "./phases/MovePhase";
 import {BattlePhase} from "./phases/BattlePhase";
 import {ReplenishHandPhase} from "./phases/ReplenishHandPhase";
 import {ReplenishHandDrawTwoChooseOnePhase} from "./phases/ReplenishHandDrawTwoChooseOnePhase";
+import {UnitType} from "./Unit";
 
 export const CardLocation = {
     DECK: "Deck",
@@ -187,4 +189,37 @@ export class GeneralAdvance extends CommandCard {
     readonly imagePath = "images/cards/a1_general_advance.png";
     readonly sections = [Section.LEFT, Section.CENTER, Section.RIGHT];
     readonly howManyUnits = 2;
+}
+
+// Flexible ordering cards
+export class DirectFromHQ extends CommandCard {
+    readonly name = "Direct from HQ";
+    readonly imagePath = "images/cards/a2_direct_from_hq.png";
+    readonly sections = []; // Not used for predicate-based ordering
+    readonly howManyUnits = 4;
+
+    onCardPlayed(gameState: GameState): void {
+        gameState.setCurrentCard(this.id);
+        gameState.replacePhase(new ReplenishHandPhase());
+        gameState.pushPhase(new BattlePhase());
+        gameState.pushPhase(new MovePhase());
+        gameState.pushPhase(new OrderUnitsByPredicatePhase(4, () => true));
+    }
+}
+
+export class MoveOut extends CommandCard {
+    readonly name = "Move Out!";
+    readonly imagePath = "images/cards/a2_move_out.png";
+    readonly sections = []; // Not used for predicate-based ordering
+    readonly howManyUnits = 4;
+
+    onCardPlayed(gameState: GameState): void {
+        gameState.setCurrentCard(this.id);
+        gameState.replacePhase(new ReplenishHandPhase());
+        gameState.pushPhase(new BattlePhase());
+        gameState.pushPhase(new MovePhase());
+        gameState.pushPhase(
+            new OrderUnitsByPredicatePhase(4, (unit) => unit.type === UnitType.INFANTRY)
+        );
+    }
 }

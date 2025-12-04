@@ -6,7 +6,7 @@ import type {GridConfig} from "../../utils/hex.js";
 import type {Unit} from "../../domain/Unit.js";
 import {toCanvasCoords, pixelToHex, HexCoord} from "../../utils/hex.js";
 import {OrderUnitMove, UnOrderMove, MoveUnitMove, BattleMove, RetreatMove} from "../../domain/Move.js";
-import {OrderUnitsPhase} from "../../domain/phases/OrderUnitsPhase.js";
+import {PhaseType} from "../../domain/phases/Phase.js";
 import {MovePhase} from "../../domain/phases/MovePhase.js";
 import {BattlePhase} from "../../domain/phases/BattlePhase.js";
 import {RetreatPhase} from "../../domain/phases/RetreatPhase.js";
@@ -26,14 +26,14 @@ export class CanvasClickHandler {
 
     /**
      * Handle click events on the canvas
-     * Phase-aware: handles unit ordering in OrderUnitsPhase, movement in MovePhase, battle in BattlePhase
+     * Phase-aware: handles unit ordering in ORDER phases, movement in MovePhase, battle in BattlePhase
      */
     handleClick(event: MouseEvent): void {
         const canvasCoord = toCanvasCoords(event, this.canvas);
         const hexCoord = pixelToHex(canvasCoord.x, canvasCoord.y, this.grid);
         const currentPhase = this.gameState.activePhase;
 
-        if (currentPhase instanceof OrderUnitsPhase) {
+        if (currentPhase.type === PhaseType.ORDER) {
             this.handleOrderingClick(hexCoord);
         } else if (currentPhase instanceof MovePhase) {
             this.handleMovementClick(hexCoord);
