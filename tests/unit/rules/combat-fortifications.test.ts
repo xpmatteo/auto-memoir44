@@ -6,7 +6,11 @@ import {calculateDiceCount} from '../../../src/rules/combat';
 import {Infantry, Armor} from '../../../src/domain/Unit';
 import {Side} from '../../../src/domain/Player';
 import {clearTerrain, hillTerrain, woodsTerrain} from '../../../src/domain/terrain/Terrain';
-import {sandbagAllies, sandbagAxis} from '../../../src/domain/fortifications/Fortification';
+import {
+    sandbagAllies,
+    noFortification,
+    Fortification
+} from '../../../src/domain/fortifications/Fortification';
 
 interface CombatFortificationCase {
     name: string;
@@ -14,7 +18,7 @@ interface CombatFortificationCase {
     attackerTerrain: typeof clearTerrain;
     distance: number;
     defenderTerrain: typeof clearTerrain | typeof woodsTerrain;
-    defenderFortification: typeof sandbagAllies | typeof sandbagAxis | undefined;
+    defenderFortification: Fortification;
     expectedDice: number;
 }
 
@@ -80,7 +84,7 @@ describe('calculateDiceCount with fortifications', () => {
             attackerTerrain: clearTerrain,
             distance: 1,
             defenderTerrain: clearTerrain,
-            defenderFortification: undefined,
+            defenderFortification: noFortification,
             expectedDice: 3,  // 3 base - 0 = 3
         },
         {

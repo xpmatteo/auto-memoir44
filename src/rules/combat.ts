@@ -14,10 +14,7 @@ interface DiceReducer {
     armorBattleInReduction: number
 }
 
-function reduction(attacker: Unit, reducer: DiceReducer | undefined) {
-    if (!reducer) {
-        return 0;
-    }
+function reduction(attacker: Unit, reducer: DiceReducer) {
     if (attacker.type == UnitType.INFANTRY) {
         return reducer.infantryBattleInReduction;
     }
@@ -43,7 +40,7 @@ export function calculateDiceCount(
     attackerTerrain: Terrain,
     distance: number,
     defenderTerrain: Terrain,
-    defenderFortification: Fortification | undefined = undefined
+    defenderFortification: Fortification
 ): number {
     if (distance < 1) {
         throw new Error(`Invalid battle distance: ${distance}. Only positive numbers are valid.`);

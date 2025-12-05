@@ -21,6 +21,7 @@ import {
     town1Terrain,
     woodsTerrain
 } from "../../../src/domain/terrain/Terrain";
+import {noFortification} from "../../../src/domain/fortifications/Fortification";
 
 describe("calculateDiceCount", () => {
     const infantry = new Infantry(Side.ALLIES);
@@ -98,7 +99,7 @@ describe("calculateDiceCount", () => {
         attackerTerrain ??= clearTerrain;
         defenderTerrain ??= clearTerrain;
         test(`${attacker} in ${attackerTerrain} against defender in ${defenderTerrain} at distance ${distance} rolls ${expectedDice} dice`, () => {
-            expect(calculateDiceCount(attacker, attackerTerrain, distance, defenderTerrain)).toBe(expectedDice);
+            expect(calculateDiceCount(attacker, attackerTerrain, distance, defenderTerrain, noFortification)).toBe(expectedDice);
         });
     });
 

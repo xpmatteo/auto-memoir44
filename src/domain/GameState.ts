@@ -103,7 +103,7 @@ export class GameState {
         this.fortificationMap.set(hex, fortification);
     }
 
-    getFortification(hex: HexCoord): Fortification | undefined {
+    getFortification(hex: HexCoord): Fortification {
         return this.fortificationMap.get(hex);
     }
 
@@ -407,9 +407,7 @@ export class GameState {
 
         // Let the fortification decide what to do when unit moves away
         const fortification = this.getFortification(from);
-        if (fortification) {
-            fortification.onUnitMoving(this, from);
-        }
+        fortification.onUnitMoving(this, from);
     }
 
     /**

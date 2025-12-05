@@ -16,7 +16,7 @@ import {Fortification} from "../fortifications/Fortification";
 export interface UnitBattler {
     getAllUnits(): Array<{ unit: Unit; coord: HexCoord; terrain: Terrain; unitState: UnitState }>;
     getTerrain(coord: HexCoord): Terrain;
-    getFortification(coord: HexCoord): Fortification | undefined;
+    getFortification(coord: HexCoord): Fortification;
 
     activePlayer: Player;
 }

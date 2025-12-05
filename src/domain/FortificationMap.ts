@@ -2,7 +2,7 @@
 // ABOUTME: Unlike TerrainMap, fortifications are mutable and can be destroyed mid-game
 
 import {HexCoord} from "../utils/hex";
-import {Fortification} from "./fortifications/Fortification";
+import {Fortification, noFortification} from "./fortifications/Fortification";
 import {coordToKey, keyToCoord} from "./Unit";
 
 export class FortificationMap {
@@ -20,12 +20,12 @@ export class FortificationMap {
     }
 
     /**
-     * Get fortification at a hex coordinate
-     * Returns undefined if no fortification is set at this hex
+     * Get fortification at a hex coordinate.
+     * Returns noFortification if no fortification is set at this hex (null object pattern).
      */
-    get(hex: HexCoord): Fortification | undefined {
+    get(hex: HexCoord): Fortification {
         const key = coordToKey(hex);
-        return this.fortifications.get(key);
+        return this.fortifications.get(key) ?? noFortification;
     }
 
     /**

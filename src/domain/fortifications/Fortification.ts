@@ -57,6 +57,22 @@ class HedgehogFortification extends Fortification {
     }
 }
 
+/**
+ * Null object pattern: represents the absence of a fortification.
+ * Provides neutral behavior (no defensive bonus, no actions on unit movement).
+ */
+class NoFortification extends Fortification {
+    readonly name = "None";
+    readonly infantryBattleInReduction = 0;
+    readonly armorBattleInReduction = 0;
+    readonly imagePath = "";
+
+    onUnitMoving(_gameState: GameState, _hex: HexCoord): void {
+        // No fortification means no action needed
+    }
+}
+
 export const sandbagAllies = new SandbagFortification("images/fortifications/sandbag-al-facing-top.png");
 export const sandbagAxis = new SandbagFortification("images/fortifications/sandbag-ax-facing-bottom.png");
 export const hedgehog = new HedgehogFortification("images/fortifications/hedgehog.png");
+export const noFortification = new NoFortification();

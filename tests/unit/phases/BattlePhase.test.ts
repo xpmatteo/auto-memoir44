@@ -8,12 +8,13 @@ import {Infantry, Unit, UnitState} from "../../../src/domain/Unit";
 import {Side, Position, createPlayer, Player} from "../../../src/domain/Player";
 import {HexCoord} from "../../../src/utils/hex";
 import {clearTerrain, hillTerrain, Terrain, woodsTerrain} from "../../../src/domain/terrain/Terrain";
+import {Fortification, noFortification} from "../../../src/domain/fortifications/Fortification";
 
 export class FakeUnitBattler {
     allUnitsData = [] as Array<{ coord: HexCoord, unit: Unit, unitState: UnitState, terrain: Terrain }>;
     activePlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
     terrainMap = new Map<string, Terrain>();
-    fortificationMap = new Map<string, any>();
+    fortificationMap = new Map<string, Fortification>();
 
     setAllUnits(units: Array<{
         coord: HexCoord, unit: Unit, isOrdered?: boolean, skipsBattle?: boolean, battlesThisTurn?: number,
@@ -49,8 +50,8 @@ export class FakeUnitBattler {
         return this.terrainMap.get(`${coord.q},${coord.r}`) || clearTerrain;
     }
 
-    getFortification(coord: HexCoord): any {
-        return this.fortificationMap.get(`${coord.q},${coord.r}`);
+    getFortification(coord: HexCoord): Fortification {
+        return this.fortificationMap.get(`${coord.q},${coord.r}`) || noFortification;
     }
 }
 

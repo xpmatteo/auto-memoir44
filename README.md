@@ -32,5 +32,5 @@ TODO
 
 - line-of-sight across hex edges for artillery
 - persistency
-- export game
+- export game state
 - scenario chooser

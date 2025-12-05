@@ -3,7 +3,7 @@
 
 import {describe, expect, test} from 'vitest';
 import {FortificationMap} from '../../../src/domain/FortificationMap';
-import {sandbagAllies, sandbagAxis} from '../../../src/domain/fortifications/Fortification';
+import {sandbagAllies, sandbagAxis, noFortification} from '../../../src/domain/fortifications/Fortification';
 import {HexCoord} from '../../../src/utils/hex';
 
 interface FortificationMapCase {
@@ -25,12 +25,12 @@ describe('FortificationMap', () => {
             },
         },
         {
-            name: 'get returns undefined for empty hex',
+            name: 'get returns noFortification for empty hex',
             setup: (_map) => {
                 // No setup needed
             },
             test: (map) => {
-                expect(map.get(new HexCoord(0, 0))).toBeUndefined();
+                expect(map.get(new HexCoord(0, 0))).toBe(noFortification);
             },
         },
         {
@@ -40,7 +40,7 @@ describe('FortificationMap', () => {
                 map.remove(new HexCoord(0, 0));
             },
             test: (map) => {
-                expect(map.get(new HexCoord(0, 0))).toBeUndefined();
+                expect(map.get(new HexCoord(0, 0))).toBe(noFortification);
             },
         },
         {
@@ -72,8 +72,8 @@ describe('FortificationMap', () => {
             test: (map) => {
                 const cloned = map.clone();
                 map.remove(new HexCoord(0, 0));
-                // Original removed, but clone should still have it
-                expect(map.get(new HexCoord(0, 0))).toBeUndefined();
+                // Original removed (returns noFortification), but clone should still have it
+                expect(map.get(new HexCoord(0, 0))).toBe(noFortification);
                 expect(cloned.get(new HexCoord(0, 0))).toBe(sandbagAllies);
             },
         },

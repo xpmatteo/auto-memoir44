@@ -7,7 +7,7 @@ import {Deck} from '../../../src/domain/Deck';
 import {HexCoord} from '../../../src/utils/hex';
 import {Infantry} from '../../../src/domain/Unit';
 import {Side} from '../../../src/domain/Player';
-import {sandbagAllies, hedgehog} from '../../../src/domain/fortifications/Fortification';
+import {sandbagAllies, hedgehog, noFortification} from '../../../src/domain/fortifications/Fortification';
 
 interface FortificationRemovalCase {
     name: string;
@@ -47,7 +47,7 @@ describe('Fortification removal on unit movement', () => {
 
         // Assert: check if fortification was removed or remains
         if (shouldRemove) {
-            expect(gameState.getFortification(from)).toBeUndefined();
+            expect(gameState.getFortification(from)).toBe(noFortification);
         } else {
             expect(gameState.getFortification(from)).toBe(fortification);
         }
