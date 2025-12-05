@@ -400,11 +400,16 @@ export class GameState {
 
     /**
      * Move a unit from one coordinate to another. Throws if destination is occupied or off-board.
-     * Automatically removes any fortification at the source hex.
+     * Calls onUnitMoving() on any fortification at the source hex to handle removal behavior.
      */
     moveUnit(from: HexCoord, to: HexCoord): void {
         this.board.moveUnit(from, to);
-        this.removeFortification(from);
+
+        // Let the fortification decide what to do when unit moves away
+        const fortification = this.getFortification(from);
+        if (fortification) {
+            fortification.onUnitMoving(this, from);
+        }
     }
 
     /**
