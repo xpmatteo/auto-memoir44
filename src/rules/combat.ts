@@ -9,6 +9,24 @@ import {
 } from "../domain/terrain/Terrain";
 import {Fortification} from "../domain/fortifications/Fortification";
 
+interface DiceReducer {
+    infantryBattleInReduction: number
+    armorBattleInReduction: number
+}
+
+function reduction(attacker: Unit, reducer: DiceReducer | undefined) {
+    if (!reducer) {
+        return 0;
+    }
+    if (attacker.type == UnitType.INFANTRY) {
+        return reducer.infantryBattleInReduction;
+    }
+    if (attacker.type == UnitType.ARMOR) {
+        return reducer.armorBattleInReduction;
+    }
+    return 0;
+}
+
 /**
  * Calculate the number of dice a unit rolls when battling at a given distance.
  *
@@ -32,32 +50,16 @@ export function calculateDiceCount(
     }
 
     let baseDice = attacker.baseBattleDice(distance);
-
-    // Calculate terrain reduction
-    let terrainReduction = 0;
-    if (attacker.type == UnitType.INFANTRY) {
-        terrainReduction = defenderTerrain.infantryBattleInReduction;
-    } else if (attacker.type == UnitType.ARMOR) {
-        terrainReduction = defenderTerrain.armorBattleInReduction;
+    let terrainReduction = reduction(attacker, defenderTerrain);
+    // Hill are treated specially
+    if (attackerTerrain != hillTerrain && defenderTerrain === hillTerrain) {
+        terrainReduction = 1;
     }
-
-    // Calculate fortification reduction
-    let fortificationReduction = 0;
-    if (defenderFortification) {
-        if (attacker.type == UnitType.INFANTRY) {
-            fortificationReduction = defenderFortification.infantryBattleInReduction;
-        } else if (attacker.type == UnitType.ARMOR) {
-            fortificationReduction = defenderFortification.armorBattleInReduction;
-        }
-    }
+    let fortificationReduction = reduction(attacker, defenderFortification);
 
     // Apply max reduction (non-cumulative with terrain)
     baseDice -= Math.max(terrainReduction, fortificationReduction);
 
-    // Hill special case (unchanged)
-    if (attackerTerrain != hillTerrain && defenderTerrain === hillTerrain) {
-        baseDice--;
-    }
 
     return Math.max(0, baseDice);
 }

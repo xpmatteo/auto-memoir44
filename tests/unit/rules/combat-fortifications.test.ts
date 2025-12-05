@@ -5,7 +5,7 @@ import {describe, expect, test} from 'vitest';
 import {calculateDiceCount} from '../../../src/rules/combat';
 import {Infantry, Armor} from '../../../src/domain/Unit';
 import {Side} from '../../../src/domain/Player';
-import {clearTerrain, woodsTerrain} from '../../../src/domain/terrain/Terrain';
+import {clearTerrain, hillTerrain, woodsTerrain} from '../../../src/domain/terrain/Terrain';
 import {sandbagAllies, sandbagAxis} from '../../../src/domain/fortifications/Fortification';
 
 interface CombatFortificationCase {
@@ -83,6 +83,16 @@ describe('calculateDiceCount with fortifications', () => {
             defenderFortification: undefined,
             expectedDice: 3,  // 3 base - 0 = 3
         },
+        {
+            name: 'infantry vs hill with sandbag (max reduction)',
+            attacker: new Infantry(Side.ALLIES),
+            attackerTerrain: clearTerrain,
+            distance: 1,
+            defenderTerrain: hillTerrain,  // -1 terrain
+            defenderFortification: sandbagAllies,  // -1 fortification
+            expectedDice: 2,  // 3 base - max(1, 1) = 2
+        },
+
     ];
 
     test.each(cases)('$name', ({attacker, attackerTerrain, distance, defenderTerrain, defenderFortification, expectedDice}) => {
