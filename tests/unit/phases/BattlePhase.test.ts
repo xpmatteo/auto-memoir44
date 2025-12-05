@@ -13,6 +13,7 @@ export class FakeUnitBattler {
     allUnitsData = [] as Array<{ coord: HexCoord, unit: Unit, unitState: UnitState, terrain: Terrain }>;
     activePlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
     terrainMap = new Map<string, Terrain>();
+    fortificationMap = new Map<string, any>();
 
     setAllUnits(units: Array<{
         coord: HexCoord, unit: Unit, isOrdered?: boolean, skipsBattle?: boolean, battlesThisTurn?: number,
@@ -46,6 +47,10 @@ export class FakeUnitBattler {
 
     getTerrain(coord: HexCoord): Terrain {
         return this.terrainMap.get(`${coord.q},${coord.r}`) || clearTerrain;
+    }
+
+    getFortification(coord: HexCoord): any {
+        return this.fortificationMap.get(`${coord.q},${coord.r}`);
     }
 }
 

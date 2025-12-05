@@ -14,6 +14,8 @@ import {Dice, DiceResult} from "./Dice";
 import {Terrain} from "./terrain/Terrain";
 import {TerrainMap} from "./TerrainMap";
 import {Board} from "./Board";
+import {Fortification} from "./fortifications/Fortification";
+import {FortificationMap} from "./FortificationMap";
 
 export class GameState {
     private readonly deck: Deck;
@@ -25,6 +27,7 @@ export class GameState {
     private readonly board: Board;
     private readonly medalTables: [Unit[], Unit[]]; // Eliminated units by capturing player (0=Bottom, 1=Top)
     private readonly terrainMap: TerrainMap;
+    private readonly fortificationMap: FortificationMap;
     private prerequisiteNumberOfMedals = 4;
 
     constructor(
@@ -38,6 +41,7 @@ export class GameState {
         this.board = new Board();
         this.medalTables = [[], []];
         this.terrainMap = new TerrainMap();
+        this.fortificationMap = new FortificationMap();
         this.activeCardId = null;
         this.phases = new Array<Phase>();
         this.phases.push(new PlayCardPhase());
@@ -93,6 +97,22 @@ export class GameState {
 
     forAllTerrain(callbackfn: (terrain: Terrain, hex: HexCoord) => void) {
         this.terrainMap.forEach(callbackfn);
+    }
+
+    setFortification(hex: HexCoord, fortification: Fortification): void {
+        this.fortificationMap.set(hex, fortification);
+    }
+
+    getFortification(hex: HexCoord): Fortification | undefined {
+        return this.fortificationMap.get(hex);
+    }
+
+    removeFortification(hex: HexCoord): void {
+        this.fortificationMap.remove(hex);
+    }
+
+    forAllFortifications(callbackfn: (fortification: Fortification, hex: HexCoord) => void): void {
+        this.fortificationMap.forEach(callbackfn);
     }
 
     /**
@@ -380,9 +400,11 @@ export class GameState {
 
     /**
      * Move a unit from one coordinate to another. Throws if destination is occupied or off-board.
+     * Automatically removes any fortification at the source hex.
      */
     moveUnit(from: HexCoord, to: HexCoord): void {
         this.board.moveUnit(from, to);
+        this.removeFortification(from);
     }
 
     /**
@@ -446,6 +468,9 @@ export class GameState {
         // Share frozen terrain map (terrain is immutable after freeze(), safe to share)
         // Use type assertion to bypass readonly modifier
         (cloned as any).terrainMap = this.terrainMap;
+
+        // Clone fortification map (fortifications are mutable, need deep clone)
+        (cloned as any).fortificationMap = this.fortificationMap.clone();
 
         return cloned;
     }

@@ -24,6 +24,7 @@ import {
 import {drawUnits} from "./ui/canvas/UnitRenderer.js";
 import {drawMedals} from "./ui/canvas/MedalRenderer.js";
 import {drawTerrain} from "./ui/canvas/TerrainRenderer.js";
+import {drawFortifications} from "./ui/canvas/FortificationRenderer.js";
 import {loadScenario, getDefaultScenario} from "./scenarios/index.js";
 import {HandDisplay} from "./ui/components/HandDisplay.js";
 import {CurrentCardDisplay} from "./ui/components/CurrentCardDisplay.js";
@@ -162,6 +163,9 @@ async function start() {
 
             // Draw terrain after grid but before units
             await drawTerrain(context, gameState, defaultGrid);
+
+            // Draw fortifications after terrain but before units
+            await drawFortifications(context, gameState, defaultGrid);
 
             // Prepare units with current strength for rendering
             const unitsWithStrength = gameState.getAllUnitsWithPositions().map(({coord, unit}) => ({
