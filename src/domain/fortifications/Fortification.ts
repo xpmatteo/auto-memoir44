@@ -12,7 +12,7 @@ export abstract class Fortification {
     }
 }
 
-export class SandbagFortification extends Fortification {
+class SandbagFortification extends Fortification {
     readonly name = "Sandbag";
     readonly infantryBattleInReduction = 1;
     readonly armorBattleInReduction = 1;
@@ -24,6 +24,18 @@ export class SandbagFortification extends Fortification {
     }
 }
 
-// Singleton instances for the two fortification variants
+class HedgehogFortification extends Fortification {
+    readonly name = "Hedgehog";
+    readonly infantryBattleInReduction = 0;
+    readonly armorBattleInReduction = 0;
+    readonly imagePath: string;
+
+    constructor(imagePath: string) {
+        super();
+        this.imagePath = imagePath;
+    }
+}
+
 export const sandbagAllies = new SandbagFortification("images/fortifications/sandbag-al-facing-top.png");
 export const sandbagAxis = new SandbagFortification("images/fortifications/sandbag-ax-facing-bottom.png");
+export const hedgehog = new HedgehogFortification("images/fortifications/hedgehog.png");
