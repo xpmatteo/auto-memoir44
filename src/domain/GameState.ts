@@ -4,16 +4,16 @@
 import {createPlayer, Player, Position, Side} from "./Player";
 import {Deck} from "./Deck";
 import {GameVictoryMove, Move} from "./Move";
-import {Unit, UnitState, coordToKey, keyToCoord} from "./Unit";
+import {Unit, UnitState} from "./Unit";
 import {HexCoord} from "../utils/hex";
 import {CardLocation, CommandCard} from "./CommandCard";
-import {isHexInSection, Section} from "./Section";
+import {Section} from "./Section";
 import {Phase} from "./phases/Phase";
 import {PlayCardPhase} from "./phases/PlayCardPhase";
-import {BOARD_GEOMETRY} from "./BoardGeometry";
 import {Dice, DiceResult} from "./Dice";
 import {Terrain} from "./terrain/Terrain";
 import {TerrainMap} from "./TerrainMap";
+import {Board} from "./Board";
 
 export class GameState {
     private readonly deck: Deck;
@@ -22,9 +22,7 @@ export class GameState {
     private readonly players: [Player, Player];
     private activePlayerIndex: 0 | 1;
     private activeCardId: string | null; // Currently played card ID
-    private unitPositions: Map<string, Unit>; // Map from coordinate key to Unit
-    private units: Map<string, Unit>; // Map from unit ID to unit
-    private unitStates: Map<string, UnitState>; // Map from unit ID to unit state
+    private readonly board: Board;
     private readonly medalTables: [Unit[], Unit[]]; // Eliminated units by capturing player (0=Bottom, 1=Top)
     private readonly terrainMap: TerrainMap;
     private prerequisiteNumberOfMedals = 4;
@@ -37,9 +35,7 @@ export class GameState {
         this.dice = dice;
         this.players = [createPlayer(Side.ALLIES, Position.BOTTOM), createPlayer(Side.AXIS, Position.TOP)];
         this.activePlayerIndex = 0;
-        this.unitPositions = new Map<string, Unit>();
-        this.units = new Map<string, Unit>();
-        this.unitStates = new Map<string, UnitState>();
+        this.board = new Board();
         this.medalTables = [[], []];
         this.terrainMap = new TerrainMap();
         this.activeCardId = null;
@@ -170,22 +166,7 @@ export class GameState {
      * Place a unit at a coordinate. Throws if coordinate is occupied or off-board.
      */
     placeUnit(coord: HexCoord, unit: Unit): void {
-        if (!BOARD_GEOMETRY.contains(coord)) {
-            throw new Error(
-                `Cannot place unit at (${coord.q}, ${coord.r}): coordinate is outside board boundaries`
-            );
-        }
-        const key = coordToKey(coord);
-        if (this.unitPositions.has(key)) {
-            throw new Error(
-                `Cannot place unit at (${coord.q}, ${coord.r}): coordinate already occupied`
-            );
-        }
-        // Create a new state for this unit
-        const unitState = new UnitState(unit.initialStrength);
-        this.unitPositions.set(key, unit);
-        this.units.set(unit.id, unit);
-        this.unitStates.set(unit.id, unitState);
+        this.board.placeUnit(coord, unit);
     }
 
 
@@ -194,170 +175,121 @@ export class GameState {
      * Get the unit at a specific coordinate, or undefined if empty
      */
     getUnitAt(coord: HexCoord): Unit | undefined {
-        return this.unitPositions.get(coordToKey(coord));
-    }
-
-    /**
-     * Get the state for a unit
-     */
-    private getUnitState(unit: Unit): UnitState {
-        const state = this.unitStates.get(unit.id);
-        if (!state) {
-            throw new Error(`No state found for unit ${unit.id}`);
-        }
-        return state;
+        return this.board.getUnitAt(coord);
     }
 
     /**
      * Get all units with their coordinates
      */
     getAllUnitsWithPositions(): Array<{ coord: HexCoord; unit: Unit }> {
-        return Array.from(this.unitPositions.entries()).map(([key, unit]) => ({
-            coord: keyToCoord(key),
-            unit,
-        }));
+        return this.board.getAllUnitsWithPositions();
     }
 
     /**
      * Get all units with their coordinates, terrain, and mutable state
      */
     getAllUnits(): Array<{ unit: Unit; coord: HexCoord; terrain: Terrain; unitState: UnitState }> {
-        return Array.from(this.unitPositions.entries()).map(([key, unit]) => {
-            const coord = keyToCoord(key);
-            return {
-                unit,
-                coord,
-                terrain: this.getTerrain(coord),
-                unitState: this.getUnitState(unit).clone(),
-            };
-        });
+        return this.board.getAllUnits((coord) => this.getTerrain(coord));
     }
 
     /**
      * Get all ordered units with their coordinates
      */
     getOrderedUnitsWithPositions(): Array<{ coord: HexCoord; unit: Unit }> {
-        return Array.from(this.unitPositions.entries())
-            .filter(([_, unit]) => this.getUnitState(unit).isOrdered)
-            .map(([key, unit]) => ({
-                coord: keyToCoord(key),
-                unit,
-            }));
+        return this.board.getOrderedUnitsWithPositions();
     }
 
     getFriendlyUnits(): Array<Unit> {
-        return this.getAllUnitsWithPositions()
-            .filter(({unit}) => unit.side == this.activePlayer.side)
-            .map(({unit}) => unit);
+        return this.board.getFriendlyUnits(this.activePlayer.side);
     }
 
     getFriendlyUnitsInSection(section: Section): Array<Unit> {
-        return this.getAllUnitsWithPositions()
-            .filter(({coord}) =>
-                isHexInSection(coord, section, this.activePlayer.position))
-            .filter(({unit}) => unit.side == this.activePlayer.side)
-            .map(({unit}) => unit);
+        return this.board.getFriendlyUnitsInSection(section, this.activePlayer.side, this.activePlayer.position);
     }
 
     getUnitSections(unit: Unit): Section[] {
-        // Find the unit's position
-        const unitWithPos = this.getAllUnitsWithPositions().find(({unit: u}) => u === unit);
-        if (!unitWithPos) {
-            return [];
-        }
-
-        // Check which sections this position belongs to
-        const sections: Section[] = [];
-        for (const section of [Section.LEFT, Section.CENTER, Section.RIGHT]) {
-            if (isHexInSection(unitWithPos.coord, section, this.activePlayer.position)) {
-                sections.push(section);
-            }
-        }
-        return sections;
+        return this.board.getUnitSections(unit, this.activePlayer.position);
     }
 
     getOrderedUnits(): Array<Unit> {
-        return Array.from(this.units.values()).filter(unit => this.getUnitState(unit).isOrdered);
+        return this.board.getOrderedUnits();
     }
 
     /**
      * Check if a unit has been ordered this turn
      */
     isUnitOrdered(unit: Unit): boolean {
-        return this.getUnitState(unit).isOrdered;
+        return this.board.isUnitOrdered(unit);
     }
 
     /**
      * Check if a unit has moved this turn
      */
     isUnitMoved(unit: Unit): boolean {
-        return this.getUnitState(unit).hasMoved;
+        return this.board.isUnitMoved(unit);
     }
 
     /**
      * Mark a unit as having moved this turn
      */
     markUnitMoved(unit: Unit): void {
-        this.getUnitState(unit).hasMoved = true;
+        this.board.markUnitMoved(unit);
     }
 
     /**
      * Remove mark
      */
     unMarkUnitMoved(unit: Unit): void {
-        this.getUnitState(unit).hasMoved = false;
+        this.board.unMarkUnitMoved(unit);
     }
 
     /**
      * Mark a unit to skip battle this turn (moved 2 hexes)
      */
     markUnitSkipsBattle(unit: Unit): void {
-        this.getUnitState(unit).skipsBattle = true;
+        this.board.markUnitSkipsBattle(unit);
     }
 
     /**
      * Remove mark
      */
     unMarkUnitSkipsBattle(unit: Unit): void {
-        this.getUnitState(unit).skipsBattle = false;
+        this.board.unMarkUnitSkipsBattle(unit);
     }
 
     /**
      * Check if a unit skips battle this turn
      */
     unitSkipsBattle(unit: Unit): boolean {
-        return this.getUnitState(unit).skipsBattle;
+        return this.board.unitSkipsBattle(unit);
     }
 
     /**
      * Increment the number of battles a unit has participated in this turn
      */
     incrementUnitBattlesThisTurn(unit: Unit): void {
-        this.getUnitState(unit).battlesThisTurn++;
+        this.board.incrementUnitBattlesThisTurn(unit);
     }
 
     /**
      * Get the number of battles a unit has participated in this turn
      */
     getUnitBattlesThisTurn(unit: Unit): number {
-        return this.getUnitState(unit).battlesThisTurn;
+        return this.board.getUnitBattlesThisTurn(unit);
     }
 
     /**
      * Get the current strength of a unit
      */
     getUnitCurrentStrength(u: Unit): number {
-        return this.getUnitState(u).strength;
+        return this.board.getUnitCurrentStrength(u);
     }
 
     /**
      * Set the current strength of a unit
      */
     setUnitCurrentStrength(unit: Unit, strength: number): void {
-        if (strength < 0) {
-            throw new Error(`Unit strength cannot be negative: ${strength}`);
-        }
-        this.getUnitState(unit).strength = strength;
+        this.board.setUnitCurrentStrength(unit, strength);
     }
 
     /**
@@ -397,9 +329,7 @@ export class GameState {
         // End of player turn?
         if (this.phases.length === 0) {
             // Clear turn state for all units
-            for (const unit of this.unitPositions.values()) {
-                this.getUnitState(unit).clearTurnState();
-            }
+            this.board.clearAllUnitTurnState();
 
             // Switch to next player and start their turn
             this.switchActivePlayer();
@@ -452,76 +382,30 @@ export class GameState {
      * Move a unit from one coordinate to another. Throws if destination is occupied or off-board.
      */
     moveUnit(from: HexCoord, to: HexCoord): void {
-        const fromKey = coordToKey(from);
-        const toKey = coordToKey(to);
-
-        const unit = this.unitPositions.get(fromKey);
-        if (!unit) {
-            throw new Error(`No unit at (${from.q}, ${from.r}) to move`);
-        }
-
-        if (!BOARD_GEOMETRY.contains(to)) {
-            throw new Error(
-                `Cannot move unit to (${to.q}, ${to.r}): coordinate is outside board boundaries`
-            );
-        }
-
-        if (this.unitPositions.has(toKey)) {
-            throw new Error(
-                `Cannot move unit to (${to.q}, ${to.r}): coordinate already occupied`
-            );
-        }
-
-        this.unitPositions.delete(fromKey);
-        this.unitPositions.set(toKey, unit);
+        this.board.moveUnit(from, to);
     }
 
     /**
      * Remove a unit from the board
      */
     removeUnit(coord: HexCoord): void {
-        this.unitPositions.delete(coordToKey(coord));
+        this.board.removeUnit(coord);
     }
 
     toggleUnitOrdered(unit: Unit) {
-        this.validateUnit(unit);
-        const state = this.getUnitState(unit);
-        state.isOrdered = !state.isOrdered;
+        this.board.toggleUnitOrdered(unit);
     }
 
     orderUnit(unit: Unit) {
-        this.validateUnit(unit);
-        const state = this.getUnitState(unit);
-        state.isOrdered = true;
+        this.board.orderUnit(unit);
     }
 
     unOrderUnit(unit: Unit) {
-        this.validateUnit(unit);
-        const state = this.getUnitState(unit);
-        state.isOrdered = false;
-    }
-
-    private validateUnit(unit: Unit) {
-        if (!this.unitStates.has(unit.id)) {
-            throw new Error(`Unknown unit "${unit.id}"`)
-        }
+        this.board.unOrderUnit(unit);
     }
 
     orderAllFriendlyUnitsInSection(section: Section): void {
-        const activePlayer = this.activePlayer;
-        const allUnitsWithPositions = this.getAllUnitsWithPositions();
-
-        for (const {coord, unit} of allUnitsWithPositions) {
-            // Only order units owned by the active player
-            if (unit.side !== activePlayer.side) {
-                continue;
-            }
-
-            // Check if unit is in the target section
-            if (isHexInSection(coord, section, activePlayer.position)) {
-                this.getUnitState(unit).isOrdered = true;
-            }
-        }
+        this.board.orderAllFriendlyUnitsInSection(section, this.activePlayer.side, this.activePlayer.position);
     }
 
     discardActiveCard() {
@@ -552,23 +436,8 @@ export class GameState {
         cloned.phases.length = 0; // Clear the default PlayCardPhase
         this.phases.forEach(phase => cloned.phases.push(phase));
 
-        // Clone unitPositions Map (Units are immutable, keys are strings)
-        cloned.unitPositions.clear();
-        for (const [key, unit] of this.unitPositions.entries()) {
-            cloned.unitPositions.set(key, unit);
-        }
-
-        // Clone units Map (Units are immutable)
-        cloned.units.clear();
-        for (const [id, unit] of this.units.entries()) {
-            cloned.units.set(id, unit);
-        }
-
-        // Clone unitStates Map (CRITICAL: deep clone each UnitState)
-        cloned.unitStates.clear();
-        for (const [id, unitState] of this.unitStates.entries()) {
-            cloned.unitStates.set(id, unitState.clone());
-        }
+        // Clone board (deep clone of unit positions and states)
+        (cloned as any).board = this.board.clone();
 
         // Clone medalTables (shallow copy of arrays containing immutable Units)
         cloned.medalTables[0] = [...this.medalTables[0]];
