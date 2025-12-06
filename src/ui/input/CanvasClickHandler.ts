@@ -5,12 +5,13 @@ import type {GameState} from "../../domain/GameState.js";
 import type {GridConfig} from "../../utils/hex.js";
 import type {Unit} from "../../domain/Unit.js";
 import {toCanvasCoords, pixelToHex, HexCoord} from "../../utils/hex.js";
-import {OrderUnitMove, UnOrderMove, MoveUnitMove, BattleMove, RetreatMove} from "../../domain/moves/Move";
+import {OrderUnitMove, UnOrderMove, BattleMove, RetreatMove} from "../../domain/moves/Move";
 import {PhaseType} from "../../domain/phases/Phase.js";
 import {MovePhase} from "../../domain/phases/MovePhase.js";
 import {BattlePhase} from "../../domain/phases/BattlePhase.js";
 import {RetreatPhase} from "../../domain/phases/RetreatPhase.js";
 import {uiState, BattleTarget} from "../UIState.js";
+import {MoveUnitMove} from "../../domain/moves/MoveUnitMove";
 
 export class CanvasClickHandler {
     private boundHandler: (event: MouseEvent) => void;

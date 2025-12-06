@@ -3,11 +3,12 @@
 
 import {describe, expect, test} from "vitest";
 import {MovePhase} from "../../../src/domain/phases/MovePhase";
-import {EndMovementsMove, Move, MoveUnitMove} from "../../../src/domain/moves/Move";
+import {EndMovementsMove, Move} from "../../../src/domain/moves/Move";
 import {Infantry, Armor, Unit, UnitState} from "../../../src/domain/Unit";
 import {Side} from "../../../src/domain/Player";
 import {HexCoord} from "../../../src/utils/hex";
 import {clearTerrain, Terrain, woodsTerrain, hedgerowsTerrain, hillTerrain, TownTerrain} from "../../../src/domain/terrain/Terrain";
+import {MoveUnitMove} from "../../../src/domain/moves/MoveUnitMove";
 
 class FakeUnitMover {
     units = [] as Array<{ coord: HexCoord; unit: Unit; unitState: UnitState; terrain: Terrain }>;

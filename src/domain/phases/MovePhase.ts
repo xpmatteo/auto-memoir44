@@ -3,11 +3,12 @@
 
 import {Phase, PhaseType} from "./Phase";
 import {GameState} from "../GameState";
-import {EndMovementsMove, Move, MoveUnitMove} from "../moves/Move";
+import {EndMovementsMove, Move} from "../moves/Move";
 import {Unit, UnitState} from "../Unit";
 import {HexCoord} from "../../utils/hex";
 import {BOARD_GEOMETRY} from "../BoardGeometry";
 import {Terrain} from "../terrain/Terrain";
+import {MoveUnitMove} from "../moves/MoveUnitMove";
 
 // Declare which methods from GameState we actually need to do our job
 export interface UnitMover {

@@ -5,11 +5,12 @@ import {expect, test, describe} from "vitest";
 import {GameState} from "../../src/domain/GameState";
 import {Deck} from "../../src/domain/Deck";
 import {CardLocation, ProbeCenter} from "../../src/domain/CommandCard";
-import {ConfirmOrdersMove, MoveUnitMove, PlayCardMove, OrderUnitMove, BattleMove} from "../../src/domain/moves/Move";
+import {ConfirmOrdersMove, PlayCardMove, OrderUnitMove, BattleMove} from "../../src/domain/moves/Move";
 import {Infantry, Armor} from "../../src/domain/Unit";
 import {Side} from "../../src/domain/Player";
 import {HexCoord} from "../../src/utils/hex";
 import {woodsTerrain} from "../../src/domain/terrain/Terrain";
+import {MoveUnitMove} from "../../src/domain/moves/MoveUnitMove";
 
 describe("Armor movement", () => {
     test("Armor can move up to 3 hexes", () => {

@@ -4,7 +4,8 @@
 import type {GameState} from "../domain/GameState";
 import type {HexCoord} from "../utils/hex";
 import {PhaseType} from "../domain/phases/Phase";
-import {BattleMove, MoveUnitMove} from "../domain/moves/Move";
+import {BattleMove} from "../domain/moves/Move";
+import {MoveUnitMove} from "../domain/moves/MoveUnitMove";
 
 export function scoreMoveByDice(gameState: GameState, from: HexCoord, to: HexCoord) {
     const unit = gameState.getUnitAt(from);

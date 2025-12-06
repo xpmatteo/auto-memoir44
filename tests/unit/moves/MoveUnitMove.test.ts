@@ -2,13 +2,13 @@
 // ABOUTME: Tests unit-specific battle restrictions after movement
 
 import {describe, expect, it} from "vitest";
-import {GameState} from "../../src/domain/GameState";
-import {Deck} from "../../src/domain/Deck";
-import {Infantry, Armor} from "../../src/domain/Unit";
-import {Side} from "../../src/domain/Player";
-import {HexCoord} from "../../src/utils/hex";
-import {MoveUnitMove} from "../../src/domain/moves/Move";
-import {woodsTerrain} from "../../src/domain/terrain/Terrain";
+import {GameState} from "../../../src/domain/GameState";
+import {Deck} from "../../../src/domain/Deck";
+import {Infantry, Armor} from "../../../src/domain/Unit";
+import {Side} from "../../../src/domain/Player";
+import {HexCoord} from "../../../src/utils/hex";
+import {woodsTerrain} from "../../../src/domain/terrain/Terrain";
+import {MoveUnitMove} from "../../../src/domain/moves/MoveUnitMove";
 
 describe("MoveUnitMove battle restrictions", () => {
     it("should mark unit to skip battle when moving 2 hexes", () => {
