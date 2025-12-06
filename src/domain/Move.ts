@@ -8,9 +8,8 @@ import {resolveHits} from "../rules/combat";
 import {Position, Side} from "./Player";
 import {RESULT_FLAG} from "./Dice";
 import {RetreatPhase} from "./phases/RetreatPhase";
-import {BOARD_GEOMETRY} from "./BoardGeometry";
-// import {handleFlags} from "../rules/flags";
-// import {retreatPaths} from "../rules/retreatPaths";
+import {handleFlags} from "../rules/flags";
+import {retreatPaths} from "../rules/retreatPaths";
 
 interface UiButton {
     label: string,
@@ -190,48 +189,47 @@ export class BattleMove extends Move {
         const hits = resolveHits(diceResults, this.toUnit);
 
         // Count flags (treat multiple flags as a single flag for now)
-        const flagCount = diceResults.filter(result => result === RESULT_FLAG).length;
-        const hasFlag = flagCount > 0;
+        let flagCount = diceResults.filter(result => result === RESULT_FLAG).length;
+        if (flagCount > 1) {
+            flagCount = 1;
+        }
 
         // Apply casualties to target unit
         const currentStrength = gameState.getUnitCurrentStrength(this.toUnit);
         const newStrength = currentStrength - hits;
+        gameState.setUnitCurrentStrength(this.toUnit, newStrength);
+        const target = this.findTarget(gameState);
 
         if (newStrength <= 0) {
             // Unit is eliminated - find its position and remove it
-            const targetPosition = this.findTarget(gameState);
-            this.eliminateUnit(gameState, targetPosition.coord);
-        } else {
-            // Unit might survive with reduced strength
-            gameState.setUnitCurrentStrength(this.toUnit, newStrength);
+            this.eliminateUnit(gameState, target.coord);
+            return;
+        }
 
-            // Handle flag results (retreat)
-            if (hasFlag) {
-                // Find target unit's current position
-                const target = this.findTarget(gameState);
-                const availableHexes = this.retreatHexes(gameState, target);
+        // Handle flag results (retreat)
+        if (flagCount > 0) {
+            const retreats = retreatPaths(gameState, target.coord, flagCount, this.toUnit.side);
+            const flagResult = handleFlags(flagCount, 0, retreats);
 
-                //handleFlags(1, 1, 0, availableHexes);
+            // apply any damage, then check if eliminated
+            const newStrengthAfterFlagResult = newStrength - flagResult.damage;
+            gameState.setUnitCurrentStrength(this.toUnit, newStrengthAfterFlagResult);
+            if (newStrengthAfterFlagResult <= 0) {
+                const targetPosition = this.findTarget(gameState);
+                this.eliminateUnit(gameState, targetPosition.coord);
+                return;
+            }
 
-                if (availableHexes.length === 0) {
-                    // No retreat path available - unit takes a hit
-                    const newStrengthAfterRetreat = gameState.getUnitCurrentStrength(this.toUnit) - 1;
-                    if (newStrengthAfterRetreat <= 0) {
-                        this.eliminateUnit(gameState, target.coord);
-                    } else {
-                        gameState.setUnitCurrentStrength(this.toUnit, newStrengthAfterRetreat);
-                    }
-                } else if (availableHexes.length === 1) {
-                    // Only one retreat path - automatically move unit
-                    gameState.moveUnit(target.coord, availableHexes[0]);
-                } else {
-                    // Multiple retreat paths - push RetreatPhase so owner can choose
-                    gameState.pushPhase(new RetreatPhase(
-                        this.toUnit,
-                        target.coord,
-                        availableHexes
-                    ));
-                }
+            if (flagResult.retreats.length === 1) {
+                // Only one retreat path - automatically move unit
+                gameState.moveUnit(target.coord, flagResult.retreats[0]);
+            } else {
+                // Multiple retreat paths - push RetreatPhase so owner can choose
+                gameState.pushPhase(new RetreatPhase(
+                    this.toUnit,
+                    target.coord,
+                    flagResult.retreats
+                ));
             }
         }
     }
@@ -249,27 +247,6 @@ export class BattleMove extends Move {
         gameState.removeUnit(coord);
         const attackerPlayerIndex = gameState.activePlayer.position === Position.BOTTOM ? 0 : 1;
         gameState.addToMedalTable(this.toUnit, attackerPlayerIndex as 0 | 1);
-    }
-
-    private retreatHexes(gameState: GameState, targetPosition: { coord: HexCoord; unit: Unit }) {
-        // Determine retreat directions based on target unit owner's position
-        const targetOwnerPosition = gameState.positionOf(this.toUnit);
-
-        const retreatHexes: HexCoord[] = [];
-        if (targetOwnerPosition === Position.TOP) {
-            // Top player retreats NW or NE
-            retreatHexes.push(targetPosition.coord.northwest());
-            retreatHexes.push(targetPosition.coord.northeast());
-        } else {
-            // Bottom player retreats SW or SE
-            retreatHexes.push(targetPosition.coord.southwest());
-            retreatHexes.push(targetPosition.coord.southeast());
-        }
-
-        // Filter out blocked hexes (units or board edges)
-        return retreatHexes.filter(hex =>
-            BOARD_GEOMETRY.contains(hex) && !gameState.getUnitAt(hex)
-        );
     }
 
     toString(): string {
