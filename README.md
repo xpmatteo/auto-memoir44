@@ -8,8 +8,8 @@ REFACTOR
 the array of players has redundant information; player 0 should always be the one at the bottom?
 
 TODO
+- hexOf, put key method in HexCoord
 - retreat with more than one flag
-- fortifications
 - tactics cards
 - take ground
 - armor overrun
@@ -30,6 +30,7 @@ TODO
   - battle out for armor
   - hills: LOS
 
+- other fortifications
 - line-of-sight across hex edges for artillery
 - persistency
 - export game state
