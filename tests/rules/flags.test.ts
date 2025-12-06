@@ -28,7 +28,7 @@ function assertHandleFlags(
 
     test(message, () => {
         const retreatPaths = buildRetreatPaths(retreatPathLength);
-        const actualResult = handleFlags(flags, retreatHexesPerFlag, ignorableFlags, retreatPaths);
+        const actualResult = handleFlags(flags, ignorableFlags, retreatPaths, retreatHexesPerFlag);
         expect(actualResult).toEqual(expectedResult);
     });
 }

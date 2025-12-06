@@ -45,7 +45,7 @@ function handleFlagsWithOneIgnorable(flags: number, retreatHexesPerFlag: number,
     return handleFlagsNonIgnorable(flags - 1, retreatHexesPerFlag, retreatPaths);
 }
 
-export function handleFlags(flags: number, retreatHexesPerFlag: number, ignorableFlags: number, retreatPaths: RetreatPaths): FlagResult {
+export function handleFlags(flags: number, ignorableFlags: number, retreatPaths: RetreatPaths, retreatHexesPerFlag: number = 1): FlagResult {
     if (flags === 0) {
         return FlagResult.NO_EFFECT;
     }
