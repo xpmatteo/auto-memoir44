@@ -10,7 +10,6 @@ use hex.key() everywhere
 
 TODO
 - hexOf, put key method in HexCoord
-- retreat with more than one flag
 - tactics cards
 - take ground
 - armor overrun
@@ -30,6 +29,7 @@ TODO
 - terrain
   - battle out for armor
   - hills: LOS
+  - impassable terrain: must extend retreatPaths logic
 
 - other fortifications
 - line-of-sight across hex edges for artillery

@@ -240,12 +240,31 @@ async function start() {
         }
     };
 
+    // Check for stuck game state and log warning
+    const checkForStuckState = () => {
+        const legalMoves = gameState.legalMoves();
+
+        // Only warn if no moves available (game should always have at least one move)
+        // GameVictoryMove is included in legalMoves when game ends, so this catches true stuck states
+        if (legalMoves.length === 0) {
+            console.error(
+                `[STUCK STATE DETECTED] No legal moves available in phase: ${gameState.activePhase.name}`,
+                {
+                    phase: gameState.activePhase,
+                    activePlayer: gameState.activePlayer,
+                    activeCard: gameState.activeCard,
+                }
+            );
+        }
+    };
+
     // Set up reactive rendering function that updates both UI and canvas
     const renderAll = async () => {
         handDisplay.render();
         currentCardDisplay.render();
         moveButtons.render();
         await renderCanvas();
+        checkForStuckState();
     };
 
     // Create AI player and controller
