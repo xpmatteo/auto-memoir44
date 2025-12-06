@@ -6,6 +6,7 @@ Work in progress.  Don't hold your breath!
 REFACTOR
 
 the array of players has redundant information; player 0 should always be the one at the bottom?
+use hex.key() everywhere 
 
 TODO
 - hexOf, put key method in HexCoord

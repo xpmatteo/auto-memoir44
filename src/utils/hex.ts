@@ -3,6 +3,8 @@
 
 const SQRT3 = Math.sqrt(3);
 
+export type HexCoordKey = number & { readonly __brand: 'HexCoordKey' };
+
 export type GridConfig = {
     cols: number;
     rows: number;
@@ -46,6 +48,10 @@ export class HexCoord {
 
     toString(): string {
         return `(${this.q},${this.r})`;
+    }
+
+    key(): HexCoordKey {
+        return (this.q + this.r * 1024) as HexCoordKey;
     }
 
     isNorthOf(otherHex: HexCoord) {
