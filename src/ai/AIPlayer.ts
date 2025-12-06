@@ -2,7 +2,7 @@
 // ABOUTME: Provides strategy pattern for different AI difficulty levels and behaviors
 
 import type {Move} from "../domain/moves/Move";
-import {BattleMove, ConfirmOrdersMove, EndBattlesMove, EndMovementsMove, OrderUnitMove, PlayCardMove} from "../domain/moves/Move";
+import {ConfirmOrdersMove, EndBattlesMove, EndMovementsMove, OrderUnitMove, PlayCardMove} from "../domain/moves/Move";
 import {SeededRNG} from "../adapters/RNG";
 import type {GameState} from "../domain/GameState";
 import type {CommandCard} from "../domain/CommandCard";
@@ -10,6 +10,7 @@ import {PhaseType} from "../domain/phases/Phase";
 import {BattlePhase} from "../domain/phases/BattlePhase";
 import {scoreMoveByDice} from "./scoreMoveByDice";
 import {MoveUnitMove} from "../domain/moves/MoveUnitMove";
+import {BattleMove} from "../domain/moves/BattleMove";
 
 /**
  * Interface for AI players that can select moves from legal options

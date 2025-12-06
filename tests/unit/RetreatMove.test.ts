@@ -6,10 +6,11 @@ import {Deck} from "../../src/domain/Deck";
 import {Infantry} from "../../src/domain/Unit";
 import {HexCoord} from "../../src/utils/hex";
 import {Side, Position} from "../../src/domain/Player";
-import {BattleMove, RetreatMove} from "../../src/domain/moves/Move";
+import {RetreatMove} from "../../src/domain/moves/Move";
 import {diceReturning} from "../../src/domain/Dice";
 import {RESULT_FLAG, RESULT_INFANTRY} from "../../src/domain/Dice";
 import {RetreatPhase} from "../../src/domain/phases/RetreatPhase";
+import {BattleMove} from "../../src/domain/moves/BattleMove";
 
 describe("Retreat mechanics", () => {
     describe("Flag results force retreat", () => {

@@ -2,13 +2,13 @@
 // ABOUTME: Tests combat resolution, unit elimination, and medal table updates
 
 import {describe, expect, it} from "vitest";
-import {GameState} from "../../src/domain/GameState";
-import {Deck} from "../../src/domain/Deck";
-import {Infantry} from "../../src/domain/Unit";
-import {Side} from "../../src/domain/Player";
-import {HexCoord} from "../../src/utils/hex";
-import {BattleMove} from "../../src/domain/moves/Move";
-import {diceReturningAlways, RESULT_INFANTRY, RESULT_GRENADE, RESULT_FLAG, RESULT_ARMOR} from "../../src/domain/Dice";
+import {GameState} from "../../../src/domain/GameState";
+import {Deck} from "../../../src/domain/Deck";
+import {Infantry} from "../../../src/domain/Unit";
+import {Side} from "../../../src/domain/Player";
+import {HexCoord} from "../../../src/utils/hex";
+import {diceReturningAlways, RESULT_INFANTRY, RESULT_GRENADE, RESULT_FLAG, RESULT_ARMOR} from "../../../src/domain/Dice";
+import {BattleMove} from "../../../src/domain/moves/BattleMove";
 
 describe("BattleMove", () => {
     describe("unit damage", () => {

@@ -3,12 +3,13 @@
 
 import {describe, expect, test} from "vitest";
 import {BattlePhase} from "../../../src/domain/phases/BattlePhase";
-import {BattleMove, EndBattlesMove, Move} from "../../../src/domain/moves/Move";
+import {EndBattlesMove, Move} from "../../../src/domain/moves/Move";
 import {Infantry, Unit, UnitState} from "../../../src/domain/Unit";
 import {Side, Position, createPlayer, Player} from "../../../src/domain/Player";
 import {HexCoord} from "../../../src/utils/hex";
 import {clearTerrain, hillTerrain, Terrain, woodsTerrain} from "../../../src/domain/terrain/Terrain";
 import {Fortification, noFortification} from "../../../src/domain/fortifications/Fortification";
+import {BattleMove} from "../../../src/domain/moves/BattleMove";
 
 export class FakeUnitBattler {
     allUnitsData = [] as Array<{ coord: HexCoord, unit: Unit, unitState: UnitState, terrain: Terrain }>;
