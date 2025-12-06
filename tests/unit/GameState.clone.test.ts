@@ -9,7 +9,7 @@ import {Infantry} from "../../src/domain/Unit";
 import {HexCoord} from "../../src/utils/hex";
 import {Side} from "../../src/domain/Player";
 import {Dice} from "../../src/domain/Dice";
-import {PlayCardMove} from "../../src/domain/Move";
+import {PlayCardMove} from "../../src/domain/moves/Move";
 
 describe("GameState.clone()", () => {
     describe("primitive properties", () => {

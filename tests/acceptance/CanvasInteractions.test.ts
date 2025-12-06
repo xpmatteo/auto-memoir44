@@ -7,7 +7,7 @@ import {Deck} from "../../src/domain/Deck";
 import {Infantry} from "../../src/domain/Unit";
 import {Side} from "../../src/domain/Player";
 import {ProbeLeft, CardLocation} from "../../src/domain/CommandCard";
-import {Move, PlayCardMove, OrderUnitMove, UnOrderMove} from "../../src/domain/Move";
+import {Move, PlayCardMove, OrderUnitMove, UnOrderMove} from "../../src/domain/moves/Move";
 import {HexCoord} from "../../src/utils/hex";
 
 describe("Canvas Interactions", () => {

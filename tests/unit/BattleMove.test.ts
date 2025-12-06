@@ -7,7 +7,7 @@ import {Deck} from "../../src/domain/Deck";
 import {Infantry} from "../../src/domain/Unit";
 import {Side} from "../../src/domain/Player";
 import {HexCoord} from "../../src/utils/hex";
-import {BattleMove} from "../../src/domain/Move";
+import {BattleMove} from "../../src/domain/moves/Move";
 import {diceReturningAlways, RESULT_INFANTRY, RESULT_GRENADE, RESULT_FLAG, RESULT_ARMOR} from "../../src/domain/Dice";
 
 describe("BattleMove", () => {

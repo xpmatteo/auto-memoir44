@@ -3,7 +3,7 @@
 
 import {CardLocation, CommandCard} from "../../domain/CommandCard";
 import {GameState} from "../../domain/GameState";
-import {PlayCardMove} from "../../domain/Move";
+import {PlayCardMove} from "../../domain/moves/Move";
 
 export class HandDisplay {
     private container: HTMLDivElement;

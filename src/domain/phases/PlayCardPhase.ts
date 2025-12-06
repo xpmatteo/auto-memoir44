@@ -1,5 +1,5 @@
 import {GameState} from "../GameState";
-import {Move, PlayCardMove} from "../Move";
+import {Move, PlayCardMove} from "../moves/Move";
 import {Position} from "../Player";
 import {CardLocation} from "../CommandCard";
 import {Phase, PhaseType} from "./Phase";

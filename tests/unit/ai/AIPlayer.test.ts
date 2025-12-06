@@ -4,7 +4,7 @@
 import {expect, test, describe} from "vitest";
 import {RandomAIPlayer} from "../../../src/ai/AIPlayer";
 import {SeededRNG} from "../../../src/adapters/RNG";
-import {PlayCardMove, ConfirmOrdersMove, EndMovementsMove, EndBattlesMove, OrderUnitMove} from "../../../src/domain/Move";
+import {PlayCardMove, ConfirmOrdersMove, EndMovementsMove, EndBattlesMove, OrderUnitMove} from "../../../src/domain/moves/Move";
 import {ProbeCenter} from "../../../src/domain/CommandCard";
 import {GameState} from "../../../src/domain/GameState";
 import {Deck} from "../../../src/domain/Deck";

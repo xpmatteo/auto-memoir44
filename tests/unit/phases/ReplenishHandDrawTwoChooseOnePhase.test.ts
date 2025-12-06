@@ -3,7 +3,7 @@ import {ReplenishHandDrawTwoChooseOnePhase} from "../../../src/domain/phases/Rep
 import {GameState} from "../../../src/domain/GameState";
 import {Deck} from "../../../src/domain/Deck";
 import {TestCard} from "../Deck.test";
-import {ReplenishHandChooseCardMove} from "../../../src/domain/Move";
+import {ReplenishHandChooseCardMove} from "../../../src/domain/moves/Move";
 import {CardLocation} from "../../../src/domain/CommandCard";
 import {PlayCardPhase} from "../../../src/domain/phases/PlayCardPhase";
 

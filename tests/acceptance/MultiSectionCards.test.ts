@@ -8,7 +8,7 @@ import {Deck} from "../../src/domain/Deck";
 import {Infantry} from "../../src/domain/Unit";
 import {CardLocation, PincerMove, ReconInForce} from "../../src/domain/CommandCard";
 import {HexCoord} from "../../src/utils/hex";
-import {ConfirmOrdersMove, OrderUnitMove, PlayCardMove, UnOrderMove} from "../../src/domain/Move";
+import {ConfirmOrdersMove, OrderUnitMove, PlayCardMove, UnOrderMove} from "../../src/domain/moves/Move";
 import {toStringAndSort} from "../helpers/testHelpers";
 
 describe("Multi-Section Command Cards", () => {

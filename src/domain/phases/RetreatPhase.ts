@@ -3,7 +3,7 @@
 
 import {Phase, PhaseType} from "./Phase";
 import {GameState} from "../GameState";
-import {Move, RetreatMove} from "../Move";
+import {Move, RetreatMove} from "../moves/Move";
 import {Unit} from "../Unit";
 import {HexCoord} from "../../utils/hex";
 

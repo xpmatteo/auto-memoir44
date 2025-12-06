@@ -1,7 +1,7 @@
 import {Section} from "../Section";
 import {Unit} from "../Unit";
 import {GameState} from "../GameState";
-import {ConfirmOrdersMove, Move, OrderUnitMove, UnOrderMove} from "../Move";
+import {ConfirmOrdersMove, Move, OrderUnitMove, UnOrderMove} from "../moves/Move";
 import {Phase, PhaseType} from "./Phase";
 
 // Declare which methods from GameState we actually need to do our job

@@ -7,7 +7,7 @@ import {Deck} from "../../src/domain/Deck";
 import {Infantry, Armor} from "../../src/domain/Unit";
 import {Side} from "../../src/domain/Player";
 import {HexCoord} from "../../src/utils/hex";
-import {MoveUnitMove} from "../../src/domain/Move";
+import {MoveUnitMove} from "../../src/domain/moves/Move";
 import {woodsTerrain} from "../../src/domain/terrain/Terrain";
 
 describe("MoveUnitMove battle restrictions", () => {

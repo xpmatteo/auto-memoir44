@@ -4,7 +4,7 @@
 import {Deck} from "../../src/domain/Deck";
 import {GameState} from "../../src/domain/GameState";
 import {Dice} from "../../src/domain/Dice";
-import {Move} from "../../src/domain/Move";
+import {Move} from "../../src/domain/moves/Move";
 
 /**
  * Create a GameState with a standard deck and default dice for testing

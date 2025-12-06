@@ -1,8 +1,8 @@
 // ABOUTME: AI player interface and implementations for automated move selection
 // ABOUTME: Provides strategy pattern for different AI difficulty levels and behaviors
 
-import type {Move} from "../domain/Move";
-import {BattleMove, ConfirmOrdersMove, EndBattlesMove, EndMovementsMove, MoveUnitMove, OrderUnitMove, PlayCardMove} from "../domain/Move";
+import type {Move} from "../domain/moves/Move";
+import {BattleMove, ConfirmOrdersMove, EndBattlesMove, EndMovementsMove, MoveUnitMove, OrderUnitMove, PlayCardMove} from "../domain/moves/Move";
 import {SeededRNG} from "../adapters/RNG";
 import type {GameState} from "../domain/GameState";
 import type {CommandCard} from "../domain/CommandCard";

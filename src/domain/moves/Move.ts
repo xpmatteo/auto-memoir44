@@ -1,15 +1,15 @@
 // ABOUTME: Move types and definitions for game actions
 
-import {CommandCard} from "./CommandCard";
-import {GameState} from "./GameState";
-import {Unit} from "./Unit";
-import {HexCoord, hexDistance} from "../utils/hex";
-import {resolveHits} from "../rules/combat";
-import {Position, Side} from "./Player";
-import {RESULT_FLAG} from "./Dice";
-import {RetreatPhase} from "./phases/RetreatPhase";
-import {handleFlags} from "../rules/flags";
-import {retreatPaths} from "../rules/retreatPaths";
+import {CommandCard} from "../CommandCard";
+import {GameState} from "../GameState";
+import {Unit} from "../Unit";
+import {HexCoord, hexDistance} from "../../utils/hex";
+import {resolveHits} from "../../rules/combat";
+import {Position, Side} from "../Player";
+import {RESULT_FLAG} from "../Dice";
+import {RetreatPhase} from "../phases/RetreatPhase";
+import {handleFlags} from "../../rules/flags";
+import {retreatPaths} from "../../rules/retreatPaths";
 
 interface UiButton {
     label: string,

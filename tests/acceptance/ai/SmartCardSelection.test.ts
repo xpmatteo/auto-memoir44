@@ -5,12 +5,12 @@ import {expect, test, describe} from "vitest";
 import {GameState} from "../../../src/domain/GameState";
 import {Deck} from "../../../src/domain/Deck";
 import {CardLocation, ProbeLeft, ProbeCenter, ProbeRight, AttackCenter, ReconLeft, AssaultCenter} from "../../../src/domain/CommandCard";
-import {ConfirmOrdersMove, EndBattlesMove, EndMovementsMove, PlayCardMove, ReplenishHandMove} from "../../../src/domain/Move";
+import {ConfirmOrdersMove, EndBattlesMove, EndMovementsMove, PlayCardMove, ReplenishHandMove} from "../../../src/domain/moves/Move";
 import {Position, Side} from "../../../src/domain/Player";
 import {SeededRNG} from "../../../src/adapters/RNG";
 import {Dice} from "../../../src/domain/Dice";
 import {RandomAIPlayer} from "../../../src/ai/AIPlayer";
-import type {Move} from "../../../src/domain/Move";
+import type {Move} from "../../../src/domain/moves/Move";
 import {Infantry} from "../../../src/domain/Unit";
 import {HexCoord} from "../../../src/utils/hex";
 

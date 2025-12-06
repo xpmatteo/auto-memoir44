@@ -12,7 +12,7 @@ import {Armor, Infantry} from "../../../src/domain/Unit";
 import {HexCoord} from "../../../src/utils/hex";
 import {Side} from "../../../src/domain/Player";
 import {BattlePhase} from "../../../src/domain/phases/BattlePhase";
-import {BattleMove} from "../../../src/domain/Move";
+import {BattleMove} from "../../../src/domain/moves/Move";
 
 test("AI prioritizes unit with fewer target options", () => {
     // Given: Two ordered AXIS units, one with 1 target option, one with 2 target options

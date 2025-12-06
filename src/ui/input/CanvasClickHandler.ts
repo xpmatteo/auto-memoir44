@@ -5,7 +5,7 @@ import type {GameState} from "../../domain/GameState.js";
 import type {GridConfig} from "../../utils/hex.js";
 import type {Unit} from "../../domain/Unit.js";
 import {toCanvasCoords, pixelToHex, HexCoord} from "../../utils/hex.js";
-import {OrderUnitMove, UnOrderMove, MoveUnitMove, BattleMove, RetreatMove} from "../../domain/Move.js";
+import {OrderUnitMove, UnOrderMove, MoveUnitMove, BattleMove, RetreatMove} from "../../domain/moves/Move";
 import {PhaseType} from "../../domain/phases/Phase.js";
 import {MovePhase} from "../../domain/phases/MovePhase.js";
 import {BattlePhase} from "../../domain/phases/BattlePhase.js";

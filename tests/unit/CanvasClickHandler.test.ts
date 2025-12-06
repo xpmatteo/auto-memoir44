@@ -8,7 +8,7 @@ import { Deck } from "../../src/domain/Deck";
 import { Infantry } from "../../src/domain/Unit";
 import { Side } from "../../src/domain/Player";
 import { ProbeLeft, CardLocation } from "../../src/domain/CommandCard";
-import { PlayCardMove, ConfirmOrdersMove } from "../../src/domain/Move";
+import { PlayCardMove, ConfirmOrdersMove } from "../../src/domain/moves/Move";
 import type { GridConfig } from "../../src/utils/hex";
 import { HexCoord } from "../../src/utils/hex";
 import { uiState } from "../../src/ui/UIState";

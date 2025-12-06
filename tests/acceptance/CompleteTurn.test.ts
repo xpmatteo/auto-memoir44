@@ -11,7 +11,7 @@ import {
     EndMovementsMove,
     PlayCardMove,
     ReplenishHandMove
-} from "../../src/domain/Move";
+} from "../../src/domain/moves/Move";
 import {Position} from "../../src/domain/Player";
 import {PhaseType} from "../../src/domain/phases/Phase";
 

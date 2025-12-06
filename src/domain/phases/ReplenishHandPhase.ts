@@ -1,5 +1,5 @@
 import {GameState} from "../GameState";
-import {Move, ReplenishHandMove} from "../Move";
+import {Move, ReplenishHandMove} from "../moves/Move";
 import {Phase, PhaseType} from "./Phase";
 
 export class ReplenishHandPhase implements Phase {

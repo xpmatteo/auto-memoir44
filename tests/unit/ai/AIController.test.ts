@@ -10,7 +10,7 @@ import {SeededRNG} from "../../../src/adapters/RNG";
 import {Dice} from "../../../src/domain/Dice";
 import {RandomAIPlayer} from "../../../src/ai/AIPlayer";
 import {AIController} from "../../../src/ai/AIController";
-import {ConfirmOrdersMove, EndBattlesMove, EndMovementsMove, PlayCardMove, ReplenishHandMove} from "../../../src/domain/Move";
+import {ConfirmOrdersMove, EndBattlesMove, EndMovementsMove, PlayCardMove, ReplenishHandMove} from "../../../src/domain/moves/Move";
 
 describe("AIController", () => {
     test("only acts when Top player is active", () => {

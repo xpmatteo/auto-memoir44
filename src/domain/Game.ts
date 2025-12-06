@@ -1,7 +1,7 @@
 import {Scenario} from "../scenarios/Scenario";
 import {Deck} from "./Deck";
 import {GameState} from "./GameState";
-import {Move} from "./Move";
+import {Move} from "./moves/Move";
 
 
 export function createGame(scenario: Scenario): Game {

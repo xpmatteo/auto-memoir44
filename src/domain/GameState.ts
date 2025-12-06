@@ -3,7 +3,7 @@
 
 import {createPlayer, Player, Position, Side} from "./Player";
 import {Deck} from "./Deck";
-import {GameVictoryMove, Move} from "./Move";
+import {GameVictoryMove, Move} from "./moves/Move";
 import {Unit, UnitState} from "./Unit";
 import {HexCoord} from "../utils/hex";
 import {CardLocation, CommandCard} from "./CommandCard";

@@ -5,7 +5,7 @@ import {expect, test, describe} from "vitest";
 import {GameState} from "../../src/domain/GameState";
 import {Deck} from "../../src/domain/Deck";
 import {CardLocation, ProbeCenter} from "../../src/domain/CommandCard";
-import {GameVictoryMove} from "../../src/domain/Move";
+import {GameVictoryMove} from "../../src/domain/moves/Move";
 import {Infantry} from "../../src/domain/Unit";
 import {Side} from "../../src/domain/Player";
 

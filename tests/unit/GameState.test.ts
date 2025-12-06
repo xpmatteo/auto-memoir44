@@ -17,7 +17,7 @@ import {
     EndMovementsMove,
     EndBattlesMove,
     Move
-} from "../../src/domain/Move";
+} from "../../src/domain/moves/Move";
 import {OrderUnitsPhase} from "../../src/domain/phases/OrderUnitsPhase";
 import {Section} from "../../src/domain/Section";
 import {clearTerrain, hillTerrain, woodsTerrain} from "../../src/domain/terrain/Terrain";

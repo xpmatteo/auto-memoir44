@@ -3,7 +3,7 @@
 
 import {Phase, PhaseType} from "./Phase";
 import {GameState} from "../GameState";
-import {EndMovementsMove, Move, MoveUnitMove} from "../Move";
+import {EndMovementsMove, Move, MoveUnitMove} from "../moves/Move";
 import {Unit, UnitState} from "../Unit";
 import {HexCoord} from "../../utils/hex";
 import {BOARD_GEOMETRY} from "../BoardGeometry";

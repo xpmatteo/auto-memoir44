@@ -1,5 +1,5 @@
 import {GameState} from "../GameState";
-import {Move} from "../Move";
+import {Move} from "../moves/Move";
 
 export const PhaseType = {
     PLAY_CARD: "play_card",

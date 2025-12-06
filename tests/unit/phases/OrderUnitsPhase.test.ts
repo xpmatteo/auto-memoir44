@@ -2,7 +2,7 @@
 
 import {describe, expect, test} from "vitest";
 import {Section} from "../../../src/domain/Section";
-import {ConfirmOrdersMove, OrderUnitMove, UnOrderMove} from "../../../src/domain/Move";
+import {ConfirmOrdersMove, OrderUnitMove, UnOrderMove} from "../../../src/domain/moves/Move";
 import {Infantry, Unit} from "../../../src/domain/Unit";
 import {Side} from "../../../src/domain/Player";
 import {OrderUnitsPhase} from "../../../src/domain/phases/OrderUnitsPhase";

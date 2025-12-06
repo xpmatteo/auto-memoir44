@@ -3,7 +3,7 @@
 
 import {describe, expect, test} from "vitest";
 import {BattlePhase} from "../../../src/domain/phases/BattlePhase";
-import {BattleMove, EndBattlesMove, Move} from "../../../src/domain/Move";
+import {BattleMove, EndBattlesMove, Move} from "../../../src/domain/moves/Move";
 import {Infantry, Unit, UnitState} from "../../../src/domain/Unit";
 import {Side, Position, createPlayer, Player} from "../../../src/domain/Player";
 import {HexCoord} from "../../../src/utils/hex";

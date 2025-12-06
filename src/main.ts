@@ -33,7 +33,7 @@ import {GameState} from "./domain/GameState.js";
 import {Deck} from "./domain/Deck.js";
 import {CanvasClickHandler} from "./ui/input/CanvasClickHandler.js";
 import {uiState} from "./ui/UIState.js";
-import {BattleMove, MoveUnitMove} from "./domain/Move.js";
+import {BattleMove, MoveUnitMove} from "./domain/moves/Move";
 import {SeededRNG} from "./adapters/RNG.js";
 import {Dice} from "./domain/Dice.js";
 import {RandomAIPlayer} from "./ai/AIPlayer.js";
