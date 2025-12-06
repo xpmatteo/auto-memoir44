@@ -216,11 +216,8 @@ export class Board {
     /**
      * Set the current strength of a unit
      */
-    setUnitCurrentStrength(unit: Unit, strength: number): void {
-        if (strength < 0) {
-            throw new Error(`Unit strength cannot be negative: ${strength}`);
-        }
-        this.getUnitState(unit).strength = strength;
+    setUnitCurrentStrength(unit: Unit, newStrength: number): void {
+        this.getUnitState(unit).strength = Math.max(0, newStrength);
     }
 
     /**

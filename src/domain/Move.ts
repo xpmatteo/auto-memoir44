@@ -10,6 +10,7 @@ import {RESULT_FLAG} from "./Dice";
 import {RetreatPhase} from "./phases/RetreatPhase";
 import {BOARD_GEOMETRY} from "./BoardGeometry";
 // import {handleFlags} from "../rules/flags";
+// import {retreatPaths} from "../rules/retreatPaths";
 
 interface UiButton {
     label: string,

@@ -37,7 +37,7 @@ function deduplicateHexes(hexes: Array<HexCoord>): Array<HexCoord> {
     If it can retreat 2 hexes, the result is:
     { 1: [hexOf(4,3), hexOf(5,3)], 2: [hexOf(4,2), hexOf(5,2), hexOf(6,2)] }
  */
-export function retreatPaths(gameState: GameState, hex: HexCoord, maxDistance: number, side: Side): RetreatPaths {
+export function retreatPaths(gameState: GameState, unitHex: HexCoord, maxDistance: number, side: Side): RetreatPaths {
     let neighborFunction: (hex: HexCoord) => [HexCoord, HexCoord];
     if (side === gameState.sideTop) {
         neighborFunction = (hex: HexCoord) => hex.northernNeighbors();
@@ -47,7 +47,7 @@ export function retreatPaths(gameState: GameState, hex: HexCoord, maxDistance: n
         throw new Error(`Invalid side ${side}`);
     }
 
-    let seed = [hex];
+    let seed = [unitHex];
     let result: RetreatPaths = {
         maxDistance: -1,
         paths: new Map(),
