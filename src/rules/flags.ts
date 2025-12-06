@@ -1,6 +1,7 @@
 import {HexCoord} from "../utils/hex";
+import {RetreatPaths} from "./retreatPaths";
 
-/*
+
 export class FlagResult {
     damage: number;
     retreats: HexCoord[];
@@ -30,15 +31,15 @@ function handleFlagsNonIgnorable(flags: number, retreatHexesPerFlag: number, ret
     const damage = Math.max(0, requiredRetreat - retreatPaths.maxDistance);
     const distance = Math.min(retreatPaths.maxDistance, requiredRetreat);
     const retreatPath = (distance === 0) ? [] : retreatPaths.paths.get(distance);
-    return new FlagResult(damage, retreatPath);
+    return new FlagResult(damage, retreatPath!);
 }
 
 function handleFlagsWithOneIgnorable(flags: number, retreatHexesPerFlag: number, retreatPaths: RetreatPaths): FlagResult {
     const requiredRetreat = flags * retreatHexesPerFlag;
     const retreatWithIgnoredFlag = (flags - 1) * retreatHexesPerFlag;
     if (requiredRetreat === retreatPaths.maxDistance) {
-        const notIgnoring = retreatPaths[requiredRetreat];
-        const ignoring = retreatPaths[retreatWithIgnoredFlag];
+        const notIgnoring = retreatPaths.paths.get(requiredRetreat)!;
+        const ignoring = retreatPaths.paths.get(retreatWithIgnoredFlag)!;
         return new FlagResult(0, ignoring.concat(notIgnoring));
     }
     return handleFlagsNonIgnorable(flags - 1, retreatHexesPerFlag, retreatPaths);
@@ -58,6 +59,3 @@ export function handleFlags(flags: number, retreatHexesPerFlag: number, ignorabl
             throw new Error("unsupported ignorableFlags: " + ignorableFlags);
     }
 }
-
-
- */
