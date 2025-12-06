@@ -10,6 +10,7 @@ import {HexCoord} from "../../../src/utils/hex";
 import {diceReturningAlways, DiceResult, RESULT_INFANTRY, RESULT_FLAG} from "../../../src/domain/Dice";
 import {BattleMove} from "../../../src/domain/moves/BattleMove";
 import {RetreatPhase} from "../../../src/domain/phases/RetreatPhase";
+import {sandbagAllies} from "../../../src/domain/fortifications/Fortification";
 
 // Test helper: sets up a battle scenario with specified dice results
 // Uses middle of board (row 4) so AXIS units can retreat north
@@ -274,6 +275,38 @@ describe("BattleMove integration", () => {
         // Assert: NO RetreatPhase should be pushed (already handled by test on line 111)
         // But let's be explicit - the phase should NOT be RetreatPhase
         expect(gameState.activePhase).not.toBeInstanceOf(RetreatPhase);
+
+        // Assert: attack counted
+        expect(gameState.getUnitBattlesThisTurn(attacker)).toBe(1);
+    });
+
+    it("should allow unit on sandbag to optionally ignore one flag", () => {
+        // Setup: 1 flag, unit on sandbag, no blocked terrain
+        const { gameState, attacker, target, targetCoord } = setupBattle(
+            [RESULT_FLAG],
+            4,
+            4
+        );
+
+        // Place sandbag on target's hex
+        gameState.setFortification(targetCoord, sandbagAllies);
+
+        const move = new BattleMove(attacker, target, 1);
+        move.execute(gameState);
+
+        // Assert: RetreatPhase pushed with option to stay or retreat
+        expect(gameState.activePhase).toBeInstanceOf(RetreatPhase);
+        const retreatPhase = gameState.activePhase as RetreatPhase;
+        expect(retreatPhase.unit).toBe(target);
+
+        // Assert: 3 options - stay at current position OR retreat to 2 northern neighbors
+        expect(retreatPhase.availableRetreatHexes.length).toBe(3);
+        expect(retreatPhase.availableRetreatHexes).toContainEqual(targetCoord); // Can stay
+        expect(retreatPhase.availableRetreatHexes).toContainEqual(new HexCoord(5, 3)); // Northwest
+        expect(retreatPhase.availableRetreatHexes).toContainEqual(new HexCoord(6, 3)); // Northeast
+
+        // Assert: no damage taken yet
+        expect(gameState.getUnitCurrentStrength(target)).toBe(4);
 
         // Assert: attack counted
         expect(gameState.getUnitBattlesThisTurn(attacker)).toBe(1);

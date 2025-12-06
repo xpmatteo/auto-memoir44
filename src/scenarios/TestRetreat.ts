@@ -11,8 +11,8 @@ const unitSetup = [
     "~~....    ....    ....    ....    ....    ....    ~~",
     "....    ....    ....    ....    ....    ....    ....",
     "~~....    ....    ....    ....    ....    ....    ~~",
-    "....    ....    .... in .in.    ....    ....    ....",
-    "~~....    ....    .in. in .in.    ....    ....    ~~",
+    "....    ....    .... in .in. in ....    ....    ....",
+    "~~....    ....    .ins in .ins    ....    ....    ~~",
     ".... in ....    .IN. IN .IN. IN ....    .... in ....",
     "~~....    ....    ....    ....    ....    ....    ~~",
     "....    ....    ....    ....    ....    ....    ....",
@@ -23,7 +23,7 @@ export class TestRetreat implements Scenario {
         // Draw 5 cards for bottom player, 4 cards for top player
         gameState.drawCards(5, CardLocation.BOTTOM_PLAYER_HAND);
         gameState.drawCards(4, CardLocation.TOP_PLAYER_HAND);
-        
+
         // Parse and place units from the unitSetup constant
         parseAndSetupUnits(gameState, unitSetup);
     }

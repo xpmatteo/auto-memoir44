@@ -8,6 +8,7 @@ import {RetreatPhase} from "../phases/RetreatPhase";
 import {HexCoord} from "../../utils/hex";
 import {Position} from "../Player";
 import {Move} from "./Move";
+import {sandbagAllies, sandbagAxis} from "../fortifications/Fortification";
 
 export class BattleMove extends Move {
     readonly fromUnit: Unit;
@@ -49,7 +50,12 @@ export class BattleMove extends Move {
         // Handle flag results (retreat)
         if (flagCount > 0) {
             const retreats = retreatPaths(gameState, target.coord, flagCount, this.toUnit.side);
-            const flagResult = handleFlags(flagCount, 0, retreats);
+
+            // Check if target is on a sandbag fortification (allows ignoring one flag)
+            const fortification = gameState.getFortification(target.coord);
+            const ignorableFlags = (fortification === sandbagAllies || fortification === sandbagAxis) ? 1 : 0;
+
+            const flagResult = handleFlags(flagCount, ignorableFlags, retreats);
 
             // apply any damage, then check if eliminated
             const newStrengthAfterFlagResult = newStrength - flagResult.damage;
