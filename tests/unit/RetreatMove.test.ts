@@ -274,5 +274,62 @@ describe("Retreat mechanics", () => {
             // Phase should be popped
             expect(gameState.activePhase.name).not.toBe("Retreat");
         });
+
+        it("should call moveUnit and popPhase when retreating to a different hex", () => {
+            const target = new Infantry(Side.AXIS, 3);
+            const from = new HexCoord(5, 3);
+            const to = new HexCoord(5, 2);
+
+            // Create simple mock UnitRetreater
+            let moveUnitCalledWith: { from: HexCoord; to: HexCoord } | undefined = undefined;
+            let popPhaseCalled = false;
+            const mockRetreater = {
+                moveUnit: (fromArg: HexCoord, toArg: HexCoord) => {
+                    moveUnitCalledWith = { from: fromArg, to: toArg };
+                },
+                popPhase: () => {
+                    popPhaseCalled = true;
+                }
+            };
+
+            // Execute retreat move where from != to (unit retreats)
+            const retreatMove = new RetreatMove(target, from, to);
+            retreatMove.executeRetreat(mockRetreater);
+
+            // moveUnit should be called with correct coordinates
+            expect(moveUnitCalledWith).toBeDefined();
+            expect(moveUnitCalledWith!.from).toEqual(from);
+            expect(moveUnitCalledWith!.to).toEqual(to);
+
+            // popPhase should be called
+            expect(popPhaseCalled).toBe(true);
+        });
+
+        it("should allow unit to stay in place when from and to are the same (ignoring flag)", () => {
+            const target = new Infantry(Side.AXIS, 3);
+            const targetCoord = new HexCoord(5, 3);
+
+            // Create simple mock UnitRetreater
+            let moveUnitCalled = false;
+            let popPhaseCalled = false;
+            const mockRetreater = {
+                moveUnit: (_from: HexCoord, _to: HexCoord) => {
+                    moveUnitCalled = true;
+                },
+                popPhase: () => {
+                    popPhaseCalled = true;
+                }
+            };
+
+            // Execute retreat move where from == to (unit stays in place)
+            const retreatMove = new RetreatMove(target, targetCoord, targetCoord);
+            retreatMove.executeRetreat(mockRetreater);
+
+            // moveUnit should NOT be called (unit stays in place)
+            expect(moveUnitCalled).toBe(false);
+
+            // popPhase should be called
+            expect(popPhaseCalled).toBe(true);
+        });
     });
 });

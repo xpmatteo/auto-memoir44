@@ -11,6 +11,12 @@ interface UiButton {
     callback: (gameState: GameState) => void,
 }
 
+// Interface segregation for RetreatMove - only needs these two methods
+export interface UnitRetreater {
+    moveUnit(from: HexCoord, to: HexCoord): void;
+    popPhase(): void;
+}
+
 export abstract class Move {
     abstract execute(gameState: GameState): void;
 
@@ -193,8 +199,15 @@ export class RetreatMove extends Move {
     }
 
     execute(gameState: GameState): void {
-        gameState.moveUnit(this.from, this.to);
-        gameState.popPhase();
+        this.executeRetreat(gameState);
+    }
+
+    executeRetreat(retreater: UnitRetreater): void {
+        // Only move if destination is different (unit might ignore flag and stay)
+        if (this.from.q !== this.to.q || this.from.r !== this.to.r) {
+            retreater.moveUnit(this.from, this.to);
+        }
+        retreater.popPhase();
     }
 
     toString(): string {
