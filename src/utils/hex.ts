@@ -20,7 +20,6 @@ export class HexCoord {
     }
 
     // 6 axial directions (pointy-top, "q,r" layout)
-
     east(): HexCoord {
         return new HexCoord(this.q + 1, this.r);
     }
@@ -60,6 +59,15 @@ export class HexCoord {
     isSouthWestOf(otherHex: HexCoord) {
         return this.q - otherHex.q === -2 && this.r - otherHex.r === 1;
     }
+
+    northernNeighbors() : [HexCoord, HexCoord] {
+        return [this.northwest(), this.northeast()];
+    }
+
+    southernNeighbors() : [HexCoord, HexCoord] {
+        return [this.southwest(), this.southeast()];
+    }
+
 }
 
 export type CanvasCoord = {

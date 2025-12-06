@@ -9,6 +9,7 @@ import {Position, Side} from "./Player";
 import {RESULT_FLAG} from "./Dice";
 import {RetreatPhase} from "./phases/RetreatPhase";
 import {BOARD_GEOMETRY} from "./BoardGeometry";
+// import {handleFlags} from "../rules/flags";
 
 interface UiButton {
     label: string,
@@ -208,6 +209,8 @@ export class BattleMove extends Move {
                 // Find target unit's current position
                 const target = this.findTarget(gameState);
                 const availableHexes = this.retreatHexes(gameState, target);
+
+                //handleFlags(1, 1, 0, availableHexes);
 
                 if (availableHexes.length === 0) {
                     // No retreat path available - unit takes a hit

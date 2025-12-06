@@ -62,6 +62,14 @@ export class GameState {
         return this.activePlayerIndex === 0 ? CardLocation.BOTTOM_PLAYER_HAND : CardLocation.TOP_PLAYER_HAND;
     }
 
+    get sideTop() {
+        return this.players[1].side;
+    }
+
+    get sideBottom() {
+        return this.players[0].side;
+    }
+
     get activePhase(): Phase {
         if (this.phases.length === 0) {
             throw Error("Phases stack empty");
