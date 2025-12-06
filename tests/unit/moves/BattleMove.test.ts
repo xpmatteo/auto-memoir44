@@ -1,5 +1,5 @@
-// ABOUTME: Unit tests for BattleMove class
-// ABOUTME: Tests combat resolution, unit elimination, and medal table updates
+// ABOUTME: Integration tests for BattleMove class
+// ABOUTME: Tests orchestration of dice rolling, hit resolution, damage, elimination, retreats, and medal tracking
 
 import {describe, expect, it} from "vitest";
 import {GameState} from "../../../src/domain/GameState";
@@ -7,330 +7,211 @@ import {Deck} from "../../../src/domain/Deck";
 import {Infantry} from "../../../src/domain/Unit";
 import {Side} from "../../../src/domain/Player";
 import {HexCoord} from "../../../src/utils/hex";
-import {diceReturningAlways, RESULT_INFANTRY, RESULT_GRENADE, RESULT_FLAG, RESULT_ARMOR} from "../../../src/domain/Dice";
+import {diceReturningAlways, DiceResult, RESULT_INFANTRY, RESULT_FLAG} from "../../../src/domain/Dice";
 import {BattleMove} from "../../../src/domain/moves/BattleMove";
+import {RetreatPhase} from "../../../src/domain/phases/RetreatPhase";
 
-describe("BattleMove", () => {
-    describe("unit damage", () => {
-        it("should reduce target unit strength by number of hits", () => {
-            const deck = Deck.createStandardDeck();
-            const dice = diceReturningAlways([RESULT_INFANTRY, RESULT_INFANTRY, RESULT_ARMOR]);
-            const gameState = new GameState(deck, dice);
+// Test helper: sets up a battle scenario with specified dice results
+// Uses middle of board (row 4) so AXIS units can retreat north
+function setupBattle(diceResults: DiceResult[], attackerStrength: number, targetStrength: number) {
+    const deck = Deck.createStandardDeck();
+    const dice = diceReturningAlways(diceResults);
+    const gameState = new GameState(deck, dice);
 
-            const attacker = new Infantry(Side.ALLIES, 4);
-            const target = new Infantry(Side.AXIS, 4);
+    const attacker = new Infantry(Side.ALLIES, attackerStrength);
+    const target = new Infantry(Side.AXIS, targetStrength);
+    const attackerCoord = new HexCoord(4, 4);
+    const targetCoord = new HexCoord(5, 4);
 
-            gameState.placeUnit(new HexCoord(0, 0), attacker);
-            gameState.placeUnit(new HexCoord(1, 0), target);
+    gameState.placeUnit(attackerCoord, attacker);
+    gameState.placeUnit(targetCoord, target);
 
-            // Execute battle with 3 dice
-            const move = new BattleMove(attacker, target, 3);
-            move.execute(gameState);
+    return { gameState, attacker, target, attackerCoord, targetCoord };
+}
 
-            // Target should have 2 less strength (4 - 2 hits = 2)
-            expect(gameState.getUnitCurrentStrength(target)).toBe(2);
-        });
+describe("BattleMove integration", () => {
+    it("should damage unit without eliminating when hits < strength", () => {
+        // Setup: 2 hits against 4-strength unit
+        const { gameState, attacker, target, targetCoord } = setupBattle(
+            [RESULT_INFANTRY, RESULT_INFANTRY],
+            4,
+            4
+        );
 
-        it("should handle grenade hits on infantry", () => {
-            const deck = Deck.createStandardDeck();
-            const dice = diceReturningAlways([RESULT_GRENADE, RESULT_GRENADE, RESULT_ARMOR]);
-            const gameState = new GameState(deck, dice);
+        const move = new BattleMove(attacker, target, 2);
+        move.execute(gameState);
 
-            const attacker = new Infantry(Side.ALLIES, 4);
-            const target = new Infantry(Side.AXIS, 4);
+        // Assert: unit damaged but alive
+        expect(gameState.getUnitCurrentStrength(target)).toBe(2);
+        expect(gameState.getUnitAt(targetCoord)).toBe(target);
 
-            gameState.placeUnit(new HexCoord(0, 0), attacker);
-            gameState.placeUnit(new HexCoord(1, 0), target);
+        // Assert: not in medal table
+        expect(gameState.getMedalTable(0)).not.toContain(target);
+        expect(gameState.getMedalTable(1)).not.toContain(target);
 
-            const move = new BattleMove(attacker, target, 3);
-            move.execute(gameState);
-
-            // Target should have 2 less strength (4 - 2 grenade hits = 2)
-            expect(gameState.getUnitCurrentStrength(target)).toBe(2);
-        });
-
-        it("should handle mixed infantry and grenade hits", () => {
-            const deck = Deck.createStandardDeck();
-            const dice = diceReturningAlways([RESULT_INFANTRY, RESULT_GRENADE, RESULT_ARMOR]);
-            const gameState = new GameState(deck, dice);
-
-            const attacker = new Infantry(Side.ALLIES, 4);
-            const target = new Infantry(Side.AXIS, 3);
-
-            gameState.placeUnit(new HexCoord(0, 0), attacker);
-            gameState.placeUnit(new HexCoord(1, 0), target);
-
-            const move = new BattleMove(attacker, target, 3);
-            move.execute(gameState);
-
-            expect(gameState.getUnitCurrentStrength(target)).toBe(1);
-        });
-
-        it("should not apply damage when no hits are scored", () => {
-            const deck = Deck.createStandardDeck();
-            const dice = diceReturningAlways([RESULT_ARMOR, RESULT_ARMOR, RESULT_ARMOR]);
-            const gameState = new GameState(deck, dice);
-
-            const attacker = new Infantry(Side.ALLIES, 4);
-            const target = new Infantry(Side.AXIS, 4);
-
-            gameState.placeUnit(new HexCoord(0, 0), attacker);
-            gameState.placeUnit(new HexCoord(1, 0), target);
-
-            const move = new BattleMove(attacker, target, 3);
-            move.execute(gameState);
-
-            // Target strength should remain unchanged
-            expect(gameState.getUnitCurrentStrength(target)).toBe(4);
-        });
+        // Assert: attack counted
+        expect(gameState.getUnitBattlesThisTurn(attacker)).toBe(1);
     });
 
-    describe("unit elimination", () => {
-        it("should remove unit from board when strength drops to zero", () => {
-            const deck = Deck.createStandardDeck();
-            const dice = diceReturningAlways([
-                RESULT_INFANTRY,
-                RESULT_INFANTRY,
-                RESULT_GRENADE,
-                RESULT_GRENADE
-            ]);
-            const gameState = new GameState(deck, dice);
+    it("should eliminate unit and update medal table when hits >= strength", () => {
+        // Setup: 4 hits against 2-strength unit (overkill)
+        const { gameState, attacker, target, targetCoord } = setupBattle(
+            [RESULT_INFANTRY, RESULT_INFANTRY, RESULT_INFANTRY, RESULT_INFANTRY],
+            4,
+            2
+        );
 
-            const attacker = new Infantry(Side.ALLIES, 4);
-            const target = new Infantry(Side.AXIS, 4);
-            const targetCoord = new HexCoord(1, 0);
+        const move = new BattleMove(attacker, target, 4);
+        move.execute(gameState);
 
-            gameState.placeUnit(new HexCoord(0, 0), attacker);
-            gameState.placeUnit(targetCoord, target);
+        // Assert: unit removed from board
+        expect(gameState.getUnitAt(targetCoord)).toBeUndefined();
 
-            const move = new BattleMove(attacker, target, 4);
-            move.execute(gameState);
+        // Assert: added to active player's medal table (player 0 = BOTTOM)
+        expect(gameState.getMedalTable(0)).toContain(target);
+        expect(gameState.getMedalTable(1)).not.toContain(target);
 
-            // Target should be removed from board
-            expect(gameState.getUnitAt(targetCoord)).toBeUndefined();
-        });
-
-        it("should remove unit from board when strength drops below zero", () => {
-            const deck = Deck.createStandardDeck();
-            const dice = diceReturningAlways([
-                RESULT_INFANTRY,
-                RESULT_INFANTRY,
-                RESULT_GRENADE
-            ]);
-            const gameState = new GameState(deck, dice);
-
-            const attacker = new Infantry(Side.ALLIES, 4);
-            const target = new Infantry(Side.AXIS, 2);
-            const targetCoord = new HexCoord(1, 0);
-
-            gameState.placeUnit(new HexCoord(0, 0), attacker);
-            gameState.placeUnit(targetCoord, target);
-
-            const move = new BattleMove(attacker, target, 3);
-            move.execute(gameState);
-
-            // Target should be removed despite overkill damage
-            expect(gameState.getUnitAt(targetCoord)).toBeUndefined();
-        });
+        // Assert: attack counted
+        expect(gameState.getUnitBattlesThisTurn(attacker)).toBe(1);
     });
 
-    describe("medal table updates", () => {
-        it("should add eliminated unit to active player medal table", () => {
-            const deck = Deck.createStandardDeck();
-            const dice = diceReturningAlways([RESULT_INFANTRY, RESULT_GRENADE]);
-            const gameState = new GameState(deck, dice);
+    it("should force unit to retreat when flag rolled and single retreat path exists", () => {
+        // Setup: 1 flag, unit can retreat to exactly one hex
+        const { gameState, attacker, target, targetCoord } = setupBattle(
+            [RESULT_FLAG],
+            4,
+            4
+        );
 
-            // Default active player is BOTTOM (index 0)
-            const attacker = new Infantry(Side.ALLIES, 4);
-            const target = new Infantry(Side.AXIS, 2);
+        // Block one of the two northern neighbors to force single retreat path
+        // Target at (5,4) has northern neighbors: (5,3) northwest and (6,3) northeast
+        const blockerCoord = new HexCoord(5, 3); // Block northwest
+        const blocker = new Infantry(Side.AXIS, 1);
+        gameState.placeUnit(blockerCoord, blocker);
 
-            gameState.placeUnit(new HexCoord(0, 0), attacker);
-            gameState.placeUnit(new HexCoord(1, 0), target);
+        const move = new BattleMove(attacker, target, 1);
+        move.execute(gameState);
 
-            const move = new BattleMove(attacker, target, 2);
-            move.execute(gameState);
+        // Assert: unit moved to the only available retreat hex
+        expect(gameState.getUnitAt(targetCoord)).toBeUndefined();
+        const expectedRetreatCoord = new HexCoord(6, 3); // Northeast neighbor
+        expect(gameState.getUnitAt(expectedRetreatCoord)).toBe(target);
 
-            // Target should be in bottom player's medal table (index 0)
-            const bottomMedals = gameState.getMedalTable(0);
-            const topMedals = gameState.getMedalTable(1);
-            expect(bottomMedals).toContain(target);
-            expect(topMedals).not.toContain(target);
-        });
+        // Assert: no damage taken (successful retreat)
+        expect(gameState.getUnitCurrentStrength(target)).toBe(4);
 
-        it("should not add surviving units to medal table", () => {
-            const deck = Deck.createStandardDeck();
-            const dice = diceReturningAlways([RESULT_INFANTRY, RESULT_FLAG]);
-            const gameState = new GameState(deck, dice);
+        // Assert: not eliminated
+        expect(gameState.getMedalTable(0)).not.toContain(target);
+        expect(gameState.getMedalTable(1)).not.toContain(target);
 
-            const attacker = new Infantry(Side.ALLIES, 4);
-            const target = new Infantry(Side.AXIS, 4);
-
-            gameState.placeUnit(new HexCoord(0, 0), attacker);
-            gameState.placeUnit(new HexCoord(1, 0), target);
-
-            const move = new BattleMove(attacker, target, 2);
-            move.execute(gameState);
-
-            // Target should not be in any medal table
-            const bottomMedals = gameState.getMedalTable(0);
-            const topMedals = gameState.getMedalTable(1);
-            expect(bottomMedals).not.toContain(target);
-            expect(topMedals).not.toContain(target);
-        });
-
-        it("should correctly track multiple eliminated units", () => {
-            const deck = Deck.createStandardDeck();
-            const dice = diceReturningAlways([RESULT_INFANTRY, RESULT_GRENADE]);
-            const gameState = new GameState(deck, dice);
-
-            const attacker = new Infantry(Side.ALLIES, 4);
-            const target1 = new Infantry(Side.AXIS, 2);
-            const target2 = new Infantry(Side.AXIS, 2);
-
-            gameState.placeUnit(new HexCoord(0, 0), attacker);
-            gameState.placeUnit(new HexCoord(1, 0), target1);
-            gameState.placeUnit(new HexCoord(2, 0), target2);
-
-            // Eliminate first target
-            const move1 = new BattleMove(attacker, target1, 2);
-            move1.execute(gameState);
-
-            // Eliminate second target
-            const move2 = new BattleMove(attacker, target2, 2);
-            move2.execute(gameState);
-
-            // Both targets should be in the medal table
-            const bottomMedals = gameState.getMedalTable(0);
-            expect(bottomMedals).toContain(target1);
-            expect(bottomMedals).toContain(target2);
-            expect(bottomMedals.length).toBe(2);
-        });
+        // Assert: attack counted
+        expect(gameState.getUnitBattlesThisTurn(attacker)).toBe(1);
     });
 
-    describe("dice rolling", () => {
-        it("should roll specified number of dice", () => {
-            const deck = Deck.createStandardDeck();
-            const dice = diceReturningAlways([RESULT_INFANTRY, RESULT_GRENADE, RESULT_ARMOR]);
-            const gameState = new GameState(deck, dice);
+    it("should damage unit when flag rolled but all retreat paths blocked", () => {
+        // Setup: 1 flag, but no valid retreat paths
+        const { gameState, attacker, target, targetCoord } = setupBattle(
+            [RESULT_FLAG],
+            4,
+            4
+        );
 
-            const attacker = new Infantry(Side.ALLIES, 4);
-            const target = new Infantry(Side.AXIS, 4);
+        // Block both northern neighbors to prevent retreat
+        // Target at (5,4) has northern neighbors: (5,3) and (6,3)
+        const blocker1 = new Infantry(Side.AXIS, 1);
+        const blocker2 = new Infantry(Side.AXIS, 1);
+        gameState.placeUnit(new HexCoord(5, 3), blocker1);
+        gameState.placeUnit(new HexCoord(6, 3), blocker2);
 
-            gameState.placeUnit(new HexCoord(0, 0), attacker);
-            gameState.placeUnit(new HexCoord(1, 0), target);
+        const move = new BattleMove(attacker, target, 1);
+        move.execute(gameState);
 
-            // Battle with 3 dice
-            const move = new BattleMove(attacker, target, 3);
-            move.execute(gameState);
+        // Assert: unit takes 1 damage (can't retreat 1 hex, so 1 damage)
+        expect(gameState.getUnitCurrentStrength(target)).toBe(3);
 
-            // Should use all 3 results (2 hits from infantry + grenade)
-            expect(gameState.getUnitCurrentStrength(target)).toBe(2); // 4 - 2 = 2
-        });
+        // Assert: unit still at original position
+        expect(gameState.getUnitAt(targetCoord)).toBe(target);
 
-        it("should work with single die", () => {
-            const deck = Deck.createStandardDeck();
-            const dice = diceReturningAlways([RESULT_INFANTRY]);
-            const gameState = new GameState(deck, dice);
+        // Assert: not eliminated
+        expect(gameState.getMedalTable(0)).not.toContain(target);
+        expect(gameState.getMedalTable(1)).not.toContain(target);
 
-            const attacker = new Infantry(Side.ALLIES, 4);
-            const target = new Infantry(Side.AXIS, 4);
-
-            gameState.placeUnit(new HexCoord(0, 0), attacker);
-            gameState.placeUnit(new HexCoord(1, 0), target);
-
-            const move = new BattleMove(attacker, target, 1);
-            move.execute(gameState);
-
-            expect(gameState.getUnitCurrentStrength(target)).toBe(3); // 4 - 1 = 3
-        });
+        // Assert: attack counted
+        expect(gameState.getUnitBattlesThisTurn(attacker)).toBe(1);
     });
 
-    describe("attack tracking", () => {
-        it("should increment attacksThisTurn for attacking unit", () => {
-            const deck = Deck.createStandardDeck();
-            const dice = diceReturningAlways([RESULT_INFANTRY]);
-            const gameState = new GameState(deck, dice);
+    it("should push RetreatPhase when multiple retreat paths exist", () => {
+        // Setup: 1 flag, unit has 2+ retreat options
+        const { gameState, attacker, target, targetCoord } = setupBattle(
+            [RESULT_FLAG],
+            4,
+            4
+        );
 
-            const attacker = new Infantry(Side.ALLIES, 4);
-            const target = new Infantry(Side.AXIS, 4);
+        // No blockers - target has multiple northern neighbors available
+        const move = new BattleMove(attacker, target, 1);
+        move.execute(gameState);
 
-            gameState.placeUnit(new HexCoord(0, 0), attacker);
-            gameState.placeUnit(new HexCoord(1, 0), target);
+        // Assert: unit not moved yet
+        expect(gameState.getUnitAt(targetCoord)).toBe(target);
 
-            expect(gameState.getUnitBattlesThisTurn(attacker)).toBe(0);
+        // Assert: RetreatPhase pushed for player to choose
+        expect(gameState.activePhase).toBeInstanceOf(RetreatPhase);
+        const retreatPhase = gameState.activePhase as RetreatPhase;
+        expect(retreatPhase.unit).toBe(target);
+        expect(retreatPhase.availableRetreatHexes.length).toBeGreaterThan(1);
 
-            const move = new BattleMove(attacker, target, 3);
-            move.execute(gameState);
+        // Assert: attack counted
+        expect(gameState.getUnitBattlesThisTurn(attacker)).toBe(1);
+    });
 
-            expect(gameState.getUnitBattlesThisTurn(attacker)).toBe(1);
-        });
+    it("should eliminate unit from flag damage when retreat blocked and damage is lethal", () => {
+        // Setup: 1 flag against 1-strength unit, retreat blocked
+        const { gameState, attacker, target, targetCoord } = setupBattle(
+            [RESULT_FLAG],
+            4,
+            1
+        );
 
-        it("should increment attacksThisTurn even when target is eliminated", () => {
-            const deck = Deck.createStandardDeck();
-            const dice = diceReturningAlways([RESULT_INFANTRY, RESULT_GRENADE]);
-            const gameState = new GameState(deck, dice);
+        // Block all retreat paths
+        gameState.placeUnit(new HexCoord(5, 3), new Infantry(Side.AXIS, 1));
+        gameState.placeUnit(new HexCoord(6, 3), new Infantry(Side.AXIS, 1));
 
-            const attacker = new Infantry(Side.ALLIES, 4);
-            const target = new Infantry(Side.AXIS, 2);
+        const move = new BattleMove(attacker, target, 1);
+        move.execute(gameState);
 
-            gameState.placeUnit(new HexCoord(0, 0), attacker);
-            gameState.placeUnit(new HexCoord(1, 0), target);
+        // Assert: unit eliminated by flag damage
+        expect(gameState.getUnitAt(targetCoord)).toBeUndefined();
 
-            expect(gameState.getUnitBattlesThisTurn(attacker)).toBe(0);
+        // Assert: added to medal table
+        expect(gameState.getMedalTable(0)).toContain(target);
 
-            const move = new BattleMove(attacker, target, 2);
-            move.execute(gameState);
+        // Assert: attack counted
+        expect(gameState.getUnitBattlesThisTurn(attacker)).toBe(1);
+    });
 
-            // Attacker should still have attacksThisTurn incremented
-            expect(gameState.getUnitBattlesThisTurn(attacker)).toBe(1);
-            // Target should be eliminated
-            expect(gameState.getUnitAt(new HexCoord(1, 0))).toBeUndefined();
-        });
+    it("should handle combined hits and flags (hits then flag retreat)", () => {
+        // Setup: 1 hit + 1 flag, unit survives hit and has retreat path
+        const { gameState, attacker, target, targetCoord } = setupBattle(
+            [RESULT_INFANTRY, RESULT_FLAG],
+            4,
+            4
+        );
 
-        it("should increment attacksThisTurn even when no damage is dealt", () => {
-            const deck = Deck.createStandardDeck();
-            const dice = diceReturningAlways([RESULT_FLAG, RESULT_FLAG]);
-            const gameState = new GameState(deck, dice);
+        // Block one retreat path to force single retreat
+        gameState.placeUnit(new HexCoord(5, 3), new Infantry(Side.AXIS, 1));
 
-            const attacker = new Infantry(Side.ALLIES, 4);
-            const target = new Infantry(Side.AXIS, 4);
+        const move = new BattleMove(attacker, target, 2);
+        move.execute(gameState);
 
-            gameState.placeUnit(new HexCoord(0, 0), attacker);
-            gameState.placeUnit(new HexCoord(1, 0), target);
+        // Assert: took 1 damage from hit
+        expect(gameState.getUnitCurrentStrength(target)).toBe(3);
 
-            expect(gameState.getUnitBattlesThisTurn(attacker)).toBe(0);
+        // Assert: retreated from flag
+        expect(gameState.getUnitAt(targetCoord)).toBeUndefined();
+        expect(gameState.getUnitAt(new HexCoord(6, 3))).toBe(target);
 
-            const move = new BattleMove(attacker, target, 2);
-            move.execute(gameState);
-
-            // Attacker should still have attacksThisTurn incremented even with no hits
-            expect(gameState.getUnitBattlesThisTurn(attacker)).toBe(1);
-        });
-
-        it("should track multiple attacks from same unit", () => {
-            const deck = Deck.createStandardDeck();
-            const dice = diceReturningAlways([RESULT_INFANTRY]);
-            const gameState = new GameState(deck, dice);
-
-            const attacker = new Infantry(Side.ALLIES, 4);
-            const target1 = new Infantry(Side.AXIS, 4);
-            const target2 = new Infantry(Side.AXIS, 4);
-
-            gameState.placeUnit(new HexCoord(0, 0), attacker);
-            gameState.placeUnit(new HexCoord(1, 0), target1);
-            gameState.placeUnit(new HexCoord(2, 0), target2);
-
-            expect(gameState.getUnitBattlesThisTurn(attacker)).toBe(0);
-
-            // First attack
-            const move1 = new BattleMove(attacker, target1, 1);
-            move1.execute(gameState);
-            expect(gameState.getUnitBattlesThisTurn(attacker)).toBe(1);
-
-            // Second attack
-            const move2 = new BattleMove(attacker, target2, 1);
-            move2.execute(gameState);
-            expect(gameState.getUnitBattlesThisTurn(attacker)).toBe(2);
-        });
+        // Assert: attack counted
+        expect(gameState.getUnitBattlesThisTurn(attacker)).toBe(1);
     });
 });
