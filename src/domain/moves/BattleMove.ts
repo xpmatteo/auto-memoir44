@@ -31,11 +31,8 @@ export class BattleMove extends Move {
         // Resolve hits
         const hits = resolveHits(diceResults, this.toUnit);
 
-        // Count flags (treat multiple flags as a single flag for now)
-        let flagCount = diceResults.filter(result => result === RESULT_FLAG).length;
-        if (flagCount > 1) {
-            flagCount = 1;
-        }
+        // Count flags
+        const flagCount = diceResults.filter(result => result === RESULT_FLAG).length;
 
         // Apply casualties to target unit
         const currentStrength = gameState.getUnitCurrentStrength(this.toUnit);
@@ -63,10 +60,11 @@ export class BattleMove extends Move {
                 return;
             }
 
+            // Only handle retreat if there are valid retreat hexes
             if (flagResult.retreats.length === 1) {
                 // Only one retreat path - automatically move unit
                 gameState.moveUnit(target.coord, flagResult.retreats[0]);
-            } else {
+            } else if (flagResult.retreats.length > 1) {
                 // Multiple retreat paths - push RetreatPhase so owner can choose
                 gameState.pushPhase(new RetreatPhase(
                     this.toUnit,
@@ -74,6 +72,7 @@ export class BattleMove extends Move {
                     flagResult.retreats
                 ));
             }
+            // If flagResult.retreats.length === 0, all paths blocked and damage already applied
         }
     }
 

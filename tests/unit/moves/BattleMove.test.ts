@@ -214,4 +214,69 @@ describe("BattleMove integration", () => {
         // Assert: attack counted
         expect(gameState.getUnitBattlesThisTurn(attacker)).toBe(1);
     });
+
+    it("should offer 3 retreat hexes at distance 2 when 2 flags rolled with no blocked terrain", () => {
+        // Setup: 2 flags, unit must retreat 2 hexes
+        const { gameState, attacker, target, targetCoord } = setupBattle(
+            [RESULT_FLAG, RESULT_FLAG],
+            4,
+            4
+        );
+
+        // No blockers - all retreat paths available
+        const move = new BattleMove(attacker, target, 2);
+        move.execute(gameState);
+
+        // Assert: unit not moved yet (waiting for player choice)
+        expect(gameState.getUnitAt(targetCoord)).toBe(target);
+
+        // Assert: RetreatPhase pushed
+        expect(gameState.activePhase).toBeInstanceOf(RetreatPhase);
+        const retreatPhase = gameState.activePhase as RetreatPhase;
+        expect(retreatPhase.unit).toBe(target);
+
+        // Assert: 3 retreat options at distance 2
+        // Target at (5,4) -> distance 2 north gives: (5,2), (6,2), (7,2)
+        expect(retreatPhase.availableRetreatHexes.length).toBe(3);
+        expect(retreatPhase.availableRetreatHexes).toContainEqual(new HexCoord(5, 2));
+        expect(retreatPhase.availableRetreatHexes).toContainEqual(new HexCoord(6, 2));
+        expect(retreatPhase.availableRetreatHexes).toContainEqual(new HexCoord(7, 2));
+
+        // Assert: no damage taken (retreat available)
+        expect(gameState.getUnitCurrentStrength(target)).toBe(4);
+
+        // Assert: attack counted
+        expect(gameState.getUnitBattlesThisTurn(attacker)).toBe(1);
+    });
+
+    it("should NOT push RetreatPhase when flag rolled, all retreats blocked, but unit survives damage", () => {
+        // Setup: 1 flag against 4-strength unit, all retreat paths blocked
+        // BUG: This used to push a RetreatPhase with empty retreat options!
+        const { gameState, attacker, target, targetCoord } = setupBattle(
+            [RESULT_FLAG],
+            4,
+            4
+        );
+
+        // Block all retreat paths
+        gameState.placeUnit(new HexCoord(5, 3), new Infantry(Side.AXIS, 1));
+        gameState.placeUnit(new HexCoord(6, 3), new Infantry(Side.AXIS, 1));
+
+        const move = new BattleMove(attacker, target, 1);
+        move.execute(gameState);
+
+        // Assert: unit took 1 damage (can't retreat 1 hex)
+        expect(gameState.getUnitCurrentStrength(target)).toBe(3);
+
+        // Assert: unit still at original position
+        expect(gameState.getUnitAt(targetCoord)).toBe(target);
+
+        // Assert: NO RetreatPhase should be pushed (already handled by test on line 111)
+        // But let's be explicit - the phase should NOT be RetreatPhase
+        expect(gameState.activePhase).not.toBeInstanceOf(RetreatPhase);
+
+        // Assert: attack counted
+        expect(gameState.getUnitBattlesThisTurn(attacker)).toBe(1);
+    });
 });
+
