@@ -16,6 +16,7 @@ import {TerrainMap} from "./TerrainMap";
 import {Board} from "./Board";
 import {Fortification} from "./fortifications/Fortification";
 import {FortificationMap} from "./FortificationMap";
+import {ScoreTracker} from "./ScoreTracker";
 
 export class GameState {
     private readonly deck: Deck;
@@ -25,10 +26,9 @@ export class GameState {
     private activePlayerIndex: 0 | 1;
     private activeCardId: string | null; // Currently played card ID
     private readonly board: Board;
-    private readonly medalTables: [Unit[], Unit[]]; // Eliminated units by capturing player (0=Bottom, 1=Top)
+    private readonly scoreTracker: ScoreTracker;
     private readonly terrainMap: TerrainMap;
     private readonly fortificationMap: FortificationMap;
-    private prerequisiteNumberOfMedals = 4;
 
     constructor(
         deck: Deck,
@@ -39,7 +39,7 @@ export class GameState {
         this.players = [createPlayer(Side.ALLIES, Position.BOTTOM), createPlayer(Side.AXIS, Position.TOP)];
         this.activePlayerIndex = 0;
         this.board = new Board();
-        this.medalTables = [[], []];
+        this.scoreTracker = new ScoreTracker();
         this.terrainMap = new TerrainMap();
         this.fortificationMap = new FortificationMap();
         this.activeCardId = null;
@@ -92,7 +92,7 @@ export class GameState {
     }
 
     setPrerequisiteNumberOfMedals(medals: number): void {
-        this.prerequisiteNumberOfMedals = medals;
+        this.scoreTracker.setPrerequisiteNumberOfMedals(medals);
     }
 
     setTerrain(hex: HexCoord, terrain: Terrain) {
@@ -140,15 +140,7 @@ export class GameState {
      * @returns GameVictoryMove if a player has won, null otherwise
      */
     private checkVictory(): GameVictoryMove | null {
-        // Check bottom player (index 0)
-        if (this.medalTables[0].length >= this.prerequisiteNumberOfMedals) {
-            return new GameVictoryMove(this.players[0].side);
-        }
-        // Check top player (index 1)
-        if (this.medalTables[1].length >= this.prerequisiteNumberOfMedals) {
-            return new GameVictoryMove(this.players[1].side);
-        }
-        return null;
+        return this.scoreTracker.checkVictory(this.players);
     }
 
     /**
@@ -327,14 +319,14 @@ export class GameState {
      * @param capturingPlayerIndex Index of the player who captured the unit (0=Bottom, 1=Top)
      */
     addToMedalTable(unit: Unit, capturingPlayerIndex: 0 | 1): void {
-        this.medalTables[capturingPlayerIndex].push(unit);
+        this.scoreTracker.addMedal(unit, capturingPlayerIndex);
     }
 
     /**
      * Get a player's medal table
      */
     getMedalTable(playerIndex: 0 | 1): Unit[] {
-        return this.medalTables[playerIndex];
+        return this.scoreTracker.getMedalTable(playerIndex);
     }
 
     /**
@@ -460,7 +452,6 @@ export class GameState {
         // Clone simple properties
         cloned.activePlayerIndex = this.activePlayerIndex;
         cloned.activeCardId = this.activeCardId;
-        cloned.prerequisiteNumberOfMedals = this.prerequisiteNumberOfMedals;
 
         // Clone players tuple (Players are immutable, shallow copy is safe)
         cloned.players[0] = this.players[0];
@@ -473,9 +464,8 @@ export class GameState {
         // Clone board (deep clone of unit positions and states)
         (cloned as any).board = this.board.clone();
 
-        // Clone medalTables (shallow copy of arrays containing immutable Units)
-        cloned.medalTables[0] = [...this.medalTables[0]];
-        cloned.medalTables[1] = [...this.medalTables[1]];
+        // Clone score tracker (deep clone with medal tables)
+        (cloned as any).scoreTracker = this.scoreTracker.clone();
 
         // Share frozen terrain map (terrain is immutable after freeze(), safe to share)
         // Use type assertion to bypass readonly modifier
