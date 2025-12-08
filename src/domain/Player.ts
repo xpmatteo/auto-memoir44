@@ -9,8 +9,8 @@ export const Side = {
 export type Side = typeof Side[keyof typeof Side];
 
 export const Position = {
-    BOTTOM: "Bottom",
-    TOP: "Top",
+    BOTTOM: 0,
+    TOP: 1,
 } as const;
 
 export type Position = typeof Position[keyof typeof Position];

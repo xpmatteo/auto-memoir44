@@ -127,6 +127,7 @@ export class GameState {
      * Finalize game setup by freezing the terrain map.
      * After this is called, terrain cannot be modified.
      * This should be called by scenarios after all terrain is placed.
+     * Why? Because clone() does a shallow copy of terrainMap.
      */
     finishSetup(): void {
         this.terrainMap.freeze();
