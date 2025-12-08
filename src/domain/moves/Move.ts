@@ -190,16 +190,35 @@ export class RetreatMove extends Move {
     readonly unit: Unit;
     readonly from: HexCoord;
     readonly to: HexCoord;
+    readonly attackingUnit?: Unit;
+    readonly attackingUnitCoord?: HexCoord;
 
-    constructor(unit: Unit, from: HexCoord, to: HexCoord) {
+    constructor(
+        unit: Unit,
+        from: HexCoord,
+        to: HexCoord,
+        attackingUnit?: Unit,
+        attackingUnitCoord?: HexCoord
+    ) {
         super();
         this.unit = unit;
         this.from = from;
         this.to = to;
+        this.attackingUnit = attackingUnit;
+        this.attackingUnitCoord = attackingUnitCoord;
     }
 
     execute(gameState: GameState): void {
         this.executeRetreat(gameState);
+
+        // If this was a close combat retreat, push TakeGroundPhase
+        if (this.attackingUnit && this.attackingUnitCoord) {
+            gameState.pushTakeGroundPhase(
+                this.attackingUnit,
+                this.attackingUnitCoord,
+                this.from // The hex that was just vacated
+            );
+        }
     }
 
     executeRetreat(retreater: UnitRetreater): void {

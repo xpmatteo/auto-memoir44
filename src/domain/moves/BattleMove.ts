@@ -5,7 +5,8 @@ import {RESULT_FLAG} from "../Dice";
 import {retreatPaths} from "../../rules/retreatPaths";
 import {handleFlags} from "../../rules/flags";
 import {RetreatPhase} from "../phases/RetreatPhase";
-import {HexCoord} from "../../utils/hex";
+import {TakeGroundPhase} from "../phases/TakeGroundPhase";
+import {HexCoord, hexDistance} from "../../utils/hex";
 import {Position} from "../Player";
 import {Move} from "./Move";
 import {sandbagAllies, sandbagAxis} from "../fortifications/Fortification";
@@ -29,6 +30,13 @@ export class BattleMove extends Move {
         // Track that this unit has attacked
         gameState.incrementUnitBattlesThisTurn(this.fromUnit);
 
+        // Find positions for both units
+        const attacker = this.findAttacker(gameState);
+        const target = this.findTarget(gameState);
+
+        // Check if this is close combat (adjacent hexes)
+        const isCloseCombat = hexDistance(attacker.coord, target.coord) === 1;
+
         // Resolve hits
         const hits = resolveHits(diceResults, this.toUnit);
 
@@ -39,11 +47,19 @@ export class BattleMove extends Move {
         const currentStrength = gameState.getUnitCurrentStrength(this.toUnit);
         const newStrength = currentStrength - hits;
         gameState.setUnitCurrentStrength(this.toUnit, newStrength);
-        const target = this.findTarget(gameState);
 
         if (newStrength <= 0) {
             // Unit is eliminated - find its position and remove it
             this.eliminateUnit(gameState, target.coord);
+
+            // If close combat, offer take ground option
+            if (isCloseCombat) {
+                gameState.pushPhase(new TakeGroundPhase(
+                    this.fromUnit,
+                    attacker.coord,
+                    target.coord
+                ));
+            }
             return;
         }
 
@@ -63,6 +79,15 @@ export class BattleMove extends Move {
             if (newStrengthAfterFlagResult <= 0) {
                 const targetPosition = this.findTarget(gameState);
                 this.eliminateUnit(gameState, targetPosition.coord);
+
+                // If close combat, offer take ground option
+                if (isCloseCombat) {
+                    gameState.pushPhase(new TakeGroundPhase(
+                        this.fromUnit,
+                        attacker.coord,
+                        targetPosition.coord
+                    ));
+                }
                 return;
             }
 
@@ -70,16 +95,37 @@ export class BattleMove extends Move {
             if (flagResult.retreats.length === 1) {
                 // Only one retreat path - automatically move unit
                 gameState.moveUnit(target.coord, flagResult.retreats[0]);
+
+                // If close combat, offer take ground option
+                if (isCloseCombat) {
+                    gameState.pushPhase(new TakeGroundPhase(
+                        this.fromUnit,
+                        attacker.coord,
+                        target.coord // The hex that was just vacated
+                    ));
+                }
             } else if (flagResult.retreats.length > 1) {
                 // Multiple retreat paths - push RetreatPhase so owner can choose
+                // If close combat, pass attacker info so TakeGroundPhase can be pushed after retreat
                 gameState.pushPhase(new RetreatPhase(
                     this.toUnit,
                     target.coord,
-                    flagResult.retreats
+                    flagResult.retreats,
+                    isCloseCombat ? this.fromUnit : undefined,
+                    isCloseCombat ? attacker.coord : undefined
                 ));
             }
             // If flagResult.retreats.length === 0, all paths blocked and damage already applied
         }
+    }
+
+    private findAttacker(gameState: GameState) {
+        const allUnits = gameState.getAllUnitsWithPositions();
+        const attacker = allUnits.find(({unit}) => unit.id === this.fromUnit.id);
+        if (!attacker) {
+            throw new Error(`Could not find position for attacking unit ${this.fromUnit.id}`);
+        }
+        return attacker;
     }
 
     private findTarget(gameState: GameState) {

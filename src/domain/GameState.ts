@@ -9,6 +9,7 @@ import {HexCoord} from "../utils/hex";
 import {CardLocation, CommandCard} from "./CommandCard";
 import {Section} from "./Section";
 import {Phase} from "./phases/Phase";
+import {TakeGroundPhase} from "./phases/TakeGroundPhase";
 import {Dice, DiceResult} from "./Dice";
 import {Terrain} from "./terrain/Terrain";
 import {TerrainMap} from "./TerrainMap";
@@ -347,6 +348,10 @@ export class GameState {
 
     pushPhase(phase: Phase) {
         this.turnCoordinator.pushPhase(phase);
+    }
+
+    pushTakeGroundPhase(attackingUnit: Unit, attackingUnitCoord: HexCoord, vacatedHex: HexCoord) {
+        this.turnCoordinator.pushPhase(new TakeGroundPhase(attackingUnit, attackingUnitCoord, vacatedHex));
     }
 
     replacePhase(phase: Phase) {

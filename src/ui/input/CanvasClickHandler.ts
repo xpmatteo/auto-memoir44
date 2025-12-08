@@ -10,9 +10,11 @@ import {PhaseType} from "../../domain/phases/Phase.js";
 import {MovePhase} from "../../domain/phases/MovePhase.js";
 import {BattlePhase} from "../../domain/phases/BattlePhase.js";
 import {RetreatPhase} from "../../domain/phases/RetreatPhase.js";
+import {TakeGroundPhase} from "../../domain/phases/TakeGroundPhase.js";
 import {uiState, BattleTarget} from "../UIState.js";
 import {MoveUnitMove} from "../../domain/moves/MoveUnitMove";
 import {BattleMove} from "../../domain/moves/BattleMove";
+import {TakeGroundMove} from "../../domain/moves/TakeGroundMove";
 
 export class CanvasClickHandler {
     private boundHandler: (event: MouseEvent) => void;
@@ -37,6 +39,8 @@ export class CanvasClickHandler {
 
         if (currentPhase.type === PhaseType.ORDER) {
             this.handleOrderingClick(hexCoord);
+        } else if (currentPhase instanceof TakeGroundPhase) {
+            this.handleTakeGroundClick(hexCoord);
         } else if (currentPhase instanceof MovePhase) {
             this.handleMovementClick(hexCoord);
         } else if (currentPhase instanceof BattlePhase) {
@@ -214,6 +218,26 @@ export class CanvasClickHandler {
 
         if (retreatMove) {
             this.gameState.executeMove(retreatMove);
+            uiState.clearSelection();
+            this.onUpdate();
+        }
+    }
+
+    /**
+     * Handle clicks during TakeGroundPhase
+     * Single-click flow: click on vacated hex -> advance
+     */
+    private handleTakeGroundClick(hexCoord: HexCoord): void {
+        // Find matching TakeGroundMove from legalMoves
+        const legalMoves = this.gameState.legalMoves();
+        const takeGroundMove = legalMoves.find(
+            m => m instanceof TakeGroundMove &&
+                 m.toHex.q === hexCoord.q &&
+                 m.toHex.r === hexCoord.r
+        ) as TakeGroundMove | undefined;
+
+        if (takeGroundMove) {
+            this.gameState.executeMove(takeGroundMove);
             uiState.clearSelection();
             this.onUpdate();
         }
