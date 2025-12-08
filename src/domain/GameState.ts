@@ -9,7 +9,6 @@ import {HexCoord} from "../utils/hex";
 import {CardLocation, CommandCard} from "./CommandCard";
 import {Section} from "./Section";
 import {Phase} from "./phases/Phase";
-import {PlayCardPhase} from "./phases/PlayCardPhase";
 import {Dice, DiceResult} from "./Dice";
 import {Terrain} from "./terrain/Terrain";
 import {TerrainMap} from "./TerrainMap";
@@ -17,13 +16,13 @@ import {Board} from "./Board";
 import {Fortification} from "./fortifications/Fortification";
 import {FortificationMap} from "./FortificationMap";
 import {ScoreTracker} from "./ScoreTracker";
+import {TurnCoordinator} from "./TurnCoordinator";
 
 export class GameState {
     private readonly deck: Deck;
     private readonly dice: Dice;
-    private readonly phases: Array<Phase>;
+    private readonly turnCoordinator: TurnCoordinator;
     private readonly players: [Player, Player];
-    private activePlayerIndex: 0 | 1;
     private activeCardId: string | null; // Currently played card ID
     private readonly board: Board;
     private readonly scoreTracker: ScoreTracker;
@@ -37,29 +36,27 @@ export class GameState {
         this.deck = deck;
         this.dice = dice;
         this.players = [createPlayer(Side.ALLIES, Position.BOTTOM), createPlayer(Side.AXIS, Position.TOP)];
-        this.activePlayerIndex = 0;
+        this.turnCoordinator = new TurnCoordinator();
         this.board = new Board();
         this.scoreTracker = new ScoreTracker();
         this.terrainMap = new TerrainMap();
         this.fortificationMap = new FortificationMap();
         this.activeCardId = null;
-        this.phases = new Array<Phase>();
-        this.phases.push(new PlayCardPhase());
     }
 
     // -- getters used in the UI
     get activePlayer(): Player {
         // Check if active phase has temporary player switch enabled
-        if (this.phases.length > 0 && this.activePhase.temporaryPlayerSwitch) {
+        if (this.activePhase.temporaryPlayerSwitch) {
             // Return the opposite player
-            const oppositeIndex = this.activePlayerIndex === 0 ? 1 : 0;
+            const oppositeIndex = this.turnCoordinator.getActivePlayerIndex() === 0 ? 1 : 0;
             return this.players[oppositeIndex];
         }
-        return this.players[this.activePlayerIndex];
+        return this.players[this.turnCoordinator.getActivePlayerIndex()];
     }
 
     get activePlayerHand(): CardLocation {
-        return this.activePlayerIndex === 0 ? CardLocation.BOTTOM_PLAYER_HAND : CardLocation.TOP_PLAYER_HAND;
+        return this.turnCoordinator.getActivePlayerIndex() === 0 ? CardLocation.BOTTOM_PLAYER_HAND : CardLocation.TOP_PLAYER_HAND;
     }
 
     get sideTop() {
@@ -71,10 +68,7 @@ export class GameState {
     }
 
     get activePhase(): Phase {
-        if (this.phases.length === 0) {
-            throw Error("Phases stack empty");
-        }
-        return this.phases[this.phases.length - 1];
+        return this.turnCoordinator.activePhase;
     }
 
     /**
@@ -166,7 +160,7 @@ export class GameState {
 
     // -- Commands used when setting up the game
     switchActivePlayer() {
-        this.activePlayerIndex = this.activePlayerIndex == 0 ? 1 : 0;
+        this.turnCoordinator.switchActivePlayer();
     }
 
     drawCards(howMany: number, toLocation: CardLocation) {
@@ -343,28 +337,20 @@ export class GameState {
     // popPhase ends the current phase and starts the next phase, or the next player turn.
     // Moves that must end a phase will call this.
     popPhase() {
-        if (this.phases.length === 0) {
-            throw Error("Phases stack is empty");
-        }
-        this.phases.pop();
-        // End of player turn?
-        if (this.phases.length === 0) {
-            // Clear turn state for all units
-            this.board.clearAllUnitTurnState();
+        const { turnEnded } = this.turnCoordinator.popPhase();
 
-            // Switch to next player and start their turn
-            this.switchActivePlayer();
-            this.pushPhase(new PlayCardPhase());
+        // Clear turn state for all units when turn ends
+        if (turnEnded) {
+            this.board.clearAllUnitTurnState();
         }
     }
 
     pushPhase(phase: Phase) {
-        this.phases.push(phase);
+        this.turnCoordinator.pushPhase(phase);
     }
 
     replacePhase(phase: Phase) {
-        this.phases.pop();
-        this.phases.push(phase);
+        this.turnCoordinator.replacePhase(phase);
     }
 
     peekCards(n: number): Array<CommandCard> {
@@ -450,16 +436,14 @@ export class GameState {
         const cloned = new GameState(this.deck.clone(), this.dice.clone());
 
         // Clone simple properties
-        cloned.activePlayerIndex = this.activePlayerIndex;
         cloned.activeCardId = this.activeCardId;
 
         // Clone players tuple (Players are immutable, shallow copy is safe)
         cloned.players[0] = this.players[0];
         cloned.players[1] = this.players[1];
 
-        // Clone phases array (Phase instances are stateless, shallow copy is safe)
-        cloned.phases.length = 0; // Clear the default PlayCardPhase
-        this.phases.forEach(phase => cloned.phases.push(phase));
+        // Clone turn coordinator (phase stack and active player index)
+        (cloned as any).turnCoordinator = this.turnCoordinator.clone();
 
         // Clone board (deep clone of unit positions and states)
         (cloned as any).board = this.board.clone();
