@@ -31,11 +31,15 @@ export class TurnCoordinator {
         return this.activePlayerIndex;
     }
 
+    getInactivePlayerIndex() {
+        return this.activePlayerIndex === 0 ? 1 : 0;
+    }
+
     /**
      * Switch to the other player
      */
     switchActivePlayer(): void {
-        this.activePlayerIndex = this.activePlayerIndex === 0 ? 1 : 0;
+        this.activePlayerIndex = this.getInactivePlayerIndex();
     }
 
     /**

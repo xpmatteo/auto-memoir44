@@ -49,7 +49,7 @@ export class GameState {
         // Check if active phase has temporary player switch enabled
         if (this.activePhase.temporaryPlayerSwitch) {
             // Return the opposite player
-            const oppositeIndex = this.turnCoordinator.getActivePlayerIndex() === 0 ? 1 : 0;
+            const oppositeIndex = this.turnCoordinator.getInactivePlayerIndex();
             return this.players[oppositeIndex];
         }
         return this.players[this.turnCoordinator.getActivePlayerIndex()];
