@@ -203,9 +203,11 @@ async function start() {
             // Pre-populate valid destinations for TakeGroundPhase
             if (gameState.activePhase instanceof TakeGroundPhase) {
                 const takeGroundPhase = gameState.activePhase;
-                if (uiState.validDestinations.length === 0) {
-                    uiState.validDestinations = [takeGroundPhase.toHex];
-                }
+                uiState.validDestinations = [takeGroundPhase.toHex];
+            } else if (!uiState.selectedUnit) {
+                // Clear validDestinations if not in TakeGroundPhase and no unit selected
+                // (MovePhase uses validDestinations when a unit is selected)
+                uiState.validDestinations = [];
             }
 
             // Draw battle-ready unit outlines during BattlePhase
