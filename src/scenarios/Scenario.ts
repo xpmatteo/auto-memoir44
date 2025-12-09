@@ -1,18 +1,34 @@
 // ABOUTME: Scenario interface definition
-// ABOUTME: Scenarios implement setup() to initialize game state
+// ABOUTME: Scenarios implement createGameState() to create fully initialized game state
 
-import type {GameState} from "../domain/GameState";
+import {GameState} from "../domain/GameState";
 import {HexCoord} from "../utils/hex";
 import {Armor, Infantry} from "../domain/Unit";
 import {Side} from "../domain/Player";
 import {hillTerrain, woodsTerrain, town1Terrain, Terrain, hedgerowsTerrain} from "../domain/terrain/Terrain";
 import {Fortification, sandbagAllies, sandbagAxis} from "../domain/fortifications/Fortification";
+import {SeededRNG} from "../adapters/RNG";
+import {Dice} from "../domain/Dice";
+import {Deck} from "../domain/Deck";
 
 export interface Scenario {
     /**
-     * Initialize the game state with units, cards, and initial configuration
+     * Create and return a fully initialized GameState
+     * @param rng Random number generator for reproducible game setup
+     * @returns Fully configured GameState ready to play
      */
-    setup(gameState: GameState): void;
+    createGameState(rng: SeededRNG): GameState;
+}
+
+/**
+ * Helper function to create a standard GameState with consistent RNG
+ * Scenarios can use this as a base and customize as needed
+ */
+export function createStandardGameState(rng: SeededRNG): GameState {
+    const dice = new Dice(() => rng.random());
+    const deck = Deck.createStandardDeck(() => rng.random());
+    deck.shuffle();
+    return new GameState(deck, dice);
 }
 
 const terrainCodes = new Map(Object.entries({

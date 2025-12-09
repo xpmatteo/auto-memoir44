@@ -31,11 +31,9 @@ import {HandDisplay} from "./ui/components/HandDisplay.js";
 import {CurrentCardDisplay} from "./ui/components/CurrentCardDisplay.js";
 import {MoveButtons} from "./ui/components/MoveButtons.js";
 import {GameState} from "./domain/GameState.js";
-import {Deck} from "./domain/Deck.js";
 import {CanvasClickHandler} from "./ui/input/CanvasClickHandler.js";
 import {uiState} from "./ui/UIState.js";
 import {SeededRNG} from "./adapters/RNG.js";
-import {Dice} from "./domain/Dice.js";
 import {RandomAIPlayer} from "./ai/AIPlayer.js";
 import {AIController} from "./ai/AIController.js";
 import {MoveUnitMove} from "./domain/moves/MoveUnitMove";
@@ -85,15 +83,7 @@ function createGameStateFromURL(): {gameState: GameState, rng: SeededRNG} {
     const rng = new SeededRNG(seed);
     console.log(`RNG initialized with seed: ${rng.getSeed()}`);
 
-    // Create dice with RNG
-    const dice = new Dice(() => rng.random());
-
-    // Create base game state with deck and dice
-    const deck = Deck.createStandardDeck(() => rng.random());
-    deck.shuffle();  // Shuffle deck using stored RNG
-    const gameState = new GameState(deck, dice);
-
-    // Load and setup scenario
+    // Load scenario
     let scenario;
     if (scenarioCode) {
         try {
@@ -107,7 +97,8 @@ function createGameStateFromURL(): {gameState: GameState, rng: SeededRNG} {
         scenario = getDefaultScenario();
     }
 
-    scenario.setup(gameState);
+    // Scenario creates GameState with consistent RNG
+    const gameState = scenario.createGameState(rng);
     return {gameState, rng};
 }
 

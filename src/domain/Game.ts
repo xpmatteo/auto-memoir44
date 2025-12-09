@@ -1,13 +1,11 @@
 import {Scenario} from "../scenarios/Scenario";
-import {Deck} from "./Deck";
-import {GameState} from "./GameState";
 import {Move} from "./moves/Move";
+import {SeededRNG} from "../adapters/RNG";
 
 
-export function createGame(scenario: Scenario): Game {
-    const deck = Deck.createStandardDeck();
-    const gameState = new GameState(deck); // Use default Dice
-    scenario.setup(gameState);
+export function createGame(scenario: Scenario, rng?: SeededRNG): Game {
+    const actualRng = rng ?? new SeededRNG();
+    const gameState = scenario.createGameState(actualRng);
     return gameState
 }
 

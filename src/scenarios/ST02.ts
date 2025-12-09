@@ -2,7 +2,7 @@
 // ABOUTME: Initializes game state with Allies at bottom, 5 cards each player
 
 import type {GameState} from "../domain/GameState";
-import {parseAndSetupUnits, Scenario} from "./Scenario";
+import {parseAndSetupUnits, Scenario, createStandardGameState} from "./Scenario";
 import {CardLocation} from "../domain/CommandCard";
 import {HexCoord} from "../utils/hex";
 import {Infantry} from "../domain/Unit";
@@ -23,12 +23,9 @@ const unitSetup = [
 ];
 
 export class ST02Scenario implements Scenario {
-    private rng: SeededRNG;
-    constructor(rng: SeededRNG = new SeededRNG()) {
-        this.rng = rng;
-    }
+    createGameState(rng: SeededRNG): GameState {
+        const gameState = createStandardGameState(rng);
 
-    setup(gameState: GameState): void {
         // Draw 5 cards for bottom player, 4 cards for top player
         gameState.drawCards(5, CardLocation.BOTTOM_PLAYER_HAND);
         gameState.drawCards(4, CardLocation.TOP_PLAYER_HAND);
@@ -37,16 +34,18 @@ export class ST02Scenario implements Scenario {
         parseAndSetupUnits(gameState, unitSetup);
 
         // Add 4 parachute units to random locations from 3rd row downwards (r >= 2)
-        this.placeParachuteUnits(gameState);
+        this.placeParachuteUnits(gameState, rng);
 
         // Set the prerequisite number of medals
         gameState.setPrerequisiteNumberOfMedals(4);
 
         // Finalize setup - terrain is now immutable
         gameState.finishSetup();
+
+        return gameState;
     }
 
-    private placeParachuteUnits(gameState: GameState): void {
+    private placeParachuteUnits(gameState: GameState, rng: SeededRNG): void {
         // Get all valid hexes from rows 2-8 (3rd row downwards)
         const candidateHexes = this.getCandidateHexesForParachute();
 
@@ -58,7 +57,7 @@ export class ST02Scenario implements Scenario {
             }
 
             // Pick a random hex
-            const randomIndex = this.getRandomInt(0, candidateHexes.length - 1);
+            const randomIndex = this.getRandomInt(0, candidateHexes.length - 1, rng);
             const selectedHex = candidateHexes[randomIndex];
 
             // Remove from candidates so we don't pick it again
@@ -73,8 +72,8 @@ export class ST02Scenario implements Scenario {
         }
     }
 
-    private getRandomInt(min: number, max: number): number {
-        return Math.floor(this.rng.random() * (max - min + 1)) + min;
+    private getRandomInt(min: number, max: number, rng: SeededRNG): number {
+        return Math.floor(rng.random() * (max - min + 1)) + min;
     }
 
     private getCandidateHexesForParachute(): HexCoord[] {

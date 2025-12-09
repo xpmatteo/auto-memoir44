@@ -2,14 +2,17 @@
 // ABOUTME: Creates a simple game state with 3 units eliminated per side for visual testing
 
 import type {Scenario} from "./Scenario.js";
+import {createStandardGameState} from "./Scenario.js";
 import type {GameState} from "../domain/GameState.js";
 import {Infantry} from "../domain/Unit.js";
 import {Side} from "../domain/Player.js";
 import {HexCoord} from "../utils/hex.js";
 import {CardLocation} from "../domain/CommandCard.js";
+import {SeededRNG} from "../adapters/RNG.js";
 
 export class TestMedalTablesScenario implements Scenario {
-    setup(gameState: GameState): void {
+    createGameState(rng: SeededRNG): GameState {
+        const gameState = createStandardGameState(rng);
         // Draw cards for both players
         gameState.drawCards(6, CardLocation.BOTTOM_PLAYER_HAND);
         gameState.drawCards(3, CardLocation.TOP_PLAYER_HAND);
@@ -35,5 +38,7 @@ export class TestMedalTablesScenario implements Scenario {
         gameState.addToMedalTable(new Infantry(Side.ALLIES, 0), 1);
         gameState.addToMedalTable(new Infantry(Side.ALLIES, 0), 1);
         gameState.addToMedalTable(new Infantry(Side.ALLIES, 0), 1);
+
+        return gameState;
     }
 }

@@ -2,20 +2,16 @@
 // ABOUTME: Validates parsing of ASCII unit layout strings into board positions
 
 import {describe, it, expect} from "vitest";
-import {GameState} from "../../../src/domain/GameState";
 import {ST02Scenario} from "../../../src/scenarios/ST02";
 import {HexCoord} from "../../../src/utils/hex";
 import {Side} from "../../../src/domain/Player";
-import {Deck} from "../../../src/domain/Deck";
-import {Dice} from "../../../src/domain/Dice";
+import {SeededRNG} from "../../../src/adapters/RNG";
 
 describe("ST02Scenario unitSetup parser", () => {
     it("should parse and place all units from unitSetup constant", () => {
-        const deck = Deck.createStandardDeck();
-        const gameState = new GameState(deck);
+        const rng = new SeededRNG(12345);
         const scenario = new ST02Scenario();
-
-        scenario.setup(gameState);
+        const gameState = scenario.createGameState(rng);
 
         // Verified positions from parser output:
         // Axis units: (0,0), (1,0), (11,0), (12,0), (0,1), (10,1), (11,1), (-1,2), (9,2), (4,4)
@@ -44,11 +40,9 @@ describe("ST02Scenario unitSetup parser", () => {
     });
 
     it("should correctly count total units and print positions", () => {
-        const deck = Deck.createStandardDeck();
-        const gameState = new GameState(deck);
+        const rng = new SeededRNG(12345);
         const scenario = new ST02Scenario();
-
-        scenario.setup(gameState);
+        const gameState = scenario.createGameState(rng);
 
         // Count all units and print their positions
         let axisCount = 0;
@@ -85,22 +79,9 @@ describe("ST02Scenario unitSetup parser", () => {
 
 describe("ST02Scenario parachute units", () => {
     it("should place 4 parachute units with a fixed seed", () => {
-        // Create a seeded RNG for deterministic behavior
-        const seed = 12345;
-        const rng = () => {
-            const a = 1664525;
-            const c = 1013904223;
-            const m = 2147483648;
-            const state = (a * seed + c) % m;
-            return state / m;
-        };
-
-        const deck = Deck.createStandardDeck(rng);
-        const dice = new Dice(rng);
-        const gameState = new GameState(deck, dice);
+        const rng = new SeededRNG(12345);
         const scenario = new ST02Scenario();
-
-        scenario.setup(gameState);
+        const gameState = scenario.createGameState(rng);
 
         // Count allies units in rows 2-8 only (excluding the 6 from unitSetup which are in rows 5-8)
         let parachuteCount = 0;
@@ -121,11 +102,9 @@ describe("ST02Scenario parachute units", () => {
     });
 
     it("should place parachute units only in rows 2-8", () => {
-        const deck = Deck.createStandardDeck();
-        const gameState = new GameState(deck);
+        const rng = new SeededRNG();
         const scenario = new ST02Scenario();
-
-        scenario.setup(gameState);
+        const gameState = scenario.createGameState(rng);
 
         // Check that no parachute units are in rows 0-1
         // Count allies in rows 0-1 (should be 0)
@@ -145,13 +124,10 @@ describe("ST02Scenario parachute units", () => {
     });
 
     it("should skip placement if hex is already occupied", () => {
-        // Use a seeded RNG that will try to place units on occupied hexes
-        // This is a simplified test - in practice, most hexes are empty
-        const deck = Deck.createStandardDeck();
-        const gameState = new GameState(deck);
+        const rng = new SeededRNG();
         const scenario = new ST02Scenario();
 
         // Should not throw even if some hexes are occupied
-        expect(() => scenario.setup(gameState)).not.toThrow();
+        expect(() => scenario.createGameState(rng)).not.toThrow();
     });
 });

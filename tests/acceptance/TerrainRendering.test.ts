@@ -7,6 +7,7 @@ import {Deck} from "../../src/domain/Deck";
 import {HexCoord} from "../../src/utils/hex";
 import {hillTerrain, woodsTerrain, town1Terrain, clearTerrain} from "../../src/domain/terrain/Terrain";
 import {ST02Scenario} from "../../src/scenarios/ST02";
+import {SeededRNG} from "../../src/adapters/RNG";
 
 describe("Terrain Rendering", () => {
     describe("Terrain data structure", () => {
@@ -68,21 +69,17 @@ describe("Terrain Rendering", () => {
 
     describe("ST02 scenario terrain setup", () => {
         it("places hillTerrain at HexCoord(-1, 5)", () => {
-            const deck = Deck.createStandardDeck();
-            const gameState = new GameState(deck);
-
+            const rng = new SeededRNG(12345);
             const scenario = new ST02Scenario();
-            scenario.setup(gameState);
+            const gameState = scenario.createGameState(rng);
 
             expect(gameState.getTerrain(new HexCoord(-1, 5))).toBe(hillTerrain);
         });
 
         it("places woodsTerrain at HexCoord(3, 0)", () => {
-            const deck = Deck.createStandardDeck();
-            const gameState = new GameState(deck);
-
+            const rng = new SeededRNG(12345);
             const scenario = new ST02Scenario();
-            scenario.setup(gameState);
+            const gameState = scenario.createGameState(rng);
 
             expect(gameState.getTerrain(new HexCoord(3, 0))).toBe(woodsTerrain);
         });
