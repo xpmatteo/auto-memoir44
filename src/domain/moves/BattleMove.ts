@@ -31,11 +31,11 @@ export class BattleMove extends Move {
         gameState.incrementUnitBattlesThisTurn(this.fromUnit);
 
         // Find positions for both units
-        const attacker = this.findUnit(gameState, this.fromUnit.id);
-        const target = this.findUnit(gameState, this.toUnit.id);
+        const attackerHex = this.findUnitHex(gameState, this.fromUnit.id);
+        const targetHex = this.findUnitHex(gameState, this.toUnit.id);
 
         // Check if this is close combat (adjacent hexes)
-        const isCloseCombat = hexDistance(attacker.coord, target.coord) === 1;
+        const isCloseCombat = hexDistance(attackerHex, targetHex) === 1;
 
         // Resolve hits
         const hits = resolveHits(diceResults, this.toUnit);
@@ -50,14 +50,14 @@ export class BattleMove extends Move {
 
         if (newStrength <= 0) {
             // Unit is eliminated - find its position and remove it
-            this.eliminateUnit(gameState, target.coord);
+            this.eliminateUnit(gameState, targetHex);
 
             // If close combat, offer take ground option
             if (isCloseCombat) {
                 gameState.pushPhase(new TakeGroundPhase(
                     this.fromUnit,
-                    attacker.coord,
-                    target.coord
+                    attackerHex,
+                    targetHex
                 ));
             }
             return;
@@ -65,10 +65,10 @@ export class BattleMove extends Move {
 
         // Handle flag results (retreat)
         if (flagCount > 0) {
-            const retreats = retreatPaths(gameState, target.coord, flagCount, this.toUnit.side);
+            const retreats = retreatPaths(gameState, targetHex, flagCount, this.toUnit.side);
 
             // Check if target is on a sandbag fortification (allows ignoring one flag)
-            const fortification = gameState.getFortification(target.coord);
+            const fortification = gameState.getFortification(targetHex);
             const ignorableFlags = (fortification === sandbagAllies || fortification === sandbagAxis) ? 1 : 0;
 
             const flagResult = handleFlags(flagCount, ignorableFlags, retreats);
@@ -77,14 +77,14 @@ export class BattleMove extends Move {
             const newStrengthAfterFlagResult = newStrength - flagResult.damage;
             gameState.setUnitCurrentStrength(this.toUnit, newStrengthAfterFlagResult);
             if (newStrengthAfterFlagResult <= 0) {
-                this.eliminateUnit(gameState, target.coord);
+                this.eliminateUnit(gameState, targetHex);
 
                 // If close combat, offer take ground option
                 if (isCloseCombat) {
                     gameState.pushPhase(new TakeGroundPhase(
                         this.fromUnit,
-                        attacker.coord,
-                        target.coord
+                        attackerHex,
+                        targetHex
                     ));
                 }
                 return;
@@ -93,14 +93,14 @@ export class BattleMove extends Move {
             // Only handle retreat if there are valid retreat hexes
             if (flagResult.retreats.length === 1) {
                 // Only one retreat path - automatically move unit
-                gameState.moveUnit(target.coord, flagResult.retreats[0]);
+                gameState.moveUnit(targetHex, flagResult.retreats[0]);
 
                 // If close combat, offer take ground option
                 if (isCloseCombat) {
                     gameState.pushPhase(new TakeGroundPhase(
                         this.fromUnit,
-                        attacker.coord,
-                        target.coord // The hex that was just vacated
+                        attackerHex,
+                        targetHex // The hex that was just vacated
                     ));
                 }
             } else if (flagResult.retreats.length > 1) {
@@ -108,32 +108,23 @@ export class BattleMove extends Move {
                 // If close combat, pass attacker info so TakeGroundPhase can be pushed after retreat
                 gameState.pushPhase(new RetreatPhase(
                     this.toUnit,
-                    target.coord,
+                    targetHex,
                     flagResult.retreats,
                     isCloseCombat ? this.fromUnit : undefined,
-                    isCloseCombat ? attacker.coord : undefined
+                    isCloseCombat ? attackerHex : undefined
                 ));
             }
             // If flagResult.retreats.length === 0, all paths blocked and damage already applied
         }
     }
 
-    private findUnit(gameState: GameState, unitId: string) {
+    private findUnitHex(gameState: GameState, unitId: string) {
         const allUnits = gameState.getAllUnitsWithPositions();
         const attacker = allUnits.find(({unit}) => unit.id === unitId);
         if (!attacker) {
             throw new Error(`Could not find position for attacking unit ${unitId}`);
         }
-        return attacker;
-    }
-
-    private findTarget(gameState: GameState) {
-        const allUnits = gameState.getAllUnitsWithPositions();
-        const target = allUnits.find(({unit}) => unit.id === this.toUnit.id);
-        if (!target) {
-            throw new Error(`Could not find position for target unit ${this.toUnit.id}`);
-        }
-        return target;
+        return attacker.coord;
     }
 
     private eliminateUnit(gameState: GameState, coord: HexCoord) {
