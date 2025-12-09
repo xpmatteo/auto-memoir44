@@ -31,8 +31,8 @@ export class BattleMove extends Move {
         gameState.incrementUnitBattlesThisTurn(this.fromUnit);
 
         // Find positions for both units
-        const attacker = this.findAttacker(gameState);
-        const target = this.findTarget(gameState);
+        const attacker = this.findUnit(gameState, this.fromUnit.id);
+        const target = this.findUnit(gameState, this.toUnit.id);
 
         // Check if this is close combat (adjacent hexes)
         const isCloseCombat = hexDistance(attacker.coord, target.coord) === 1;
@@ -77,15 +77,14 @@ export class BattleMove extends Move {
             const newStrengthAfterFlagResult = newStrength - flagResult.damage;
             gameState.setUnitCurrentStrength(this.toUnit, newStrengthAfterFlagResult);
             if (newStrengthAfterFlagResult <= 0) {
-                const targetPosition = this.findTarget(gameState);
-                this.eliminateUnit(gameState, targetPosition.coord);
+                this.eliminateUnit(gameState, target.coord);
 
                 // If close combat, offer take ground option
                 if (isCloseCombat) {
                     gameState.pushPhase(new TakeGroundPhase(
                         this.fromUnit,
                         attacker.coord,
-                        targetPosition.coord
+                        target.coord
                     ));
                 }
                 return;
@@ -119,11 +118,11 @@ export class BattleMove extends Move {
         }
     }
 
-    private findAttacker(gameState: GameState) {
+    private findUnit(gameState: GameState, unitId: string) {
         const allUnits = gameState.getAllUnitsWithPositions();
-        const attacker = allUnits.find(({unit}) => unit.id === this.fromUnit.id);
+        const attacker = allUnits.find(({unit}) => unit.id === unitId);
         if (!attacker) {
-            throw new Error(`Could not find position for attacking unit ${this.fromUnit.id}`);
+            throw new Error(`Could not find position for attacking unit ${unitId}`);
         }
         return attacker;
     }
