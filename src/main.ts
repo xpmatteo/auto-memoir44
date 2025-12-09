@@ -11,7 +11,7 @@ console.log(`[${new Date().toISOString()}] Page loaded/reloaded`);
 
 import "./style.css";
 import type {GridConfig} from "./utils/hex.js";
-import {toCanvasCoords, pixelToHex} from "./utils/hex.js";
+import {toCanvasCoords, pixelToHex, HexCoord} from "./utils/hex.js";
 import {loadBoardImage, drawBoard} from "./ui/canvas/BoardRenderer.js";
 import {
     drawGrid,

@@ -9,7 +9,9 @@ import {Side} from "../../../src/domain/Player";
 import {HexCoord} from "../../../src/utils/hex";
 import {diceReturningAlways, DiceResult, RESULT_INFANTRY, RESULT_FLAG} from "../../../src/domain/Dice";
 import {BattleMove} from "../../../src/domain/moves/BattleMove";
+import {RetreatMove} from "../../../src/domain/moves/Move";
 import {RetreatPhase} from "../../../src/domain/phases/RetreatPhase";
+import {TakeGroundPhase} from "../../../src/domain/phases/TakeGroundPhase";
 import {sandbagAllies} from "../../../src/domain/fortifications/Fortification";
 
 // Test helper: sets up a battle scenario with specified dice results
@@ -104,6 +106,46 @@ describe("BattleMove integration", () => {
         // Assert: not eliminated
         expect(gameState.getMedalTable(0)).not.toContain(target);
         expect(gameState.getMedalTable(1)).not.toContain(target);
+
+        // Assert: attack counted
+        expect(gameState.getUnitBattlesThisTurn(attacker)).toBe(1);
+    });
+
+    it("should automatically retreat AND offer take ground in close combat with single retreat path", () => {
+        // Setup: Close combat (adjacent), 1 flag, single retreat path
+        // This is the scenario from the bug report where unit didn't auto-retreat
+        const { gameState, attacker, target, attackerCoord, targetCoord } = setupBattle(
+            [RESULT_FLAG],
+            4,
+            4
+        );
+
+        // Verify it's close combat (setupBattle puts them at distance 1)
+        expect(attackerCoord).toEqual(new HexCoord(4, 4));
+        expect(targetCoord).toEqual(new HexCoord(5, 4));
+
+        // Block one of the two northern neighbors to force single retreat path
+        const blockerCoord = new HexCoord(5, 3); // Block northwest
+        gameState.placeUnit(blockerCoord, new Infantry(Side.AXIS, 1));
+
+        const move = new BattleMove(attacker, target, 1);
+        move.execute(gameState);
+
+        // Assert: unit automatically moved to the only available retreat hex
+        expect(gameState.getUnitAt(targetCoord)).toBeUndefined();
+        const expectedRetreatCoord = new HexCoord(6, 3); // Northeast neighbor
+        expect(gameState.getUnitAt(expectedRetreatCoord)).toBe(target);
+
+        // Assert: TakeGroundPhase was pushed for the vacated hex
+        const phase = gameState.activePhase;
+        expect(phase).toBeInstanceOf(TakeGroundPhase);
+        const takeGroundPhase = phase as TakeGroundPhase;
+        expect(takeGroundPhase.attackingUnit).toBe(attacker);
+        expect(takeGroundPhase.fromHex).toEqual(attackerCoord);
+        expect(takeGroundPhase.toHex).toEqual(targetCoord); // The hex that was vacated by retreat
+
+        // Assert: no damage taken (successful retreat)
+        expect(gameState.getUnitCurrentStrength(target)).toBe(4);
 
         // Assert: attack counted
         expect(gameState.getUnitBattlesThisTurn(attacker)).toBe(1);
@@ -310,6 +352,45 @@ describe("BattleMove integration", () => {
 
         // Assert: attack counted
         expect(gameState.getUnitBattlesThisTurn(attacker)).toBe(1);
+    });
+
+    it("should NOT push TakeGroundPhase when unit on sandbag ignores flag in close combat", () => {
+        // Setup: Close combat, 1 flag, unit on sandbag chooses to ignore flag and stay
+        // This is the bug from the screenshot!
+        const { gameState, attacker, target, targetCoord } = setupBattle(
+            [RESULT_FLAG],
+            4,
+            4
+        );
+
+        // Place sandbag on target's hex
+        gameState.setFortification(targetCoord, sandbagAllies);
+
+        const move = new BattleMove(attacker, target, 1);
+        move.execute(gameState);
+
+        // Assert: RetreatPhase was pushed (unit can choose to stay or retreat)
+        expect(gameState.activePhase).toBeInstanceOf(RetreatPhase);
+
+        // Get the legal moves - one should be to stay in place
+        const retreatMoves = gameState.legalMoves();
+        const stayMove = retreatMoves.find(m => {
+            const rm = m as RetreatMove;
+            return rm.from.key() === targetCoord.key() && rm.to.key() === targetCoord.key();
+        });
+        expect(stayMove).toBeDefined();
+
+        // Execute the "stay in place" move (ignoring the flag)
+        stayMove!.execute(gameState);
+
+        // Assert: unit stayed at original position
+        expect(gameState.getUnitAt(targetCoord)).toBe(target);
+
+        // Assert: TakeGroundPhase should NOT be pushed since hex was not vacated
+        expect(gameState.activePhase).not.toBeInstanceOf(TakeGroundPhase);
+
+        // The phase should have popped back to BattlePhase (or whatever was underneath)
+        expect(gameState.activePhase).not.toBeInstanceOf(RetreatPhase);
     });
 });
 

@@ -211,8 +211,9 @@ export class RetreatMove extends Move {
     execute(gameState: GameState): void {
         this.executeRetreat(gameState);
 
-        // If this was a close combat retreat, push TakeGroundPhase
-        if (this.attackingUnit && this.attackingUnitCoord) {
+        // If this was a close combat retreat AND the hex was actually vacated, push TakeGroundPhase
+        const hexWasVacated = this.from.q !== this.to.q || this.from.r !== this.to.r;
+        if (this.attackingUnit && this.attackingUnitCoord && hexWasVacated) {
             gameState.pushTakeGroundPhase(
                 this.attackingUnit,
                 this.attackingUnitCoord,
