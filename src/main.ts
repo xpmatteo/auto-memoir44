@@ -4,6 +4,7 @@
 // Log page loads for debugging
 import {PhaseType} from "./domain/phases/Phase";
 import {RetreatPhase} from "./domain/phases/RetreatPhase";
+import {TakeGroundPhase} from "./domain/phases/TakeGroundPhase";
 import {Position} from "./domain/Player";
 
 console.log(`[${new Date().toISOString()}] Page loaded/reloaded`);
@@ -39,6 +40,7 @@ import {RandomAIPlayer} from "./ai/AIPlayer.js";
 import {AIController} from "./ai/AIController.js";
 import {MoveUnitMove} from "./domain/moves/MoveUnitMove";
 import {BattleMove} from "./domain/moves/BattleMove";
+import {TakeGroundMove} from "./domain/moves/TakeGroundMove";
 
 const BOARD_IMAGE_PATH = "/images/boards/memoir-country-map.webp";
 //const BOARD_IMAGE_PATH = "/images/boards/memoir-desert-map.jpg";
@@ -186,12 +188,33 @@ async function start() {
                 drawOrderedUnitOutlines(context, orderedCoords, defaultGrid);
             }
 
-            // Draw outline around units that can move
+            // Draw outline around units that can move (for all MOVE type phases)
             if (gameState.activePhase.type === PhaseType.MOVE) {
                 const legalMoves = gameState.legalMoves();
-                const moves = legalMoves.filter(m => m instanceof MoveUnitMove) as MoveUnitMove[];
-                const moveHexes = moves.map(m => m.from);
-                drawOrderedUnitOutlines(context, moveHexes, defaultGrid);
+                const moveHexes: HexCoord[] = [];
+
+                for (const move of legalMoves) {
+                    if (move instanceof MoveUnitMove) {
+                        moveHexes.push(move.from);
+                    } else if (move instanceof TakeGroundMove) {
+                        moveHexes.push(move.fromHex);
+                    }
+                }
+
+                // Remove duplicates by converting to string keys and back
+                const uniqueHexes = Array.from(
+                    new Map(moveHexes.map(h => [`${h.q},${h.r}`, h])).values()
+                );
+
+                drawOrderedUnitOutlines(context, uniqueHexes, defaultGrid);
+            }
+
+            // Pre-populate valid destinations for TakeGroundPhase
+            if (gameState.activePhase instanceof TakeGroundPhase) {
+                const takeGroundPhase = gameState.activePhase;
+                if (uiState.validDestinations.length === 0) {
+                    uiState.validDestinations = [takeGroundPhase.toHex];
+                }
             }
 
             // Draw battle-ready unit outlines during BattlePhase
