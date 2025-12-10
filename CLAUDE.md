@@ -35,29 +35,18 @@ The game exposes a console API at `window.game` for debugging and testing. Open 
 ### Available Commands
 
 ```javascript
-// Display all available commands with examples
+// General help on commands with examples
 game.help()
 
-// Click on a hex (context-aware based on current phase)
-// - ORDER phase: Toggle unit ordering
-// - MOVE phase: Two-click pattern (select unit, then destination)
-// - BATTLE phase: Two-click pattern (select attacker, then target)
-// - RETREAT/TAKE_GROUND phase: Single click to move
-game.clickHex(q, r)
-
-// Play a command card by ID
-game.playCard("card-01")  // Use actual card IDs from the deck
-
-// Press a UI button by label text (case-insensitive)
-game.pressButton("Confirm Orders")
-game.pressButton("end movements")
+// Display all available legal moves
+game.status()
 ```
 
 ### Example Debugging Session
 
 ```javascript
 // Check what commands are available
-game.help()
+game.status()
 
 // Order a unit at hex (5, 4)
 game.clickHex(5, 4)

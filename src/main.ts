@@ -311,7 +311,7 @@ async function start() {
     // Mount console API for testing
     const consoleAPI = new ConsoleAPI(gameState, uiState, renderAllWithAI);
     (window as any).game = consoleAPI;
-    console.log('🎮 Game console API available. Type game.help() for commands.');
+    console.log('🎮 Game console API available. Type game.status() for commands.');
 
     app.appendChild(handDisplay.getElement());
 

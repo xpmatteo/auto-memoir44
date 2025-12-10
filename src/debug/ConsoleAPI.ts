@@ -1,5 +1,5 @@
 // ABOUTME: Console API for testing the game from browser console
-// ABOUTME: Provides commands like clickHex(), playCard(), pressButton(), help()
+// ABOUTME: Provides commands like clickHex(), playCard(), pressButton(), status(), help()
 
 import {GameState} from "../domain/GameState";
 import {UIState, BattleTarget} from "../ui/UIState";
@@ -47,6 +47,10 @@ export class ConsoleAPI {
   %cgame.help()%c
     Show this help message
 
+  %cgame.status()%c
+    Show current game status and all available moves with console commands
+    Perfect for AI agents to know what to do next!
+
   %cgame.clickHex(q, r)%c
     Click on a hex at coordinates (q, r)
     Context-aware: orders units, moves, battles based on current phase
@@ -84,6 +88,184 @@ export class ConsoleAPI {
             'color: #FF9800; font-family: monospace', 'color: inherit',
             'color: #666',
             'color: #9E9E9E; font-style: italic'
+        );
+    }
+
+    /**
+     * Display current game status and available moves with console commands
+     */
+    status(): void {
+        const currentPhase = this.gameState.activePhase;
+        const legalMoves = this.gameState.legalMoves();
+        const allUnits = this.gameState.getAllUnitsWithPositions();
+
+        console.log(`
+%c📊 Game Status
+%c━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+%cCurrent Phase: %c${currentPhase.name}
+%cActive Player: %c${this.gameState.activePlayer}
+
+%c━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+`,
+            'color: #4CAF50; font-weight: bold; font-size: 16px',
+            'color: #666',
+            'color: #2196F3; font-weight: bold', `color: #FF9800`,
+            'color: #2196F3; font-weight: bold', `color: #FF9800`,
+            'color: #666'
+        );
+
+        // Categorize moves
+        const playCardMoves = legalMoves.filter(m => m instanceof PlayCardMove) as PlayCardMove[];
+        const orderMoves = legalMoves.filter(m => m instanceof OrderUnitMove) as OrderUnitMove[];
+        const unOrderMoves = legalMoves.filter(m => m instanceof UnOrderMove) as UnOrderMove[];
+        const moveMoves = legalMoves.filter(m => m instanceof MoveUnitMove) as MoveUnitMove[];
+        const battleMoves = legalMoves.filter(m => m instanceof BattleMove) as BattleMove[];
+        const retreatMoves = legalMoves.filter(m => m instanceof RetreatMove) as RetreatMove[];
+        const takeGroundMoves = legalMoves.filter(m => m instanceof TakeGroundMove) as TakeGroundMove[];
+
+        // Get button moves
+        const buttonMoves: Array<{label: string, move: any}> = [];
+        legalMoves.forEach(move => {
+            const buttons = move.uiButton();
+            buttons.forEach(btn => {
+                buttonMoves.push({label: btn.label, move});
+            });
+        });
+
+        // Display available moves by category
+        if (playCardMoves.length > 0) {
+            console.log(`%c🃏 Play Card (${playCardMoves.length} available)`, 'color: #9C27B0; font-weight: bold');
+            playCardMoves.forEach(m => {
+                console.log(`  %cgame.playCard("${m.card.id}")%c  // ${m.card.name}`,
+                    'color: #FF9800; font-family: monospace', 'color: inherit');
+            });
+            console.log('');
+        }
+
+        if (orderMoves.length > 0) {
+            console.log(`%c✓ Order Units (${orderMoves.length} available)`, 'color: #4CAF50; font-weight: bold');
+            orderMoves.forEach(m => {
+                const coord = allUnits.find(({unit}) => unit.id === m.unit.id)?.coord;
+                if (coord) {
+                    console.log(`  %cgame.clickHex(${coord.q}, ${coord.r})%c  // Order ${m.unit.type} at (${coord.q}, ${coord.r})`,
+                        'color: #FF9800; font-family: monospace', 'color: inherit');
+                }
+            });
+            console.log('');
+        }
+
+        if (unOrderMoves.length > 0) {
+            console.log(`%c✗ Unorder Units (${unOrderMoves.length} available)`, 'color: #F44336; font-weight: bold');
+            unOrderMoves.forEach(m => {
+                const coord = allUnits.find(({unit}) => unit.id === m.unit.id)?.coord;
+                if (coord) {
+                    console.log(`  %cgame.clickHex(${coord.q}, ${coord.r})%c  // Unorder ${m.unit.type} at (${coord.q}, ${coord.r})`,
+                        'color: #FF9800; font-family: monospace', 'color: inherit');
+                }
+            });
+            console.log('');
+        }
+
+        if (moveMoves.length > 0) {
+            console.log(`%c➜ Move Units (${moveMoves.length} moves available)`, 'color: #2196F3; font-weight: bold');
+            // Group by source unit
+            const movesByUnit = new Map<string, MoveUnitMove[]>();
+            moveMoves.forEach(m => {
+                const key = `${m.from.q},${m.from.r}`;
+                if (!movesByUnit.has(key)) {
+                    movesByUnit.set(key, []);
+                }
+                movesByUnit.get(key)!.push(m);
+            });
+
+            movesByUnit.forEach((moves, key) => {
+                const [q, r] = key.split(',').map(Number);
+                const unit = this.gameState.getUnitAt(new HexCoord(q, r));
+                const destinations = moves.map(m => `(${m.to.q}, ${m.to.r})`).join(', ');
+                console.log(`  %cgame.clickHex(${q}, ${r})%c  // Select ${unit?.type} - can move to: ${destinations}`,
+                    'color: #FF9800; font-family: monospace', 'color: inherit');
+            });
+            console.log('  %cThen click destination hex to complete move', 'color: #9E9E9E; font-style: italic');
+            console.log('');
+        }
+
+        if (battleMoves.length > 0) {
+            console.log(`%c⚔️ Battle (${battleMoves.length} attacks available)`, 'color: #F44336; font-weight: bold');
+            // Group by attacking unit
+            const battlesByUnit = new Map<string, BattleMove[]>();
+            battleMoves.forEach(m => {
+                const coord = allUnits.find(({unit}) => unit.id === m.fromUnit.id)?.coord;
+                if (coord) {
+                    const key = `${coord.q},${coord.r}`;
+                    if (!battlesByUnit.has(key)) {
+                        battlesByUnit.set(key, []);
+                    }
+                    battlesByUnit.get(key)!.push(m);
+                }
+            });
+
+            battlesByUnit.forEach((battles, key) => {
+                const [q, r] = key.split(',').map(Number);
+                const attacker = battles[0].fromUnit;
+                const targets = battles.map(b => {
+                    const targetCoord = allUnits.find(({unit}) => unit.id === b.toUnit.id)?.coord;
+                    return targetCoord ? `(${targetCoord.q}, ${targetCoord.r})` : '?';
+                }).join(', ');
+                console.log(`  %cgame.clickHex(${q}, ${r})%c  // Select ${attacker.type} - can attack: ${targets}`,
+                    'color: #FF9800; font-family: monospace', 'color: inherit');
+            });
+            console.log('  %cThen click target hex to attack', 'color: #9E9E9E; font-style: italic');
+            console.log('');
+        }
+
+        if (retreatMoves.length > 0) {
+            console.log(`%c⬅️ Retreat (${retreatMoves.length} destinations available)`, 'color: #FF5722; font-weight: bold');
+            retreatMoves.forEach(m => {
+                console.log(`  %cgame.clickHex(${m.to.q}, ${m.to.r})%c  // Retreat to (${m.to.q}, ${m.to.r})`,
+                    'color: #FF9800; font-family: monospace', 'color: inherit');
+            });
+            console.log('');
+        }
+
+        if (takeGroundMoves.length > 0) {
+            console.log(`%c⬆️ Take Ground (${takeGroundMoves.length} destinations available)`, 'color: #4CAF50; font-weight: bold');
+            takeGroundMoves.forEach(m => {
+                console.log(`  %cgame.clickHex(${m.toHex.q}, ${m.toHex.r})%c  // Advance to (${m.toHex.q}, ${m.toHex.r})`,
+                    'color: #FF9800; font-family: monospace', 'color: inherit');
+            });
+            console.log('');
+        }
+
+        if (buttonMoves.length > 0) {
+            console.log(`%c🔘 Phase Control Buttons (${buttonMoves.length} available)`, 'color: #607D8B; font-weight: bold');
+            // Deduplicate buttons by label
+            const uniqueButtons = new Map<string, string>();
+            buttonMoves.forEach(({label}) => {
+                if (!uniqueButtons.has(label.toLowerCase())) {
+                    uniqueButtons.set(label.toLowerCase(), label);
+                }
+            });
+            uniqueButtons.forEach((label) => {
+                console.log(`  %cgame.pressButton("${label}")`,
+                    'color: #FF9800; font-family: monospace');
+            });
+            console.log('');
+        }
+
+        if (legalMoves.length === 0) {
+            console.log(`%c⚠️ No legal moves available`, 'color: #FF5722; font-weight: bold');
+            console.log('');
+        }
+
+        console.log(`%c━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+%cUI State:
+  Selected Unit: %c${this.uiState.selectedUnit ? `${this.uiState.selectedUnit.type} at (${this.uiState.selectedUnitLocation?.q}, ${this.uiState.selectedUnitLocation?.r})` : 'None'}
+`,
+            'color: #666',
+            'color: #2196F3; font-weight: bold',
+            'color: #FF9800'
         );
     }
 
