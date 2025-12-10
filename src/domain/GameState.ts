@@ -1,7 +1,7 @@
 // ABOUTME: Main game state with GameState pattern implementation
 // ABOUTME: All game logic flows through legalMoves() and executeMove()
 
-import {createPlayer, Player, Position, Side} from "./Player";
+import {Player, Position, Side} from "./Player";
 import {Deck} from "./Deck";
 import {GameVictoryMove, Move} from "./moves/Move";
 import {Unit, UnitState} from "./Unit";
@@ -36,7 +36,7 @@ export class GameState {
     ) {
         this.deck = deck;
         this.dice = dice;
-        this.players = [createPlayer(Side.ALLIES, Position.BOTTOM), createPlayer(Side.AXIS, Position.TOP)];
+        this.players = [new Player(Side.ALLIES, Position.BOTTOM), new Player(Side.AXIS, Position.TOP)];
         this.turnCoordinator = new TurnCoordinator();
         this.board = new Board();
         this.scoreTracker = new ScoreTracker();

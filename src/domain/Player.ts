@@ -15,11 +15,17 @@ export const Position = {
 
 export type Position = typeof Position[keyof typeof Position];
 
-export interface Player {
-    side: Side;
-    position: Position;
-}
+export class Player {
+    readonly side: Side;
+    readonly position: Position;
 
-export function createPlayer(side: Side, position: Position): Player {
-    return {side, position};
+    constructor(side: Side, position: Position) {
+        this.side = side;
+        this.position = position;
+    }
+
+    toString(): string {
+        const positionLabel = this.position === Position.BOTTOM ? "Bottom" : "Top";
+        return `${this.side} (${positionLabel})`;
+    }
 }

@@ -5,7 +5,7 @@ import {describe, expect, test} from "vitest";
 import {BattlePhase} from "../../../src/domain/phases/BattlePhase";
 import {EndBattlesMove, Move} from "../../../src/domain/moves/Move";
 import {Infantry, Unit, UnitState} from "../../../src/domain/Unit";
-import {Side, Position, createPlayer, Player} from "../../../src/domain/Player";
+import {Side, Position, Player} from "../../../src/domain/Player";
 import {HexCoord} from "../../../src/utils/hex";
 import {clearTerrain, hillTerrain, Terrain, woodsTerrain} from "../../../src/domain/terrain/Terrain";
 import {Fortification, noFortification} from "../../../src/domain/fortifications/Fortification";
@@ -13,7 +13,7 @@ import {BattleMove} from "../../../src/domain/moves/BattleMove";
 
 export class FakeUnitBattler {
     allUnitsData = [] as Array<{ coord: HexCoord, unit: Unit, unitState: UnitState, terrain: Terrain }>;
-    activePlayer = createPlayer(Side.ALLIES, Position.BOTTOM);
+    activePlayer = new Player(Side.ALLIES, Position.BOTTOM);
     terrainMap = new Map<string, Terrain>();
     fortificationMap = new Map<string, Fortification>();
 
@@ -204,7 +204,7 @@ describe("BattlePhase", () => {
                     {coord: new HexCoord(5, 5), unit: axisUnit1, isOrdered: true},
                     {coord: new HexCoord(6, 5), unit: alliedUnit1} // Enemy when AXIS is active
                 ])
-                .setActivePlayer(createPlayer(Side.AXIS, Position.TOP)),
+                .setActivePlayer(new Player(Side.AXIS, Position.TOP)),
             expected: [
                 new EndBattlesMove(),
                 new BattleMove(axisUnit1, alliedUnit1, 3),
