@@ -39,6 +39,7 @@ import {AIController} from "./ai/AIController.js";
 import {MoveUnitMove} from "./domain/moves/MoveUnitMove";
 import {BattleMove} from "./domain/moves/BattleMove";
 import {TakeGroundMove} from "./domain/moves/TakeGroundMove";
+import {ConsoleAPI} from "./debug/ConsoleAPI.js";
 
 const BOARD_IMAGE_PATH = "/images/boards/memoir-country-map.webp";
 //const BOARD_IMAGE_PATH = "/images/boards/memoir-desert-map.jpg";
@@ -306,6 +307,11 @@ async function start() {
 
     // Initial render (with AI check)
     await renderAllWithAI();
+
+    // Mount console API for testing
+    const consoleAPI = new ConsoleAPI(gameState, uiState, renderAllWithAI);
+    (window as any).game = consoleAPI;
+    console.log('🎮 Game console API available. Type game.help() for commands.');
 
     app.appendChild(handDisplay.getElement());
 
