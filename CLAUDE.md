@@ -28,6 +28,58 @@ npm run build
 npm run preview
 ```
 
+## Browser Console API for Debugging
+
+The game exposes a console API at `window.game` for debugging and testing. Open the browser console (F12) at http://localhost:5173 to use these commands:
+
+### Available Commands
+
+```javascript
+// Display all available commands with examples
+game.help()
+
+// Click on a hex (context-aware based on current phase)
+// - ORDER phase: Toggle unit ordering
+// - MOVE phase: Two-click pattern (select unit, then destination)
+// - BATTLE phase: Two-click pattern (select attacker, then target)
+// - RETREAT/TAKE_GROUND phase: Single click to move
+game.clickHex(q, r)
+
+// Play a command card by ID
+game.playCard("card-01")  // Use actual card IDs from the deck
+
+// Press a UI button by label text (case-insensitive)
+game.pressButton("Confirm Orders")
+game.pressButton("end movements")
+```
+
+### Example Debugging Session
+
+```javascript
+// Check what commands are available
+game.help()
+
+// Order a unit at hex (5, 4)
+game.clickHex(5, 4)
+
+// Confirm orders to proceed to movement phase
+game.pressButton("Confirm Orders")
+
+// Select the unit to move
+game.clickHex(5, 4)
+
+// Move to destination
+game.clickHex(6, 4)
+```
+
+### Notes on Console API
+
+- All methods return `{success: boolean, message: string}` objects
+- Invalid coordinates, card IDs, or button labels return error messages with suggestions
+- The API automatically triggers UI re-rendering after each action
+- Useful for reproducing bug scenarios, testing edge cases, and understanding game state
+- **Puppeteer limitation**: The API works in browser console but cannot be called via Puppeteer's `evaluate()` due to circular reference serialization issues. For automated browser testing, use Puppeteer's click/fill actions instead.
+
 ## Core Architecture
 
 ### The GameState Pattern

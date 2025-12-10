@@ -90,7 +90,7 @@ export class ConsoleAPI {
     /**
      * Click on a hex - phase-aware behavior
      */
-    async clickHex(q: number, r: number): Promise<CommandResult> {
+    clickHex(q: number, r: number): CommandResult {
         const hexCoord = new HexCoord(q, r);
 
         // Validate hex is on board
@@ -105,15 +105,15 @@ export class ConsoleAPI {
 
         try {
             if (currentPhase.type === PhaseType.ORDER) {
-                return await this.handleOrderingClick(hexCoord);
+                return this.handleOrderingClick(hexCoord);
             } else if (currentPhase instanceof TakeGroundPhase) {
-                return await this.handleTakeGroundClick(hexCoord);
+                return this.handleTakeGroundClick(hexCoord);
             } else if (currentPhase instanceof MovePhase) {
-                return await this.handleMovementClick(hexCoord);
+                return this.handleMovementClick(hexCoord);
             } else if (currentPhase instanceof BattlePhase) {
-                return await this.handleBattleClick(hexCoord);
+                return this.handleBattleClick(hexCoord);
             } else if (currentPhase instanceof RetreatPhase) {
-                return await this.handleRetreatClick(hexCoord);
+                return this.handleRetreatClick(hexCoord);
             } else {
                 return {
                     success: false,
@@ -131,7 +131,7 @@ export class ConsoleAPI {
     /**
      * Play a card by ID
      */
-    async playCard(cardId: string): Promise<CommandResult> {
+    playCard(cardId: string): CommandResult {
         const moves = this.gameState.legalMoves();
         const playCardMove = moves.find(
             (m) => m instanceof PlayCardMove && m.card.id === cardId
@@ -159,17 +159,18 @@ export class ConsoleAPI {
             };
         }
 
-        await this.executeAndRender(playCardMove);
+        const cardName = (playCardMove as PlayCardMove).card.name;
+        this.executeAndRender(playCardMove);
         return {
             success: true,
-            message: `Played card: ${(playCardMove as PlayCardMove).card.name}`
+            message: `Played card: ${cardName}`
         };
     }
 
     /**
      * Press a UI button by label
      */
-    async pressButton(label: string): Promise<CommandResult> {
+    pressButton(label: string): CommandResult {
         const moves = this.gameState.legalMoves();
         const allButtons: Array<{label: string, move: any}> = [];
 
@@ -206,7 +207,7 @@ export class ConsoleAPI {
 
         if (uiButton) {
             uiButton.callback(this.gameState);
-            await this.renderCallback();
+            this.renderCallback().catch(err => console.error("Render error:", err));
             return {
                 success: true,
                 message: `Pressed button: ${label}`
@@ -232,10 +233,12 @@ export class ConsoleAPI {
 
     /**
      * Execute a move and trigger re-render
+     * Note: We don't await renderCallback to avoid Puppeteer serialization issues
      */
-    private async executeAndRender(move: any): Promise<void> {
+    private executeAndRender(move: any): void {
         this.gameState.executeMove(move);
-        await this.renderCallback();
+        // Call render asynchronously but don't await to avoid serialization issues
+        this.renderCallback().catch(err => console.error("Render error:", err));
     }
 
     /**
@@ -254,7 +257,7 @@ export class ConsoleAPI {
     /**
      * Handle clicks during ORDER phase
      */
-    private async handleOrderingClick(hexCoord: HexCoord): Promise<CommandResult> {
+    private handleOrderingClick(hexCoord: HexCoord): CommandResult {
         const unit = this.gameState.getUnitAt(hexCoord);
 
         if (!unit) {
@@ -276,9 +279,10 @@ export class ConsoleAPI {
             };
         }
 
-        await this.executeAndRender(orderMove);
+        const isOrder = orderMove instanceof OrderUnitMove;
+        this.executeAndRender(orderMove);
 
-        if (orderMove instanceof OrderUnitMove) {
+        if (isOrder) {
             return {
                 success: true,
                 message: `Ordered unit at (${hexCoord.q}, ${hexCoord.r})`
@@ -294,7 +298,7 @@ export class ConsoleAPI {
     /**
      * Handle clicks during MOVE phase (two-click pattern)
      */
-    private async handleMovementClick(hexCoord: HexCoord): Promise<CommandResult> {
+    private handleMovementClick(hexCoord: HexCoord): CommandResult {
         const unit = this.gameState.getUnitAt(hexCoord);
         const legalMoves = this.gameState.legalMoves();
 
@@ -303,7 +307,7 @@ export class ConsoleAPI {
             hexCoord.q === this.uiState.selectedUnitLocation.q &&
             hexCoord.r === this.uiState.selectedUnitLocation.r) {
             this.uiState.clearSelection();
-            await this.renderCallback();
+            this.renderCallback().catch(err => console.error("Render error:", err));
             return {
                 success: true,
                 message: `Deselected unit at (${hexCoord.q}, ${hexCoord.r})`
@@ -325,11 +329,13 @@ export class ConsoleAPI {
                 ) as MoveUnitMove | undefined;
 
                 if (moveToExecute) {
-                    await this.executeAndRender(moveToExecute);
+                    const fromQ = selectedUnitLocation.q;
+                    const fromR = selectedUnitLocation.r;
+                    this.executeAndRender(moveToExecute);
                     this.uiState.clearSelection();
                     return {
                         success: true,
-                        message: `Moved unit from (${selectedUnitLocation.q}, ${selectedUnitLocation.r}) to (${hexCoord.q}, ${hexCoord.r})`
+                        message: `Moved unit from (${fromQ}, ${fromR}) to (${hexCoord.q}, ${hexCoord.r})`
                     };
                 }
             }
@@ -346,18 +352,19 @@ export class ConsoleAPI {
 
             if (validMovesForUnit.length > 0) {
                 const destinations = validMovesForUnit.map((m) => m.to);
+                const destCount = destinations.length;
                 this.uiState.selectUnit(unit, hexCoord, destinations);
-                await this.renderCallback();
+                this.renderCallback().catch(err => console.error("Render error:", err));
                 return {
                     success: true,
-                    message: `Selected unit at (${hexCoord.q}, ${hexCoord.r}). ${destinations.length} possible destinations.`
+                    message: `Selected unit at (${hexCoord.q}, ${hexCoord.r}). ${destCount} possible destinations.`
                 };
             }
         }
 
         // Clicked elsewhere - clear selection
         this.uiState.clearSelection();
-        await this.renderCallback();
+        this.renderCallback().catch(err => console.error("Render error:", err));
         return {
             success: false,
             message: `No valid action at (${hexCoord.q}, ${hexCoord.r})`
@@ -367,7 +374,7 @@ export class ConsoleAPI {
     /**
      * Handle clicks during BATTLE phase (two-click pattern)
      */
-    private async handleBattleClick(hexCoord: HexCoord): Promise<CommandResult> {
+    private handleBattleClick(hexCoord: HexCoord): CommandResult {
         const unit = this.gameState.getUnitAt(hexCoord);
         const legalMoves = this.gameState.legalMoves();
 
@@ -384,11 +391,12 @@ export class ConsoleAPI {
                 ) as BattleMove | undefined;
 
                 if (battleMove) {
-                    await this.executeAndRender(battleMove);
+                    const diceCount = battleMove.dice;
+                    this.executeAndRender(battleMove);
                     this.uiState.clearSelection();
                     return {
                         success: true,
-                        message: `Attacked unit at (${hexCoord.q}, ${hexCoord.r}) with ${battleMove.dice} dice`
+                        message: `Attacked unit at (${hexCoord.q}, ${hexCoord.r}) with ${diceCount} dice`
                     };
                 }
             }
@@ -416,18 +424,19 @@ export class ConsoleAPI {
                     };
                 });
 
+                const targetCount = targets.length;
                 this.uiState.selectAttackingUnit(unit, hexCoord, targets);
-                await this.renderCallback();
+                this.renderCallback().catch(err => console.error("Render error:", err));
                 return {
                     success: true,
-                    message: `Selected attacking unit at (${hexCoord.q}, ${hexCoord.r}). ${targets.length} possible targets.`
+                    message: `Selected attacking unit at (${hexCoord.q}, ${hexCoord.r}). ${targetCount} possible targets.`
                 };
             }
         }
 
         // Clicked elsewhere - clear selection
         this.uiState.clearSelection();
-        await this.renderCallback();
+        this.renderCallback().catch(err => console.error("Render error:", err));
         return {
             success: false,
             message: `No valid battle action at (${hexCoord.q}, ${hexCoord.r})`
@@ -437,7 +446,7 @@ export class ConsoleAPI {
     /**
      * Handle clicks during RETREAT phase
      */
-    private async handleRetreatClick(hexCoord: HexCoord): Promise<CommandResult> {
+    private handleRetreatClick(hexCoord: HexCoord): CommandResult {
         if (!this.uiState.isRetreatHexValid(hexCoord)) {
             return {
                 success: false,
@@ -453,7 +462,7 @@ export class ConsoleAPI {
         ) as RetreatMove | undefined;
 
         if (retreatMove) {
-            await this.executeAndRender(retreatMove);
+            this.executeAndRender(retreatMove);
             this.uiState.clearSelection();
             return {
                 success: true,
@@ -470,7 +479,7 @@ export class ConsoleAPI {
     /**
      * Handle clicks during TAKE_GROUND phase
      */
-    private async handleTakeGroundClick(hexCoord: HexCoord): Promise<CommandResult> {
+    private handleTakeGroundClick(hexCoord: HexCoord): CommandResult {
         const legalMoves = this.gameState.legalMoves();
         const takeGroundMove = legalMoves.find(
             m => m instanceof TakeGroundMove &&
@@ -479,7 +488,7 @@ export class ConsoleAPI {
         ) as TakeGroundMove | undefined;
 
         if (takeGroundMove) {
-            await this.executeAndRender(takeGroundMove);
+            this.executeAndRender(takeGroundMove);
             this.uiState.clearSelection();
             return {
                 success: true,
