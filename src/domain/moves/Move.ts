@@ -192,13 +192,15 @@ export class RetreatMove extends Move {
     readonly to: HexCoord;
     readonly attackingUnit?: Unit;
     readonly attackingUnitCoord?: HexCoord;
+    readonly isFromOverrun: boolean;
 
     constructor(
         unit: Unit,
         from: HexCoord,
         to: HexCoord,
         attackingUnit?: Unit,
-        attackingUnitCoord?: HexCoord
+        attackingUnitCoord?: HexCoord,
+        isFromOverrun: boolean = false
     ) {
         super();
         this.unit = unit;
@@ -206,6 +208,7 @@ export class RetreatMove extends Move {
         this.to = to;
         this.attackingUnit = attackingUnit;
         this.attackingUnitCoord = attackingUnitCoord;
+        this.isFromOverrun = isFromOverrun;
     }
 
     execute(gameState: GameState): void {
@@ -214,15 +217,11 @@ export class RetreatMove extends Move {
         // If this was a close combat retreat AND the hex was actually vacated, push TakeGroundPhase
         const hexWasVacated = this.from.q !== this.to.q || this.from.r !== this.to.r;
         if (this.attackingUnit && this.attackingUnitCoord && hexWasVacated) {
-            // Detect if we're in an overrun battle (to prevent infinite overrun)
-            // After executeRetreat pops the RetreatPhase, we're back to the phase that was active when battle happened
-            const isFromOverrun = gameState.activePhase.name === "Armor Overrun";
-
             gameState.pushTakeGroundPhase(
                 this.attackingUnit,
                 this.attackingUnitCoord,
                 this.from, // The hex that was just vacated
-                !isFromOverrun  // If from overrun, don't allow another overrun
+                !this.isFromOverrun  // If from overrun, don't allow another overrun
             );
         }
     }

@@ -17,19 +17,22 @@ export class RetreatPhase implements Phase {
     readonly availableRetreatHexes: HexCoord[];
     readonly attackingUnit?: Unit;
     readonly attackingUnitCoord?: HexCoord;
+    readonly isFromOverrun: boolean;
 
     constructor(
         unit: Unit,
         currentPosition: HexCoord,
         availableRetreatHexes: HexCoord[],
         attackingUnit?: Unit,
-        attackingUnitCoord?: HexCoord
+        attackingUnitCoord?: HexCoord,
+        isFromOverrun: boolean = false
     ) {
         this.unit = unit;
         this.currentPosition = currentPosition;
         this.availableRetreatHexes = availableRetreatHexes;
         this.attackingUnit = attackingUnit;
         this.attackingUnitCoord = attackingUnitCoord;
+        this.isFromOverrun = isFromOverrun;
     }
 
     legalMoves(_gameState: GameState): Move[] {
@@ -39,7 +42,8 @@ export class RetreatPhase implements Phase {
                 this.currentPosition,
                 hex,
                 this.attackingUnit,
-                this.attackingUnitCoord
+                this.attackingUnitCoord,
+                this.isFromOverrun
             )
         );
     }

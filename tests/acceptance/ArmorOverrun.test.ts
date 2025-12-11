@@ -9,7 +9,8 @@ import {Side} from '../../src/domain/Player';
 import {HexCoord} from '../../src/utils/hex';
 import {BattleMove} from '../../src/domain/moves/BattleMove';
 import {TakeGroundMove} from '../../src/domain/moves/TakeGroundMove';
-import {diceReturningAlways, RESULT_INFANTRY} from '../../src/domain/Dice';
+import {RetreatMove} from '../../src/domain/moves/Move';
+import {diceReturningAlways, diceReturning, RESULT_INFANTRY, RESULT_FLAG} from '../../src/domain/Dice';
 
 describe('Armor Overrun', () => {
     test('armor eliminates enemy in close combat, takes ground, then can attack again', () => {
@@ -236,5 +237,74 @@ describe('Armor Overrun', () => {
 
         // Should not be able to battle with the armor again (already attacked in overrun)
         expect(moreOverrunBattles.length).toBe(0);
+    });
+
+    test('armor overrun causes retreat, armor cannot battle again', () => {
+        // Setup: Armor at (5,5), Enemy1 at (6,5), Enemy2 at (7,5)
+        // Overrun battle will roll flags, causing enemy2 to retreat
+        const deck = Deck.createStandardDeck();
+        const dice = diceReturning([
+            RESULT_INFANTRY, RESULT_INFANTRY, RESULT_INFANTRY,  // First battle (3 dice) eliminates enemy1
+            RESULT_FLAG, RESULT_FLAG, RESULT_FLAG,  // Overrun battle (3 dice) causes enemy2 to retreat
+        ]);
+        const gameState = new GameState(deck, dice);
+
+        const armor = new Armor(Side.ALLIES, 3);
+        const enemy1 = new Infantry(Side.AXIS, 3);
+        const enemy2 = new Infantry(Side.AXIS, 4);
+
+        const armorCoord = new HexCoord(5, 5);
+        const enemy1Coord = new HexCoord(6, 5);
+        const enemy2Coord = new HexCoord(7, 5);
+
+        gameState.placeUnit(armorCoord, armor);
+        gameState.placeUnit(enemy1Coord, enemy1);
+        gameState.placeUnit(enemy2Coord, enemy2);
+
+        // Execute first battle and take ground to enter overrun phase
+        const battleMove1 = new BattleMove(armor, enemy1, 3);
+        battleMove1.execute(gameState);
+
+        const takeGroundMove = gameState.legalMoves().find(m => m instanceof TakeGroundMove);
+        expect(takeGroundMove).toBeDefined();
+        gameState.executeMove(takeGroundMove!);
+
+        // Assert: In ArmorOverrunPhase
+        expect(gameState.activePhase.name).toBe('Armor Overrun');
+
+        // Execute overrun battle that rolls flag (causes retreat)
+        const overrunBattle = gameState.legalMoves().find(m =>
+            m instanceof BattleMove && (m as BattleMove).toUnit === enemy2
+        ) as BattleMove;
+        expect(overrunBattle).toBeDefined();
+        gameState.executeMove(overrunBattle!);
+
+        // Assert: RetreatPhase is active (enemy must choose retreat hex)
+        expect(gameState.activePhase.name).toBe('Retreat');
+
+        // Execute retreat (this is a close combat retreat)
+        const retreatMoves = gameState.legalMoves();
+        const retreatMove = retreatMoves.find(m => m instanceof RetreatMove) as RetreatMove;
+        expect(retreatMove).toBeDefined();
+        gameState.executeMove(retreatMove!);
+
+        // BUG: After close combat retreat, TakeGroundPhase is offered
+        // If we take ground, it should NOT trigger another armor overrun
+        if (gameState.activePhase.name === 'Take Ground') {
+            const takeGround = gameState.legalMoves().find(m => m instanceof TakeGroundMove);
+            if (takeGround) {
+                gameState.executeMove(takeGround);
+            }
+        }
+
+        // Assert: Back to BattlePhase (not ArmorOverrunPhase)
+        expect(gameState.activePhase.name).not.toBe('Armor Overrun');
+
+        // Assert: Armor cannot battle again (already used its overrun attack)
+        const movesAfterRetreat = gameState.legalMoves();
+        const armorBattles = movesAfterRetreat.filter(m =>
+            m instanceof BattleMove && (m as BattleMove).fromUnit === armor
+        );
+        expect(armorBattles.length).toBe(0);
     });
 });

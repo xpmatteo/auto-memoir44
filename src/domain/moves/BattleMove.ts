@@ -121,7 +121,8 @@ export class BattleMove extends Move {
                     targetHex,
                     flagResult.retreats,
                     isCloseCombat ? this.fromUnit : undefined,
-                    isCloseCombat ? attackerHex : undefined
+                    isCloseCombat ? attackerHex : undefined,
+                    this.popsPhaseAfterExecution  // Pass overrun flag so retreat knows not to trigger another overrun
                 ));
             }
             // If flagResult.retreats.length === 0, all paths blocked and damage already applied
