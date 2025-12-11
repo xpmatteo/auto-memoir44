@@ -2,7 +2,7 @@
 // ABOUTME: Uses custom dice that return 50% FLAG, 50% STAR for testing retreat behavior
 
 import {GameState} from "../domain/GameState";
-import {createStandardGameState, parseAndSetupUnits, Scenario} from "./Scenario";
+import {parseAndSetupUnits, Scenario} from "./Scenario";
 import {CardLocation} from "../domain/CommandCard";
 import {SeededRNG} from "../adapters/RNG";
 import {Dice} from "../domain/Dice";

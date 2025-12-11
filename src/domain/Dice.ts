@@ -21,7 +21,7 @@ export const RESULT_GRENADE = new DiceResult('GRE', 3);
 export const RESULT_STAR = new DiceResult('STAR', 4);
 export const RESULT_FLAG = new DiceResult('FLAG', 5);
 
-const values: DiceResult[] = [
+const DEFAULT_DIE_FACES: DiceResult[] = [
     RESULT_INFANTRY,
     RESULT_INFANTRY,
     RESULT_ARMOR,
@@ -33,13 +33,15 @@ const values: DiceResult[] = [
 export class Die {
     private value: DiceResult | null = null;
     private random: () => number;
+    private faces: DiceResult[];
 
-    constructor(random: () => number = Math.random) {
+    constructor(random: () => number = Math.random, faces: DiceResult[] = DEFAULT_DIE_FACES) {
         this.random = random;
+        this.faces = faces;
     }
 
     roll(): void {
-        this.value = values[Math.floor(this.random() * 6)];
+        this.value = this.faces[Math.floor(this.random() * this.faces.length)];
     }
 
     getValue(): DiceResult {
@@ -52,9 +54,11 @@ export class Die {
 
 export class Dice {
     private random: () => number;
+    private faces: DiceResult[];
 
-    constructor(random: () => number = Math.random) {
+    constructor(random: () => number = Math.random, faces: DiceResult[] = DEFAULT_DIE_FACES) {
         this.random = random;
+        this.faces = faces;
     }
 
     /**
@@ -62,7 +66,7 @@ export class Dice {
      */
     roll(count: number): DiceResult[] {
         const results: DiceResult[] = [];
-        const die = new Die(this.random);
+        const die = new Die(this.random, this.faces);
         for (let i = 0; i < count; i++) {
             die.roll();
             results.push(die.getValue());
@@ -76,7 +80,7 @@ export class Dice {
      * This ensures deterministic behavior across original and clone
      */
     clone(): Dice {
-        return new Dice(this.random);
+        return new Dice(this.random, this.faces);
     }
 }
 

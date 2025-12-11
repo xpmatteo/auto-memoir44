@@ -2,9 +2,61 @@
 // ABOUTME: Tests dice rolling and cloning
 
 import {describe, expect, it} from "vitest";
-import {Dice} from "../../src/domain/Dice";
+import {Dice, RESULT_INFANTRY, RESULT_ARMOR, RESULT_GRENADE, RESULT_STAR, RESULT_FLAG} from "../../src/domain/Dice";
 
 describe("Dice", () => {
+    describe("customizable dice faces", () => {
+        it("should use default faces when none provided", () => {
+            const rng = () => 0.0; // Always return first face
+            const dice = new Dice(rng);
+
+            const results = dice.roll(1);
+
+            expect(results[0]).toBe(RESULT_INFANTRY); // First face in default is INF
+        });
+
+        it("should use custom faces when provided", () => {
+            const customFaces = [RESULT_STAR, RESULT_STAR, RESULT_STAR, RESULT_STAR, RESULT_STAR, RESULT_STAR];
+            const rng = () => 0.5; // Any value should return STAR
+            const dice = new Dice(rng, customFaces);
+
+            const results = dice.roll(3);
+
+            expect(results).toHaveLength(3);
+            expect(results[0]).toBe(RESULT_STAR);
+            expect(results[1]).toBe(RESULT_STAR);
+            expect(results[2]).toBe(RESULT_STAR);
+        });
+
+        it("should correctly select from custom distribution", () => {
+            const customFaces = [RESULT_GRENADE, RESULT_ARMOR];
+            const rngValues = [0.0, 0.49, 0.5, 0.99]; // First two select index 0, last two select index 1
+            let rngIndex = 0;
+            const rng = () => rngValues[rngIndex++];
+            const dice = new Dice(rng, customFaces);
+
+            const roll1 = dice.roll(1);
+            const roll2 = dice.roll(1);
+            const roll3 = dice.roll(1);
+            const roll4 = dice.roll(1);
+
+            expect(roll1[0]).toBe(RESULT_GRENADE);
+            expect(roll2[0]).toBe(RESULT_GRENADE);
+            expect(roll3[0]).toBe(RESULT_ARMOR);
+            expect(roll4[0]).toBe(RESULT_ARMOR);
+        });
+
+        it("should handle custom faces with different lengths", () => {
+            const customFaces = [RESULT_FLAG, RESULT_FLAG, RESULT_FLAG, RESULT_INFANTRY]; // 4 faces
+            const rng = () => 0.75; // Should select index 3 (INFANTRY)
+            const dice = new Dice(rng, customFaces);
+
+            const results = dice.roll(1);
+
+            expect(results[0]).toBe(RESULT_INFANTRY);
+        });
+    });
+
     describe("clone", () => {
         it("should share the same RNG function reference", () => {
             let callCount = 0;
@@ -58,6 +110,19 @@ describe("Dice", () => {
 
             expect(roll1.length).toBe(2);
             expect(roll2.length).toBe(2);
+        });
+
+        it("should preserve custom faces when cloning", () => {
+            const customFaces = [RESULT_STAR, RESULT_STAR, RESULT_STAR, RESULT_STAR, RESULT_STAR, RESULT_STAR];
+            const rng = () => 0.5;
+            const dice = new Dice(rng, customFaces);
+
+            const cloned = dice.clone();
+            const results = cloned.roll(2);
+
+            expect(results).toHaveLength(2);
+            expect(results[0]).toBe(RESULT_STAR);
+            expect(results[1]).toBe(RESULT_STAR);
         });
     });
 });
