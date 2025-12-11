@@ -3,24 +3,72 @@
 
 import {Move} from "./Move";
 import {GameState} from "../GameState";
-import {Unit} from "../Unit";
-import {HexCoord} from "../../utils/hex";
+import {Unit, UnitType} from "../Unit";
+import {HexCoord, hexDistance} from "../../utils/hex";
 
 export class TakeGroundMove extends Move {
     readonly unit: Unit;
     readonly fromHex: HexCoord;
     readonly toHex: HexCoord;
+    readonly allowsOverrun: boolean;
 
-    constructor(unit: Unit, fromHex: HexCoord, toHex: HexCoord) {
+    constructor(unit: Unit, fromHex: HexCoord, toHex: HexCoord, allowsOverrun: boolean = true) {
         super();
         this.unit = unit;
         this.fromHex = fromHex;
         this.toHex = toHex;
+        this.allowsOverrun = allowsOverrun;
     }
 
     execute(gameState: GameState): void {
+        // Move the unit first
         gameState.moveUnit(this.fromHex, this.toHex);
+
+        // Pop the TakeGroundPhase
         gameState.popPhase();
+
+        // If this was from an overrun (allowsOverrun=false), we need to also pop the ArmorOverrunPhase
+        // to get back to the original BattlePhase
+        if (!this.allowsOverrun && gameState.activePhase.name === "Armor Overrun") {
+            gameState.popPhase();
+        }
+
+        // Check if armor overrun conditions are met
+        if (this.shouldTriggerArmorOverrun(gameState)) {
+            gameState.pushArmorOverrunPhase(this.unit, this.toHex);
+        }
+    }
+
+    private shouldTriggerArmorOverrun(gameState: GameState): boolean {
+        // Condition 1: This take ground allows overrun
+        if (!this.allowsOverrun) {
+            return false;
+        }
+
+        // Condition 2: Unit is armor
+        if (this.unit.type !== UnitType.ARMOR) {
+            return false;
+        }
+
+        // Condition 3: Destination terrain allows battle
+        const destinationTerrain = gameState.getTerrain(this.toHex);
+        if (destinationTerrain.unitMovingInCannotBattle) {
+            return false;
+        }
+
+        // Condition 4: There are valid enemy targets in range (quick check)
+        const allUnits = gameState.getAllUnits();
+        const activeSide = gameState.activePlayer.side;
+
+        const hasEnemyInRange = allUnits.some(({coord, unit}) => {
+            if (unit.side === activeSide) {
+                return false; // Skip friendly units
+            }
+            const distance = hexDistance(this.toHex, coord);
+            return distance >= 1 && distance <= 3; // Armor range
+        });
+
+        return hasEnemyInRange;
     }
 
     toString(): string {

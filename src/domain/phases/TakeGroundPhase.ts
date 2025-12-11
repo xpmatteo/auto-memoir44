@@ -16,16 +16,18 @@ export class TakeGroundPhase implements Phase {
     readonly attackingUnit: Unit;
     readonly fromHex: HexCoord;
     readonly toHex: HexCoord;
+    readonly allowsOverrun: boolean;
 
-    constructor(attackingUnit: Unit, fromHex: HexCoord, toHex: HexCoord) {
+    constructor(attackingUnit: Unit, fromHex: HexCoord, toHex: HexCoord, allowsOverrun: boolean = true) {
         this.attackingUnit = attackingUnit;
         this.fromHex = fromHex;
         this.toHex = toHex;
+        this.allowsOverrun = allowsOverrun;
     }
 
     legalMoves(_gameState: GameState): Move[] {
         return [
-            new TakeGroundMove(this.attackingUnit, this.fromHex, this.toHex),
+            new TakeGroundMove(this.attackingUnit, this.fromHex, this.toHex, this.allowsOverrun),
             new DeclineTakeGroundMove()
         ];
     }

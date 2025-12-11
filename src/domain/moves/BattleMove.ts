@@ -54,10 +54,14 @@ export class BattleMove extends Move {
 
             // If close combat, offer take ground option
             if (isCloseCombat) {
+                // Detect if we're in an overrun battle (to prevent infinite overrun)
+                const isFromOverrun = gameState.activePhase.name === "Armor Overrun";
+
                 gameState.pushPhase(new TakeGroundPhase(
                     this.fromUnit,
                     attackerHex,
-                    targetHex
+                    targetHex,
+                    !isFromOverrun  // If from overrun, don't allow another overrun
                 ));
             }
             return;
@@ -81,10 +85,14 @@ export class BattleMove extends Move {
 
                 // If close combat, offer take ground option
                 if (isCloseCombat) {
+                    // Detect if we're in an overrun battle (to prevent infinite overrun)
+                    const isFromOverrun = gameState.activePhase.name === "Armor Overrun";
+
                     gameState.pushPhase(new TakeGroundPhase(
                         this.fromUnit,
                         attackerHex,
-                        targetHex
+                        targetHex,
+                        !isFromOverrun  // If from overrun, don't allow another overrun
                     ));
                 }
                 return;
@@ -97,10 +105,14 @@ export class BattleMove extends Move {
 
                 // If close combat, offer take ground option
                 if (isCloseCombat) {
+                    // Detect if we're in an overrun battle (to prevent infinite overrun)
+                    const isFromOverrun = gameState.activePhase.name === "Armor Overrun";
+
                     gameState.pushPhase(new TakeGroundPhase(
                         this.fromUnit,
                         attackerHex,
-                        targetHex // The hex that was just vacated
+                        targetHex, // The hex that was just vacated
+                        !isFromOverrun  // If from overrun, don't allow another overrun
                     ));
                 }
             } else if (flagResult.retreats.length > 1) {

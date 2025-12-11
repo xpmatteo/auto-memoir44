@@ -1,0 +1,184 @@
+// ABOUTME: Acceptance tests for armor overrun mechanic
+// ABOUTME: Tests the full flow of armor units getting additional attacks after taking ground
+
+import {describe, test, expect} from 'vitest';
+import {GameState} from '../../src/domain/GameState';
+import {Deck} from '../../src/domain/Deck';
+import {Armor, Infantry} from '../../src/domain/Unit';
+import {Side} from '../../src/domain/Player';
+import {HexCoord} from '../../src/utils/hex';
+import {BattleMove} from '../../src/domain/moves/BattleMove';
+import {TakeGroundMove} from '../../src/domain/moves/TakeGroundMove';
+import {diceReturningAlways, RESULT_INFANTRY} from '../../src/domain/Dice';
+
+describe('Armor Overrun', () => {
+    test('armor eliminates enemy in close combat, takes ground, then can attack again', () => {
+        // Setup: Armor at (5,5), Enemy1 at (6,5), Enemy2 at (7,5)
+        const deck = Deck.createStandardDeck();
+        const dice = diceReturningAlways([RESULT_INFANTRY, RESULT_INFANTRY, RESULT_INFANTRY]);
+        const gameState = new GameState(deck, dice);
+
+        const armor = new Armor(Side.ALLIES, 3);
+        const enemy1 = new Infantry(Side.AXIS, 3);
+        const enemy2 = new Infantry(Side.AXIS, 3);
+
+        const armorCoord = new HexCoord(5, 5);
+        const enemy1Coord = new HexCoord(6, 5); // Adjacent to armor
+        const enemy2Coord = new HexCoord(7, 5); // Adjacent to enemy1's position
+
+        gameState.placeUnit(armorCoord, armor);
+        gameState.placeUnit(enemy1Coord, enemy1);
+        gameState.placeUnit(enemy2Coord, enemy2);
+
+        // Execute close combat battle against enemy1 (3 dice, 3 hits = elimination)
+        const battleMove = new BattleMove(armor, enemy1, 3);
+        battleMove.execute(gameState);
+
+        // Assert: Enemy1 eliminated, TakeGroundPhase active
+        expect(gameState.getUnitAt(enemy1Coord)).toBeUndefined();
+        expect(gameState.activePhase.name).toBe('Take Ground');
+
+        // Execute TakeGroundMove
+        const legalMoves = gameState.legalMoves();
+        const takeGroundMove = legalMoves.find(m => m instanceof TakeGroundMove);
+        expect(takeGroundMove).toBeDefined();
+
+        gameState.executeMove(takeGroundMove!);
+
+        // Assert: Armor moved to (6,5), ArmorOverrunPhase active
+        expect(gameState.getUnitAt(armorCoord)).toBeUndefined();
+        expect(gameState.getUnitAt(enemy1Coord)).toBe(armor);
+        expect(gameState.activePhase.name).toBe('Armor Overrun');
+
+        // Assert: Legal moves include battle against enemy2
+        const overrunMoves = gameState.legalMoves();
+        const overrunBattle = overrunMoves.find(m =>
+            m instanceof BattleMove && (m as BattleMove).toUnit === enemy2
+        );
+        expect(overrunBattle).toBeDefined();
+    });
+
+    test('armor overrun prioritizes distance 1 targets', () => {
+        // Setup: Armor at (5,5), Enemy1 at (4,5) (will be eliminated),
+        // Enemy2 at (3,5) (distance 1 from (4,5)), Enemy3 at (2,5) (distance 2 from (4,5))
+        const deck = Deck.createStandardDeck();
+        const dice = diceReturningAlways([RESULT_INFANTRY, RESULT_INFANTRY, RESULT_INFANTRY]);
+        const gameState = new GameState(deck, dice);
+
+        const armor = new Armor(Side.ALLIES, 3);
+        const enemy1 = new Infantry(Side.AXIS, 3);  // Will be eliminated
+        const enemy2 = new Infantry(Side.AXIS, 3);  // Distance 1 from (4,5)
+        const enemy3 = new Infantry(Side.AXIS, 3);  // Distance 2 from (4,5)
+
+        const armorCoord = new HexCoord(5, 5);
+        const enemy1Coord = new HexCoord(4, 5);  // Adjacent to armor
+        const enemy2Coord = new HexCoord(3, 5);  // Adjacent to enemy1Coord
+        const enemy3Coord = new HexCoord(2, 5);  // 2 away from enemy1Coord
+
+        gameState.placeUnit(armorCoord, armor);
+        gameState.placeUnit(enemy1Coord, enemy1);
+        gameState.placeUnit(enemy2Coord, enemy2);
+        gameState.placeUnit(enemy3Coord, enemy3);
+
+        // Execute battle and take ground
+        const battleMove = new BattleMove(armor, enemy1, 3);
+        battleMove.execute(gameState);
+
+        const takeGroundMove = gameState.legalMoves().find(m => m instanceof TakeGroundMove);
+        expect(takeGroundMove).toBeDefined();
+        gameState.executeMove(takeGroundMove!);
+
+        // Assert: ArmorOverrunPhase active and only offers distance 1 target
+        expect(gameState.activePhase.name).toBe('Armor Overrun');
+
+        const overrunMoves = gameState.legalMoves();
+        const battleMoves = overrunMoves.filter(m => m instanceof BattleMove) as BattleMove[];
+
+        // Should have exactly 1 battle move (against enemy2 only, not enemy3)
+        expect(battleMoves.length).toBe(1);
+        expect(battleMoves[0].toUnit).toBe(enemy2);
+    });
+
+    test('armor overrun, then second take ground does NOT trigger another overrun', () => {
+        // Setup: Armor at (5,5), Enemy1 at (6,5), Enemy2 at (7,5), Enemy3 at (8,5)
+        const deck = Deck.createStandardDeck();
+        const dice = diceReturningAlways([
+            RESULT_INFANTRY, RESULT_INFANTRY, RESULT_INFANTRY,  // First battle
+            RESULT_INFANTRY, RESULT_INFANTRY, RESULT_INFANTRY   // Second battle
+        ]);
+        const gameState = new GameState(deck, dice);
+
+        const armor = new Armor(Side.ALLIES, 3);
+        const enemy1 = new Infantry(Side.AXIS, 3);
+        const enemy2 = new Infantry(Side.AXIS, 3);
+        const enemy3 = new Infantry(Side.AXIS, 3);  // Third enemy to test no further overrun
+
+        const armorCoord = new HexCoord(5, 5);
+        const enemy1Coord = new HexCoord(6, 5);
+        const enemy2Coord = new HexCoord(7, 5);
+        const enemy3Coord = new HexCoord(8, 5);
+
+        gameState.placeUnit(armorCoord, armor);
+        gameState.placeUnit(enemy1Coord, enemy1);
+        gameState.placeUnit(enemy2Coord, enemy2);
+        gameState.placeUnit(enemy3Coord, enemy3);
+
+        // Execute first battle and take ground
+        const battleMove1 = new BattleMove(armor, enemy1, 3);
+        battleMove1.execute(gameState);
+
+        const takeGroundMove1 = gameState.legalMoves().find(m => m instanceof TakeGroundMove);
+        expect(takeGroundMove1).toBeDefined();
+        gameState.executeMove(takeGroundMove1!);
+
+        // Now in ArmorOverrunPhase - execute overrun battle that eliminates enemy2
+        expect(gameState.activePhase.name).toBe('Armor Overrun');
+
+        const overrunBattle = gameState.legalMoves().find(m =>
+            m instanceof BattleMove && (m as BattleMove).toUnit === enemy2
+        );
+        expect(overrunBattle).toBeDefined();
+        gameState.executeMove(overrunBattle!);
+
+        // Assert: Second TakeGroundPhase offered
+        expect(gameState.activePhase.name).toBe('Take Ground');
+
+        // Execute second TakeGroundMove
+        const takeGroundMove2 = gameState.legalMoves().find(m => m instanceof TakeGroundMove);
+        expect(takeGroundMove2).toBeDefined();
+        gameState.executeMove(takeGroundMove2!);
+
+        // Assert: NO ArmorOverrunPhase pushed (back to previous phase, not overrun)
+        expect(gameState.activePhase.name).not.toBe('Armor Overrun');
+    });
+
+    test('infantry takes ground, no overrun offered', () => {
+        // Setup: Infantry at (5,5), Enemy1 at (6,5), Enemy2 at (7,5)
+        const deck = Deck.createStandardDeck();
+        const dice = diceReturningAlways([RESULT_INFANTRY, RESULT_INFANTRY, RESULT_INFANTRY]);
+        const gameState = new GameState(deck, dice);
+
+        const infantry = new Infantry(Side.ALLIES, 4);
+        const enemy1 = new Infantry(Side.AXIS, 3);
+        const enemy2 = new Infantry(Side.AXIS, 3);
+
+        const infantryCoord = new HexCoord(5, 5);
+        const enemy1Coord = new HexCoord(6, 5);
+        const enemy2Coord = new HexCoord(7, 5);
+
+        gameState.placeUnit(infantryCoord, infantry);
+        gameState.placeUnit(enemy1Coord, enemy1);
+        gameState.placeUnit(enemy2Coord, enemy2);
+
+        // Execute battle and take ground
+        const battleMove = new BattleMove(infantry, enemy1, 3);
+        battleMove.execute(gameState);
+
+        const takeGroundMove = gameState.legalMoves().find(m => m instanceof TakeGroundMove);
+        expect(takeGroundMove).toBeDefined();
+        gameState.executeMove(takeGroundMove!);
+
+        // Assert: No ArmorOverrunPhase (infantry doesn't overrun)
+        expect(gameState.activePhase.name).not.toBe('Armor Overrun');
+    });
+});

@@ -214,10 +214,15 @@ export class RetreatMove extends Move {
         // If this was a close combat retreat AND the hex was actually vacated, push TakeGroundPhase
         const hexWasVacated = this.from.q !== this.to.q || this.from.r !== this.to.r;
         if (this.attackingUnit && this.attackingUnitCoord && hexWasVacated) {
+            // Detect if we're in an overrun battle (to prevent infinite overrun)
+            // After executeRetreat pops the RetreatPhase, we're back to the phase that was active when battle happened
+            const isFromOverrun = gameState.activePhase.name === "Armor Overrun";
+
             gameState.pushTakeGroundPhase(
                 this.attackingUnit,
                 this.attackingUnitCoord,
-                this.from // The hex that was just vacated
+                this.from, // The hex that was just vacated
+                !isFromOverrun  // If from overrun, don't allow another overrun
             );
         }
     }

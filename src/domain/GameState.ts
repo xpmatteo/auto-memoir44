@@ -10,6 +10,7 @@ import {CardLocation, CommandCard} from "./CommandCard";
 import {Section} from "./Section";
 import {Phase} from "./phases/Phase";
 import {TakeGroundPhase} from "./phases/TakeGroundPhase";
+import {ArmorOverrunPhase} from "./phases/ArmorOverrunPhase";
 import {Dice, DiceResult} from "./Dice";
 import {Terrain} from "./terrain/Terrain";
 import {TerrainMap} from "./TerrainMap";
@@ -350,8 +351,12 @@ export class GameState {
         this.turnCoordinator.pushPhase(phase);
     }
 
-    pushTakeGroundPhase(attackingUnit: Unit, attackingUnitCoord: HexCoord, vacatedHex: HexCoord) {
-        this.turnCoordinator.pushPhase(new TakeGroundPhase(attackingUnit, attackingUnitCoord, vacatedHex));
+    pushTakeGroundPhase(attackingUnit: Unit, attackingUnitCoord: HexCoord, vacatedHex: HexCoord, allowsOverrun: boolean = true) {
+        this.turnCoordinator.pushPhase(new TakeGroundPhase(attackingUnit, attackingUnitCoord, vacatedHex, allowsOverrun));
+    }
+
+    pushArmorOverrunPhase(armorUnit: Unit, armorPosition: HexCoord) {
+        this.turnCoordinator.pushPhase(new ArmorOverrunPhase(armorUnit, armorPosition));
     }
 
     replacePhase(phase: Phase) {

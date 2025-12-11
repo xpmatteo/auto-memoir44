@@ -6,6 +6,7 @@ import {ST02Scenario} from "./ST02";
 import {TestMedalTablesScenario} from "./TestMedalTables";
 import {TestAIAggression} from "./TestAIAggression";
 import {TestRetreat} from "./TestRetreat";
+import {TestArmorOverrun} from "./TestArmorOverrun";
 
 type ScenarioFactory = () => Scenario;
 
@@ -14,6 +15,7 @@ const scenarios: Record<string, ScenarioFactory> = {
     TestMedalTables: () => new TestMedalTablesScenario(),
     TestAIAggression: () => new TestAIAggression(),
     TestRetreat: () => new TestRetreat(),
+    TestArmorOverrun: () => new TestArmorOverrun(),
 };
 
 export function loadScenario(scenarioCode: string): Scenario {
