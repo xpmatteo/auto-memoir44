@@ -15,7 +15,7 @@ import {
     ProbeRight,
     ReconCenter,
     ReconLeft,
-    ReconRight, PincerMove, ReconInForce, GeneralAdvance, DirectFromHQ, MoveOut, Firefight,
+    ReconRight, PincerMove, ReconInForce, GeneralAdvance, DirectFromHQ, MoveOut, Firefight, CloseAssault,
 } from "./CommandCard";
 
 export class Deck {
@@ -198,6 +198,7 @@ export class Deck {
             [DirectFromHQ, 2],
             [MoveOut, 2],
             [Firefight, 1],
+            [CloseAssault, 100],
         ], rng);
     }
 

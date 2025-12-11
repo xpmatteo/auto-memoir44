@@ -196,3 +196,54 @@ describe('abs', () => {
   })
 })
 ```
+
+## Testing Hex Coordinates and Adjacency
+
+When writing tests that involve hex coordinates and adjacency:
+
+### Use Direction Methods for Adjacent Hexes
+
+Instead of manually calculating adjacent hex coordinates, use the direction methods provided by `HexCoord`:
+
+```typescript
+// ❌ BAD: Manual coordinate calculation (error-prone)
+const enemyPos = new HexCoord(5, 1);
+const adjacentUnit = new HexCoord(6, 2); // Might not actually be adjacent!
+
+// ✅ GOOD: Use direction methods
+const enemyPos = new HexCoord(5, 1);
+const adjacentUnit = enemyPos.southeast(); // Guaranteed to be adjacent
+```
+
+Available direction methods:
+- `east()`, `west()`
+- `northeast()`, `northwest()`
+- `southeast()`, `southwest()`
+- `northernNeighbors()` - returns `[northwest(), northeast()]`
+- `southernNeighbors()` - returns `[southwest(), southeast()]`
+
+### Add Guard Assertions to Validate Test Setup
+
+When your test assumes certain hex relationships (adjacency, distance, etc.), add guard assertions in the "Arrange" section to verify those assumptions:
+
+```typescript
+it("should allow ordering units adjacent to enemies", () => {
+    // Arrange
+    const enemyPos = new HexCoord(5, 1);
+    gameState.placeUnit(enemyPos, enemyUnit);
+
+    const friendlyPos = enemyPos.east();
+    gameState.placeUnit(friendlyPos, friendlyUnit);
+
+    // Guard assertion: verify our setup is correct
+    expect(hexDistance(friendlyPos, enemyPos)).toBe(1);
+
+    // Act & Assert
+    // ... rest of test
+});
+```
+
+**Why this matters:**
+- Hex adjacency in offset coordinates is non-intuitive (depends on even/odd rows)
+- Guard assertions catch setup errors early with clear error messages
+- Direction methods + guard assertions = readable, correct tests

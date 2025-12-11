@@ -6,8 +6,8 @@ import {GameState} from "../../src/domain/GameState";
 import {Side} from "../../src/domain/Player";
 import {Deck} from "../../src/domain/Deck";
 import {Armor, Infantry} from "../../src/domain/Unit";
-import {CardLocation, DirectFromHQ, MoveOut, Firefight} from "../../src/domain/CommandCard";
-import {HexCoord} from "../../src/utils/hex";
+import {CardLocation, DirectFromHQ, MoveOut, Firefight, CloseAssault} from "../../src/domain/CommandCard";
+import {HexCoord, hexDistance} from "../../src/utils/hex";
 import {ConfirmOrdersMove, OrderUnitMove, PlayCardMove, UnOrderMove} from "../../src/domain/moves/Move";
 import {toStringAndSort} from "../helpers/testHelpers";
 
@@ -370,6 +370,213 @@ describe("Flexible Ordering Command Cards", () => {
             expect(toStringAndSort(gameState.legalMoves())).toEqual(toStringAndSort([
                 new ConfirmOrdersMove(),
                 new OrderUnitMove(rightInf1),
+            ]));
+        });
+    });
+
+    describe("Close Assault card", () => {
+        const card = new CloseAssault();
+
+        it("should allow ordering only infantry and armor units adjacent to enemies", () => {
+            const deck = new Deck([card]);
+            const gameState = new GameState(deck);
+            gameState.drawCards(1, CardLocation.BOTTOM_PLAYER_HAND);
+
+            // Place enemy unit
+            const enemyInfPos = new HexCoord(5, 1);
+            gameState.placeUnit(enemyInfPos, enemyInf);
+
+            // Place friendly infantry adjacent to enemy (to the south)
+            const centerInf1Pos = enemyInfPos.southeast();
+            gameState.placeUnit(centerInf1Pos, centerInf1);
+
+            // Place friendly armor adjacent to same enemy (to the east)
+            const centerArmorPos = enemyInfPos.east();
+            gameState.placeUnit(centerArmorPos, centerArmor);
+
+            // Place friendly infantry NOT adjacent to enemy
+            const rightInf1Pos = new HexCoord(9, 5);
+            gameState.placeUnit(rightInf1Pos, rightInf1);
+
+            // Guard assertions: verify adjacency is as expected
+            expect(hexDistance(centerInf1Pos, enemyInfPos)).toBe(1); // centerInf1 IS adjacent to enemy
+            expect(hexDistance(centerArmorPos, enemyInfPos)).toBe(1); // centerArmor IS adjacent to enemy
+            expect(hexDistance(rightInf1Pos, enemyInfPos)).toBeGreaterThan(1); // rightInf1 is NOT adjacent
+
+            // Play the card
+            gameState.executeMove(new PlayCardMove(card));
+
+            // Only units adjacent to enemies should be orderable
+            // rightInf1 is NOT adjacent, so it should NOT be orderable
+            expect(toStringAndSort(gameState.legalMoves())).toEqual(toStringAndSort([
+                new ConfirmOrdersMove(),
+                new OrderUnitMove(centerInf1),
+                new OrderUnitMove(centerArmor),
+                // rightInf1 should NOT be orderable (not adjacent to enemy)
+            ]));
+        });
+
+        it("should exclude units not in close combat from ordering", () => {
+            const deck = new Deck([card]);
+            const gameState = new GameState(deck);
+            gameState.drawCards(1, CardLocation.BOTTOM_PLAYER_HAND);
+
+            // Place friendly units far from enemies
+            gameState.placeUnit(new HexCoord(1, 5), leftInf1);
+            gameState.placeUnit(new HexCoord(2, 5), leftInf2);
+
+            // Place friendly unit adjacent to enemy (close combat)
+            gameState.placeUnit(new HexCoord(5, 2), centerInf1);
+
+            // Place enemy unit adjacent to centerInf1
+            gameState.placeUnit(new HexCoord(5, 1), enemyInf);
+
+            gameState.executeMove(new PlayCardMove(card));
+
+            // Only the unit adjacent to enemy should be orderable
+            expect(toStringAndSort(gameState.legalMoves())).toEqual(toStringAndSort([
+                new ConfirmOrdersMove(),
+                new OrderUnitMove(centerInf1),
+                // leftInf1 and leftInf2 should NOT be orderable (not adjacent)
+            ]));
+        });
+
+        it("should enforce a total limit of 4 units", () => {
+            const deck = new Deck([card]);
+            const gameState = new GameState(deck);
+            gameState.drawCards(1, CardLocation.BOTTOM_PLAYER_HAND);
+
+            // Place 5 friendly units, all adjacent to enemies
+            const inf3 = new Infantry(Side.ALLIES);
+            const armor2 = new Armor(Side.ALLIES);
+
+            // Place first enemy
+            const enemy1Pos = new HexCoord(5, 1);
+            gameState.placeUnit(enemy1Pos, enemyInf);
+
+            // Place 3 friendlies adjacent to first enemy
+            const pos1 = enemy1Pos.west();
+            const pos2 = enemy1Pos.southeast();
+            const pos3 = enemy1Pos.east();
+            gameState.placeUnit(pos1, leftInf1);
+            gameState.placeUnit(pos2, leftInf2);
+            gameState.placeUnit(pos3, centerInf1);
+
+            // Place second enemy
+            const enemy2Pos = new HexCoord(7, 1);
+            gameState.placeUnit(enemy2Pos, enemyArmor);
+
+            // Place 2 more friendlies adjacent to second enemy
+            const pos4 = enemy2Pos.southeast();
+            const pos5 = enemy2Pos.east();
+            gameState.placeUnit(pos4, inf3);
+            gameState.placeUnit(pos5, armor2);
+
+            // Guard assertions: verify all friendlies are adjacent to at least one enemy
+            expect(hexDistance(pos1, enemy1Pos)).toBe(1);
+            expect(hexDistance(pos2, enemy1Pos)).toBe(1);
+            expect(hexDistance(pos3, enemy1Pos)).toBe(1);
+            expect(hexDistance(pos4, enemy2Pos)).toBe(1);
+            expect(hexDistance(pos5, enemy2Pos)).toBe(1);
+
+            gameState.executeMove(new PlayCardMove(card));
+
+            // All 5 units should be eligible initially
+            expect(toStringAndSort(gameState.legalMoves())).toEqual(toStringAndSort([
+                new ConfirmOrdersMove(),
+                new OrderUnitMove(leftInf1),
+                new OrderUnitMove(leftInf2),
+                new OrderUnitMove(centerInf1),
+                new OrderUnitMove(inf3),
+                new OrderUnitMove(armor2),
+            ]));
+
+            // Order 4 units
+            gameState.executeMove(new OrderUnitMove(leftInf1));
+            gameState.executeMove(new OrderUnitMove(leftInf2));
+            gameState.executeMove(new OrderUnitMove(centerInf1));
+            gameState.executeMove(new OrderUnitMove(inf3));
+
+            // At limit - can only unorder or confirm
+            expect(toStringAndSort(gameState.legalMoves())).toEqual(toStringAndSort([
+                new ConfirmOrdersMove(),
+                new UnOrderMove(leftInf1),
+                new UnOrderMove(leftInf2),
+                new UnOrderMove(centerInf1),
+                new UnOrderMove(inf3),
+            ]));
+        });
+
+        it("should work with both infantry and armor units", () => {
+            const deck = new Deck([card]);
+            const gameState = new GameState(deck);
+            gameState.drawCards(1, CardLocation.BOTTOM_PLAYER_HAND);
+
+            // Place enemy unit
+            const enemyPos = new HexCoord(5, 1);
+            gameState.placeUnit(enemyPos, enemyInf);
+
+            // Place mixed unit types, all adjacent to enemy
+            const infPos = enemyPos.southeast();
+            const armorPos = enemyPos.east();
+            gameState.placeUnit(infPos, leftInf1);
+            gameState.placeUnit(armorPos, centerArmor);
+
+            // Guard assertions: verify both units are adjacent to enemy
+            expect(hexDistance(infPos, enemyPos)).toBe(1);
+            expect(hexDistance(armorPos, enemyPos)).toBe(1);
+
+            gameState.executeMove(new PlayCardMove(card));
+
+            // Both infantry and armor should be orderable
+            expect(toStringAndSort(gameState.legalMoves())).toEqual(toStringAndSort([
+                new ConfirmOrdersMove(),
+                new OrderUnitMove(leftInf1),
+                new OrderUnitMove(centerArmor),
+            ]));
+        });
+
+        it("should handle edge case when no units are in close combat", () => {
+            const deck = new Deck([card]);
+            const gameState = new GameState(deck);
+            gameState.drawCards(1, CardLocation.BOTTOM_PLAYER_HAND);
+
+            // Place all friendly units far from enemies
+            gameState.placeUnit(new HexCoord(1, 5), leftInf1);
+            gameState.placeUnit(new HexCoord(2, 5), leftInf2);
+
+            // Place enemy far away
+            gameState.placeUnit(new HexCoord(10, 0), enemyInf);
+
+            gameState.executeMove(new PlayCardMove(card));
+
+            // No units should be orderable (only ConfirmOrders available)
+            expect(toStringAndSort(gameState.legalMoves())).toEqual(toStringAndSort([
+                new ConfirmOrdersMove(),
+            ]));
+        });
+
+        it("should check all six hex directions for adjacency", () => {
+            const deck = new Deck([card]);
+            const gameState = new GameState(deck);
+            gameState.drawCards(1, CardLocation.BOTTOM_PLAYER_HAND);
+
+            // Place friendly unit in center
+            gameState.placeUnit(new HexCoord(5, 4), centerInf1);
+
+            // Place enemy in one of the six adjacent hexes (northeast)
+            gameState.placeUnit(new HexCoord(6, 3), enemyInf);
+
+            // Place friendly unit far away
+            gameState.placeUnit(new HexCoord(9, 5), rightInf1);
+
+            gameState.executeMove(new PlayCardMove(card));
+
+            // centerInf1 should be orderable (enemy is adjacent)
+            // rightInf1 should NOT be orderable (no adjacent enemy)
+            expect(toStringAndSort(gameState.legalMoves())).toEqual(toStringAndSort([
+                new ConfirmOrdersMove(),
+                new OrderUnitMove(centerInf1),
             ]));
         });
     });
