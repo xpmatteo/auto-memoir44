@@ -112,7 +112,7 @@ export class ArmorOverrunPhase implements Phase {
                 });
             }
         }
-        
+
         // Apply distance prioritization: if ANY target at distance 1, ONLY offer distance 1
         const hasDistanceOneTarget = potentialTargets.some(t => t.distance === 1);
 

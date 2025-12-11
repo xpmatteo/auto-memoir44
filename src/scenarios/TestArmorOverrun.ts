@@ -5,7 +5,7 @@ import {GameState} from "../domain/GameState";
 import {parseAndSetupUnits, Scenario} from "./Scenario";
 import {CardLocation} from "../domain/CommandCard";
 import {SeededRNG} from "../adapters/RNG";
-import {Dice, RESULT_FLAG, RESULT_STAR} from "../domain/Dice";
+import {Dice, RESULT_FLAG} from "../domain/Dice";
 import {Deck} from "../domain/Deck";
 
 const unitSetup = [
@@ -23,7 +23,6 @@ const unitSetup = [
 
 export class TestArmorOverrun implements Scenario {
     createGameState(rng: SeededRNG): GameState {
-        // Create standard deck with RNG
         const deck = Deck.createStandardDeck(() => rng.random());
         deck.shuffle();
 
