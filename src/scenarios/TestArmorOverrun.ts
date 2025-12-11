@@ -27,23 +27,11 @@ export class TestArmorOverrun implements Scenario {
         const deck = Deck.createStandardDeck(() => rng.random());
         deck.shuffle();
 
-        // Example: Create dice with custom faces (all FLAGS)
         const allFlagsDice = new Dice(() => rng.random(), [
             RESULT_FLAG, RESULT_FLAG, RESULT_FLAG,
             RESULT_FLAG, RESULT_FLAG, RESULT_FLAG
         ]);
-
-        // Test the custom dice (optional - for debugging)
-        if (false) {  // Set to true to enable debugging output
-            const results = allFlagsDice.roll(6);
-            console.log(`Rolled ${6} dice:`, results.map(r => r.name).join(', '));
-        }
-
-        // Use 50/50 flag/star faces for the actual game
-        const dice = new Dice(() => rng.random(), [RESULT_FLAG, RESULT_STAR]);
-
-        // Create GameState with custom dice
-        const gameState = new GameState(deck, dice);
+        const gameState = new GameState(deck, allFlagsDice);
 
         // Draw 5 cards for bottom player, 4 cards for top player
         gameState.drawCards(5, CardLocation.BOTTOM_PLAYER_HAND);
