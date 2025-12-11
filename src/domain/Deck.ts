@@ -15,7 +15,7 @@ import {
     ProbeRight,
     ReconCenter,
     ReconLeft,
-    ReconRight, PincerMove, ReconInForce, GeneralAdvance, DirectFromHQ, MoveOut,
+    ReconRight, PincerMove, ReconInForce, GeneralAdvance, DirectFromHQ, MoveOut, Firefight,
 } from "./CommandCard";
 
 export class Deck {
@@ -169,11 +169,8 @@ export class Deck {
         Counter-Attack (2)
         Dig-In (1)
 
-
-        Firefight (1)
         Infantry Assault (2)
         Medics & Mechanics (1)
-
 
         Total: 60 cards
          */
@@ -200,6 +197,7 @@ export class Deck {
 
             [DirectFromHQ, 2],
             [MoveOut, 2],
+            [Firefight, 100],
         ], rng);
     }
 
