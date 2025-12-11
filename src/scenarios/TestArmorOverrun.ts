@@ -5,7 +5,7 @@ import {GameState} from "../domain/GameState";
 import {parseAndSetupUnits, Scenario} from "./Scenario";
 import {CardLocation} from "../domain/CommandCard";
 import {SeededRNG} from "../adapters/RNG";
-import {Dice} from "../domain/Dice";
+import {Dice, RESULT_FLAG, RESULT_STAR} from "../domain/Dice";
 import {Deck} from "../domain/Deck";
 
 const unitSetup = [
@@ -27,15 +27,20 @@ export class TestArmorOverrun implements Scenario {
         const deck = Deck.createStandardDeck(() => rng.random());
         deck.shuffle();
 
-        // Create custom dice that return FLAG or STAR with 50% probability
-        // The Die class maps random() * 6 to indices 0-5 in the values array
-        // Index 4 = STAR, Index 5 = FLAG
-        // To get index 4: return 4/6 (0.667)
-        // To get index 5: return 5/6 (0.833)
-        const customDiceRng = () => {
-            return rng.random() < 0.5 ? 4/6 : 5/6;
-        };
-        const dice = new Dice(customDiceRng);
+        // Example: Create dice with custom faces (all FLAGS)
+        const allFlagsDice = new Dice(() => rng.random(), [
+            RESULT_FLAG, RESULT_FLAG, RESULT_FLAG,
+            RESULT_FLAG, RESULT_FLAG, RESULT_FLAG
+        ]);
+
+        // Test the custom dice (optional - for debugging)
+        if (false) {  // Set to true to enable debugging output
+            const results = allFlagsDice.roll(6);
+            console.log(`Rolled ${6} dice:`, results.map(r => r.name).join(', '));
+        }
+
+        // Use 50/50 flag/star faces for the actual game
+        const dice = new Dice(() => rng.random(), [RESULT_FLAG, RESULT_STAR]);
 
         // Create GameState with custom dice
         const gameState = new GameState(deck, dice);

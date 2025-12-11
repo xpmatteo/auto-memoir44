@@ -55,6 +55,40 @@ describe("Dice", () => {
 
             expect(results[0]).toBe(RESULT_INFANTRY);
         });
+
+        it("should never return undefined results with custom faces", () => {
+            const customFaces = [RESULT_FLAG, RESULT_STAR, RESULT_GRENADE];
+            const dice = new Dice(Math.random, customFaces);
+
+            // Roll many times to test various RNG values
+            for (let i = 0; i < 100; i++) {
+                const results = dice.roll(6);
+
+                expect(results).toHaveLength(6);
+
+                // Verify no result is undefined
+                results.forEach((result) => {
+                    expect(result).toBeDefined();
+                    expect(result.name).toBeDefined();
+                    expect(typeof result.name).toBe('string');
+                    // Verify result is one of the custom faces
+                    expect(customFaces).toContain(result);
+                });
+            }
+        });
+
+        it("should work with all FLAGS distribution", () => {
+            const allFlagFaces = [RESULT_FLAG, RESULT_FLAG, RESULT_FLAG, RESULT_FLAG, RESULT_FLAG, RESULT_FLAG];
+            const dice = new Dice(Math.random, allFlagFaces);
+
+            const results = dice.roll(10);
+
+            expect(results).toHaveLength(10);
+            results.forEach(result => {
+                expect(result).toBe(RESULT_FLAG);
+                expect(result.name).toBe('FLAG');
+            });
+        });
     });
 
     describe("clone", () => {
