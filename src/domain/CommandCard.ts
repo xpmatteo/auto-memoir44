@@ -32,8 +32,8 @@ export abstract class CommandCard {
     readonly id: string;
     abstract readonly name: string;
     abstract readonly imagePath: string;
-    abstract readonly sections: Section[];
     abstract readonly howManyUnits: number;
+    readonly sections: Section[] = [];
 
     constructor() {
         let idString = nextCardId < 10 ? `0${nextCardId}` : nextCardId;
@@ -196,7 +196,6 @@ export class GeneralAdvance extends CommandCard {
 export class DirectFromHQ extends CommandCard {
     readonly name = "Direct from HQ";
     readonly imagePath = "images/cards/a2_direct_from_hq.png";
-    readonly sections = []; // Not used for predicate-based ordering
     readonly howManyUnits = 4;
 
     onCardPlayed(gameState: GameState): void {
@@ -204,14 +203,13 @@ export class DirectFromHQ extends CommandCard {
         gameState.replacePhase(new ReplenishHandPhase());
         gameState.pushPhase(new BattlePhase());
         gameState.pushPhase(new MovePhase());
-        gameState.pushPhase(new OrderUnitsByPredicatePhase(4, () => true));
+        gameState.pushPhase(new OrderUnitsByPredicatePhase(this.howManyUnits, () => true));
     }
 }
 
 export class MoveOut extends CommandCard {
     readonly name = "Move Out!";
     readonly imagePath = "images/cards/a2_move_out.png";
-    readonly sections = []; // Not used for predicate-based ordering
     readonly howManyUnits = 4;
 
     onCardPlayed(gameState: GameState): void {
@@ -220,7 +218,7 @@ export class MoveOut extends CommandCard {
         gameState.pushPhase(new BattlePhase());
         gameState.pushPhase(new MovePhase());
         gameState.pushPhase(
-            new OrderUnitsByPredicatePhase(4, (unit) => unit.type === UnitType.INFANTRY)
+            new OrderUnitsByPredicatePhase(this.howManyUnits, (unit) => unit.type === UnitType.INFANTRY)
         );
     }
 }
@@ -228,7 +226,6 @@ export class MoveOut extends CommandCard {
 export class Firefight extends CommandCard {
     readonly name = "Firefight";
     readonly imagePath = "images/cards/a1_firefight.png";
-    readonly sections = []; // Not used for predicate-based ordering
     readonly howManyUnits = 4;
 
     onCardPlayed(gameState: GameState): void {
@@ -269,6 +266,6 @@ export class Firefight extends CommandCard {
             return true; // No adjacent enemies, unit is eligible
         };
 
-        gameState.pushPhase(new OrderUnitsByPredicatePhase(4, predicate));
+        gameState.pushPhase(new OrderUnitsByPredicatePhase(this.howManyUnits, predicate));
     }
 }
