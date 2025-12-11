@@ -25,6 +25,11 @@ export interface UnitBattler {
 export class BattlePhase implements Phase {
     name = "Battle";
     type = PhaseType.BATTLE;
+    readonly diceBonus: number;
+
+    constructor(diceBonus: number = 0) {
+        this.diceBonus = diceBonus;
+    }
 
     legalMoves(gameState: GameState): Array<Move> {
         return this.doLegalMoves(gameState);
@@ -100,7 +105,7 @@ export class BattlePhase implements Phase {
                     const defenderFortification = unitBattler.getFortification(toCoord);
                     const dice = calculateDiceCount(fromUnit, fromUnitTerrain, distance, defenderTerrain, defenderFortification);
                     if (dice > 0) {
-                        moves.push(new BattleMove(fromUnit, toUnit, dice));
+                        moves.push(new BattleMove(fromUnit, toUnit, dice, false, this.diceBonus));
                     }
                 }
             }

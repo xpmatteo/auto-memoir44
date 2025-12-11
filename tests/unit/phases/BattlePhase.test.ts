@@ -433,3 +433,79 @@ describe("BattlePhase", () => {
         expect(moves).toEqual(expected);
     });
 });
+
+describe("BattlePhase with diceBonus", () => {
+    // Define shared units
+    const friendlyUnit = new Infantry(Side.ALLIES);
+    const enemyUnit = new Infantry(Side.AXIS);
+
+    interface DiceBonusTestCase {
+        name: string
+        diceBonus: number
+        unitBattler: FakeUnitBattler
+        expected: Array<Move>
+    }
+
+    const cases: DiceBonusTestCase[] = [
+        {
+            name: "diceBonus=0 → BattleMove with 3 base dice",
+            diceBonus: 0,
+            unitBattler: new FakeUnitBattler()
+                .setAllUnits([
+                    {coord: new HexCoord(5, 5), unit: friendlyUnit, isOrdered: true},
+                    {coord: new HexCoord(6, 5), unit: enemyUnit} // 1 hex away
+                ]),
+            expected: [
+                new EndBattlesMove(),
+                new BattleMove(friendlyUnit, enemyUnit, 3, false, 0),
+            ],
+        },
+        {
+            name: "diceBonus=1 → BattleMove with base dice + 1 bonus",
+            diceBonus: 1,
+            unitBattler: new FakeUnitBattler()
+                .setAllUnits([
+                    {coord: new HexCoord(5, 5), unit: friendlyUnit, isOrdered: true},
+                    {coord: new HexCoord(6, 5), unit: enemyUnit} // 1 hex away, 3 base dice
+                ]),
+            expected: [
+                new EndBattlesMove(),
+                new BattleMove(friendlyUnit, enemyUnit, 3, false, 1),
+            ],
+        },
+        {
+            name: "diceBonus=2 → BattleMove with base dice + 2 bonus",
+            diceBonus: 2,
+            unitBattler: new FakeUnitBattler()
+                .setAllUnits([
+                    {coord: new HexCoord(5, 5), unit: friendlyUnit, isOrdered: true},
+                    {coord: new HexCoord(6, 5), unit: enemyUnit} // 1 hex away, 3 base dice
+                ]),
+            expected: [
+                new EndBattlesMove(),
+                new BattleMove(friendlyUnit, enemyUnit, 3, false, 2),
+            ],
+        },
+        {
+            name: "diceBonus=1 applied to all BattleMoves for multiple targets",
+            diceBonus: 1,
+            unitBattler: new FakeUnitBattler()
+                .setAllUnits([
+                    {coord: new HexCoord(5, 5), unit: friendlyUnit, isOrdered: true},
+                    {coord: new HexCoord(7, 5), unit: new Infantry(Side.AXIS)}, // 2 hexes away, 2 base dice
+                    {coord: new HexCoord(5, 8), unit: new Infantry(Side.AXIS)}  // 3 hexes away south, 1 base dice
+                ]),
+            expected: [
+                new EndBattlesMove(),
+                new BattleMove(friendlyUnit, expect.any(Infantry), 2, false, 1),
+                new BattleMove(friendlyUnit, expect.any(Infantry), 1, false, 1),
+            ],
+        },
+    ];
+
+    test.each(cases)('$name', ({diceBonus, unitBattler, expected}) => {
+        const phase = new BattlePhase(diceBonus);
+        const moves = phase.doLegalMoves(unitBattler);
+        expect(moves).toEqual(expected);
+    });
+});

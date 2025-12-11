@@ -231,7 +231,7 @@ export class Firefight extends CommandCard {
     onCardPlayed(gameState: GameState): void {
         gameState.setCurrentCard(this.id);
         gameState.replacePhase(new ReplenishHandPhase());
-        gameState.pushPhase(new BattlePhase());
+        gameState.pushPhase(new BattlePhase(1));
 
         // Build a map of unit ID to coordinate
         const allUnitsWithPositions = gameState.getAllUnitsWithPositions();
