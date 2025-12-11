@@ -8,8 +8,6 @@ import {toCanvasCoords, pixelToHex, HexCoord} from "../../utils/hex.js";
 import {OrderUnitMove, UnOrderMove, RetreatMove} from "../../domain/moves/Move";
 import {PhaseType} from "../../domain/phases/Phase.js";
 import {MovePhase} from "../../domain/phases/MovePhase.js";
-import {BattlePhase} from "../../domain/phases/BattlePhase.js";
-import {RetreatPhase} from "../../domain/phases/RetreatPhase.js";
 import {TakeGroundPhase} from "../../domain/phases/TakeGroundPhase.js";
 import {uiState, BattleTarget} from "../UIState.js";
 import {MoveUnitMove} from "../../domain/moves/MoveUnitMove";
@@ -43,9 +41,9 @@ export class CanvasClickHandler {
             this.handleTakeGroundClick(hexCoord);
         } else if (currentPhase instanceof MovePhase) {
             this.handleMovementClick(hexCoord);
-        } else if (currentPhase instanceof BattlePhase) {
+        } else if (currentPhase.type === PhaseType.BATTLE) {
             this.handleBattleClick(hexCoord);
-        } else if (currentPhase instanceof RetreatPhase) {
+        } else if (currentPhase.type === PhaseType.RETREAT) {
             this.handleRetreatClick(hexCoord);
         }
     }
