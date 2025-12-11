@@ -13,6 +13,7 @@ import {RetreatMove} from "../../../src/domain/moves/Move";
 import {RetreatPhase} from "../../../src/domain/phases/RetreatPhase";
 import {TakeGroundPhase} from "../../../src/domain/phases/TakeGroundPhase";
 import {sandbagAllies} from "../../../src/domain/fortifications/Fortification";
+import {Phase, PhaseType} from "../../../src/domain/phases/Phase";
 
 // Test helper: sets up a battle scenario with specified dice results
 // Uses middle of board (row 4) so AXIS units can retreat north
@@ -391,6 +392,66 @@ describe("BattleMove integration", () => {
 
         // The phase should have popped back to BattlePhase (or whatever was underneath)
         expect(gameState.activePhase).not.toBeInstanceOf(RetreatPhase);
+    });
+
+    it("should pop phase after execution when popsPhaseAfterExecution flag is true", () => {
+        // Setup: Basic battle scenario
+        const { gameState, attacker, target } = setupBattle(
+            [RESULT_INFANTRY, RESULT_INFANTRY],
+            4,
+            4
+        );
+
+        // Push a dummy phase to track popping
+        const dummyPhase = new class implements Phase {
+            readonly name = "Dummy Phase";
+            readonly type = PhaseType.BATTLE;
+            legalMoves() { return []; }
+        }();
+        gameState.pushPhase(dummyPhase);
+
+        // Verify we're in the dummy phase
+        expect(gameState.activePhase.name).toBe("Dummy Phase");
+
+        // Create BattleMove with popsPhaseAfterExecution = true
+        const move = new BattleMove(attacker, target, 2, true);
+        move.execute(gameState);
+
+        // Assert: Phase was popped after execution
+        expect(gameState.activePhase.name).not.toBe("Dummy Phase");
+
+        // Assert: Battle still executed normally (damage applied)
+        expect(gameState.getUnitCurrentStrength(target)).toBe(2);
+
+        // Assert: attack counted
+        expect(gameState.getUnitBattlesThisTurn(attacker)).toBe(1);
+    });
+
+    it("should NOT pop phase when popsPhaseAfterExecution flag is false or omitted", () => {
+        // Setup: Basic battle scenario
+        const { gameState, attacker, target } = setupBattle(
+            [RESULT_INFANTRY, RESULT_INFANTRY],
+            4,
+            4
+        );
+
+        // Push a dummy phase
+        const dummyPhase = new class implements Phase {
+            readonly name = "Dummy Phase";
+            readonly type = PhaseType.BATTLE;
+            legalMoves() { return []; }
+        }();
+        gameState.pushPhase(dummyPhase);
+
+        // Create BattleMove without the flag (defaults to false)
+        const move = new BattleMove(attacker, target, 2);
+        move.execute(gameState);
+
+        // Assert: Phase was NOT popped
+        expect(gameState.activePhase.name).toBe("Dummy Phase");
+
+        // Assert: Battle still executed normally
+        expect(gameState.getUnitCurrentStrength(target)).toBe(2);
     });
 });
 

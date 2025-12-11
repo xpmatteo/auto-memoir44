@@ -137,10 +137,11 @@ export class ArmorOverrunPhase implements Phase {
             : potentialTargets;
         console.log(`[ArmorOverrunPhase] Final targets after distance prioritization: ${finalTargets.length}`);
 
-        // Generate BattleMoves
+        // Generate BattleMoves with popsPhaseAfterExecution = true
+        // (armor overrun allows only ONE attack, then phase ends)
         for (const {unit: toUnit, dice} of finalTargets) {
             console.log(`[ArmorOverrunPhase] Adding BattleMove against ${toUnit.type} with ${dice} dice`);
-            moves.push(new BattleMove(this.armorUnit, toUnit, dice));
+            moves.push(new BattleMove(this.armorUnit, toUnit, dice, true));
         }
 
         console.log(`[ArmorOverrunPhase] Total moves (including EndBattlesMove): ${moves.length}`);

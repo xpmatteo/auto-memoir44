@@ -15,15 +15,22 @@ export class BattleMove extends Move {
     readonly fromUnit: Unit;
     readonly toUnit: Unit;
     readonly dice: number;
+    readonly popsPhaseAfterExecution: boolean;
 
-    constructor(fromUnit: Unit, toUnit: Unit, dice: number) {
+    constructor(fromUnit: Unit, toUnit: Unit, dice: number, popsPhaseAfterExecution: boolean = false) {
         super();
         this.fromUnit = fromUnit;
         this.toUnit = toUnit;
         this.dice = dice;
+        this.popsPhaseAfterExecution = popsPhaseAfterExecution;
     }
 
     execute(gameState: GameState): void {
+        // Pop phase if requested (used for armor overrun - only one attack allowed)
+        if (this.popsPhaseAfterExecution) {
+            gameState.popPhase();
+        }
+
         // Roll dice
         const diceResults = gameState.rollDice(this.dice);
 
@@ -54,14 +61,11 @@ export class BattleMove extends Move {
 
             // If close combat, offer take ground option
             if (isCloseCombat) {
-                // Detect if we're in an overrun battle (to prevent infinite overrun)
-                const isFromOverrun = gameState.activePhase.name === "Armor Overrun";
-
                 gameState.pushPhase(new TakeGroundPhase(
                     this.fromUnit,
                     attackerHex,
                     targetHex,
-                    !isFromOverrun  // If from overrun, don't allow another overrun
+                    !this.popsPhaseAfterExecution  // If from overrun, don't allow another overrun
                 ));
             }
             return;
@@ -85,14 +89,11 @@ export class BattleMove extends Move {
 
                 // If close combat, offer take ground option
                 if (isCloseCombat) {
-                    // Detect if we're in an overrun battle (to prevent infinite overrun)
-                    const isFromOverrun = gameState.activePhase.name === "Armor Overrun";
-
                     gameState.pushPhase(new TakeGroundPhase(
                         this.fromUnit,
                         attackerHex,
                         targetHex,
-                        !isFromOverrun  // If from overrun, don't allow another overrun
+                        !this.popsPhaseAfterExecution  // If from overrun, don't allow another overrun
                     ));
                 }
                 return;
@@ -105,14 +106,11 @@ export class BattleMove extends Move {
 
                 // If close combat, offer take ground option
                 if (isCloseCombat) {
-                    // Detect if we're in an overrun battle (to prevent infinite overrun)
-                    const isFromOverrun = gameState.activePhase.name === "Armor Overrun";
-
                     gameState.pushPhase(new TakeGroundPhase(
                         this.fromUnit,
                         attackerHex,
                         targetHex, // The hex that was just vacated
-                        !isFromOverrun  // If from overrun, don't allow another overrun
+                        !this.popsPhaseAfterExecution  // If from overrun, don't allow another overrun
                     ));
                 }
             } else if (flagResult.retreats.length > 1) {

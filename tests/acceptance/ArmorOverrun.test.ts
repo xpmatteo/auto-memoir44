@@ -181,4 +181,60 @@ describe('Armor Overrun', () => {
         // Assert: No ArmorOverrunPhase (infantry doesn't overrun)
         expect(gameState.activePhase.name).not.toBe('Armor Overrun');
     });
+
+    test('armor overrun allows only ONE battle, then phase ends', () => {
+        // Setup: Armor at (5,5), Enemy1 at (6,5), Enemy2 at (7,5), Enemy3 at (8,5)
+        // Enemy2 and Enemy3 both have 4 strength, so one hit won't eliminate them
+        const deck = Deck.createStandardDeck();
+        const dice = diceReturningAlways([
+            RESULT_INFANTRY, RESULT_INFANTRY, RESULT_INFANTRY,  // First battle eliminates enemy1
+            RESULT_INFANTRY,  // Overrun battle damages but doesn't eliminate enemy2
+        ]);
+        const gameState = new GameState(deck, dice);
+
+        const armor = new Armor(Side.ALLIES, 3);
+        const enemy1 = new Infantry(Side.AXIS, 3);
+        const enemy2 = new Infantry(Side.AXIS, 4);  // 4 strength - won't be eliminated by 1 hit
+        const enemy3 = new Infantry(Side.AXIS, 4);
+
+        const armorCoord = new HexCoord(5, 5);
+        const enemy1Coord = new HexCoord(6, 5);
+        const enemy2Coord = new HexCoord(7, 5);
+        const enemy3Coord = new HexCoord(8, 5);
+
+        gameState.placeUnit(armorCoord, armor);
+        gameState.placeUnit(enemy1Coord, enemy1);
+        gameState.placeUnit(enemy2Coord, enemy2);
+        gameState.placeUnit(enemy3Coord, enemy3);
+
+        // Execute first battle and take ground to enter overrun phase
+        const battleMove1 = new BattleMove(armor, enemy1, 3);
+        battleMove1.execute(gameState);
+
+        const takeGroundMove = gameState.legalMoves().find(m => m instanceof TakeGroundMove);
+        expect(takeGroundMove).toBeDefined();
+        gameState.executeMove(takeGroundMove!);
+
+        // Assert: In ArmorOverrunPhase
+        expect(gameState.activePhase.name).toBe('Armor Overrun');
+
+        // Execute ONE overrun battle (damages enemy2 but doesn't eliminate)
+        const overrunBattle = gameState.legalMoves().find(m =>
+            m instanceof BattleMove && (m as BattleMove).toUnit === enemy2
+        ) as BattleMove;
+        expect(overrunBattle).toBeDefined();
+        gameState.executeMove(overrunBattle!);
+
+        // Assert: Phase should have ended - back to regular Battle phase (not Armor Overrun anymore)
+        expect(gameState.activePhase.name).not.toBe('Armor Overrun');
+
+        // Assert: No more overrun battles offered (can't attack again during overrun)
+        const movesAfterOverrun = gameState.legalMoves();
+        const moreOverrunBattles = movesAfterOverrun.filter(m =>
+            m instanceof BattleMove && (m as BattleMove).fromUnit === armor
+        );
+
+        // Should not be able to battle with the armor again (already attacked in overrun)
+        expect(moreOverrunBattles.length).toBe(0);
+    });
 });

@@ -27,13 +27,8 @@ export class TakeGroundMove extends Move {
         // Pop the TakeGroundPhase
         gameState.popPhase();
 
-        // If this was from an overrun (allowsOverrun=false), we need to also pop the ArmorOverrunPhase
-        // to get back to the original BattlePhase
-        if (!this.allowsOverrun && gameState.activePhase.name === "Armor Overrun") {
-            gameState.popPhase();
-        }
-
         // Check if armor overrun conditions are met
+        // (ArmorOverrunPhase is already popped by BattleMove if this came from an overrun)
         if (this.shouldTriggerArmorOverrun(gameState)) {
             gameState.pushArmorOverrunPhase(this.unit, this.toHex);
         }
