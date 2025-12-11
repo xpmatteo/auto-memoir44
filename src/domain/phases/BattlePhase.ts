@@ -104,8 +104,9 @@ export class BattlePhase implements Phase {
 
                     const defenderFortification = unitBattler.getFortification(toCoord);
                     const dice = calculateDiceCount(fromUnit, fromUnitTerrain, distance, defenderTerrain, defenderFortification);
-                    if (dice > 0) {
-                        moves.push(new BattleMove(fromUnit, toUnit, dice, false, this.diceBonus));
+                    const totalDice = dice + this.diceBonus;
+                    if (totalDice > 0) {
+                        moves.push(new BattleMove(fromUnit, toUnit, totalDice));
                     }
                 }
             }

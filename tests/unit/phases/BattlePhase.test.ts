@@ -448,7 +448,7 @@ describe("BattlePhase with diceBonus", () => {
 
     const cases: DiceBonusTestCase[] = [
         {
-            name: "diceBonus=0 → BattleMove with 3 base dice",
+            name: "diceBonus=0 → BattleMove with 3 base dice (unchanged)",
             diceBonus: 0,
             unitBattler: new FakeUnitBattler()
                 .setAllUnits([
@@ -457,11 +457,11 @@ describe("BattlePhase with diceBonus", () => {
                 ]),
             expected: [
                 new EndBattlesMove(),
-                new BattleMove(friendlyUnit, enemyUnit, 3, false, 0),
+                new BattleMove(friendlyUnit, enemyUnit, 3),
             ],
         },
         {
-            name: "diceBonus=1 → BattleMove with base dice + 1 bonus",
+            name: "diceBonus=1 → BattleMove with 4 total dice (3 base + 1 bonus)",
             diceBonus: 1,
             unitBattler: new FakeUnitBattler()
                 .setAllUnits([
@@ -470,11 +470,11 @@ describe("BattlePhase with diceBonus", () => {
                 ]),
             expected: [
                 new EndBattlesMove(),
-                new BattleMove(friendlyUnit, enemyUnit, 3, false, 1),
+                new BattleMove(friendlyUnit, enemyUnit, 4), // 3 + 1
             ],
         },
         {
-            name: "diceBonus=2 → BattleMove with base dice + 2 bonus",
+            name: "diceBonus=2 → BattleMove with 5 total dice (3 base + 2 bonus)",
             diceBonus: 2,
             unitBattler: new FakeUnitBattler()
                 .setAllUnits([
@@ -483,7 +483,7 @@ describe("BattlePhase with diceBonus", () => {
                 ]),
             expected: [
                 new EndBattlesMove(),
-                new BattleMove(friendlyUnit, enemyUnit, 3, false, 2),
+                new BattleMove(friendlyUnit, enemyUnit, 5), // 3 + 2
             ],
         },
         {
@@ -497,8 +497,8 @@ describe("BattlePhase with diceBonus", () => {
                 ]),
             expected: [
                 new EndBattlesMove(),
-                new BattleMove(friendlyUnit, expect.any(Infantry), 2, false, 1),
-                new BattleMove(friendlyUnit, expect.any(Infantry), 1, false, 1),
+                new BattleMove(friendlyUnit, expect.any(Infantry), 3), // 2 + 1
+                new BattleMove(friendlyUnit, expect.any(Infantry), 2), // 1 + 1
             ],
         },
     ];

@@ -197,7 +197,7 @@ export class Deck {
 
             [DirectFromHQ, 2],
             [MoveOut, 2],
-            [Firefight, 100],
+            [Firefight, 1],
         ], rng);
     }
 

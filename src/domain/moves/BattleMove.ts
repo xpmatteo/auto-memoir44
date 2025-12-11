@@ -16,15 +16,13 @@ export class BattleMove extends Move {
     readonly toUnit: Unit;
     readonly dice: number;
     readonly popsPhaseAfterExecution: boolean;
-    readonly diceBonus: number;
 
-    constructor(fromUnit: Unit, toUnit: Unit, dice: number, popsPhaseAfterExecution: boolean = false, diceBonus: number = 0) {
+    constructor(fromUnit: Unit, toUnit: Unit, dice: number, popsPhaseAfterExecution: boolean = false) {
         super();
         this.fromUnit = fromUnit;
         this.toUnit = toUnit;
         this.dice = dice;
         this.popsPhaseAfterExecution = popsPhaseAfterExecution;
-        this.diceBonus = diceBonus;
     }
 
     execute(gameState: GameState): void {
@@ -34,7 +32,7 @@ export class BattleMove extends Move {
         }
 
         // Roll dice
-        const diceResults = gameState.rollDice(this.dice + this.diceBonus);
+        const diceResults = gameState.rollDice(this.dice);
 
         // Track that this unit has attacked
         gameState.incrementUnitBattlesThisTurn(this.fromUnit);
