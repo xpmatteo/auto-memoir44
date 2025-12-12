@@ -231,7 +231,7 @@ export class Firefight extends CommandCard {
     onCardPlayed(gameState: GameState): void {
         gameState.setCurrentCard(this.id);
         gameState.replacePhase(new ReplenishHandPhase());
-        gameState.pushPhase(new BattlePhase(1));
+        gameState.pushPhase(new BattlePhase(1, -DICE_PENALTY));
 
         // Build a map of unit ID to coordinate
         const allUnitsWithPositions = gameState.getAllUnitsWithPositions();
@@ -270,8 +270,8 @@ export class Firefight extends CommandCard {
     }
 }
 
-// Penalty that ensures only close combat (distance 1) battles have positive dice
-const RESTRICT_TO_CLOSE_COMBAT = 100;
+// Penalty that we use for cards that restrict combat to close combat only, or ranged combat only
+const DICE_PENALTY = 100;
 
 export class CloseAssault extends CommandCard {
     readonly name = "Close Assault";
@@ -281,7 +281,7 @@ export class CloseAssault extends CommandCard {
     onCardPlayed(gameState: GameState): void {
         gameState.setCurrentCard(this.id);
         gameState.replacePhase(new ReplenishHandPhase());
-        gameState.pushPhase(new BattlePhase(-RESTRICT_TO_CLOSE_COMBAT, RESTRICT_TO_CLOSE_COMBAT + 1));
+        gameState.pushPhase(new BattlePhase(-DICE_PENALTY, DICE_PENALTY + 1));
 
         // Build a map of unit ID to coordinate
         const allUnitsWithPositions = gameState.getAllUnitsWithPositions();
