@@ -509,3 +509,167 @@ describe("BattlePhase with diceBonus", () => {
         expect(moves).toEqual(expected);
     });
 });
+
+describe("BattlePhase with closeCombatDiceBonus", () => {
+    // Define shared units
+    const friendlyUnit = new Infantry(Side.ALLIES);
+    const enemyUnit1 = new Infantry(Side.AXIS);
+    const enemyUnit2 = new Infantry(Side.AXIS);
+
+    interface CloseCombatBonusTestCase {
+        name: string
+        diceBonus: number
+        closeCombatDiceBonus: number
+        unitBattler: FakeUnitBattler
+        expected: Array<Move>
+    }
+
+    const cases: CloseCombatBonusTestCase[] = [
+        {
+            name: "closeCombatDiceBonus=0 (default) → no bonus to close combat",
+            diceBonus: 0,
+            closeCombatDiceBonus: 0,
+            unitBattler: new FakeUnitBattler()
+                .setAllUnits([
+                    {coord: new HexCoord(5, 5), unit: friendlyUnit, isOrdered: true},
+                    {coord: new HexCoord(6, 5), unit: enemyUnit1} // 1 hex away (close combat)
+                ]),
+            expected: [
+                new EndBattlesMove(),
+                new BattleMove(friendlyUnit, enemyUnit1, 3), // 3 base dice, no bonus
+            ],
+        },
+        {
+            name: "closeCombatDiceBonus=1 → +1 dice for close combat (distance 1)",
+            diceBonus: 0,
+            closeCombatDiceBonus: 1,
+            unitBattler: new FakeUnitBattler()
+                .setAllUnits([
+                    {coord: new HexCoord(5, 5), unit: friendlyUnit, isOrdered: true},
+                    {coord: new HexCoord(6, 5), unit: enemyUnit1} // 1 hex away (close combat)
+                ]),
+            expected: [
+                new EndBattlesMove(),
+                new BattleMove(friendlyUnit, enemyUnit1, 4), // 3 base + 1 close combat bonus
+            ],
+        },
+        {
+            name: "closeCombatDiceBonus=2 → +2 dice for close combat (distance 1)",
+            diceBonus: 0,
+            closeCombatDiceBonus: 2,
+            unitBattler: new FakeUnitBattler()
+                .setAllUnits([
+                    {coord: new HexCoord(5, 5), unit: friendlyUnit, isOrdered: true},
+                    {coord: new HexCoord(6, 5), unit: enemyUnit1} // 1 hex away (close combat)
+                ]),
+            expected: [
+                new EndBattlesMove(),
+                new BattleMove(friendlyUnit, enemyUnit1, 5), // 3 base + 2 close combat bonus
+            ],
+        },
+        {
+            name: "closeCombatDiceBonus=1 NOT applied to distance 2",
+            diceBonus: 0,
+            closeCombatDiceBonus: 1,
+            unitBattler: new FakeUnitBattler()
+                .setAllUnits([
+                    {coord: new HexCoord(5, 5), unit: friendlyUnit, isOrdered: true},
+                    {coord: new HexCoord(7, 5), unit: enemyUnit1} // 2 hexes away (NOT close combat)
+                ]),
+            expected: [
+                new EndBattlesMove(),
+                new BattleMove(friendlyUnit, enemyUnit1, 2), // 2 base dice, no close combat bonus
+            ],
+        },
+        {
+            name: "closeCombatDiceBonus=1 NOT applied to distance 3",
+            diceBonus: 0,
+            closeCombatDiceBonus: 1,
+            unitBattler: new FakeUnitBattler()
+                .setAllUnits([
+                    {coord: new HexCoord(5, 5), unit: friendlyUnit, isOrdered: true},
+                    {coord: new HexCoord(5, 8), unit: enemyUnit1} // 3 hexes away south (NOT close combat)
+                ]),
+            expected: [
+                new EndBattlesMove(),
+                new BattleMove(friendlyUnit, enemyUnit1, 1), // 1 base dice, no close combat bonus
+            ],
+        },
+        {
+            name: "closeCombatDiceBonus=1 applied ONLY to distance 1 targets (not distance 2)",
+            diceBonus: 0,
+            closeCombatDiceBonus: 1,
+            unitBattler: new FakeUnitBattler()
+                .setAllUnits([
+                    {coord: new HexCoord(5, 5), unit: friendlyUnit, isOrdered: true},
+                    {coord: new HexCoord(7, 5), unit: enemyUnit1}, // 2 hexes away (NOT close combat)
+                ]),
+            expected: [
+                new EndBattlesMove(),
+                new BattleMove(friendlyUnit, enemyUnit1, 2), // 2 base, no close combat bonus
+            ],
+        },
+        {
+            name: "both diceBonus=1 and closeCombatDiceBonus=1 applied to close combat",
+            diceBonus: 1,
+            closeCombatDiceBonus: 1,
+            unitBattler: new FakeUnitBattler()
+                .setAllUnits([
+                    {coord: new HexCoord(5, 5), unit: friendlyUnit, isOrdered: true},
+                    {coord: new HexCoord(6, 5), unit: enemyUnit1} // 1 hex away (close combat)
+                ]),
+            expected: [
+                new EndBattlesMove(),
+                new BattleMove(friendlyUnit, enemyUnit1, 5), // 3 base + 1 general bonus + 1 close combat bonus
+            ],
+        },
+        {
+            name: "both diceBonus=1 and closeCombatDiceBonus=1, only diceBonus applied at distance 2",
+            diceBonus: 1,
+            closeCombatDiceBonus: 1,
+            unitBattler: new FakeUnitBattler()
+                .setAllUnits([
+                    {coord: new HexCoord(5, 5), unit: friendlyUnit, isOrdered: true},
+                    {coord: new HexCoord(7, 5), unit: enemyUnit1} // 2 hexes away (NOT close combat)
+                ]),
+            expected: [
+                new EndBattlesMove(),
+                new BattleMove(friendlyUnit, enemyUnit1, 3), // 2 base + 1 general bonus (no close combat bonus)
+            ],
+        },
+        {
+            name: "both bonuses: closeCombatDiceBonus applies at distance 1, diceBonus applies at distance 2",
+            diceBonus: 1,
+            closeCombatDiceBonus: 1,
+            unitBattler: new FakeUnitBattler()
+                .setAllUnits([
+                    {coord: new HexCoord(5, 5), unit: friendlyUnit, isOrdered: true},
+                    {coord: new HexCoord(6, 5), unit: enemyUnit1}, // 1 hex away (close combat)
+                ]),
+            expected: [
+                new EndBattlesMove(),
+                new BattleMove(friendlyUnit, enemyUnit1, 5), // 3 base + 1 general + 1 close combat
+            ],
+        },
+        {
+            name: "both bonuses at distance 2: only diceBonus applies (no close combat)",
+            diceBonus: 1,
+            closeCombatDiceBonus: 1,
+            unitBattler: new FakeUnitBattler()
+                .setAllUnits([
+                    {coord: new HexCoord(5, 5), unit: friendlyUnit, isOrdered: true},
+                    {coord: new HexCoord(7, 5), unit: enemyUnit2}, // 2 hexes away (NOT close combat)
+                ]),
+            expected: [
+                new EndBattlesMove(),
+                new BattleMove(friendlyUnit, enemyUnit2, 3), // 2 base + 1 general (no close combat bonus)
+            ],
+        },
+    ];
+
+    test.each(cases)('$name', ({diceBonus, closeCombatDiceBonus, unitBattler, expected}) => {
+        const phase = new BattlePhase(diceBonus, closeCombatDiceBonus);
+        const moves = phase.doLegalMoves(unitBattler);
+        expect(moves).toEqual(expected);
+    });
+});

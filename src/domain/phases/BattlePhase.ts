@@ -26,9 +26,11 @@ export class BattlePhase implements Phase {
     name = "Battle";
     type = PhaseType.BATTLE;
     readonly diceBonus: number;
+    readonly closeCombatDiceBonus: number;
 
-    constructor(diceBonus: number = 0) {
+    constructor(diceBonus: number = 0, closeCombatDiceBonus: number = 0) {
         this.diceBonus = diceBonus;
+        this.closeCombatDiceBonus = closeCombatDiceBonus;
     }
 
     legalMoves(gameState: GameState): Array<Move> {
@@ -104,7 +106,8 @@ export class BattlePhase implements Phase {
 
                     const defenderFortification = unitBattler.getFortification(toCoord);
                     const dice = calculateDiceCount(fromUnit, fromUnitTerrain, distance, defenderTerrain, defenderFortification);
-                    const totalDice = dice + this.diceBonus;
+                    const isCloseCombat = distance === 1;
+                    const totalDice = dice + this.diceBonus + (isCloseCombat ? this.closeCombatDiceBonus : 0);
                     if (totalDice > 0) {
                         moves.push(new BattleMove(fromUnit, toUnit, totalDice));
                     }
