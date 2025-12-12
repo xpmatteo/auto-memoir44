@@ -2,7 +2,7 @@
 // ABOUTME: Tests dice rolling and cloning
 
 import {describe, expect, it} from "vitest";
-import {Dice, RESULT_INFANTRY, RESULT_ARMOR, RESULT_GRENADE, RESULT_STAR, RESULT_FLAG} from "../../src/domain/Dice";
+import {Dice, RESULT_INFANTRY, RESULT_ARMOR, RESULT_GRENADE, RESULT_STAR, RESULT_FLAG} from "../../../src/domain/Dice";
 
 describe("Dice", () => {
     describe("customizable dice faces", () => {

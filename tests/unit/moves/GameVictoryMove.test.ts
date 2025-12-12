@@ -2,11 +2,11 @@
 // ABOUTME: Tests victory move construction, execution, and UI button generation
 
 import {describe, expect, it, test} from "vitest";
-import {GameVictoryMove} from "../../src/domain/moves/Move";
-import {Side} from "../../src/domain/Player";
-import {GameState} from "../../src/domain/GameState";
-import {Deck} from "../../src/domain/Deck";
-import {ProbeCenter} from "../../src/domain/CommandCard";
+import {GameVictoryMove} from "../../../src/domain/moves/Move";
+import {Side} from "../../../src/domain/Player";
+import {GameState} from "../../../src/domain/GameState";
+import {Deck} from "../../../src/domain/Deck";
+import {ProbeCenter} from "../../../src/domain/CommandCard";
 
 interface VictorySideCase {
     name: string;

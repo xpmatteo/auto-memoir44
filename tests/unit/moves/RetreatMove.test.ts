@@ -2,11 +2,11 @@
 // ABOUTME: Tests that RetreatMove correctly delegates to moveUnit and popPhase
 
 import {beforeEach, describe, expect, it} from "vitest";
-import {Infantry} from "../../src/domain/Unit";
-import {HexCoord} from "../../src/utils/hex";
-import {Side} from "../../src/domain/Player";
-import {RetreatMove} from "../../src/domain/moves/Move";
-import {RetreatPhase} from "../../src/domain/phases/RetreatPhase";
+import {Infantry} from "../../../src/domain/Unit";
+import {HexCoord} from "../../../src/utils/hex";
+import {Side} from "../../../src/domain/Player";
+import {RetreatMove} from "../../../src/domain/moves/Move";
+import {RetreatPhase} from "../../../src/domain/phases/RetreatPhase";
 
 describe("RetreatMove", () => {
     let moveUnitCalls: Array<{ from: HexCoord; to: HexCoord }>;

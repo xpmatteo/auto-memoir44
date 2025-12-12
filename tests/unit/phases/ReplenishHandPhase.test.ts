@@ -2,7 +2,7 @@ import {expect, test} from "vitest";
 import {ReplenishHandPhase} from "../../../src/domain/phases/ReplenishHandPhase";
 import {GameState} from "../../../src/domain/GameState";
 import {Deck} from "../../../src/domain/Deck";
-import {TestCard} from "../Deck.test";
+import {TestCard} from "../domain/Deck.test";
 import {ReplenishHandMove} from "../../../src/domain/moves/Move";
 import {CardLocation} from "../../../src/domain/CommandCard";
 

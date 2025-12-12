@@ -2,8 +2,8 @@
 // ABOUTME: Tests unit state management and turn-based state clearing
 
 import {describe, expect, it} from "vitest";
-import {Infantry, UnitState} from "../../src/domain/Unit";
-import {Side} from "../../src/domain/Player";
+import {Infantry, UnitState} from "../../../src/domain/Unit";
+import {Side} from "../../../src/domain/Player";
 
 describe("UnitState", () => {
     describe("clone", () => {

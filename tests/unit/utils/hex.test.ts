@@ -2,8 +2,8 @@
 // ABOUTME: Tests distance calculations and coordinate transformations (ported from doc/hexlib.test.js)
 
 import {expect, test} from "vitest";
-import {hexDistance} from "../../src/utils/hex";
-import {HexCoord} from "../../src/utils/hex";
+import {hexDistance} from "../../../src/utils/hex";
+import {HexCoord} from "../../../src/utils/hex";
 
 test('hex distance', () => {
     expect(hexDistance(new HexCoord(0, 0), new HexCoord(0, 0))).toEqual(0);

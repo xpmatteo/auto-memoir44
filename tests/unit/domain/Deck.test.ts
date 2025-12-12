@@ -2,9 +2,9 @@
 // ABOUTME: Tests card location management and deck operations
 
 import {describe, expect, it, test} from "vitest";
-import {Deck} from "../../src/domain/Deck";
-import {CardLocation, CommandCard} from "../../src/domain/CommandCard";
-import {Section} from "../../src/domain/Section";
+import {Deck} from "../../../src/domain/Deck";
+import {CardLocation, CommandCard} from "../../../src/domain/CommandCard";
+import {Section} from "../../../src/domain/Section";
 
 // Test helper card class
 export class TestCard extends CommandCard {

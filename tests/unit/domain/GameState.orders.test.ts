@@ -2,11 +2,11 @@
 // ABOUTME: Tests current card management, unit positioning, and game state operations
 
 import {describe, it, expect} from "vitest";
-import {GameState} from "../../src/domain/GameState";
-import {Side} from "../../src/domain/Player";
-import {Deck} from "../../src/domain/Deck";
-import {Infantry} from "../../src/domain/Unit";
-import {HexCoord} from "../../src/utils/hex";
+import {GameState} from "../../../src/domain/GameState";
+import {Side} from "../../../src/domain/Player";
+import {Deck} from "../../../src/domain/Deck";
+import {Infantry} from "../../../src/domain/Unit";
+import {HexCoord} from "../../../src/utils/hex";
 
 describe("GameState ordering units", () => {
     it("has no ordered units by default", () => {

@@ -4,7 +4,7 @@
 import {describe, expect, it} from "vitest";
 import {Deck} from "../../src/domain/Deck";
 import {CardLocation} from "../../src/domain/CommandCard";
-import {TestCard} from "../unit/Deck.test";
+import {TestCard} from "../unit/domain/Deck.test";
 import {SeededRNG} from "../../src/adapters/RNG";
 
 describe("Deck Auto-Reshuffle", () => {

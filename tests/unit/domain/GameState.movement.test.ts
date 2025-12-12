@@ -2,14 +2,14 @@
 // ABOUTME: Tests marking units as moved and clearing moved state on turn end
 
 import {describe, expect, it} from "vitest";
-import {GameState} from "../../src/domain/GameState";
-import {Deck} from "../../src/domain/Deck";
-import {Infantry} from "../../src/domain/Unit";
-import {Side} from "../../src/domain/Player";
-import {HexCoord} from "../../src/utils/hex";
-import {CardLocation} from "../../src/domain/CommandCard";
-import {OrderUnitsPhase} from "../../src/domain/phases/OrderUnitsPhase";
-import {Section} from "../../src/domain/Section";
+import {GameState} from "../../../src/domain/GameState";
+import {Deck} from "../../../src/domain/Deck";
+import {Infantry} from "../../../src/domain/Unit";
+import {Side} from "../../../src/domain/Player";
+import {HexCoord} from "../../../src/utils/hex";
+import {CardLocation} from "../../../src/domain/CommandCard";
+import {OrderUnitsPhase} from "../../../src/domain/phases/OrderUnitsPhase";
+import {Section} from "../../../src/domain/Section";
 
 describe("GameState movement tracking", () => {
     it("should mark a unit as moved", () => {

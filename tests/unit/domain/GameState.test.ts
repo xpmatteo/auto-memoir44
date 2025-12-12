@@ -2,12 +2,12 @@
 // ABOUTME: Tests current card management, unit positioning, and game state operations
 
 import {describe, expect, it, test} from "vitest";
-import {GameState} from "../../src/domain/GameState";
-import {Side, Position} from "../../src/domain/Player";
-import {Deck} from "../../src/domain/Deck";
-import {Infantry} from "../../src/domain/Unit";
-import {HexCoord} from "../../src/utils/hex";
-import {CardLocation} from "../../src/domain/CommandCard";
+import {GameState} from "../../../src/domain/GameState";
+import {Side, Position} from "../../../src/domain/Player";
+import {Deck} from "../../../src/domain/Deck";
+import {Infantry} from "../../../src/domain/Unit";
+import {HexCoord} from "../../../src/utils/hex";
+import {CardLocation} from "../../../src/domain/CommandCard";
 import {
     PlayCardMove,
     OrderUnitMove,
@@ -16,12 +16,12 @@ import {
     EndMovementsMove,
     EndBattlesMove,
     Move
-} from "../../src/domain/moves/Move";
-import {OrderUnitsPhase} from "../../src/domain/phases/OrderUnitsPhase";
-import {Section} from "../../src/domain/Section";
-import {clearTerrain, hillTerrain, woodsTerrain} from "../../src/domain/terrain/Terrain";
-import {Phase, PhaseType} from "../../src/domain/phases/Phase";
-import {MoveUnitMove} from "../../src/domain/moves/MoveUnitMove";
+} from "../../../src/domain/moves/Move";
+import {OrderUnitsPhase} from "../../../src/domain/phases/OrderUnitsPhase";
+import {Section} from "../../../src/domain/Section";
+import {clearTerrain, hillTerrain, woodsTerrain} from "../../../src/domain/terrain/Terrain";
+import {Phase, PhaseType} from "../../../src/domain/phases/Phase";
+import {MoveUnitMove} from "../../../src/domain/moves/MoveUnitMove";
 
 describe("GameState", () => {
     describe("setCurrentCard", () => {

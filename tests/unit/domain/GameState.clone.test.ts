@@ -2,14 +2,14 @@
 // ABOUTME: Tests deep cloning of all GameState properties
 
 import {describe, expect, it} from "vitest";
-import {GameState} from "../../src/domain/GameState";
-import {Deck} from "../../src/domain/Deck";
-import {AssaultLeft, CardLocation} from "../../src/domain/CommandCard";
-import {Infantry} from "../../src/domain/Unit";
-import {HexCoord} from "../../src/utils/hex";
-import {Side} from "../../src/domain/Player";
-import {Dice} from "../../src/domain/Dice";
-import {PlayCardMove} from "../../src/domain/moves/Move";
+import {GameState} from "../../../src/domain/GameState";
+import {Deck} from "../../../src/domain/Deck";
+import {AssaultLeft, CardLocation} from "../../../src/domain/CommandCard";
+import {Infantry} from "../../../src/domain/Unit";
+import {HexCoord} from "../../../src/utils/hex";
+import {Side} from "../../../src/domain/Player";
+import {Dice} from "../../../src/domain/Dice";
+import {PlayCardMove} from "../../../src/domain/moves/Move";
 
 describe("GameState.clone()", () => {
     describe("primitive properties", () => {

@@ -2,17 +2,17 @@
 // ABOUTME: Tests that clicks on units execute the appropriate toggle moves
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { CanvasClickHandler } from "../../src/ui/input/CanvasClickHandler";
-import { GameState } from "../../src/domain/GameState";
-import { Deck } from "../../src/domain/Deck";
-import { Infantry } from "../../src/domain/Unit";
-import { Side } from "../../src/domain/Player";
-import { ProbeLeft, CardLocation } from "../../src/domain/CommandCard";
-import { PlayCardMove, ConfirmOrdersMove } from "../../src/domain/moves/Move";
-import type { GridConfig } from "../../src/utils/hex";
-import { HexCoord } from "../../src/utils/hex";
-import { uiState } from "../../src/ui/UIState";
-import * as hexUtils from "../../src/utils/hex";
+import { CanvasClickHandler } from "../../../../src/ui/input/CanvasClickHandler";
+import { GameState } from "../../../../src/domain/GameState";
+import { Deck } from "../../../../src/domain/Deck";
+import { Infantry } from "../../../../src/domain/Unit";
+import { Side } from "../../../../src/domain/Player";
+import { ProbeLeft, CardLocation } from "../../../../src/domain/CommandCard";
+import { PlayCardMove, ConfirmOrdersMove } from "../../../../src/domain/moves/Move";
+import type { GridConfig } from "../../../../src/utils/hex";
+import { HexCoord } from "../../../../src/utils/hex";
+import { uiState } from "../../../../src/ui/UIState";
+import * as hexUtils from "../../../../src/utils/hex";
 
 describe("CanvasClickHandler", () => {
   const testGrid: GridConfig = {
