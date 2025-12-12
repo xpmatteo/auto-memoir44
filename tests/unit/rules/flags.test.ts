@@ -1,7 +1,7 @@
 import {describe, test, expect} from "vitest";
-import {FlagResult, handleFlags} from "../../src/rules/flags";
-import {HexCoord} from "../../src/utils/hex";
-import {RetreatPaths} from "../../src/rules/retreatPaths";
+import {FlagResult, handleFlags} from "../../../src/rules/flags";
+import {HexCoord} from "../../../src/utils/hex";
+import {RetreatPaths} from "../../../src/rules/retreatPaths";
 
 function buildRetreatPaths(retreatPathLength: number): RetreatPaths {
     const paths = new Map<number, Array<HexCoord>>();

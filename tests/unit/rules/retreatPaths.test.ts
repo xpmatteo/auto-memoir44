@@ -2,12 +2,12 @@
 // ABOUTME: Tests retreat path generation in different directions with obstacles
 
 import {describe, expect, test} from "vitest";
-import {GameState} from "../../src/domain/GameState";
-import {Deck} from "../../src/domain/Deck";
-import {HexCoord} from "../../src/utils/hex";
-import {Side} from "../../src/domain/Player";
-import {Infantry} from "../../src/domain/Unit";
-import {retreatPaths, RetreatPaths} from "../../src/rules/retreatPaths";
+import {GameState} from "../../../src/domain/GameState";
+import {Deck} from "../../../src/domain/Deck";
+import {HexCoord} from "../../../src/utils/hex";
+import {Side} from "../../../src/domain/Player";
+import {Infantry} from "../../../src/domain/Unit";
+import {retreatPaths, RetreatPaths} from "../../../src/rules/retreatPaths";
 
 describe("retreatPaths", () => {
     interface RetreatCase {

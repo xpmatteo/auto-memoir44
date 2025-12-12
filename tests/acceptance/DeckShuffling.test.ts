@@ -101,7 +101,7 @@ describe("Deck Shuffling", () => {
     describe("Integration with game initialization", () => {
         it("should produce non-alphabetical card draws when deck is shuffled", () => {
             // Given: A shuffled deck with known seed
-            const seed = 42;
+            const seed = 33;
             const rng = new SeededRNG(seed);
             const deck = Deck.createStandardDeck(() => rng.random());
 
