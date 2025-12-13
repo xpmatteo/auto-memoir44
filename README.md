@@ -8,12 +8,12 @@ REFACTOR
 - BattleMove should receive SituatedUnits.  Once we have this
   - BattleMove can implement isCloseCombat with no need to refer to GameState
   - we can remove the cast as GameState in BattlePhase
+  - we can implement better toString in moves, which will lead to more expressive AT
 - refactor to use interface segregation: 
     - tests/unit/ReplenishHandMove.test.ts (lines 1-20)
     - tests/unit/GameVictoryMove.test.ts (lines 44-63)
 - the array of players has redundant information; player 0 should always be the one at the bottom?
-- use HexCoord.key() everywhere 
-- use Fliweight with HexCoord
+- use Flyweight with HexCoord
 - rename Bottom = South, Top = North for consistency
 
 
@@ -23,7 +23,6 @@ RULES
     - hills: LOS
     - impassable terrain: must extend retreatPaths logic
     - cannot take ground to/out of hedgerows in some cases
-    - MoveOut: if you don't command any infantry unit...
 
 - other fortifications
 - line-of-sight across hex edges for artillery

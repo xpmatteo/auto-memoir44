@@ -5,7 +5,7 @@ import {expect, test, describe} from "vitest";
 import {GameState} from "../../../src/domain/GameState";
 import {Deck} from "../../../src/domain/Deck";
 import {CardLocation} from "../../../src/domain/cards/CommandCard";
-import {ConfirmOrdersMove, PlayCardMove, OrderUnitMove, UnOrderMove, EndMovementsMove} from "../../../src/domain/moves/Move";
+import {ConfirmOrdersMove, PlayCardMove, OrderUnitMove, EndMovementsMove} from "../../../src/domain/moves/Move";
 import {HexCoord} from "../../../src/utils/hex";
 import {parseAndSetupUnits} from "../../../src/scenarios/Scenario";
 import {ArmorAssault} from "../../../src/domain/cards/ArmorAssault";
