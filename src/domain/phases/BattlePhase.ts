@@ -4,7 +4,6 @@
 import {Phase, PhaseType} from "./Phase";
 import {GameState} from "../GameState";
 import {Move, EndBattlesMove} from "../moves/Move";
-import {Unit, UnitState} from "../Unit";
 import {HexCoord} from "../../utils/hex";
 import {hexDistance, hasLineOfSight} from "../../utils/hex";
 import type {Player} from "../Player";
@@ -12,10 +11,11 @@ import {calculateDiceCount} from "../../rules/combat";
 import {Terrain} from "../terrain/Terrain";
 import {Fortification} from "../fortifications/Fortification";
 import {BattleMove} from "../moves/BattleMove";
+import {SituatedUnit} from "../SituatedUnit";
 
 // Declare which methods from GameState we actually need to do our job
 export interface UnitBattler {
-    getAllUnits(): Array<{ unit: Unit; coord: HexCoord; terrain: Terrain; unitState: UnitState }>;
+    getAllUnits(): SituatedUnit[];
     getTerrain(coord: HexCoord): Terrain;
     getFortification(coord: HexCoord): Fortification;
 

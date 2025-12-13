@@ -4,7 +4,7 @@
 import {Player, Position, Side} from "./Player";
 import {Deck} from "./Deck";
 import {GameVictoryMove, Move} from "./moves/Move";
-import {Unit, UnitState} from "./Unit";
+import {Unit} from "./Unit";
 import {HexCoord} from "../utils/hex";
 import {CardLocation, CommandCard} from "./CommandCard";
 import {Section} from "./Section";
@@ -19,6 +19,7 @@ import {Fortification} from "./fortifications/Fortification";
 import {FortificationMap} from "./FortificationMap";
 import {ScoreTracker} from "./ScoreTracker";
 import {TurnCoordinator} from "./TurnCoordinator";
+import {SituatedUnit} from "./SituatedUnit";
 
 export class GameState {
     private readonly deck: Deck;
@@ -205,7 +206,7 @@ export class GameState {
     /**
      * Get all units with their coordinates, terrain, and mutable state
      */
-    getAllUnits(): Array<{ unit: Unit; coord: HexCoord; terrain: Terrain; unitState: UnitState }> {
+    getAllUnits(): SituatedUnit[] {
         return this.board.getAllUnits((coord) => this.getTerrain(coord));
     }
 

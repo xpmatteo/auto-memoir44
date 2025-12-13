@@ -8,6 +8,7 @@ import {Section} from "./Section";
 import {isHexInSection} from "./Section";
 import {Position, Side} from "./Player";
 import {BOARD_GEOMETRY} from "./BoardGeometry";
+import {SituatedUnit} from "./SituatedUnit";
 
 export class Board {
     private unitPositions: Map<string, Unit>; // Map from coordinate key to Unit
@@ -73,15 +74,15 @@ export class Board {
     /**
      * Get all units with their coordinates, terrain, and mutable state
      */
-    getAllUnits(getTerrainFn: (coord: HexCoord) => Terrain): Array<{ unit: Unit; coord: HexCoord; terrain: Terrain; unitState: UnitState }> {
+    getAllUnits(getTerrainFn: (coord: HexCoord) => Terrain): SituatedUnit[] {
         return Array.from(this.unitPositions.entries()).map(([key, unit]) => {
             const coord = keyToCoord(key);
-            return {
+            return new SituatedUnit(
                 unit,
                 coord,
-                terrain: getTerrainFn(coord),
-                unitState: this.getUnitState(unit).clone(),
-            };
+                getTerrainFn(coord),
+                this.getUnitState(unit).clone()
+            );
         });
     }
 

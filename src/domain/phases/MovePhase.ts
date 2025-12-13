@@ -4,15 +4,16 @@
 import {Phase, PhaseType} from "./Phase";
 import {GameState} from "../GameState";
 import {EndMovementsMove, Move} from "../moves/Move";
-import {Unit, UnitState} from "../Unit";
+import {Unit} from "../Unit";
 import {HexCoord} from "../../utils/hex";
 import {BOARD_GEOMETRY} from "../BoardGeometry";
 import {Terrain} from "../terrain/Terrain";
 import {MoveUnitMove} from "../moves/MoveUnitMove";
+import {SituatedUnit} from "../SituatedUnit";
 
 // Declare which methods from GameState we actually need to do our job
 export interface UnitMover {
-    getAllUnits(): Array<{ unit: Unit; coord: HexCoord; terrain: Terrain; unitState: UnitState }>;
+    getAllUnits(): SituatedUnit[];
 
     getUnitAt(coord: HexCoord): Unit | undefined;
 
