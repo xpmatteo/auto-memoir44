@@ -25,23 +25,13 @@ export interface UnitBattler {
 export class BattlePhase implements Phase {
     name = "Battle";
     type = PhaseType.BATTLE;
-    readonly diceBonus: number;
-    readonly closeCombatDiceBonus: number;
-
-    constructor(diceBonus: number = 0, closeCombatDiceBonus: number = 0) {
-        this.diceBonus = diceBonus;
-        this.closeCombatDiceBonus = closeCombatDiceBonus;
-    }
 
     legalMoves(gameState: GameState): Array<Move> {
         return this.doLegalMoves(gameState);
     }
 
     doLegalMoves(unitBattler: UnitBattler): Array<Move> {
-        const moves: Array<Move> = [];
-
-        // Always provide an EndBattlesMove
-        moves.push(new EndBattlesMove());
+        const battleMoves: BattleMove[] = [];
 
         const allUnits = unitBattler.getAllUnits();
         const activeSide = unitBattler.activePlayer.side;
@@ -106,15 +96,19 @@ export class BattlePhase implements Phase {
 
                     const defenderFortification = unitBattler.getFortification(toCoord);
                     const dice = calculateDiceCount(fromUnit, fromUnitTerrain, distance, defenderTerrain, defenderFortification);
-                    const isCloseCombat = distance === 1;
-                    const totalDice = dice + this.diceBonus + (isCloseCombat ? this.closeCombatDiceBonus : 0);
-                    if (totalDice > 0) {
-                        moves.push(new BattleMove(fromUnit, toUnit, totalDice));
+                    if (dice > 0) {
+                        battleMoves.push(new BattleMove(fromUnit, toUnit, dice));
                     }
                 }
             }
         }
 
-        return moves;
+        // Apply card-specific battle move transformations
+        const gameState = unitBattler as GameState;
+        const activeCard = gameState.activeCard;
+        const fixedBattleMoves = activeCard ? activeCard.fixBattleMoves(battleMoves, gameState) : battleMoves;
+
+        // Always provide an EndBattlesMove
+        return [new EndBattlesMove(), ...fixedBattleMoves];
     }
 }
