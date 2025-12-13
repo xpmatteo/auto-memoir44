@@ -165,7 +165,6 @@ export class Deck {
         Barrage (1)
         Behind Enemy Lines (1)
 
-        Close Assault (1)
         Counter-Attack (2)
         Dig-In (1)
 
@@ -198,7 +197,7 @@ export class Deck {
             [DirectFromHQ, 2],
             [MoveOut, 2],
             [Firefight, 1],
-            [CloseAssault, 100],
+            [CloseAssault, 1],
         ], rng);
     }
 

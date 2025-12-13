@@ -16,6 +16,24 @@ REFACTOR
 - use Fliweight with HexCoord
 - rename Bottom = South, Top = North for consistency
 
+TODO Pegasus bridge
+- onReplenishHand() in scenario
+- save the scenario in the game
+- wire
+- impassable terrain
+- river terrain
+- bridge terrain
+- temporary medal objectives
+
+RULES
+- terrain
+    - battle out for armor
+    - hills: LOS
+    - impassable terrain: must extend retreatPaths logic
+
+- other fortifications
+- line-of-sight across hex edges for artillery
+
 TODO
 - tactics cards
 - auto advance phases
@@ -31,13 +49,8 @@ TODO
   - keep own retreat paths open 
   - close enemy retreat paths
 
-- terrain
-  - battle out for armor
-  - hills: LOS
-  - impassable terrain: must extend retreatPaths logic
 
-- other fortifications
-- line-of-sight across hex edges for artillery
+Later
 - persistency
 - export game state
 - scenario chooser
