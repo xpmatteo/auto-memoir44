@@ -6,8 +6,7 @@ import {ConfirmOrdersMove, OrderUnitMove, UnOrderMove} from "../../../src/domain
 import {Infantry, Unit} from "../../../src/domain/Unit";
 import {Side} from "../../../src/domain/Player";
 import {OrderUnitsPhase} from "../../../src/domain/phases/OrderUnitsPhase";
-import {SituatedUnit} from "../../../src/domain/SituatedUnit";
-import {situatedUnit} from "../../utils/situated-unit-builder";
+import {SituatedUnit, situatedUnit} from "../../../src/domain/SituatedUnit";
 
 
 const unit1 = new Infantry(Side.ALLIES);
