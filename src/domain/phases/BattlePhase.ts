@@ -56,13 +56,13 @@ export class BattlePhase implements Phase {
             );
 
             // Find all enemy units within range
-            for (const {coord: toCoord, unit: toUnit, terrain: defenderTerrain} of allUnits) {
+            for (const toUnit of allUnits) {
                 // Skip friendly units
-                if (toUnit.side === activeSide) {
+                if (toUnit.unit.side === activeSide) {
                     continue;
                 }
 
-                const distance = hexDistance(fromUnit.coord, toCoord);
+                const distance = hexDistance(fromUnit.coord, toUnit.coord);
 
                 // If engaged in close combat (adjacent enemy), can only battle at distance 1
                 if (hasAdjacentEnemy && distance > 1) {
@@ -86,14 +86,14 @@ export class BattlePhase implements Phase {
                         return terrainAtHex.blocksLineOfSight;
                     };
 
-                    if (!hasLineOfSight(toCoord, fromUnit.coord, isBlocked)) {
+                    if (!hasLineOfSight(toUnit.coord, fromUnit.coord, isBlocked)) {
                         continue;
                     }
 
-                    const defenderFortification = unitBattler.getFortification(toCoord);
-                    const dice = calculateDiceCount(fromUnit.unit, fromUnit.terrain, distance, defenderTerrain, defenderFortification);
+                    const defenderFortification = unitBattler.getFortification(toUnit.coord);
+                    const dice = calculateDiceCount(fromUnit.unit, fromUnit.terrain, distance, toUnit.terrain, defenderFortification);
                     if (dice > 0) {
-                        battleMoves.push(new BattleMove(fromUnit.unit, toUnit, dice));
+                        battleMoves.push(new BattleMove(fromUnit.unit, toUnit.unit, dice));
                     }
                 }
             }
