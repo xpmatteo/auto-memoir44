@@ -1,8 +1,8 @@
 // ABOUTME: Manages unit positions and state on the game board
 // ABOUTME: Handles spatial queries, unit movement, and turn-based unit state
 
-import {HexCoord} from "../utils/hex";
-import {Unit, UnitState, coordToKey, keyToCoord} from "./Unit";
+import {HexCoord, HexCoordKey} from "../utils/hex";
+import {Unit, UnitState} from "./Unit";
 import {clearTerrain} from "./terrain/Terrain";
 import {Section} from "./Section";
 import {isHexInSection} from "./Section";
@@ -11,12 +11,12 @@ import {BOARD_GEOMETRY} from "./BoardGeometry";
 import {SituatedUnit} from "./SituatedUnit";
 
 export class Board {
-    private unitPositions: Map<string, Unit>; // Map from coordinate key to Unit
+    private unitPositions: Map<HexCoordKey, Unit>; // Map from coordinate key to Unit
     private units: Map<string, Unit>; // Map from unit ID to unit
     private unitStates: Map<string, UnitState>; // Map from unit ID to unit state
 
     constructor() {
-        this.unitPositions = new Map<string, Unit>();
+        this.unitPositions = new Map<HexCoordKey, Unit>();
         this.units = new Map<string, Unit>();
         this.unitStates = new Map<string, UnitState>();
     }
@@ -30,7 +30,7 @@ export class Board {
                 `Cannot place unit at (${coord.q}, ${coord.r}): coordinate is outside board boundaries`
             );
         }
-        const key = coordToKey(coord);
+        const key = coord.key();
         if (this.unitPositions.has(key)) {
             throw new Error(
                 `Cannot place unit at (${coord.q}, ${coord.r}): coordinate already occupied`
@@ -47,7 +47,7 @@ export class Board {
      * Get the unit at a specific coordinate, or undefined if empty
      */
     getUnitAt(coord: HexCoord): Unit | undefined {
-        return this.unitPositions.get(coordToKey(coord));
+        return this.unitPositions.get(coord.key());
     }
 
     /**
@@ -66,7 +66,7 @@ export class Board {
      */
     getAllUnitsWithPositions(): Array<{ coord: HexCoord; unit: Unit }> {
         return Array.from(this.unitPositions.entries()).map(([key, unit]) => ({
-            coord: keyToCoord(key),
+            coord: HexCoord.from(key),
             unit,
         }));
     }
@@ -76,7 +76,7 @@ export class Board {
      */
     getAllUnits(): SituatedUnit[] {
         return Array.from(this.unitPositions.entries()).map(([key, unit]) => {
-            const coord = keyToCoord(key);
+            const coord = HexCoord.from(key);
             return new SituatedUnit(
                 unit,
                 coord,
@@ -93,7 +93,7 @@ export class Board {
         return Array.from(this.unitPositions.entries())
             .filter(([_, unit]) => this.getUnitState(unit).isOrdered)
             .map(([key, unit]) => ({
-                coord: keyToCoord(key),
+                coord: HexCoord.from(key),
                 unit,
             }));
     }
@@ -224,8 +224,8 @@ export class Board {
      * Move a unit from one coordinate to another. Throws if destination is occupied or off-board.
      */
     moveUnit(from: HexCoord, to: HexCoord): void {
-        const fromKey = coordToKey(from);
-        const toKey = coordToKey(to);
+        const fromKey = from.key();
+        const toKey = to.key();
 
         const unit = this.unitPositions.get(fromKey);
         if (!unit) {
@@ -252,7 +252,7 @@ export class Board {
      * Remove a unit from the board
      */
     removeUnit(coord: HexCoord): void {
-        this.unitPositions.delete(coordToKey(coord));
+        this.unitPositions.delete(coord.key());
     }
 
     /**

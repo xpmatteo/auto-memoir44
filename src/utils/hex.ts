@@ -17,6 +17,8 @@ export type GridConfig = {
     coordColor: string;
 };
 
+const KEY_BUILDER = 1024;
+
 export class HexCoord {
     constructor(public q: number, public r: number) {
     }
@@ -51,7 +53,12 @@ export class HexCoord {
     }
 
     key(): HexCoordKey {
-        return (this.q + this.r * 1024) as HexCoordKey;
+        // adding KEY_BUILDER/2 to account for negative q
+        return (this.q + KEY_BUILDER/2 + this.r * KEY_BUILDER) as HexCoordKey;
+    }
+
+    static from(key: HexCoordKey) {
+        return new HexCoord(key % KEY_BUILDER - KEY_BUILDER/2, Math.trunc(key / KEY_BUILDER));
     }
 
     isNorthOf(otherHex: HexCoord) {
@@ -73,7 +80,6 @@ export class HexCoord {
     southernNeighbors() : [HexCoord, HexCoord] {
         return [this.southwest(), this.southeast()];
     }
-
 }
 
 export type CanvasCoord = {

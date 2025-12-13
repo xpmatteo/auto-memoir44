@@ -2,7 +2,6 @@
 // ABOUTME: Tracks unit type, strength, and ownership (location managed by GameState)
 
 import {Side} from "./Player";
-import {HexCoord} from "../utils/hex";
 
 export const UnitType = {
     INFANTRY: "infantry",
@@ -10,21 +9,6 @@ export const UnitType = {
 } as const;
 
 export type UnitType = typeof UnitType[keyof typeof UnitType];
-
-/**
- * Convert a hex coordinate to a string key for use in maps
- */
-export function coordToKey(coord: HexCoord): string {
-    return `${coord.q},${coord.r}`;
-}
-
-/**
- * Parse a coordinate key back to a HexCoord
- */
-export function keyToCoord(key: string): HexCoord {
-    const [q, r] = key.split(",").map(Number);
-    return new HexCoord(q, r);
-}
 
 /**
  * Mutable state for a unit, managed by GameState

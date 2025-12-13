@@ -1,22 +1,21 @@
 // ABOUTME: Manages fortification storage and provides spatial fortification queries
 // ABOUTME: Unlike TerrainMap, fortifications are mutable and can be destroyed mid-game
 
-import {HexCoord} from "../utils/hex";
+import {HexCoord, HexCoordKey} from "../utils/hex";
 import {Fortification, noFortification} from "./fortifications/Fortification";
-import {coordToKey, keyToCoord} from "./Unit";
 
 export class FortificationMap {
-    private readonly fortifications: Map<string, Fortification>;
+    private readonly fortifications: Map<HexCoordKey, Fortification>;
 
     constructor() {
-        this.fortifications = new Map<string, Fortification>();
+        this.fortifications = new Map<HexCoordKey, Fortification>();
     }
 
     /**
      * Set fortification at a hex coordinate
      */
     set(hex: HexCoord, fortification: Fortification): void {
-        this.fortifications.set(coordToKey(hex), fortification);
+        this.fortifications.set(hex.key(), fortification);
     }
 
     /**
@@ -24,7 +23,7 @@ export class FortificationMap {
      * Returns noFortification if no fortification is set at this hex (null object pattern).
      */
     get(hex: HexCoord): Fortification {
-        const key = coordToKey(hex);
+        const key = hex.key();
         return this.fortifications.get(key) ?? noFortification;
     }
 
@@ -32,15 +31,15 @@ export class FortificationMap {
      * Remove fortification at a hex coordinate
      */
     remove(hex: HexCoord): void {
-        this.fortifications.delete(coordToKey(hex));
+        this.fortifications.delete(hex.key());
     }
 
     /**
      * Iterate over all fortification entries
      */
     forEach(callback: (fortification: Fortification, hex: HexCoord) => void): void {
-        this.fortifications.forEach((fortification: Fortification, key: string) => {
-            callback(fortification, keyToCoord(key));
+        this.fortifications.forEach((fortification: Fortification, key: HexCoordKey) => {
+            callback(fortification, HexCoord.from(key));
         });
     }
 
