@@ -14,7 +14,7 @@ import {Side} from "./Player";
 export class SituatedUnit {
     readonly unit: Unit;
     readonly coord: HexCoord;
-    readonly terrain: Terrain;
+    terrain: Terrain;
     readonly unitState: UnitState;
 
     constructor(unit: Unit, coord: HexCoord, terrain: Terrain, unitState: UnitState) {

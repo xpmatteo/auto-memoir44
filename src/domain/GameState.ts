@@ -207,7 +207,11 @@ export class GameState {
      * Get all units with their coordinates, terrain, and mutable state
      */
     getAllUnits(): SituatedUnit[] {
-        return this.board.getAllUnits((coord) => this.getTerrain(coord));
+        const units = this.board.getAllUnits();
+        for (const unit of units) {
+            unit.terrain = this.getTerrain(unit.coord);
+        }
+        return units;
     }
 
     /**
@@ -222,7 +226,11 @@ export class GameState {
     }
 
     getFriendlyUnitsInSection(section: Section): Array<SituatedUnit> {
-        return this.board.getFriendlyUnitsInSection(section, this.activePlayer.side, this.activePlayer.position, (coord) => this.getTerrain(coord));
+        const units = this.board.getFriendlyUnitsInSection(section, this.activePlayer.side, this.activePlayer.position);
+        for (const unit of units) {
+            unit.terrain = this.getTerrain(unit.coord);
+        }
+        return units;
     }
 
     getUnitSections(unit: Unit): Section[] {

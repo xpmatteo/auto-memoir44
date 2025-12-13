@@ -3,7 +3,7 @@
 
 import {HexCoord} from "../utils/hex";
 import {Unit, UnitState, coordToKey, keyToCoord} from "./Unit";
-import {Terrain} from "./terrain/Terrain";
+import {clearTerrain} from "./terrain/Terrain";
 import {Section} from "./Section";
 import {isHexInSection} from "./Section";
 import {Position, Side} from "./Player";
@@ -74,13 +74,13 @@ export class Board {
     /**
      * Get all units with their coordinates, terrain, and mutable state
      */
-    getAllUnits(getTerrainFn: (coord: HexCoord) => Terrain): SituatedUnit[] {
+    getAllUnits(): SituatedUnit[] {
         return Array.from(this.unitPositions.entries()).map(([key, unit]) => {
             const coord = keyToCoord(key);
             return new SituatedUnit(
                 unit,
                 coord,
-                getTerrainFn(coord),
+                clearTerrain,
                 this.getUnitState(unit).clone()
             );
         });
@@ -110,8 +110,8 @@ export class Board {
     /**
      * Get all friendly units in a section
      */
-    getFriendlyUnitsInSection(section: Section, activeSide: Side, activePosition: Position, getTerrainFn: (coord: HexCoord) => Terrain): Array<SituatedUnit> {
-        return this.getAllUnits(getTerrainFn)
+    getFriendlyUnitsInSection(section: Section, activeSide: Side, activePosition: Position): Array<SituatedUnit> {
+        return this.getAllUnits()
             .filter((su) => isHexInSection(su.coord, section, activePosition))
             .filter((su) => su.unit.side === activeSide);
     }
