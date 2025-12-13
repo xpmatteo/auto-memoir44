@@ -144,6 +144,16 @@ export class BattleMove extends Move {
         gameState.addToMedalTable(this.toUnit, attackerPlayerIndex as 0 | 1);
     }
 
+    isCloseCombat(gameState: GameState): boolean {
+        const attackerHex = this.findUnitHex(gameState, this.fromUnit.id);
+        const targetHex = this.findUnitHex(gameState, this.toUnit.id);
+        return hexDistance(attackerHex, targetHex) === 1;
+    }
+
+    increaseDice(amount: number): BattleMove {
+        return new BattleMove(this.fromUnit, this.toUnit, this.dice + amount, this.popsPhaseAfterExecution);
+    }
+
     toString(): string {
         return `Battle(${this.fromUnit}, ${this.toUnit}, ${this.dice})`;
     }

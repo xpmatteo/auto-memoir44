@@ -12,6 +12,7 @@ import {ReplenishHandPhase} from "./phases/ReplenishHandPhase";
 import {ReplenishHandDrawTwoChooseOnePhase} from "./phases/ReplenishHandDrawTwoChooseOnePhase";
 import {UnitType, Unit} from "./Unit";
 import {HexCoord, hexDistance} from "../utils/hex";
+import {BattleMove} from "./moves/BattleMove";
 
 export const CardLocation = {
     DECK: "Deck",
@@ -47,6 +48,11 @@ export abstract class CommandCard {
         gameState.pushPhase(new BattlePhase());
         gameState.pushPhase(new MovePhase());
         gameState.pushPhase(new OrderUnitsPhase(this.sections, this.howManyUnits));
+    }
+
+    fixBattleMoves(moves: BattleMove[], _gameState: GameState): BattleMove[] {
+        // Base implementation: do nothing, return moves as-is
+        return moves;
     }
 }
 
@@ -231,7 +237,7 @@ export class Firefight extends CommandCard {
     onCardPlayed(gameState: GameState): void {
         gameState.setCurrentCard(this.id);
         gameState.replacePhase(new ReplenishHandPhase());
-        gameState.pushPhase(new BattlePhase(1, -DICE_PENALTY));
+        gameState.pushPhase(new BattlePhase());
 
         // Build a map of unit ID to coordinate
         const allUnitsWithPositions = gameState.getAllUnitsWithPositions();
@@ -268,10 +274,14 @@ export class Firefight extends CommandCard {
 
         gameState.pushPhase(new OrderUnitsByPredicatePhase(this.howManyUnits, predicate));
     }
-}
 
-// Penalty that we use for cards that restrict combat to close combat only, or ranged combat only
-const DICE_PENALTY = 100;
+    fixBattleMoves(moves: BattleMove[], gameState: GameState): BattleMove[] {
+        // Filter out close combat moves and increase dice by 1 for remaining moves
+        return moves
+            .filter(move => !move.isCloseCombat(gameState))
+            .map(move => move.increaseDice(1));
+    }
+}
 
 export class CloseAssault extends CommandCard {
     readonly name = "Close Assault";
@@ -281,7 +291,7 @@ export class CloseAssault extends CommandCard {
     onCardPlayed(gameState: GameState): void {
         gameState.setCurrentCard(this.id);
         gameState.replacePhase(new ReplenishHandPhase());
-        gameState.pushPhase(new BattlePhase(-DICE_PENALTY, DICE_PENALTY + 1));
+        gameState.pushPhase(new BattlePhase());
 
         // Build a map of unit ID to coordinate
         const allUnitsWithPositions = gameState.getAllUnitsWithPositions();
@@ -322,5 +332,12 @@ export class CloseAssault extends CommandCard {
         };
 
         gameState.pushPhase(new OrderUnitsByPredicatePhase(this.howManyUnits, predicate));
+    }
+
+    fixBattleMoves(moves: BattleMove[], gameState: GameState): BattleMove[] {
+        // Keep only close combat moves and increase dice by 1
+        return moves
+            .filter(move => move.isCloseCombat(gameState))
+            .map(move => move.increaseDice(1));
     }
 }
