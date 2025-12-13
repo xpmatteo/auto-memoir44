@@ -2,7 +2,7 @@
 // ABOUTME: Positioned to the left of the game board
 
 import {GameState} from "../../domain/GameState";
-import {CardLocation} from "../../domain/CommandCard";
+import {CardLocation} from "../../domain/cards/CommandCard";
 
 export class CurrentCardDisplay {
     private container: HTMLDivElement;

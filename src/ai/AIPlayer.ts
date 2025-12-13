@@ -5,7 +5,7 @@ import type {Move} from "../domain/moves/Move";
 import {ConfirmOrdersMove, EndBattlesMove, EndMovementsMove, OrderUnitMove, PlayCardMove} from "../domain/moves/Move";
 import {SeededRNG} from "../adapters/RNG";
 import type {GameState} from "../domain/GameState";
-import type {CommandCard} from "../domain/CommandCard";
+import type {CommandCard} from "../domain/cards/CommandCard";
 import {PhaseType} from "../domain/phases/Phase";
 import {BattlePhase} from "../domain/phases/BattlePhase";
 import {scoreMoveByDice} from "./scoreMoveByDice";

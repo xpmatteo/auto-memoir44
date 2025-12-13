@@ -1,6 +1,6 @@
 // ABOUTME: Move types and definitions for game actions
 
-import {CommandCard} from "../CommandCard";
+import {CommandCard} from "../cards/CommandCard";
 import {GameState} from "../GameState";
 import {Unit} from "../Unit";
 import {HexCoord} from "../../utils/hex";

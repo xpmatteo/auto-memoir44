@@ -6,7 +6,7 @@ import {GameVictoryMove} from "../../../src/domain/moves/Move";
 import {Side} from "../../../src/domain/Player";
 import {GameState} from "../../../src/domain/GameState";
 import {Deck} from "../../../src/domain/Deck";
-import {ProbeCenter} from "../../../src/domain/CommandCard";
+import {ProbeCenter} from "../../../src/domain/cards/CommandCard";
 
 interface VictorySideCase {
     name: string;

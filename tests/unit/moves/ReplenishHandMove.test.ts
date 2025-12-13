@@ -2,7 +2,7 @@ import {describe, expect, test} from "vitest";
 import { ReplenishHandMove} from "../../../src/domain/moves/Move";
 import {GameState} from "../../../src/domain/GameState";
 import {Deck} from "../../../src/domain/Deck";
-import {CardLocation} from "../../../src/domain/CommandCard";
+import {CardLocation} from "../../../src/domain/cards/CommandCard";
 
 describe("ReplenishHandMove", () => {
     test('aaa', () => {

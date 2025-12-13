@@ -3,7 +3,7 @@
 
 import {describe, expect, it} from "vitest";
 import {Deck} from "../../src/domain/Deck";
-import {CardLocation} from "../../src/domain/CommandCard";
+import {CardLocation} from "../../src/domain/cards/CommandCard";
 import {SeededRNG} from "../../src/adapters/RNG";
 
 describe("Deck Shuffling", () => {

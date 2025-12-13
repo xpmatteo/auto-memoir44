@@ -7,7 +7,7 @@ import type {GameState} from "../domain/GameState.js";
 import {Infantry} from "../domain/Unit.js";
 import {Side} from "../domain/Player.js";
 import {HexCoord} from "../utils/hex.js";
-import {CardLocation} from "../domain/CommandCard.js";
+import {CardLocation} from "../domain/cards/CommandCard";
 import {SeededRNG} from "../adapters/RNG.js";
 
 export class TestMedalTablesScenario implements Scenario {

@@ -1,7 +1,7 @@
 // ABOUTME: Hand display component showing active player's command cards
 // ABOUTME: HTML-based UI positioned below the game canvas
 
-import {CardLocation, CommandCard} from "../../domain/CommandCard";
+import {CardLocation, CommandCard} from "../../domain/cards/CommandCard";
 import {GameState} from "../../domain/GameState";
 import {PlayCardMove} from "../../domain/moves/Move";
 

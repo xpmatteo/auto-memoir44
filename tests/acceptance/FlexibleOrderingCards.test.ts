@@ -6,7 +6,7 @@ import {GameState} from "../../src/domain/GameState";
 import {Side} from "../../src/domain/Player";
 import {Deck} from "../../src/domain/Deck";
 import {Armor, Infantry} from "../../src/domain/Unit";
-import {CardLocation, DirectFromHQ, MoveOut, Firefight, CloseAssault} from "../../src/domain/CommandCard";
+import {CardLocation, DirectFromHQ, MoveOut, Firefight, CloseAssault} from "../../src/domain/cards/CommandCard";
 import {HexCoord, hexDistance} from "../../src/utils/hex";
 import {ConfirmOrdersMove, OrderUnitMove, PlayCardMove, UnOrderMove} from "../../src/domain/moves/Move";
 import {toStringAndSort} from "../helpers/testHelpers";

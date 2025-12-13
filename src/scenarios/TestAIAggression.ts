@@ -3,7 +3,7 @@
 
 import type {GameState} from "../domain/GameState";
 import {parseAndSetupUnits, Scenario, createStandardGameState} from "./Scenario";
-import {CardLocation} from "../domain/CommandCard";
+import {CardLocation} from "../domain/cards/CommandCard";
 import {SeededRNG} from "../adapters/RNG";
 
 const unitSetup = [

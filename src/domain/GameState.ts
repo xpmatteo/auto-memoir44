@@ -6,7 +6,7 @@ import {Deck} from "./Deck";
 import {GameVictoryMove, Move} from "./moves/Move";
 import {Unit} from "./Unit";
 import {HexCoord} from "../utils/hex";
-import {CardLocation, CommandCard} from "./CommandCard";
+import {CardLocation, CommandCard} from "./cards/CommandCard";
 import {Section} from "./Section";
 import {Phase} from "./phases/Phase";
 import {TakeGroundPhase} from "./phases/TakeGroundPhase";

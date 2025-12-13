@@ -3,7 +3,7 @@
 
 import {describe, expect, it, test} from "vitest";
 import {Deck} from "../../../src/domain/Deck";
-import {CardLocation, CommandCard} from "../../../src/domain/CommandCard";
+import {CardLocation, CommandCard} from "../../../src/domain/cards/CommandCard";
 import {Section} from "../../../src/domain/Section";
 
 // Test helper card class

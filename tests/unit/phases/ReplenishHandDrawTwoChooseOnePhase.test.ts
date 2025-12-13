@@ -4,7 +4,7 @@ import {GameState} from "../../../src/domain/GameState";
 import {Deck} from "../../../src/domain/Deck";
 import {TestCard} from "../domain/Deck.test";
 import {ReplenishHandChooseCardMove} from "../../../src/domain/moves/Move";
-import {CardLocation} from "../../../src/domain/CommandCard";
+import {CardLocation} from "../../../src/domain/cards/CommandCard";
 import {PlayCardPhase} from "../../../src/domain/phases/PlayCardPhase";
 
 describe("ReplenishHandDrawTwoChooseOnePhase", () => {

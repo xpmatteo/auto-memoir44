@@ -3,7 +3,7 @@
 
 import {GameState} from "../domain/GameState";
 import {parseAndSetupUnits, Scenario} from "./Scenario";
-import {CardLocation} from "../domain/CommandCard";
+import {CardLocation} from "../domain/cards/CommandCard";
 import {SeededRNG} from "../adapters/RNG";
 import {Dice, RESULT_FLAG} from "../domain/Dice";
 import {Deck} from "../domain/Deck";

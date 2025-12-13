@@ -1,18 +1,18 @@
 // ABOUTME: Command card model with location tracking for deck management
 // ABOUTME: Cards can be in Deck, DiscardPile, or either player's hand
 
-import {GameState} from "./GameState";
-import {Section} from "./Section";
+import {GameState} from "../GameState";
+import {Section} from "../Section";
 
-import {OrderUnitsPhase} from "./phases/OrderUnitsPhase";
-import {OrderUnitsByPredicatePhase} from "./phases/OrderUnitsByPredicatePhase";
-import {MovePhase} from "./phases/MovePhase";
-import {BattlePhase} from "./phases/BattlePhase";
-import {ReplenishHandPhase} from "./phases/ReplenishHandPhase";
-import {ReplenishHandDrawTwoChooseOnePhase} from "./phases/ReplenishHandDrawTwoChooseOnePhase";
-import {UnitType, Unit} from "./Unit";
-import {HexCoord, hexDistance} from "../utils/hex";
-import {BattleMove} from "./moves/BattleMove";
+import {OrderUnitsPhase} from "../phases/OrderUnitsPhase";
+import {OrderUnitsByPredicatePhase} from "../phases/OrderUnitsByPredicatePhase";
+import {MovePhase} from "../phases/MovePhase";
+import {BattlePhase} from "../phases/BattlePhase";
+import {ReplenishHandPhase} from "../phases/ReplenishHandPhase";
+import {ReplenishHandDrawTwoChooseOnePhase} from "../phases/ReplenishHandDrawTwoChooseOnePhase";
+import {UnitType, Unit} from "../Unit";
+import {HexCoord, hexDistance} from "../../utils/hex";
+import {BattleMove} from "../moves/BattleMove";
 
 export const CardLocation = {
     DECK: "Deck",

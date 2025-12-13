@@ -12,7 +12,7 @@ import {Terrain} from "../terrain/Terrain";
 import {Fortification} from "../fortifications/Fortification";
 import {BattleMove} from "../moves/BattleMove";
 import {SituatedUnit} from "../SituatedUnit";
-import {CommandCard} from "../CommandCard";
+import {CommandCard} from "../cards/CommandCard";
 
 // Declare which methods from GameState we actually need to do our job
 export interface UnitBattler {

@@ -7,7 +7,7 @@ import {Side, Position} from "../../../src/domain/Player";
 import {Deck} from "../../../src/domain/Deck";
 import {Infantry} from "../../../src/domain/Unit";
 import {HexCoord} from "../../../src/utils/hex";
-import {CardLocation} from "../../../src/domain/CommandCard";
+import {CardLocation} from "../../../src/domain/cards/CommandCard";
 import {
     PlayCardMove,
     OrderUnitMove,

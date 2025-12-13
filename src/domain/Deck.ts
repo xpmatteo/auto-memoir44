@@ -16,7 +16,7 @@ import {
     ReconCenter,
     ReconLeft,
     ReconRight, PincerMove, ReconInForce, GeneralAdvance, DirectFromHQ, MoveOut, Firefight, CloseAssault,
-} from "./CommandCard";
+} from "./cards/CommandCard";
 
 export class Deck {
     private locations: Map<CardLocation, CommandCard[]>;
