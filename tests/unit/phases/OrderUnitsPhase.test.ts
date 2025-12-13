@@ -8,7 +8,6 @@ import {Side} from "../../../src/domain/Player";
 import {OrderUnitsPhase} from "../../../src/domain/phases/OrderUnitsPhase";
 import {SituatedUnit, situatedUnit} from "../../../src/domain/SituatedUnit";
 
-
 const unit1 = new Infantry(Side.ALLIES);
 const unit2 = new Infantry(Side.ALLIES);
 const unit3 = new Infantry(Side.AXIS);
@@ -19,15 +18,11 @@ const su3 = situatedUnit().withUnit(unit3).at(2, 0).build();
 
 const fakeUnitsorder = {
     situatedUnits: [su1, su2, su3],
-    orderedUnits: [] as Unit[],
     getFriendlyUnitsInSection(section: Section): Array<SituatedUnit> {
         if (section !== Section.LEFT) {
             throw Error(`unexpected argument ${section}`);
         }
         return this.situatedUnits;
-    },
-    isUnitOrdered(unit: Unit): boolean {
-        return this.orderedUnits.includes(unit);
     },
     getUnitSections(_unit: Unit): Section[] {
         // For these tests, all units are in LEFT section only
@@ -37,7 +32,6 @@ const fakeUnitsorder = {
 
 describe("OrderUnitsPhase", () => {
     test("With no ordered units", () => {
-        fakeUnitsorder.orderedUnits = [];
         const phase = new OrderUnitsPhase([Section.LEFT], 2);
 
         let actual = phase.doLegalMoves(fakeUnitsorder);
@@ -52,7 +46,7 @@ describe("OrderUnitsPhase", () => {
     });
 
     test("With less ordered units than card allows", () => {
-        fakeUnitsorder.orderedUnits = [unit1];
+        su1.unitState.isOrdered = true;
         const phase = new OrderUnitsPhase([Section.LEFT], 2);
 
         let actual = phase.doLegalMoves(fakeUnitsorder);
@@ -67,7 +61,8 @@ describe("OrderUnitsPhase", () => {
     });
 
     test("With as many ordered units as card allows", () => {
-        fakeUnitsorder.orderedUnits = [unit1, unit2];
+        su1.unitState.isOrdered = true;
+        su2.unitState.isOrdered = true;
         const phase = new OrderUnitsPhase([Section.LEFT], 2);
 
         let actual = phase.doLegalMoves(fakeUnitsorder);

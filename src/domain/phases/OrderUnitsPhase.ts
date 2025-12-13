@@ -9,8 +9,6 @@ import {SituatedUnit} from "../SituatedUnit";
 interface UnitsOrderer {
     getFriendlyUnitsInSection(section: Section): Array<SituatedUnit>;
 
-    isUnitOrdered(unit: Unit): boolean;
-
     getUnitSections(unit: Unit): Section[];
 }
 
@@ -34,8 +32,8 @@ export class OrderUnitsPhase implements Phase {
         // Gather all friendly units from ALL target sections
         let allFriendlyUnits = this.allFriendlyUnits(unitsOrderer);
 
-        let orderedUnits = allFriendlyUnits.filter(su => unitsOrderer.isUnitOrdered(su.unit));
-        let unorderedUnits = allFriendlyUnits.filter(su => !unitsOrderer.isUnitOrdered(su.unit));
+        let orderedUnits = allFriendlyUnits.filter(su => su.unitState.isOrdered);
+        let unorderedUnits = allFriendlyUnits.filter(su => !su.unitState.isOrdered);
 
         // Track how many units have been ordered from each section
         // Use a greedy algorithm to assign units to sections optimally
