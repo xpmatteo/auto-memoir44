@@ -40,6 +40,13 @@ TODO
   - keep own retreat paths open 
   - close enemy retreat paths
 
+TODO Operation Cobra
+- impassable terrain
+- river terrain
+- bridge terrain
+- temporary medal objectives
+- elite armor
+
 TODO Pegasus bridge
 - onReplenishHand() in scenario
 - save the scenario in the game
@@ -49,6 +56,15 @@ TODO Pegasus bridge
 - bridge terrain
 - temporary medal objectives
 
+TODO Sword Beach
+- wire
+- hedgehogs
+- bunkers (impassable by armor)
+- artillery
+- elite infantry
+- British Commands badge
+- sea, shore, beach terrain
+- temporary medal objectives
 
 Later
 - persistency
