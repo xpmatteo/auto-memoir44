@@ -68,3 +68,22 @@ export const town3Terrain = new TownTerrain("town3.png");
 export const town4Terrain = new TownTerrain("town4.png");
 export const town5Terrain = new TownTerrain("town5.png");
 
+class SeaTerrain extends Terrain {
+    name = "Sea";
+    constructor(imagePath: string) {
+        super();
+        this.imagePath = "images/terrain/" + imagePath;
+    }
+}
+export const seaTerrain = new SeaTerrain("sea.png");
+export const shoreTerrain = new SeaTerrain("shore.png");
+
+class BeachTerrain extends Terrain {
+    name = "Beach";
+    constructor(imagePath: string) {
+        super();
+        this.imagePath = "images/terrain/" + imagePath;
+    }
+}
+export const beachTerrain = new BeachTerrain("beach.png");
+

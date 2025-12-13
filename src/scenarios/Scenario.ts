@@ -5,7 +5,14 @@ import {GameState} from "../domain/GameState";
 import {HexCoord} from "../utils/hex";
 import {Armor, Infantry} from "../domain/Unit";
 import {Side} from "../domain/Player";
-import {hillTerrain, woodsTerrain, town1Terrain, Terrain, hedgerowsTerrain} from "../domain/terrain/Terrain";
+import {
+    hillTerrain,
+    woodsTerrain,
+    town1Terrain,
+    Terrain,
+    hedgerowsTerrain,
+    seaTerrain, shoreTerrain, beachTerrain
+} from "../domain/terrain/Terrain";
 import {Fortification, sandbagAllies, sandbagAxis} from "../domain/fortifications/Fortification";
 import {SeededRNG} from "../adapters/RNG";
 import {Dice} from "../domain/Dice";
@@ -36,6 +43,9 @@ const terrainCodes = new Map(Object.entries({
     "R": hedgerowsTerrain,
     "T": town1Terrain,
     "W": woodsTerrain,
+    "S": seaTerrain,
+    "s": shoreTerrain,
+    "B": beachTerrain,
 })) as Map<string, Terrain>;
 
 const fortificationCodes = new Map(Object.entries({

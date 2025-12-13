@@ -7,11 +7,13 @@ import {TestMedalTablesScenario} from "./TestMedalTables";
 import {TestAIAggression} from "./TestAIAggression";
 import {TestRetreat} from "./TestRetreat";
 import {TestArmorOverrun} from "./TestArmorOverrun";
+import {ST03Scenario} from "./ST03";
 
 type ScenarioFactory = () => Scenario;
 
 const scenarios: Record<string, ScenarioFactory> = {
     ST02: () => new ST02Scenario(),
+    ST03: () => new ST03Scenario(),
     TestMedalTables: () => new TestMedalTablesScenario(),
     TestAIAggression: () => new TestAIAggression(),
     TestRetreat: () => new TestRetreat(),
