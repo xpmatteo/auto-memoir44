@@ -5,6 +5,9 @@ Work in progress.  Don't hold your breath!
 
 REFACTOR
 
+- BattleMove should receive SituatedUnits.  Once we have this
+  - BattleMove can implement isCloseCombat with no need to refer to GameState
+  - we can remove the cast as GameState in BattlePhase
 - refactor to use interface segregation: 
     - tests/unit/ReplenishHandMove.test.ts (lines 1-20)
     - tests/unit/GameVictoryMove.test.ts (lines 44-63)
@@ -15,14 +18,11 @@ REFACTOR
 
 TODO
 - tactics cards
-- take ground
-- armor overrun
 - auto advance phases
 - game log
 
 - UI
   - make the number of cards remaining in the deck permanent 
-  - show dice rolled
 
 - AI
   - deploy inactive units

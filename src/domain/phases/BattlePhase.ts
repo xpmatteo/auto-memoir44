@@ -12,6 +12,7 @@ import {Terrain} from "../terrain/Terrain";
 import {Fortification} from "../fortifications/Fortification";
 import {BattleMove} from "../moves/BattleMove";
 import {SituatedUnit} from "../SituatedUnit";
+import {CommandCard} from "../CommandCard";
 
 // Declare which methods from GameState we actually need to do our job
 export interface UnitBattler {
@@ -20,6 +21,7 @@ export interface UnitBattler {
     getFortification(coord: HexCoord): Fortification;
 
     activePlayer: Player;
+    activeCard: CommandCard | null;
 }
 
 export class BattlePhase implements Phase {
@@ -100,9 +102,8 @@ export class BattlePhase implements Phase {
         }
 
         // Apply card-specific battle move transformations
-        const gameState = unitBattler as GameState;
-        const activeCard = gameState.activeCard;
-        const fixedBattleMoves = activeCard ? activeCard.fixBattleMoves(battleMoves, gameState) : battleMoves;
+        const activeCard = unitBattler.activeCard;
+        const fixedBattleMoves = activeCard ? activeCard.fixBattleMoves(battleMoves, unitBattler as GameState) : battleMoves;
 
         // Always provide an EndBattlesMove
         return [new EndBattlesMove(), ...fixedBattleMoves];

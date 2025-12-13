@@ -14,6 +14,7 @@ import {BattleMove} from "../../../src/domain/moves/BattleMove";
 export class FakeUnitBattler {
     allUnitsData = [] as Array<{ coord: HexCoord, unit: Unit, unitState: UnitState, terrain: Terrain }>;
     activePlayer = new Player(Side.ALLIES, Position.BOTTOM);
+    activeCard = null;
     terrainMap = new Map<string, Terrain>();
     fortificationMap = new Map<string, Fortification>();
 
