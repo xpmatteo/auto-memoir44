@@ -39,20 +39,20 @@ export class BattlePhase implements Phase {
         // Filter for ordered units
         const orderedUnits = allUnits.filter(({unitState}) => unitState.isOrdered);
 
-        for (const {coord: fromCoord, unit: fromUnit, unitState: fromUnitState, terrain: fromUnitTerrain} of orderedUnits) {
+        for (const fromUnit of orderedUnits) {
             // Skip units that skip battle
-            if (fromUnitState.skipsBattle) {
+            if (fromUnit.unitState.skipsBattle) {
                 continue;
             }
 
             // Skip units that have already attacked this turn
-            if (fromUnitState.battlesThisTurn > 0) {
+            if (fromUnit.unitState.battlesThisTurn > 0) {
                 continue;
             }
 
             // Check if there are any adjacent enemies (close combat restriction)
             const hasAdjacentEnemy = allUnits.some(({coord, unit}) =>
-                unit.side !== activeSide && hexDistance(fromCoord, coord) === 1
+                unit.side !== activeSide && hexDistance(fromUnit.coord, coord) === 1
             );
 
             // Find all enemy units within range
@@ -62,7 +62,7 @@ export class BattlePhase implements Phase {
                     continue;
                 }
 
-                const distance = hexDistance(fromCoord, toCoord);
+                const distance = hexDistance(fromUnit.coord, toCoord);
 
                 // If engaged in close combat (adjacent enemy), can only battle at distance 1
                 if (hasAdjacentEnemy && distance > 1) {
@@ -83,21 +83,17 @@ export class BattlePhase implements Phase {
 
                         // Check if terrain blocks LOS
                         const terrainAtHex = unitBattler.getTerrain(hexCoord);
-                        if (terrainAtHex.blocksLineOfSight) {
-                            return true;
-                        }
-
-                        return false;
+                        return terrainAtHex.blocksLineOfSight;
                     };
 
-                    if (!hasLineOfSight(toCoord, fromCoord, isBlocked)) {
+                    if (!hasLineOfSight(toCoord, fromUnit.coord, isBlocked)) {
                         continue;
                     }
 
                     const defenderFortification = unitBattler.getFortification(toCoord);
-                    const dice = calculateDiceCount(fromUnit, fromUnitTerrain, distance, defenderTerrain, defenderFortification);
+                    const dice = calculateDiceCount(fromUnit.unit, fromUnit.terrain, distance, defenderTerrain, defenderFortification);
                     if (dice > 0) {
-                        battleMoves.push(new BattleMove(fromUnit, toUnit, dice));
+                        battleMoves.push(new BattleMove(fromUnit.unit, toUnit, dice));
                     }
                 }
             }
