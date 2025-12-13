@@ -221,8 +221,8 @@ export class GameState {
         return this.board.getFriendlyUnits(this.activePlayer.side);
     }
 
-    getFriendlyUnitsInSection(section: Section): Array<Unit> {
-        return this.board.getFriendlyUnitsInSection(section, this.activePlayer.side, this.activePlayer.position);
+    getFriendlyUnitsInSection(section: Section): Array<SituatedUnit> {
+        return this.board.getFriendlyUnitsInSection(section, this.activePlayer.side, this.activePlayer.position, (coord) => this.getTerrain(coord));
     }
 
     getUnitSections(unit: Unit): Section[] {

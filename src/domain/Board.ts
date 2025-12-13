@@ -110,11 +110,10 @@ export class Board {
     /**
      * Get all friendly units in a section
      */
-    getFriendlyUnitsInSection(section: Section, activeSide: Side, activePosition: Position): Array<Unit> {
-        return this.getAllUnitsWithPositions()
-            .filter(({coord}) => isHexInSection(coord, section, activePosition))
-            .filter(({unit}) => unit.side === activeSide)
-            .map(({unit}) => unit);
+    getFriendlyUnitsInSection(section: Section, activeSide: Side, activePosition: Position, getTerrainFn: (coord: HexCoord) => Terrain): Array<SituatedUnit> {
+        return this.getAllUnits(getTerrainFn)
+            .filter((su) => isHexInSection(su.coord, section, activePosition))
+            .filter((su) => su.unit.side === activeSide);
     }
 
     /**

@@ -3,10 +3,11 @@ import {Unit} from "../Unit";
 import {GameState} from "../GameState";
 import {ConfirmOrdersMove, Move, OrderUnitMove, UnOrderMove} from "../moves/Move";
 import {Phase, PhaseType} from "./Phase";
+import {SituatedUnit} from "../SituatedUnit";
 
 // Declare which methods from GameState we actually need to do our job
 interface UnitsOrderer {
-    getFriendlyUnitsInSection(section: Section): Array<Unit>;
+    getFriendlyUnitsInSection(section: Section): Array<SituatedUnit>;
 
     isUnitOrdered(unit: Unit): boolean;
 
@@ -33,8 +34,8 @@ export class OrderUnitsPhase implements Phase {
         // Gather all friendly units from ALL target sections
         let allFriendlyUnits = this.allFriendlyUnits(unitsOrderer);
 
-        let orderedUnits = allFriendlyUnits.filter(unit => unitsOrderer.isUnitOrdered(unit));
-        let unorderedUnits = allFriendlyUnits.filter(unit => !unitsOrderer.isUnitOrdered(unit));
+        let orderedUnits = allFriendlyUnits.filter(su => unitsOrderer.isUnitOrdered(su.unit));
+        let unorderedUnits = allFriendlyUnits.filter(su => !unitsOrderer.isUnitOrdered(su.unit));
 
         // Track how many units have been ordered from each section
         // Use a greedy algorithm to assign units to sections optimally
@@ -43,13 +44,13 @@ export class OrderUnitsPhase implements Phase {
         let moves: Array<Move> = [];
 
         // For every ordered unit, allow unordering
-        for (const unit of orderedUnits) {
-            moves.push(new UnOrderMove(unit));
+        for (const su of orderedUnits) {
+            moves.push(new UnOrderMove(su.unit));
         }
 
         // Check if we can order each unordered unit
-        for (const unit of unorderedUnits) {
-            const unitSections = unitsOrderer.getUnitSections(unit);
+        for (const su of unorderedUnits) {
+            const unitSections = unitsOrderer.getUnitSections(su.unit);
 
             // Can order if ANY of the unit's sections that are in the card's sections have quota available
             let hasAvailableSection = false;
@@ -63,22 +64,23 @@ export class OrderUnitsPhase implements Phase {
             }
 
             if (hasAvailableSection) {
-                moves.push(new OrderUnitMove(unit));
+                moves.push(new OrderUnitMove(su.unit));
             }
         }
 
         return [new ConfirmOrdersMove(), ...moves];
     }
 
-    private allFriendlyUnits(unitsOrderer: UnitsOrderer):Unit[] {
-        let allFriendlyUnits = new Set<Unit>();
+    private allFriendlyUnits(unitsOrderer: UnitsOrderer): SituatedUnit[] {
+        let allFriendlyUnitsMap = new Map<string, SituatedUnit>();
         for (const section of this.sections) {
-            const units = unitsOrderer.getFriendlyUnitsInSection(section);
-            for (const unit of units) {
-                allFriendlyUnits.add(unit);
+            const situatedUnits = unitsOrderer.getFriendlyUnitsInSection(section);
+            for (const su of situatedUnits) {
+                // Use unit ID as key to deduplicate units that appear in multiple sections
+                allFriendlyUnitsMap.set(su.unit.id, su);
             }
         }
-        return [...allFriendlyUnits];
+        return [...allFriendlyUnitsMap.values()];
     }
 
     /**
@@ -88,7 +90,7 @@ export class OrderUnitsPhase implements Phase {
      * - Units whose other sections are full must be assigned to their remaining section
      * - Repeat until no more forced assignments
      */
-    private assignUnitsToSections(orderedUnits: Unit[], unitsOrderer: UnitsOrderer): Map<Section, number> {
+    private assignUnitsToSections(orderedUnits: SituatedUnit[], unitsOrderer: UnitsOrderer): Map<Section, number> {
         let sectionCounts = new Map<Section, number>();
         for (const section of this.sections) {
             sectionCounts.set(section, 0);
@@ -96,10 +98,10 @@ export class OrderUnitsPhase implements Phase {
 
         // Get unit sections for all ordered units
         let unitSectionMap = new Map<Unit, Section[]>();
-        for (const unit of orderedUnits) {
-            const unitSections = unitsOrderer.getUnitSections(unit);
+        for (const su of orderedUnits) {
+            const unitSections = unitsOrderer.getUnitSections(su.unit);
             const relevantSections = unitSections.filter(s => sectionCounts.has(s));
-            unitSectionMap.set(unit, relevantSections);
+            unitSectionMap.set(su.unit, relevantSections);
         }
 
         let assigned = new Set<Unit>();
@@ -109,12 +111,12 @@ export class OrderUnitsPhase implements Phase {
         while (changed) {
             changed = false;
 
-            for (const unit of orderedUnits) {
-                if (assigned.has(unit)) continue;
+            for (const su of orderedUnits) {
+                if (assigned.has(su.unit)) continue;
 
-                const unitSections = unitSectionMap.get(unit)!;
+                const unitSections = unitSectionMap.get(su.unit)!;
                 if (unitSections.length === 0) {
-                    assigned.add(unit);
+                    assigned.add(su.unit);
                     continue;
                 }
 
@@ -127,14 +129,14 @@ export class OrderUnitsPhase implements Phase {
                 if (availableSections.length === 1) {
                     const section = availableSections[0];
                     sectionCounts.set(section, sectionCounts.get(section)! + 1);
-                    assigned.add(unit);
+                    assigned.add(su.unit);
                     changed = true;
                 } else if (availableSections.length === 0) {
                     // No room anywhere - this shouldn't happen in valid game state
                     // Just assign to first section
                     const section = unitSections[0];
                     sectionCounts.set(section, sectionCounts.get(section)! + 1);
-                    assigned.add(unit);
+                    assigned.add(su.unit);
                     changed = true;
                 }
             }

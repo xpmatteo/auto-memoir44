@@ -6,20 +6,26 @@ import {ConfirmOrdersMove, OrderUnitMove, UnOrderMove} from "../../../src/domain
 import {Infantry, Unit} from "../../../src/domain/Unit";
 import {Side} from "../../../src/domain/Player";
 import {OrderUnitsPhase} from "../../../src/domain/phases/OrderUnitsPhase";
+import {SituatedUnit} from "../../../src/domain/SituatedUnit";
+import {situatedUnit} from "../../utils/situated-unit-builder";
 
 
 const unit1 = new Infantry(Side.ALLIES);
 const unit2 = new Infantry(Side.ALLIES);
 const unit3 = new Infantry(Side.AXIS);
 
+const su1 = situatedUnit().withUnit(unit1).at(0, 0).build();
+const su2 = situatedUnit().withUnit(unit2).at(1, 0).build();
+const su3 = situatedUnit().withUnit(unit3).at(2, 0).build();
+
 const fakeUnitsorder = {
-    units: [unit1, unit2, unit3],
+    situatedUnits: [su1, su2, su3],
     orderedUnits: [] as Unit[],
-    getFriendlyUnitsInSection(section: Section): Array<Unit> {
+    getFriendlyUnitsInSection(section: Section): Array<SituatedUnit> {
         if (section !== Section.LEFT) {
             throw Error(`unexpected argument ${section}`);
         }
-        return this.units;
+        return this.situatedUnits;
     },
     isUnitOrdered(unit: Unit): boolean {
         return this.orderedUnits.includes(unit);
@@ -76,8 +82,8 @@ describe("OrderUnitsPhase", () => {
     });
 
     test("With no units in the section", () => {
-        const originalUnits = fakeUnitsorder.units;
-        fakeUnitsorder.units = [];
+        const originalUnits = fakeUnitsorder.situatedUnits;
+        fakeUnitsorder.situatedUnits = [];
         const phase = new OrderUnitsPhase([Section.LEFT], 2);
 
         let actual = phase.doLegalMoves(fakeUnitsorder);
@@ -88,7 +94,7 @@ describe("OrderUnitsPhase", () => {
         ]);
 
         // Restore original units for subsequent tests
-        fakeUnitsorder.units = originalUnits;
+        fakeUnitsorder.situatedUnits = originalUnits;
     });
 
 });
