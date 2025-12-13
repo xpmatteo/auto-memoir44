@@ -110,32 +110,7 @@ export function pixelToHex(x: number, y: number, grid: GridConfig): HexCoord {
     const py = y - grid.originY;
     const q = (SQRT3 / 3 * px - py / 3) / grid.hexRadius;
     const r = ((2 / 3) * py) / grid.hexRadius;
-    return axialRound(q, r);
-}
-
-/**
- * Round fractional axial coordinates to the nearest hex center.
- * Uses cube coordinate constraint (q + r + s = 0) for accurate rounding.
- */
-export function axialRound(q: number, r: number): HexCoord {
-    const s = -q - r;
-    let rq = Math.round(q);
-    let rr = Math.round(r);
-    let rs = Math.round(s);
-
-    const qDiff = Math.abs(rq - q);
-    const rDiff = Math.abs(rr - r);
-    const sDiff = Math.abs(rs - s);
-
-    if (qDiff > rDiff && qDiff > sDiff) {
-        rq = -rr - rs;
-    } else if (rDiff > sDiff) {
-        rr = -rq - rs;
-    } else {
-        rs = -rq - rr;
-    }
-
-    return new HexCoord(rq, rr);
+    return hexRound(q, r);
 }
 
 /**
