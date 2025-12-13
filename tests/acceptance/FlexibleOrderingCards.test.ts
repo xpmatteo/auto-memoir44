@@ -6,10 +6,14 @@ import {GameState} from "../../src/domain/GameState";
 import {Side} from "../../src/domain/Player";
 import {Deck} from "../../src/domain/Deck";
 import {Armor, Infantry} from "../../src/domain/Unit";
-import {CardLocation, DirectFromHQ, MoveOut, Firefight, CloseAssault} from "../../src/domain/cards/CommandCard";
+import {CardLocation} from "../../src/domain/cards/CommandCard";
 import {HexCoord, hexDistance} from "../../src/utils/hex";
 import {ConfirmOrdersMove, OrderUnitMove, PlayCardMove, UnOrderMove} from "../../src/domain/moves/Move";
 import {toStringAndSort} from "../helpers/testHelpers";
+import {CloseAssault} from "../../src/domain/cards/CloseAssault";
+import {Firefight} from "../../src/domain/cards/Firefight";
+import {DirectFromHQ} from "../../src/domain/cards/DirectFromHQ";
+import {MoveOut} from "../../src/domain/cards/MoveOut";
 
 describe("Flexible Ordering Command Cards", () => {
     const leftInf1 = new Infantry(Side.ALLIES);

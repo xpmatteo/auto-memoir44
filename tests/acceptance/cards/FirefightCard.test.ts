@@ -4,10 +4,11 @@
 import {expect, test, describe} from "vitest";
 import {GameState} from "../../../src/domain/GameState";
 import {Deck} from "../../../src/domain/Deck";
-import {CardLocation, Firefight} from "../../../src/domain/cards/CommandCard";
+import {CardLocation} from "../../../src/domain/cards/CommandCard";
 import {ConfirmOrdersMove, PlayCardMove, OrderUnitMove} from "../../../src/domain/moves/Move";
 import {HexCoord} from "../../../src/utils/hex";
 import {parseAndSetupUnits} from "../../../src/scenarios/Scenario";
+import {Firefight} from "../../../src/domain/cards/Firefight";
 
 function setupGame() {
     const deck = Deck.createFromComposition([[Firefight, 10]]);

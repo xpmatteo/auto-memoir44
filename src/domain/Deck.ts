@@ -15,8 +15,12 @@ import {
     ProbeRight,
     ReconCenter,
     ReconLeft,
-    ReconRight, PincerMove, ReconInForce, GeneralAdvance, DirectFromHQ, MoveOut, Firefight, CloseAssault,
+    ReconRight, PincerMove, ReconInForce, GeneralAdvance,
 } from "./cards/CommandCard";
+import {CloseAssault} from "./cards/CloseAssault";
+import {Firefight} from "./cards/Firefight";
+import {DirectFromHQ} from "./cards/DirectFromHQ";
+import {MoveOut} from "./cards/MoveOut";
 
 export class Deck {
     private locations: Map<CardLocation, CommandCard[]>;
