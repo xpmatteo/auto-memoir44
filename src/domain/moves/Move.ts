@@ -106,6 +106,10 @@ export class EndMovementsMove extends Move {
             },
         }];
     }
+
+    toString(): string {
+        return 'EndMovements';
+    }
 }
 
 export class EndBattlesMove extends Move {
@@ -148,6 +152,10 @@ export class ReplenishHandMove extends Move {
                 this.execute(gameState);
             },
         }];
+    }
+
+    toString(): string {
+        return `ReplenishHandMove(${this.card.name})`;
     }
 
 }

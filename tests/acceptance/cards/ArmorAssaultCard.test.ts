@@ -5,20 +5,21 @@ import {expect, test, describe} from "vitest";
 import {GameState} from "../../../src/domain/GameState";
 import {Deck} from "../../../src/domain/Deck";
 import {CardLocation} from "../../../src/domain/cards/CommandCard";
-import {ConfirmOrdersMove, PlayCardMove, OrderUnitMove, EndMovementsMove} from "../../../src/domain/moves/Move";
+import {ConfirmOrdersMove, PlayCardMove, OrderUnitMove, UnOrderMove, EndMovementsMove} from "../../../src/domain/moves/Move";
 import {HexCoord} from "../../../src/utils/hex";
 import {parseAndSetupUnits} from "../../../src/scenarios/Scenario";
-import {CloseAssault} from "../../../src/domain/cards/CloseAssault";
+import {ArmorAssault} from "../../../src/domain/cards/ArmorAssault";
+import {resetUnitIdCounter} from "../../../src/domain/Unit";
 
 function setupGame() {
-    const deck = Deck.createFromComposition([[CloseAssault, 10]]);
+    resetUnitIdCounter();
+    const deck = Deck.createFromComposition([[ArmorAssault, 10]]);
     const gameState = new GameState(deck);
     gameState.drawCards(3, CardLocation.BOTTOM_PLAYER_HAND);
-    gameState.executeMove(new PlayCardMove(deck.peekOneCard()));
-    return gameState;
+    return {gameState, deck};
 }
 
-describe.skip("Armor Assault card", () => {
+describe("Armor Assault card", () => {
 
     test('Can only order armor', () => {
         const unitSetup = [
@@ -34,8 +35,9 @@ describe.skip("Armor Assault card", () => {
             "....    ....    ....    ....    ....    ....    ....",
         ];
 
-        const gameState = setupGame();
+        const {gameState, deck} = setupGame();
         parseAndSetupUnits(gameState, unitSetup);
+        gameState.executeMove(new PlayCardMove(deck.peekOneCard()));
 
         expect(gameState.legalMoves().map(m => m.toString())).toEqual([
             "ConfirmOrdersMove",
@@ -60,8 +62,9 @@ describe.skip("Armor Assault card", () => {
                 "....    ....    ....    ....    ....    ....    ....",
             ];
 
-            const gameState = setupGame();
+            const {gameState, deck} = setupGame();
             parseAndSetupUnits(gameState, unitSetup);
+            gameState.executeMove(new PlayCardMove(deck.peekOneCard()));
 
             expect(gameState.legalMoves().map(m => m.toString())).toEqual([
                 "ConfirmOrdersMove",
@@ -86,13 +89,14 @@ describe.skip("Armor Assault card", () => {
                 "....    ....    ....    ....    ....    ....    ....",
             ];
 
-            const gameState = setupGame();
+            const {gameState, deck} = setupGame();
             parseAndSetupUnits(gameState, unitSetup);
+            gameState.executeMove(new PlayCardMove(deck.peekOneCard()));
             gameState.executeMove(new OrderUnitMove(gameState.getUnitAt(new HexCoord(1, 6))!));
 
             expect(gameState.legalMoves().map(m => m.toString())).toEqual([
                 "ConfirmOrdersMove",
-                "UnOrderUnitMove(unit-2/Allies)",
+                "UnOrderMove(unit-2/Allies)",
             ]);
         });
 
@@ -113,17 +117,23 @@ describe.skip("Armor Assault card", () => {
             "....    ....    ....    ....    ....    ....    ....",
         ];
 
-        const deck = Deck.createFromComposition([[CloseAssault, 10]]);
+        const deck = Deck.createFromComposition([[ArmorAssault, 10]]);
         const gameState = new GameState(deck);
         parseAndSetupUnits(gameState, unitSetup);
 
+        // Find the 2 armor units
+        const allUnits = gameState.getAllUnitsWithPositions();
+        const armorUnits = allUnits.filter(({unit}) => unit.type === "armor" && unit.side === "Allies");
+        expect(armorUnits.length).toBe(2);
+
         gameState.executeMove(new PlayCardMove(deck.peekOneCard()));
-        gameState.executeMove(new OrderUnitMove(gameState.getUnitAt(new HexCoord(3, 6))!));
-        gameState.executeMove(new OrderUnitMove(gameState.getUnitAt(new HexCoord(4, 6))!));
+        gameState.executeMove(new OrderUnitMove(armorUnits[0].unit));
+        gameState.executeMove(new OrderUnitMove(armorUnits[1].unit));
         gameState.executeMove(new ConfirmOrdersMove());
         gameState.executeMove(new EndMovementsMove());
 
-        expect(gameState.legalMoves().map(m => m.toString())).toEqual([
+        const battleMoves = gameState.legalMoves();
+        expect(battleMoves.map(m => m.toString())).toEqual([
             "EndBattles",
             "Battle(Armor/Allies, Infantry/Axis, 3)",
             "Battle(Armor/Allies, Infantry/Axis, 4)",

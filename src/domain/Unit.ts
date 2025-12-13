@@ -53,6 +53,10 @@ export class UnitState {
 
 let nextUnitId = 1;
 
+export function resetUnitIdCounter(): void {
+    nextUnitId = 1;
+}
+
 /**
  * Base class for all units (immutable properties only)
  * Mutable state is stored separately in UnitState within GameState
