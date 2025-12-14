@@ -13,9 +13,9 @@ import {resetUnitIdCounter} from "../../../src/domain/Unit";
 import {AirPower} from "../../../src/domain/cards/AirPower";
 import {SelectTargetMove} from "../../../src/domain/moves/SelectTargetMove";
 import {SituatedUnit, situatedUnit} from "../../../src/domain/SituatedUnit";
-import {diceReturningAlways, RESULT_INFANTRY} from "../../../src/domain/Dice";
+import {ProgrammableDice, RESULT_INFANTRY} from "../../../src/domain/Dice";
 
-const dice = diceReturningAlways([RESULT_INFANTRY]);
+const dice = new ProgrammableDice();
 
 function setupGame(unitSetup: string[], activePlayer: Side = Side.ALLIES): GameState {
     resetUnitIdCounter();
@@ -39,7 +39,7 @@ function getUnitAt(gameState: GameState, q: number, r: number): SituatedUnit {
     return situatedUnit().at(q, r).build();
 }
 
-describe.skip("Air Power card", () => {
+describe("Air Power card", () => {
     describe('Allies', () => {
         const unitSetup = [
             "   0   1   2   3   4   5   6   7   8   9  10  11  12",
@@ -117,7 +117,7 @@ describe.skip("Air Power card", () => {
                 gameState.executeMove(new SelectTargetMove(enemy2));
 
                 // should execute battle with 2 dice each
-                //dice.setupNextRolls([RESULT_INFANTRY, RESULT_INFANTRY, RESULT_INFANTRY, RESULT_INFANTRY]);
+                dice.setNextRolls([RESULT_INFANTRY, RESULT_INFANTRY, RESULT_INFANTRY, RESULT_INFANTRY]);
                 gameState.executeMove(new ConfirmOrdersMove());
 
                 const enemy1AfterAirPower = getUnitAt(gameState, 1, 2);
@@ -152,7 +152,7 @@ describe.skip("Air Power card", () => {
             gameState.executeMove(new SelectTargetMove(enemy2));
 
             // should execute battle with 1 dice each
-            //dice.setupNextRolls([RESULT_INFANTRY, RESULT_INFANTRY]);
+            dice.setNextRolls([RESULT_INFANTRY, RESULT_INFANTRY]);
             gameState.executeMove(new ConfirmOrdersMove());
 
             const enemy1AfterAirPower = getUnitAt(gameState, -2, 8);

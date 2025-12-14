@@ -108,3 +108,31 @@ export function diceReturning(listOfResults: DiceResult[]): Dice {
         }
     } as Dice;
 }
+
+/**
+ * Programmable dice for testing - allows setting exact dice results dynamically
+ */
+export class ProgrammableDice extends Dice {
+    private queuedResults: DiceResult[] = [];
+
+    constructor() {
+        super(() => 0); // Dummy random function since we won't use it
+    }
+
+    setNextRolls(results: DiceResult[]): void {
+        this.queuedResults.push(...results);
+    }
+
+    override roll(count: number): DiceResult[] {
+        if (this.queuedResults.length < count) {
+            throw new Error(`Not enough queued results: need ${count}, have ${this.queuedResults.length}`);
+        }
+        return this.queuedResults.splice(0, count);
+    }
+
+    override clone(): Dice {
+        const cloned = new ProgrammableDice();
+        cloned.queuedResults = [...this.queuedResults];
+        return cloned;
+    }
+}
