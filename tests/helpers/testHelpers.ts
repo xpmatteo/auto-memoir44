@@ -4,7 +4,11 @@
 import {Deck} from "../../src/domain/Deck";
 import {GameState} from "../../src/domain/GameState";
 import {Dice} from "../../src/domain/Dice";
-import {Move} from "../../src/domain/moves/Move";
+import {Move, PlayCardMove} from "../../src/domain/moves/Move";
+import {Side} from "../../src/domain/Player";
+import {resetUnitIdCounter} from "../../src/domain/Unit";
+import {CardLocation} from "../../src/domain/cards/CommandCard";
+import {parseAndSetupUnits} from "../../src/scenarios/Scenario";
 
 /**
  * Create a GameState with a standard deck and default dice for testing
@@ -22,4 +26,23 @@ export function createTestGameState(): GameState {
 
 export function toStringAndSort(moves: Move[]): string[] {
     return moves.map(move => move.toString()).sort();
+}
+
+export function setupGameForCommandCardTests(
+    unitSetup: string[],
+    cardType: any,
+    activePlayer: Side = Side.ALLIES,
+    diceToUse: Dice = new Dice()
+): GameState {
+    resetUnitIdCounter();
+    const deck = Deck.createFromComposition([[cardType, 10]]);
+    const gameState = new GameState(deck, diceToUse);
+    gameState.drawCards(2, CardLocation.BOTTOM_PLAYER_HAND);
+    gameState.drawCards(2, CardLocation.TOP_PLAYER_HAND);
+    parseAndSetupUnits(gameState, unitSetup);
+    if (activePlayer === Side.AXIS) {
+        gameState.switchActivePlayer();
+    }
+    gameState.executeMove(new PlayCardMove(deck.peekOneCard()));
+    return gameState;
 }

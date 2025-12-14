@@ -3,40 +3,21 @@
 
 import {beforeEach, describe, expect, test} from "vitest";
 import {GameState} from "../../../src/domain/GameState";
-import {Deck} from "../../../src/domain/Deck";
-import {CardLocation} from "../../../src/domain/cards/CommandCard";
-import {PlayCardMove} from "../../../src/domain/moves/Move";
-import {parseAndSetupUnits} from "../../../src/scenarios/Scenario";
 import {Side} from "../../../src/domain/Player";
-import {resetUnitIdCounter} from "../../../src/domain/Unit";
 import {AirPower} from "../../../src/domain/cards/AirPower";
 import {SelectTargetMove} from "../../../src/domain/moves/SelectTargetMove";
 import {SituatedUnit} from "../../../src/domain/SituatedUnit";
 import {
     DiceResult,
     ProgrammableDice,
-    RESULT_ARMOR, RESULT_FLAG,
+    RESULT_ARMOR,
+    RESULT_FLAG,
     RESULT_GRENADE,
     RESULT_INFANTRY,
     RESULT_STAR
 } from "../../../src/domain/Dice";
 import {ConfirmTargetsMove} from "../../../src/domain/moves/ConfirmTargetsMove";
-
-const dice = new ProgrammableDice();
-
-function setupGame(unitSetup: string[], activePlayer: Side = Side.ALLIES): GameState {
-    resetUnitIdCounter();
-    const deck = Deck.createFromComposition([[AirPower, 10]]);
-    const gameState = new GameState(deck, dice);
-    gameState.drawCards(2, CardLocation.BOTTOM_PLAYER_HAND);
-    gameState.drawCards(2, CardLocation.TOP_PLAYER_HAND);
-    parseAndSetupUnits(gameState, unitSetup);
-    if (activePlayer === Side.AXIS) {
-        gameState.switchActivePlayer();
-    }
-    gameState.executeMove(new PlayCardMove(deck.peekOneCard()));
-    return gameState;
-}
+import {setupGameForCommandCardTests} from "../../helpers/testHelpers";
 
 function getUnitAt(gameState: GameState, q: number, r: number): SituatedUnit {
     const allUnits = gameState.getAllUnits();
@@ -48,6 +29,8 @@ function getUnitAt(gameState: GameState, q: number, r: number): SituatedUnit {
 }
 
 describe("Air Power card", () => {
+    const dice = new ProgrammableDice();
+
     describe('Allies', () => {
         const unitSetup = [
             "   0   1   2   3   4   5   6   7   8   9  10  11  12",
@@ -71,7 +54,7 @@ describe("Air Power card", () => {
         let enemyInWoods: SituatedUnit;
 
         beforeEach(() => {
-            gameState = setupGame(unitSetup);
+            gameState = setupGameForCommandCardTests(unitSetup, AirPower, Side.ALLIES, dice);
             enemy1 = getUnitAt(gameState, 1, 2);
             enemy2 = getUnitAt(gameState, 2, 2);
             enemy3 = getUnitAt(gameState, 3, 2);
@@ -191,7 +174,7 @@ describe("Air Power card", () => {
                 "....    .IN. IN ....    ....    ....    ....    ....",
             ];
 
-            const gameState = setupGame(unitSetup, Side.AXIS);
+            const gameState = setupGameForCommandCardTests(unitSetup, AirPower, Side.AXIS, dice);
 
             expect(gameState.legalMoves().map(m => m.toString())).toEqual([
                 "ConfirmTargetsMove(1 dice)",
