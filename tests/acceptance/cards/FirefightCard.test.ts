@@ -2,20 +2,11 @@
 // ABOUTME: Tests ordering units NOT adjacent to enemies and battle with +1 die
 
 import {expect, test, describe} from "vitest";
-import {GameState} from "../../../src/domain/GameState";
-import {Deck} from "../../../src/domain/Deck";
-import {CardLocation} from "../../../src/domain/cards/CommandCard";
-import {ConfirmOrdersMove, PlayCardMove, OrderUnitMove} from "../../../src/domain/moves/Move";
+import {ConfirmOrdersMove, OrderUnitMove} from "../../../src/domain/moves/Move";
 import {HexCoord} from "../../../src/utils/hex";
-import {parseAndSetupUnits} from "../../../src/scenarios/Scenario";
 import {Firefight} from "../../../src/domain/cards/Firefight";
+import {setupGameForCommandCardTests} from "../../helpers/testHelpers";
 
-function setupGame() {
-    const deck = Deck.createFromComposition([[Firefight, 10]]);
-    const gameState = new GameState(deck);
-    gameState.drawCards(3, CardLocation.BOTTOM_PLAYER_HAND);
-    return {deck, gameState};
-}
 
 describe("Firefight card", () => {
 
@@ -32,11 +23,7 @@ describe("Firefight card", () => {
             "~~....    ....    ....    ....    ....    ....    ~~",
             "....    ....    ....    ....    ....    ....    ....",
         ];
-
-        const {deck, gameState} = setupGame();
-        parseAndSetupUnits(gameState, unitSetup);
-
-        gameState.executeMove(new PlayCardMove(deck.peekOneCard()));
+        const gameState = setupGameForCommandCardTests(unitSetup, Firefight);
 
         // Units at (3,6) and (4,6) are adjacent to enemy at (4,5), so they cannot be ordered
         // Units at (2,6) and (5,6) are NOT adjacent to any enemy, so they can be ordered
@@ -60,11 +47,7 @@ describe("Firefight card", () => {
             "~~....    ....    ....    ....    ....    ....    ~~",
             "....    ....    ....    ....    ....    ....    ....",
         ];
-
-        const {deck, gameState} = setupGame();
-        parseAndSetupUnits(gameState, unitSetup);
-
-        gameState.executeMove(new PlayCardMove(deck.peekOneCard()));
+        const gameState = setupGameForCommandCardTests(unitSetup, Firefight);
         gameState.executeMove(new OrderUnitMove(gameState.getUnitAt(new HexCoord(2, 5))!));
         gameState.executeMove(new ConfirmOrdersMove());
 
@@ -88,11 +71,8 @@ describe("Firefight card", () => {
             "~~....    ....    ....    ....    ....    ....    ~~",
             "....    ....    ....    ....    ....    ....    ....",
         ];
+        const gameState = setupGameForCommandCardTests(unitSetup, Firefight);
 
-        const {deck, gameState} = setupGame();
-        parseAndSetupUnits(gameState, unitSetup);
-
-        gameState.executeMove(new PlayCardMove(deck.peekOneCard()));
         gameState.executeMove(new OrderUnitMove(gameState.getUnitAt(new HexCoord(2, 5))!));
         gameState.executeMove(new ConfirmOrdersMove());
 

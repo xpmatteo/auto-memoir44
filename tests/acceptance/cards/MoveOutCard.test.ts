@@ -2,24 +2,11 @@
 // ABOUTME: Tests infantry-specific ordering and fallback to any unit
 
 import {expect, test, describe} from "vitest";
-import {GameState} from "../../../src/domain/GameState";
-import {Deck} from "../../../src/domain/Deck";
-import {CardLocation} from "../../../src/domain/cards/CommandCard";
-import {PlayCardMove, OrderUnitMove} from "../../../src/domain/moves/Move";
+import {OrderUnitMove} from "../../../src/domain/moves/Move";
 import {HexCoord} from "../../../src/utils/hex";
-import {parseAndSetupUnits} from "../../../src/scenarios/Scenario";
 import {MoveOut} from "../../../src/domain/cards/MoveOut";
-import {resetUnitIdCounter} from "../../../src/domain/Unit";
+import {setupGameForCommandCardTests} from "../../helpers/testHelpers";
 
-function setupGame(unitSetup: string[]) {
-    resetUnitIdCounter();
-    const deck = Deck.createFromComposition([[MoveOut, 10]]);
-    const gameState = new GameState(deck);
-    gameState.drawCards(3, CardLocation.BOTTOM_PLAYER_HAND);
-    parseAndSetupUnits(gameState, unitSetup);
-    gameState.executeMove(new PlayCardMove(deck.peekOneCard()));
-    return gameState;
-}
 
 describe("MoveOut card", () => {
 
@@ -36,8 +23,7 @@ describe("MoveOut card", () => {
             "~~....    ....    ....    ....    ....    ....    ~~",
             "....    ....    ....    ....    ....    ....    ....",
         ];
-
-        const gameState = setupGame(unitSetup);
+        const gameState = setupGameForCommandCardTests(unitSetup, MoveOut);
 
         expect(gameState.legalMoves().map(m => m.toString())).toEqual([
             "ConfirmOrdersMove",
@@ -61,8 +47,7 @@ describe("MoveOut card", () => {
                 "~~....    ....    ....    ....    ....    ....    ~~",
                 "....    ....    ....    ....    ....    ....    ....",
             ];
-
-            const gameState = setupGame(unitSetup);
+            const gameState = setupGameForCommandCardTests(unitSetup, MoveOut);
 
             expect(gameState.legalMoves().map(m => m.toString())).toEqual([
                 "ConfirmOrdersMove",
@@ -86,8 +71,8 @@ describe("MoveOut card", () => {
                 "~~....    ....    ....    ....    ....    ....    ~~",
                 "....    ....    ....    ....    ....    ....    ....",
             ];
+            const gameState = setupGameForCommandCardTests(unitSetup, MoveOut);
 
-            const gameState = setupGame(unitSetup);
             gameState.executeMove(new OrderUnitMove(gameState.getUnitAt(new HexCoord(1, 6))!));
 
             expect(gameState.legalMoves().map(m => m.toString())).toEqual([
