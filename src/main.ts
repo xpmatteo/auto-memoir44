@@ -1,5 +1,5 @@
-// ABOUTME: Entry point for Memoir '44 browser game
-// ABOUTME: Bootstraps canvas, rendering, and event handling
+// ABOUTME: Entry point for Memoir '44 browser game - bootstraps canvas, rendering, and event handling
+// ABOUTME: Contains phase-aware rendering loop (renderCanvas) - check activePhase.type, call draw functions from HexGrid.ts
 
 // Log page loads for debugging
 import {PhaseType} from "./domain/phases/Phase";
@@ -152,6 +152,10 @@ async function start() {
     const boardImage = await loadBoardImage(BOARD_IMAGE_PATH);
 
     // Create render function for canvas
+    // Rendering order (back to front):
+    // 1. Board image, 2. Grid, 3. Terrain, 4. Fortifications, 5. Units, 6. Medals
+    // 7. Phase-specific highlights (ORDER, BATTLE, RETREAT, TARGET_SELECTION, etc.)
+    // 8. Valid destinations/targets, 9. Selected unit
     const renderCanvas = async () => {
         try {
             drawBoard(context, boardImage);

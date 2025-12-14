@@ -111,6 +111,42 @@ interface Phase {
 - Full canvas redraw on every state change
 - Non-canvas UI elements are allowed when needed (hand display, controls, etc.)
 
+### UI Architecture
+
+The UI system is phase-aware and follows a consistent pattern for handling user interactions and rendering.
+
+#### Event Flow
+
+1. **User interaction** (click/button) → `CanvasClickHandler` or `MoveButtons`
+2. **Handler finds matching Move** from `gameState.legalMoves()`
+3. **Handler executes move** via `gameState.executeMove()`
+4. **onUpdate() callback** triggers re-render
+5. **main.ts renders** based on `activePhase.type`
+
+#### Adding UI Support for a New Phase
+
+When you need to add UI support for a new phase type:
+
+1. **Visual feedback**: Add drawing function to `src/ui/canvas/HexGrid.ts` (if needed)
+   - Follow the pattern of existing functions like `drawOrderedUnitOutlines()` or `drawBattleUnitOutlines()`
+   - Add any new color constants to `src/utils/constants.ts`
+
+2. **Click handling**: Add handler method to `src/ui/input/CanvasClickHandler.ts`
+   - Add new phase type check in `handleClick()` method
+   - Create a new `handleYourPhaseClick()` private method
+   - Find matching moves from `legalMoves()` and execute them
+
+3. **Rendering logic**: Add phase-specific rendering in `src/main.ts` `renderCanvas()` function
+   - Check `gameState.activePhase.type === PhaseType.YOUR_PHASE`
+   - Gather relevant coordinates from game state
+   - Call your drawing function from HexGrid.ts
+
+4. **Move buttons**: Moves automatically get UI buttons if they implement `uiButton()` method
+   - Return array of `{label: string, callback: (gameState: GameState) => void}`
+   - Buttons are rendered automatically by `MoveButtons` component
+
+**Example**: See AirPower card implementation (commit history) for a complete example of adding TARGET_SELECTION phase UI support.
+
 ### Coordinate System
 
 The game uses a perspective-based system where "left/center/right" sections are always relative to the active player:
@@ -146,6 +182,27 @@ High-level organization:
 - Phases encapsulate turn logic and are easily testable via interface segregation
 - UI layer coordinates rendering and translates user actions into moves
 - Build incrementally as features are added
+
+## Quick File Reference
+
+### Need to add UI for a new phase?
+
+- **Click handling**: `src/ui/input/CanvasClickHandler.ts` - Add phase check in `handleClick()` and create handler method
+- **Visual highlighting**: `src/ui/canvas/HexGrid.ts` - Add new draw function (e.g., `drawYourPhaseOutlines()`)
+- **Rendering logic**: `src/main.ts` - Add phase-specific rendering in `renderCanvas()` function
+- **Colors/constants**: `src/utils/constants.ts` - Add color constants for your highlights
+
+### Need to understand game state?
+
+- **Core state**: `src/domain/GameState.ts` - All game state and the `legalMoves()`/`executeMove()` pattern
+- **Phases**: `src/domain/phases/` - Each phase defines what moves are legal
+- **Moves**: `src/domain/moves/` - Move implementations that modify state
+
+### Need to add a new command card?
+
+- **Card implementation**: `src/domain/cards/` - Extend `CommandCard`, implement `onCardPlayed()`
+- **Card images**: `public/images/cards/` - Add card image asset
+- **Deck configuration**: `src/domain/Deck.ts` - Add card to deck composition
 
 ## Key Architectural Constraints
 
