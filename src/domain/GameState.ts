@@ -225,6 +225,11 @@ export class GameState {
         return this.board.getFriendlyUnits(this.activePlayer.side);
     }
 
+    getEnemyUnits(): Array<SituatedUnit> {
+        const allUnits = this.getAllUnits();
+        return allUnits.filter(su => su.unit.side !== this.activePlayer.side);
+    }
+
     getFriendlyUnitsInSection(section: Section): Array<SituatedUnit> {
         const units = this.board.getFriendlyUnitsInSection(section, this.activePlayer.side, this.activePlayer.position);
         for (const unit of units) {
@@ -433,6 +438,14 @@ export class GameState {
 
     unOrderUnit(unit: Unit) {
         this.board.unOrderUnit(unit);
+    }
+
+    targetUnit(unit: Unit) {
+        this.board.targetUnit(unit);
+    }
+
+    untargetUnit(unit: Unit) {
+        this.board.untargetUnit(unit);
     }
 
     orderAllFriendlyUnitsInSection(section: Section): void {

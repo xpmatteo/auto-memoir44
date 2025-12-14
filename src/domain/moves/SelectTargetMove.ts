@@ -10,11 +10,28 @@ export class SelectTargetMove extends Move {
         this.unit = unit;
     }
 
-    execute(_gameState: GameState): void {
-
+    execute(gameState: GameState): void {
+        gameState.targetUnit(this.unit.unit);
     }
 
     toString(): string {
-        return `SelectTarget(${this.unit.unit}[${this.unit.coord}])`;
+        return `SelectTargetMove(${this.unit.unit}[${this.unit.coord}])`;
+    }
+}
+
+export class UnSelectTargetMove extends Move {
+    readonly unit: SituatedUnit;
+
+    constructor(unit: SituatedUnit) {
+        super();
+        this.unit = unit;
+    }
+
+    execute(gameState: GameState): void {
+        gameState.untargetUnit(this.unit.unit);
+    }
+
+    toString(): string {
+        return `UnSelectTargetMove(${this.unit.unit}[${this.unit.coord}])`;
     }
 }

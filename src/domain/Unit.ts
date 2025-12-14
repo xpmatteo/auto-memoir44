@@ -19,6 +19,7 @@ export class UnitState {
     hasMoved: boolean;
     skipsBattle: boolean;
     battlesThisTurn: number;
+    isTargeted: boolean;
 
     constructor(initialStrength: number) {
         this.strength = initialStrength;
@@ -26,6 +27,7 @@ export class UnitState {
         this.hasMoved = false;
         this.skipsBattle = false;
         this.battlesThisTurn = 0;
+        this.isTargeted = false;
     }
 
     /**
@@ -36,6 +38,7 @@ export class UnitState {
         this.hasMoved = false;
         this.skipsBattle = false;
         this.battlesThisTurn = 0;
+        this.isTargeted = false;
     }
 
     /**
@@ -47,6 +50,7 @@ export class UnitState {
         cloned.hasMoved = this.hasMoved;
         cloned.skipsBattle = this.skipsBattle;
         cloned.battlesThisTurn = this.battlesThisTurn;
+        cloned.isTargeted = this.isTargeted;
         return cloned;
     }
 }

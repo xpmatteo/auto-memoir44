@@ -283,6 +283,24 @@ export class Board {
     }
 
     /**
+     * Mark unit as targeted
+     */
+    targetUnit(unit: Unit): void {
+        this.validateUnit(unit);
+        const state = this.getUnitState(unit);
+        state.isTargeted = true;
+    }
+
+    /**
+     * Remove targeted mark from unit
+     */
+    untargetUnit(unit: Unit): void {
+        this.validateUnit(unit);
+        const state = this.getUnitState(unit);
+        state.isTargeted = false;
+    }
+
+    /**
      * Validate that unit exists
      */
     private validateUnit(unit: Unit): void {

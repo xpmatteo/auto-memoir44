@@ -22,6 +22,7 @@ import {Firefight} from "./cards/Firefight";
 import {DirectFromHQ} from "./cards/DirectFromHQ";
 import {MoveOut} from "./cards/MoveOut";
 import {ArmorAssault} from "./cards/ArmorAssault";
+import {AirPower} from "./cards/AirPower";
 
 export class Deck {
     private locations: Map<CardLocation, CommandCard[]>;
@@ -174,8 +175,6 @@ export class Deck {
         Infantry Assault (2)
         Medics & Mechanics (1)
 
-        Air Power ?!?
-
         Total: 60 cards
          */
 
@@ -204,6 +203,7 @@ export class Deck {
             [ArmorAssault, 2],
             [Firefight, 1],
             [CloseAssault, 1],
+            [AirPower, 100],
         ], rng);
     }
 
