@@ -82,22 +82,22 @@ describe("Air Power card", () => {
             });
 
             test('After selecting one unit, only adjacent units are selectable', () => {
-                gameState.executeMove(new SelectTargetMove(enemy1));
+                gameState.executeMove(new SelectTargetMove(enemy2));
                 expect(gameState.legalMoves().map(m => m.toString())).toEqual([
                     "ConfirmTargetsMove",
-                    "UnSelectTargetMove(Infantry/Axis[(1,2)])",
-                    "SelectTargetMove(Infantry/Axis[(2,2)])",
+                    "UnSelectTargetMove(Infantry/Axis[(2,2)])",
+                    "SelectTargetMove(Infantry/Axis[(1,2)])",
+                    "SelectTargetMove(Infantry/Axis[(3,2)])",
                 ]);
             });
 
-            test('After selecting three units', () => {
+            test('Cannot unselect middle unit because it makes target selection non-contiguous ', () => {
                 gameState.executeMove(new SelectTargetMove(enemy1));
                 gameState.executeMove(new SelectTargetMove(enemy2));
                 gameState.executeMove(new SelectTargetMove(enemy3));
                 expect(gameState.legalMoves().map(m => m.toString())).toEqual([
                     "ConfirmTargetsMove",
                     "UnSelectTargetMove(Infantry/Axis[(1,2)])",
-                    "UnSelectTargetMove(Infantry/Axis[(2,2)])",
                     "UnSelectTargetMove(Infantry/Axis[(3,2)])",
                     "SelectTargetMove(Infantry/Axis[(4,2)])",
                 ]);
@@ -111,8 +111,6 @@ describe("Air Power card", () => {
                 expect(gameState.legalMoves().map(m => m.toString())).toEqual([
                     "ConfirmTargetsMove",
                     "UnSelectTargetMove(Infantry/Axis[(1,2)])",
-                    "UnSelectTargetMove(Infantry/Axis[(2,2)])",
-                    "UnSelectTargetMove(Infantry/Axis[(3,2)])",
                     "UnSelectTargetMove(Infantry/Axis[(4,2)])",
                 ]);
             });

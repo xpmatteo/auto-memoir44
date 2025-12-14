@@ -39,9 +39,12 @@ export class SelectTargetPhase implements Phase {
         // Always allow confirming (even with 0 targets)
         moves.push(new ConfirmTargetsMove(this.dicePerTarget));
 
-        // Allow untargeting any targeted unit
+        // Allow untargeting units, but only if it wouldn't break contiguity
+        // A unit can be untargeted if removing it leaves the rest still contiguous
         for (const su of targetedUnits) {
-            moves.push(new UnSelectTargetMove(su));
+            if (this.canUntarget(su, targetedUnits)) {
+                moves.push(new UnSelectTargetMove(su));
+            }
         }
 
         // If we've reached the max, don't allow more selections
@@ -68,5 +71,42 @@ export class SelectTargetPhase implements Phase {
         }
 
         return moves;
+    }
+
+    /**
+     * Check if a unit can be untargeted without breaking contiguity.
+     * A unit can be untargeted if:
+     * 1. It's the only targeted unit, OR
+     * 2. After removing it, the remaining units are still contiguous
+     */
+    private canUntarget(unitToRemove: SituatedUnit, targetedUnits: SituatedUnit[]): boolean {
+        // If only one unit targeted, can always untarget it
+        if (targetedUnits.length <= 1) {
+            return true;
+        }
+
+        // Get remaining units after removal
+        const remaining = targetedUnits.filter(su => su !== unitToRemove);
+
+        // Check if remaining units form a contiguous group
+        // Use BFS starting from first remaining unit
+        const visited = new Set<SituatedUnit>();
+        const queue: SituatedUnit[] = [remaining[0]];
+        visited.add(remaining[0]);
+
+        while (queue.length > 0) {
+            const current = queue.shift()!;
+
+            // Find adjacent remaining units
+            for (const other of remaining) {
+                if (!visited.has(other) && hexDistance(current.coord, other.coord) === 1) {
+                    visited.add(other);
+                    queue.push(other);
+                }
+            }
+        }
+
+        // All remaining units should be visited if they're contiguous
+        return visited.size === remaining.length;
     }
 }
