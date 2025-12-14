@@ -164,7 +164,6 @@ export class Deck {
 
         Their Finest Hour (1)
 
-
         Artillery Bombard (1)
         Barrage (1)
         Behind Enemy Lines (1)
@@ -174,6 +173,8 @@ export class Deck {
 
         Infantry Assault (2)
         Medics & Mechanics (1)
+
+        Air Power ?!?
 
         Total: 60 cards
          */
