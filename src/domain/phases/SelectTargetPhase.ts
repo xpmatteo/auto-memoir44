@@ -8,7 +8,6 @@ import {SelectTargetMove, UnSelectTargetMove} from "../moves/SelectTargetMove";
 import {SituatedUnit} from "../SituatedUnit";
 import {hexDistance} from "../../utils/hex";
 import {ConfirmTargetsMove} from "../moves/ConfirmTargetsMove";
-import {Side} from "../Player";
 
 interface TargetSelector {
     getEnemyUnits(): Array<SituatedUnit>;
@@ -18,9 +17,9 @@ export class SelectTargetPhase implements Phase {
     name: string = "Select Targets";
     type = PhaseType.TARGET_SELECTION;
     private readonly maxTargets: number;
-    private readonly dicePerTarget: (side: Side) => number;
+    private readonly dicePerTarget: number;
 
-    constructor(maxTargets: number, dicePerTarget: (side: Side) => number) {
+    constructor(maxTargets: number, dicePerTarget: number) {
         this.maxTargets = maxTargets;
         this.dicePerTarget = dicePerTarget;
     }

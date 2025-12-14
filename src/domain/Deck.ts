@@ -163,6 +163,8 @@ export class Deck {
         /*
         To be added later:
 
+        Ambush (1)
+
         Their Finest Hour (1)
 
         Artillery Bombard (1)
@@ -203,7 +205,7 @@ export class Deck {
             [ArmorAssault, 2],
             [Firefight, 1],
             [CloseAssault, 1],
-            [AirPower, 100],
+            [AirPower, 1],
         ], rng);
     }
 

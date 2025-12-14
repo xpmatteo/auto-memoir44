@@ -83,7 +83,7 @@ describe("Air Power card", () => {
         describe('Can select up to 4 contiguous enemy units', () => {
             test('Should be able to select any enemy units', () => {
                 expect(gameState.legalMoves().map(m => m.toString())).toEqual([
-                    "ConfirmTargetsMove",
+                    "ConfirmTargetsMove(2 dice)",
                     "SelectTargetMove(Infantry/Axis[(8,0)])",
                     "SelectTargetMove(Infantry/Axis[(9,0)])",
                     "SelectTargetMove(Infantry/Axis[(1,2)])",
@@ -97,7 +97,7 @@ describe("Air Power card", () => {
             test('After selecting one unit, only adjacent units are selectable', () => {
                 gameState.executeMove(new SelectTargetMove(enemy2));
                 expect(gameState.legalMoves().map(m => m.toString())).toEqual([
-                    "ConfirmTargetsMove",
+                    "ConfirmTargetsMove(2 dice)",
                     "UnSelectTargetMove(Infantry/Axis[(2,2)])",
                     "SelectTargetMove(Infantry/Axis[(1,2)])",
                     "SelectTargetMove(Infantry/Axis[(3,2)])",
@@ -109,7 +109,7 @@ describe("Air Power card", () => {
                 gameState.executeMove(new SelectTargetMove(enemy2));
                 gameState.executeMove(new SelectTargetMove(enemy3));
                 expect(gameState.legalMoves().map(m => m.toString())).toEqual([
-                    "ConfirmTargetsMove",
+                    "ConfirmTargetsMove(2 dice)",
                     "UnSelectTargetMove(Infantry/Axis[(1,2)])",
                     "UnSelectTargetMove(Infantry/Axis[(3,2)])",
                     "SelectTargetMove(Infantry/Axis[(4,2)])",
@@ -122,7 +122,7 @@ describe("Air Power card", () => {
                 gameState.executeMove(new SelectTargetMove(enemy3));
                 gameState.executeMove(new SelectTargetMove(enemy4));
                 expect(gameState.legalMoves().map(m => m.toString())).toEqual([
-                    "ConfirmTargetsMove",
+                    "ConfirmTargetsMove(2 dice)",
                     "UnSelectTargetMove(Infantry/Axis[(1,2)])",
                     "UnSelectTargetMove(Infantry/Axis[(4,2)])",
                 ]);
@@ -136,7 +136,7 @@ describe("Air Power card", () => {
 
                 // should execute battle with 2 dice each
                 dice.setNextRolls([RESULT_INFANTRY, RESULT_INFANTRY, RESULT_INFANTRY, RESULT_INFANTRY]);
-                gameState.executeMove(new ConfirmTargetsMove((side) => side === Side.ALLIES ? 2 : 1));
+                gameState.executeMove(new ConfirmTargetsMove(2));
 
                 const enemy1AfterAirPower = getUnitAt(gameState, enemy1.coord.q, enemy1.coord.r);
                 const enemy2AfterAirPower = getUnitAt(gameState, enemy2.coord.q, enemy2.coord.r);
@@ -148,7 +148,7 @@ describe("Air Power card", () => {
                 gameState.executeMove(new SelectTargetMove(targetUnit));
 
                 dice.setNextRolls(results);
-                gameState.executeMove(new ConfirmTargetsMove((side) => side === Side.ALLIES ? 2 : 1));
+                gameState.executeMove(new ConfirmTargetsMove(2));
 
                 const enemy1AfterAirPower = getUnitAt(gameState, targetUnit.coord.q, targetUnit.coord.r);
                 expect(enemy1AfterAirPower.unitState.strength).toBe(expectedStrength);
@@ -177,7 +177,7 @@ describe("Air Power card", () => {
     });
 
     describe('Axis', () => {
-        test('Battle with 1 die per enemy unit', () => {
+        test('Battles with 1 die per enemy unit', () => {
             const unitSetup = [
                 "   0   1   2   3   4   5   6   7   8   9  10  11  12",
                 "....    ....    ....    ....    ....    ....    ....",
@@ -192,20 +192,12 @@ describe("Air Power card", () => {
             ];
 
             const gameState = setupGame(unitSetup, Side.AXIS);
-            const enemy1 = getUnitAt(gameState, -2, 8);
-            const enemy2 = getUnitAt(gameState, -1, 8);
 
-            gameState.executeMove(new SelectTargetMove(enemy1));
-            gameState.executeMove(new SelectTargetMove(enemy2));
-
-            // should execute battle with 1 dice each
-            dice.setNextRolls([RESULT_INFANTRY, RESULT_INFANTRY]);
-            gameState.executeMove(new ConfirmTargetsMove((side) => side === Side.ALLIES ? 2 : 1));
-
-            const enemy1AfterAirPower = getUnitAt(gameState, -2, 8);
-            const enemy2AfterAirPower = getUnitAt(gameState, -1, 8);
-            expect(enemy1AfterAirPower.unitState.strength).toBe(3);
-            expect(enemy2AfterAirPower.unitState.strength).toBe(3);
+            expect(gameState.legalMoves().map(m => m.toString())).toEqual([
+                "ConfirmTargetsMove(1 dice)",
+                "SelectTargetMove(Infantry/Allies[(-2,8)])",
+                "SelectTargetMove(Infantry/Allies[(-1,8)])",
+            ]);
         });
     });
 

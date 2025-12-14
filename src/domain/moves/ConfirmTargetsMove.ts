@@ -3,7 +3,6 @@
 
 import {GameState} from "../GameState";
 import {Move} from "./Move";
-import {Side} from "../Player";
 import {resolveHits} from "../../rules/combat";
 import {RESULT_FLAG} from "../Dice";
 import {handleFlags} from "../../rules/flags";
@@ -13,9 +12,9 @@ import {HexCoord} from "../../utils/hex";
 import {Position} from "../Player";
 
 export class ConfirmTargetsMove extends Move {
-    private readonly dicePerTarget: (side: Side) => number;
+    private readonly dicePerTarget: number;
 
-    constructor(dicePerTarget: (side: Side) => number) {
+    constructor(dicePerTarget: number) {
         super();
         this.dicePerTarget = dicePerTarget;
     }
@@ -24,15 +23,12 @@ export class ConfirmTargetsMove extends Move {
         const allUnits = gameState.getAllUnits();
         const targetedUnits = allUnits.filter(su => su.unitState.isTargeted);
 
-        const attackerSide = gameState.activePlayer.side;
-        const dice = this.dicePerTarget(attackerSide);
-
         // Execute air power battle against each targeted unit
         for (const su of targetedUnits) {
             const targetHex = su.coord;
             const targetUnit = su.unit;
             // Roll dice
-            const diceResults = gameState.rollDice(dice);
+            const diceResults = gameState.rollDice(this.dicePerTarget);
 
             // Resolve hits (stars count as hits for air power)
             const hits = resolveHits(diceResults, targetUnit, true);
@@ -107,6 +103,6 @@ export class ConfirmTargetsMove extends Move {
     }
 
     toString(): string {
-        return `ConfirmTargetsMove`;
+        return `ConfirmTargetsMove(${this.dicePerTarget} dice)`;
     }
 }

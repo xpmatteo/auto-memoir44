@@ -17,7 +17,8 @@ export class AirPower extends CommandCard {
         gameState.replacePhase(new ReplenishHandPhase());
 
         // Dice per target varies by side: Allies get 2, Axis gets 1
-        const dicePerTarget = (side: Side) => side === Side.ALLIES ? 2 : 1;
+        const side = gameState.activePlayer.side;
+        const dicePerTarget = side === Side.ALLIES ? 2 : 1;
 
         gameState.pushPhase(new SelectTargetPhase(this.howManyUnits, dicePerTarget));
     }
