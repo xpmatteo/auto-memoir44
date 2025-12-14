@@ -2,22 +2,11 @@
 // ABOUTME: Tests armor-specific movement (0-3 hexes) and battle eligibility
 
 import {expect, test, describe} from "vitest";
-import {GameState} from "../../../src/domain/GameState";
-import {Deck} from "../../../src/domain/Deck";
-import {CardLocation} from "../../../src/domain/cards/CommandCard";
-import {ConfirmOrdersMove, PlayCardMove, OrderUnitMove, EndMovementsMove} from "../../../src/domain/moves/Move";
+import {ConfirmOrdersMove, OrderUnitMove, EndMovementsMove} from "../../../src/domain/moves/Move";
 import {HexCoord} from "../../../src/utils/hex";
-import {parseAndSetupUnits} from "../../../src/scenarios/Scenario";
 import {ArmorAssault} from "../../../src/domain/cards/ArmorAssault";
-import {resetUnitIdCounter} from "../../../src/domain/Unit";
+import {getUnitAt, setupGameForCommandCardTests} from "../../helpers/testHelpers";
 
-function setupGame() {
-    resetUnitIdCounter();
-    const deck = Deck.createFromComposition([[ArmorAssault, 10]]);
-    const gameState = new GameState(deck);
-    gameState.drawCards(3, CardLocation.BOTTOM_PLAYER_HAND);
-    return {gameState, deck};
-}
 
 describe("Armor Assault card", () => {
 
@@ -34,10 +23,7 @@ describe("Armor Assault card", () => {
             "~~....    ....    ....    ....    ....    ....    ~~",
             "....    ....    ....    ....    ....    ....    ....",
         ];
-
-        const {gameState, deck} = setupGame();
-        parseAndSetupUnits(gameState, unitSetup);
-        gameState.executeMove(new PlayCardMove(deck.peekOneCard()));
+        const gameState = setupGameForCommandCardTests(unitSetup, ArmorAssault);
 
         expect(gameState.legalMoves().map(m => m.toString())).toEqual([
             "ConfirmOrdersMove",
@@ -61,10 +47,7 @@ describe("Armor Assault card", () => {
                 "~~....    ....    ....    ....    ....    ....    ~~",
                 "....    ....    ....    ....    ....    ....    ....",
             ];
-
-            const {gameState, deck} = setupGame();
-            parseAndSetupUnits(gameState, unitSetup);
-            gameState.executeMove(new PlayCardMove(deck.peekOneCard()));
+            const gameState = setupGameForCommandCardTests(unitSetup, ArmorAssault);
 
             expect(gameState.legalMoves().map(m => m.toString())).toEqual([
                 "ConfirmOrdersMove",
@@ -88,10 +71,7 @@ describe("Armor Assault card", () => {
                 "~~....    ....    ....    ....    ....    ....    ~~",
                 "....    ....    ....    ....    ....    ....    ....",
             ];
-
-            const {gameState, deck} = setupGame();
-            parseAndSetupUnits(gameState, unitSetup);
-            gameState.executeMove(new PlayCardMove(deck.peekOneCard()));
+            const gameState = setupGameForCommandCardTests(unitSetup, ArmorAssault);
             gameState.executeMove(new OrderUnitMove(gameState.getUnitAt(new HexCoord(1, 6))!));
 
             expect(gameState.legalMoves().map(m => m.toString())).toEqual([
@@ -116,19 +96,9 @@ describe("Armor Assault card", () => {
             "~~....    ....    ....    ....    ....    ....    ~~",
             "....    ....    ....    ....    ....    ....    ....",
         ];
-
-        const deck = Deck.createFromComposition([[ArmorAssault, 10]]);
-        const gameState = new GameState(deck);
-        parseAndSetupUnits(gameState, unitSetup);
-
-        // Find the 2 armor units
-        const allUnits = gameState.getAllUnitsWithPositions();
-        const armorUnits = allUnits.filter(({unit}) => unit.type === "armor" && unit.side === "Allies");
-        expect(armorUnits.length).toBe(2);
-
-        gameState.executeMove(new PlayCardMove(deck.peekOneCard()));
-        gameState.executeMove(new OrderUnitMove(armorUnits[0].unit));
-        gameState.executeMove(new OrderUnitMove(armorUnits[1].unit));
+        const gameState = setupGameForCommandCardTests(unitSetup, ArmorAssault);
+        gameState.executeMove(new OrderUnitMove(getUnitAt(gameState, 2, 6).unit));
+        gameState.executeMove(new OrderUnitMove(getUnitAt(gameState, 3, 6).unit));
         gameState.executeMove(new ConfirmOrdersMove());
         gameState.executeMove(new EndMovementsMove());
 

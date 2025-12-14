@@ -17,16 +17,7 @@ import {
     RESULT_STAR
 } from "../../../src/domain/Dice";
 import {ConfirmTargetsMove} from "../../../src/domain/moves/ConfirmTargetsMove";
-import {setupGameForCommandCardTests} from "../../helpers/testHelpers";
-
-function getUnitAt(gameState: GameState, q: number, r: number): SituatedUnit {
-    const allUnits = gameState.getAllUnits();
-    const found = allUnits.find(su => su.coord.q === q && su.coord.r === r);
-    if (!found) {
-        throw new Error(`No unit at (${q},${r})`);
-    }
-    return found;
-}
+import {getUnitAt, setupGameForCommandCardTests} from "../../helpers/testHelpers";
 
 describe("Air Power card", () => {
     const dice = new ProgrammableDice();
