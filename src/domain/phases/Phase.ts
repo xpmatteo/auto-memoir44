@@ -7,7 +7,8 @@ export const PhaseType = {
     MOVE: "move",
     BATTLE: "battle",
     RETREAT: "retreat",
-    REPLENISH_HAND: "replenish_hand"
+    REPLENISH_HAND: "replenish_hand",
+    TARGET_SELECTION: "target_selection",
 } as const;
 
 export type PhaseType = typeof PhaseType[keyof typeof PhaseType];

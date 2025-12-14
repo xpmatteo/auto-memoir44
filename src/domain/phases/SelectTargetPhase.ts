@@ -16,7 +16,7 @@ interface TargetSelector {
 
 export class SelectTargetPhase implements Phase {
     name: string = "Select Targets";
-    type = PhaseType.ORDER;
+    type = PhaseType.TARGET_SELECTION;
     private readonly maxTargets: number;
     private readonly dicePerTarget: (side: Side) => number;
 
