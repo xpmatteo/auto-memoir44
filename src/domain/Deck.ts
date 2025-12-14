@@ -23,6 +23,7 @@ import {DirectFromHQ} from "./cards/DirectFromHQ";
 import {MoveOut} from "./cards/MoveOut";
 import {ArmorAssault} from "./cards/ArmorAssault";
 import {AirPower} from "./cards/AirPower";
+import {Barrage} from "./cards/Barrage";
 
 export class Deck {
     private locations: Map<CardLocation, CommandCard[]>;
@@ -168,7 +169,6 @@ export class Deck {
         Their Finest Hour (1)
 
         Artillery Bombard (1)
-        Barrage (1)
         Behind Enemy Lines (1)
 
         Counter-Attack (2)
@@ -206,6 +206,7 @@ export class Deck {
             [Firefight, 1],
             [CloseAssault, 1],
             [AirPower, 1],
+            [Barrage, 100],
         ], rng);
     }
 

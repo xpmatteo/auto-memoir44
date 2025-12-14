@@ -13,10 +13,12 @@ import {Position} from "../Player";
 
 export class ConfirmTargetsMove extends Move {
     private readonly dicePerTarget: number;
+    private readonly starsCountAsHits: boolean;
 
-    constructor(dicePerTarget: number) {
+    constructor(dicePerTarget: number, starsCountAsHits: boolean = true) {
         super();
         this.dicePerTarget = dicePerTarget;
+        this.starsCountAsHits = starsCountAsHits;
     }
 
     execute(gameState: GameState): void {
@@ -30,8 +32,8 @@ export class ConfirmTargetsMove extends Move {
             // Roll dice
             const diceResults = gameState.rollDice(this.dicePerTarget);
 
-            // Resolve hits (stars count as hits for air power)
-            const hits = resolveHits(diceResults, targetUnit, true);
+            // Resolve hits (whether stars count depends on the card)
+            const hits = resolveHits(diceResults, targetUnit, this.starsCountAsHits);
 
             // Count flags
             const flagCount = diceResults.filter(result => result === RESULT_FLAG).length;
@@ -103,6 +105,6 @@ export class ConfirmTargetsMove extends Move {
     }
 
     toString(): string {
-        return `ConfirmTargetsMove(${this.dicePerTarget} dice)`;
+        return `ConfirmTargetsMove(${this.dicePerTarget} dice, starsCountAsHits=${this.starsCountAsHits})`;
     }
 }

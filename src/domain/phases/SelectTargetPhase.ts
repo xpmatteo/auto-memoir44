@@ -18,10 +18,12 @@ export class SelectTargetPhase implements Phase {
     type = PhaseType.TARGET_SELECTION;
     private readonly maxTargets: number;
     private readonly dicePerTarget: number;
+    private readonly starsCountAsHits: boolean;
 
-    constructor(maxTargets: number, dicePerTarget: number) {
+    constructor(maxTargets: number, dicePerTarget: number, starsCountAsHits: boolean = true) {
         this.maxTargets = maxTargets;
         this.dicePerTarget = dicePerTarget;
+        this.starsCountAsHits = starsCountAsHits;
     }
 
     legalMoves(gameState: GameState): Array<Move> {
@@ -36,7 +38,7 @@ export class SelectTargetPhase implements Phase {
         const moves: Array<Move> = [];
 
         // Always allow confirming (even with 0 targets)
-        moves.push(new ConfirmTargetsMove(this.dicePerTarget));
+        moves.push(new ConfirmTargetsMove(this.dicePerTarget, this.starsCountAsHits));
 
         // Allow untargeting units, but only if it wouldn't break contiguity
         // A unit can be untargeted if removing it leaves the rest still contiguous
