@@ -1,3 +1,6 @@
+// ABOUTME: Phase for drawing two cards and choosing one to keep
+// ABOUTME: Special replenishment - player sees two cards and selects which to add to hand
+
 import {GameState} from "../GameState";
 import {Move, ReplenishHandChooseCardMove} from "../moves/Move";
 import {Phase, PhaseType} from "./Phase";

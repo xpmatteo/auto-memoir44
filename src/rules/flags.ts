@@ -1,3 +1,6 @@
+// ABOUTME: Flag battle result handling - determines damage and retreat options
+// ABOUTME: Processes flag dice results considering fortifications and blocked retreat paths
+
 import {HexCoord} from "../utils/hex";
 import {RetreatPaths} from "./retreatPaths";
 

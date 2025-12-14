@@ -1,3 +1,6 @@
+// ABOUTME: Phase for drawing a single card to replenish hand after playing a card
+// ABOUTME: Standard replenishment - automatically draws one card from deck
+
 import {GameState} from "../GameState";
 import {Move, ReplenishHandMove} from "../moves/Move";
 import {Phase, PhaseType} from "./Phase";

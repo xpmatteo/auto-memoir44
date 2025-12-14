@@ -1,3 +1,6 @@
+// ABOUTME: Phase for selecting and playing a command card from hand
+// ABOUTME: First phase of each turn - determines the rest of the turn's actions
+
 import {GameState} from "../GameState";
 import {Move, PlayCardMove} from "../moves/Move";
 import {Position} from "../Player";

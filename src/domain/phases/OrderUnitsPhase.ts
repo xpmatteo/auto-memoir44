@@ -1,3 +1,6 @@
+// ABOUTME: Phase for ordering units in specific board sections
+// ABOUTME: Players select units to activate based on the played command card's section restrictions
+
 import {Section} from "../Section";
 import {Unit} from "../Unit";
 import {GameState} from "../GameState";

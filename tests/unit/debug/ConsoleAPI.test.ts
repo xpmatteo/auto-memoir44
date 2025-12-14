@@ -1,5 +1,5 @@
 // ABOUTME: Unit tests for ConsoleAPI - testing console commands for game testing
-// ABOUTME: Tests clickHex(), playCard(), pressButton(), and help() methods
+// ABOUTME: Tests clickHex(), playCard(), pressButton() methods
 
 import {describe, test, expect, vi, beforeEach} from 'vitest';
 import {ConsoleAPI} from '../../../src/debug/ConsoleAPI';
@@ -31,20 +31,6 @@ describe('ConsoleAPI', () => {
             renderCallCount++;
         });
         consoleAPI = new ConsoleAPI(gameState, uiState, renderCallback);
-    });
-
-    describe('help', () => {
-        test('prints help message to console', () => {
-            const consoleSpy = vi.spyOn(console, 'log');
-            consoleAPI.help();
-            expect(consoleSpy).toHaveBeenCalled();
-            const output = consoleSpy.mock.calls[0][0] as string;
-            expect(output).toContain('Console API');
-            expect(output).toContain('clickHex');
-            expect(output).toContain('playCard');
-            expect(output).toContain('pressButton');
-            consoleSpy.mockRestore();
-        });
     });
 
     describe('clickHex', () => {

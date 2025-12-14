@@ -2,7 +2,7 @@
 // ABOUTME: Used by BattlePhase to determine how many dice a unit rolls in battle
 
 import {Unit, UnitType} from "../domain/Unit";
-import {DiceResult, RESULT_INFANTRY, RESULT_GRENADE, RESULT_ARMOR} from "../domain/Dice";
+import {DiceResult, RESULT_INFANTRY, RESULT_GRENADE, RESULT_ARMOR, RESULT_STAR} from "../domain/Dice";
 import {
     hillTerrain,
     Terrain,
@@ -66,12 +66,18 @@ export function calculateDiceCount(
  *
  * @param diceResults - The results from rolling dice
  * @param targetUnit - The unit being attacked
+ * @param starsCountAsHits - Whether star results should count as hits (default: false)
  * @returns The number of hits scored
  */
-export function resolveHits(diceResults: DiceResult[], targetUnit: Unit): number {
+export function resolveHits(diceResults: DiceResult[], targetUnit: Unit, starsCountAsHits: boolean = false): number {
     let hits = 0;
 
     for (const result of diceResults) {
+        if (starsCountAsHits && result === RESULT_STAR) {
+            hits++;
+            continue;
+        }
+
         if (targetUnit.type === UnitType.INFANTRY) {
             if (result === RESULT_INFANTRY || result === RESULT_GRENADE) {
                 hits++;

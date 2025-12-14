@@ -34,8 +34,8 @@ export class ConfirmTargetsMove extends Move {
             // Roll dice
             const diceResults = gameState.rollDice(dice);
 
-            // Resolve hits
-            const hits = resolveHits(diceResults, targetUnit);
+            // Resolve hits (stars count as hits for air power)
+            const hits = resolveHits(diceResults, targetUnit, true);
 
             // Count flags
             const flagCount = diceResults.filter(result => result === RESULT_FLAG).length;

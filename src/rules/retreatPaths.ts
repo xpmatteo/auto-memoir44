@@ -1,3 +1,6 @@
+// ABOUTME: Retreat path calculation for flag battle results
+// ABOUTME: Computes valid retreat hexes at various distances, excluding occupied and off-board hexes
+
 import {GameState} from "../domain/GameState";
 import {HexCoord, HexCoordKey} from "../utils/hex";
 import {Side} from "../domain/Player";

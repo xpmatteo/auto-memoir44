@@ -1,4 +1,5 @@
 // ABOUTME: Move types and definitions for game actions
+// ABOUTME: Base Move class and all concrete move implementations (PlayCard, Order, Battle, etc.)
 
 import {CommandCard} from "../cards/CommandCard";
 import {GameState} from "../GameState";

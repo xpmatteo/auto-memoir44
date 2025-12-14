@@ -12,7 +12,14 @@ import {resetUnitIdCounter} from "../../../src/domain/Unit";
 import {AirPower} from "../../../src/domain/cards/AirPower";
 import {SelectTargetMove} from "../../../src/domain/moves/SelectTargetMove";
 import {SituatedUnit} from "../../../src/domain/SituatedUnit";
-import {ProgrammableDice, RESULT_INFANTRY} from "../../../src/domain/Dice";
+import {
+    DiceResult,
+    ProgrammableDice,
+    RESULT_ARMOR,
+    RESULT_GRENADE,
+    RESULT_INFANTRY,
+    RESULT_STAR
+} from "../../../src/domain/Dice";
 import {ConfirmTargetsMove} from "../../../src/domain/moves/ConfirmTargetsMove";
 
 const dice = new ProgrammableDice();
@@ -115,7 +122,8 @@ describe("Air Power card", () => {
                 ]);
             });
         });
-        describe('Battle with two dice', () => {
+
+        describe('Battle', () => {
             test('Allies battle with 2 dice per enemy unit', () => {
                 gameState.executeMove(new SelectTargetMove(enemy1));
                 gameState.executeMove(new SelectTargetMove(enemy2));
@@ -124,12 +132,33 @@ describe("Air Power card", () => {
                 dice.setNextRolls([RESULT_INFANTRY, RESULT_INFANTRY, RESULT_INFANTRY, RESULT_INFANTRY]);
                 gameState.executeMove(new ConfirmTargetsMove((side) => side === Side.ALLIES ? 2 : 1));
 
-                const enemy2AfterAirPower = getUnitAt(gameState, 1, 2);
-                const enemy3AfterAirPower = getUnitAt(gameState, 2, 2);
+                const enemy1AfterAirPower = getUnitAt(gameState, enemy1.coord.q, enemy1.coord.r);
+                const enemy2AfterAirPower = getUnitAt(gameState, enemy2.coord.q, enemy2.coord.r);
+                expect(enemy1AfterAirPower.unitState.strength).toBe(2);
                 expect(enemy2AfterAirPower.unitState.strength).toBe(2);
-                expect(enemy3AfterAirPower.unitState.strength).toBe(2);
             });
 
+            function expectResultingStrength(results: DiceResult[], expectedStrength: number) {
+                gameState.executeMove(new SelectTargetMove(enemy1));
+
+                dice.setNextRolls(results);
+                gameState.executeMove(new ConfirmTargetsMove((side) => side === Side.ALLIES ? 2 : 1));
+
+                const enemy1AfterAirPower = getUnitAt(gameState, enemy1.coord.q, enemy1.coord.r);
+                expect(enemy1AfterAirPower.unitState.strength).toBe(expectedStrength);
+            }
+
+            test('Wrong unit symbol ', () => {
+                expectResultingStrength([RESULT_ARMOR, RESULT_ARMOR], 4);
+            });
+
+            test('Grenades count as hit', () => {
+                expectResultingStrength([RESULT_GRENADE, RESULT_GRENADE], 2);
+            });
+
+            test('Star count as hit', () => {
+                expectResultingStrength([RESULT_STAR, RESULT_STAR], 2);
+            });
         });
     });
 

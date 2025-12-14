@@ -1,3 +1,6 @@
+// ABOUTME: Moves for selecting and unselecting target units during air power attacks
+// ABOUTME: SelectTargetMove targets a unit, UnSelectTargetMove removes targeting
+
 import {GameState} from "../GameState";
 import {Move} from "./Move";
 import {SituatedUnit} from "../SituatedUnit";

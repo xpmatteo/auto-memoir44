@@ -1,3 +1,6 @@
+// ABOUTME: Phase interface and PhaseType enum - defines the turn structure contract
+// ABOUTME: Each phase implements legalMoves() to determine what the active player can do
+
 import {GameState} from "../GameState";
 import {Move} from "../moves/Move";
 
