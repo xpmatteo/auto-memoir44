@@ -2,20 +2,10 @@
 // ABOUTME: Tests armor-specific movement (0-3 hexes) and battle eligibility
 
 import {expect, test, describe} from "vitest";
-import {GameState} from "../../../src/domain/GameState";
-import {Deck} from "../../../src/domain/Deck";
-import {CardLocation} from "../../../src/domain/cards/CommandCard";
-import {ConfirmOrdersMove, PlayCardMove, OrderUnitMove} from "../../../src/domain/moves/Move";
+import {ConfirmOrdersMove, OrderUnitMove} from "../../../src/domain/moves/Move";
 import {HexCoord} from "../../../src/utils/hex";
-import {parseAndSetupUnits} from "../../../src/scenarios/Scenario";
 import {CloseAssault} from "../../../src/domain/cards/CloseAssault";
-
-function setupGame() {
-    const deck = Deck.createFromComposition([[CloseAssault, 10]]);
-    const gameState = new GameState(deck);
-    gameState.drawCards(3, CardLocation.BOTTOM_PLAYER_HAND);
-    return {deck, gameState};
-}
+import {setupGameForCommandCardTests} from "../../helpers/testHelpers";
 
 describe("Close Assault card", () => {
 
@@ -32,12 +22,7 @@ describe("Close Assault card", () => {
             "~~....    ....    ....    ....    ....    ....    ~~",
             "....    ....    ....    ....    ....    ....    ....",
         ];
-
-        const deck = Deck.createFromComposition([[CloseAssault, 10]]);
-        const gameState = new GameState(deck);
-        parseAndSetupUnits(gameState, unitSetup);
-
-        gameState.executeMove(new PlayCardMove(deck.peekOneCard()));
+        const gameState = setupGameForCommandCardTests(unitSetup, CloseAssault);
 
         expect(gameState.legalMoves().map(m => m.toString())).toEqual([
             "ConfirmOrdersMove",
@@ -59,14 +44,10 @@ describe("Close Assault card", () => {
             "~~....    ....    ....    ....    ....    ....    ~~",
             "....    ....    ....    ....    ....    ....    ....",
         ];
-
-        const deck = Deck.createFromComposition([[CloseAssault, 10]]);
-        const gameState = new GameState(deck);
-        parseAndSetupUnits(gameState, unitSetup);
-
-        gameState.executeMove(new PlayCardMove(deck.peekOneCard()));
+        const gameState = setupGameForCommandCardTests(unitSetup, CloseAssault);
         gameState.executeMove(new OrderUnitMove(gameState.getUnitAt(new HexCoord(3, 6))!));
         gameState.executeMove(new OrderUnitMove(gameState.getUnitAt(new HexCoord(4, 6))!));
+
         gameState.executeMove(new ConfirmOrdersMove());
 
         expect(gameState.legalMoves().map(m => m.toString())).toEqual([
@@ -89,10 +70,8 @@ describe("Close Assault card", () => {
             "~~....    ....    ....    ....    ....    ....    ~~",
             "....    ....    ....    ....    ....    ....    ....",
         ];
-        const {deck, gameState} = setupGame();
-        parseAndSetupUnits(gameState, unitSetup);
+        const gameState = setupGameForCommandCardTests(unitSetup, CloseAssault);
 
-        gameState.executeMove(new PlayCardMove(deck.peekOneCard()));
         gameState.executeMove(new OrderUnitMove(gameState.getUnitAt(new HexCoord(3, 6))!));
         gameState.executeMove(new OrderUnitMove(gameState.getUnitAt(new HexCoord(4, 6))!));
         gameState.executeMove(new ConfirmOrdersMove());
