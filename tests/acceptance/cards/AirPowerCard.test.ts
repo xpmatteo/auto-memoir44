@@ -15,7 +15,7 @@ import {SituatedUnit} from "../../../src/domain/SituatedUnit";
 import {
     DiceResult,
     ProgrammableDice,
-    RESULT_ARMOR,
+    RESULT_ARMOR, RESULT_FLAG,
     RESULT_GRENADE,
     RESULT_INFANTRY,
     RESULT_STAR
@@ -51,7 +51,7 @@ describe("Air Power card", () => {
     describe('Allies', () => {
         const unitSetup = [
             "   0   1   2   3   4   5   6   7   8   9  10  11  12",
-            "....    ....    ....    ....    ....    ....    ....",
+            "....    ....    ....    ....    .insWin ....    ....",
             "~~....    ....    ....    ....    ....    ....    ~~",
             "....    .in. in .in. in .in.    ....    ....    ....",
             "~~....    ....    ....    ....    ....    ....    ~~",
@@ -67,6 +67,8 @@ describe("Air Power card", () => {
         let enemy2: SituatedUnit;
         let enemy3: SituatedUnit;
         let enemy4: SituatedUnit;
+        let enemyInSandbag: SituatedUnit;
+        let enemyInWoods: SituatedUnit;
 
         beforeEach(() => {
             gameState = setupGame(unitSetup);
@@ -74,12 +76,16 @@ describe("Air Power card", () => {
             enemy2 = getUnitAt(gameState, 2, 2);
             enemy3 = getUnitAt(gameState, 3, 2);
             enemy4 = getUnitAt(gameState, 4, 2);
+            enemyInSandbag = getUnitAt(gameState, 8, 0);
+            enemyInWoods = getUnitAt(gameState, 9, 0);
         });
 
         describe('Can select up to 4 contiguous enemy units', () => {
             test('Should be able to select any enemy units', () => {
                 expect(gameState.legalMoves().map(m => m.toString())).toEqual([
                     "ConfirmTargetsMove",
+                    "SelectTargetMove(Infantry/Axis[(8,0)])",
+                    "SelectTargetMove(Infantry/Axis[(9,0)])",
                     "SelectTargetMove(Infantry/Axis[(1,2)])",
                     "SelectTargetMove(Infantry/Axis[(2,2)])",
                     "SelectTargetMove(Infantry/Axis[(3,2)])",
@@ -138,26 +144,34 @@ describe("Air Power card", () => {
                 expect(enemy2AfterAirPower.unitState.strength).toBe(2);
             });
 
-            function expectResultingStrength(results: DiceResult[], expectedStrength: number) {
-                gameState.executeMove(new SelectTargetMove(enemy1));
+            function expectResultingStrength(targetUnit: SituatedUnit, results: DiceResult[], expectedStrength: number) {
+                gameState.executeMove(new SelectTargetMove(targetUnit));
 
                 dice.setNextRolls(results);
                 gameState.executeMove(new ConfirmTargetsMove((side) => side === Side.ALLIES ? 2 : 1));
 
-                const enemy1AfterAirPower = getUnitAt(gameState, enemy1.coord.q, enemy1.coord.r);
+                const enemy1AfterAirPower = getUnitAt(gameState, targetUnit.coord.q, targetUnit.coord.r);
                 expect(enemy1AfterAirPower.unitState.strength).toBe(expectedStrength);
             }
 
             test('Wrong unit symbol ', () => {
-                expectResultingStrength([RESULT_ARMOR, RESULT_ARMOR], 4);
+                expectResultingStrength(enemy1, [RESULT_ARMOR, RESULT_ARMOR], 4);
             });
 
             test('Grenades count as hit', () => {
-                expectResultingStrength([RESULT_GRENADE, RESULT_GRENADE], 2);
+                expectResultingStrength(enemy1, [RESULT_GRENADE, RESULT_GRENADE], 2);
             });
 
             test('Star count as hit', () => {
-                expectResultingStrength([RESULT_STAR, RESULT_STAR], 2);
+                expectResultingStrength(enemy1, [RESULT_STAR, RESULT_STAR], 2);
+            });
+
+            test('Flags cannot be ignored', () => {
+                expectResultingStrength(enemyInSandbag, [RESULT_FLAG, RESULT_FLAG], 2);
+            });
+
+            test('Terrain protection is ignored', () => {
+                expectResultingStrength(enemyInWoods, [RESULT_GRENADE, RESULT_GRENADE], 2);
             });
         });
     });
