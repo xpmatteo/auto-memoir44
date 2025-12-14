@@ -13,6 +13,7 @@ import {uiState, BattleTarget} from "../UIState.js";
 import {MoveUnitMove} from "../../domain/moves/MoveUnitMove";
 import {BattleMove} from "../../domain/moves/BattleMove";
 import {TakeGroundMove} from "../../domain/moves/TakeGroundMove";
+import {SelectTargetMove, UnSelectTargetMove} from "../../domain/moves/SelectTargetMove";
 
 export class CanvasClickHandler {
     private boundHandler: (event: MouseEvent) => void;
@@ -45,6 +46,8 @@ export class CanvasClickHandler {
             this.handleBattleClick(hexCoord);
         } else if (currentPhase.type === PhaseType.RETREAT) {
             this.handleRetreatClick(hexCoord);
+        } else if (currentPhase.type === PhaseType.TARGET_SELECTION) {
+            this.handleTargetSelectionClick(hexCoord);
         }
     }
 
@@ -237,6 +240,32 @@ export class CanvasClickHandler {
         if (takeGroundMove) {
             this.gameState.executeMove(takeGroundMove);
             uiState.clearSelection();
+            this.onUpdate();
+        }
+    }
+
+    /**
+     * Handle clicks during SelectTargetPhase
+     * Single-click flow: click on enemy unit to target/untarget it
+     */
+    private handleTargetSelectionClick(hexCoord: HexCoord): void {
+        const unit = this.gameState.getUnitAt(hexCoord);
+
+        if (!unit) {
+            return;
+        }
+
+        const legalMoves = this.gameState.legalMoves();
+
+        // Check if this is a select or unselect move
+        const selectMove = legalMoves.find(
+            m => (m instanceof SelectTargetMove || m instanceof UnSelectTargetMove) &&
+                 m.unit.coord.q === hexCoord.q &&
+                 m.unit.coord.r === hexCoord.r
+        );
+
+        if (selectMove) {
+            this.gameState.executeMove(selectMove);
             this.onUpdate();
         }
     }

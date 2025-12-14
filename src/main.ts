@@ -20,7 +20,8 @@ import {
     drawValidDestinations,
     drawBattleUnitOutlines,
     drawBattleTargets,
-    drawRetreatHexes
+    drawRetreatHexes,
+    drawTargetedUnitOutlines
 } from "./ui/canvas/HexGrid.js";
 import {drawUnits} from "./ui/canvas/UnitRenderer.js";
 import {drawMedals} from "./ui/canvas/MedalRenderer.js";
@@ -231,6 +232,13 @@ async function start() {
                 // Highlight available retreat hexes
                 uiState.selectRetreatHexes(retreatPhase.availableRetreatHexes);
                 drawRetreatHexes(context, uiState.validRetreatHexes, defaultGrid);
+            }
+
+            // Draw targeted unit outlines during TARGET_SELECTION phase
+            if (gameState.activePhase.type === PhaseType.TARGET_SELECTION) {
+                const targetedUnits = gameState.getAllUnits().filter(su => su.unitState.isTargeted);
+                const targetedCoords = targetedUnits.map(su => su.coord);
+                drawTargetedUnitOutlines(context, targetedCoords, defaultGrid);
             }
 
             // Draw valid destination highlights

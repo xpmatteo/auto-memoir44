@@ -32,7 +32,11 @@ import {
     DICE_INDICATOR_FONT_SIZE,
     RETREAT_HEX_FILL_COLOR,
     RETREAT_HEX_OUTLINE_COLOR,
-    RETREAT_HEX_OUTLINE_WIDTH
+    RETREAT_HEX_OUTLINE_WIDTH,
+    TARGETED_UNIT_OUTLINE_COLOR,
+    TARGETED_UNIT_SHADOW_COLOR,
+    TARGETED_UNIT_OUTLINE_WIDTH,
+    TARGETED_UNIT_SHADOW_BLUR
 } from "../../utils/constants.js";
 
 const SQRT3 = Math.sqrt(3);
@@ -285,6 +289,29 @@ export function drawRetreatHexes(
         context.closePath();
         context.fill();
         context.stroke();
+    }
+
+    context.restore();
+}
+
+/**
+ * Draw outlines around targeted units to highlight them.
+ * Uses orange-red stroke to indicate units selected for air power attack.
+ */
+export function drawTargetedUnitOutlines(
+    context: CanvasRenderingContext2D,
+    targetedCoords: HexCoord[],
+    grid: GridConfig
+) {
+    context.save();
+    context.lineWidth = TARGETED_UNIT_OUTLINE_WIDTH;
+    context.strokeStyle = TARGETED_UNIT_OUTLINE_COLOR;
+    context.shadowColor = TARGETED_UNIT_SHADOW_COLOR;
+    context.shadowBlur = TARGETED_UNIT_SHADOW_BLUR;
+
+    for (const coord of targetedCoords) {
+        const {x, y} = hexToPixel(coord, grid);
+        drawHex(context, x, y, grid.hexRadius);
     }
 
     context.restore();

@@ -54,3 +54,11 @@ export const DICE_INDICATOR_FONT_SIZE = 36; // Font size for the dice count
 export const RETREAT_HEX_FILL_COLOR = "rgba(255, 165, 0, 0.3)"; // Semi-transparent orange
 export const RETREAT_HEX_OUTLINE_COLOR = "rgba(255, 165, 0, 0.8)"; // Orange outline
 export const RETREAT_HEX_OUTLINE_WIDTH = 3;
+
+/**
+ * Color constants for targeted unit highlighting (air power)
+ */
+export const TARGETED_UNIT_OUTLINE_COLOR = "rgba(255, 100, 0, 0.9)"; // Orange-red
+export const TARGETED_UNIT_SHADOW_COLOR = "rgba(255, 100, 0, 0.6)"; // Orange-red with transparency
+export const TARGETED_UNIT_OUTLINE_WIDTH = 5;
+export const TARGETED_UNIT_SHADOW_BLUR = 10;
