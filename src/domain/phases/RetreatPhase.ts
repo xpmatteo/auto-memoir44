@@ -7,7 +7,7 @@ import {Move, RetreatMove} from "../moves/Move";
 import {Unit} from "../Unit";
 import {HexCoord} from "../../utils/hex";
 
-export class RetreatPhase implements Phase {
+export class RetreatPhase extends Phase {
     readonly name = "Retreat";
     readonly type = PhaseType.RETREAT;
     readonly temporaryPlayerSwitch = true;
@@ -27,6 +27,7 @@ export class RetreatPhase implements Phase {
         attackingUnitCoord?: HexCoord,
         isFromOverrun: boolean = false
     ) {
+        super();
         this.unit = unit;
         this.currentPosition = currentPosition;
         this.availableRetreatHexes = availableRetreatHexes;

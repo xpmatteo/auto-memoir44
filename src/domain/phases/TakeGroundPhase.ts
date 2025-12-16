@@ -9,7 +9,7 @@ import {HexCoord} from "../../utils/hex";
 import {TakeGroundMove} from "../moves/TakeGroundMove";
 import {DeclineTakeGroundMove} from "../moves/DeclineTakeGroundMove";
 
-export class TakeGroundPhase implements Phase {
+export class TakeGroundPhase extends Phase {
     readonly name = "Take Ground";
     readonly type = PhaseType.MOVE;
 
@@ -19,6 +19,7 @@ export class TakeGroundPhase implements Phase {
     readonly allowsOverrun: boolean;
 
     constructor(attackingUnit: Unit, fromHex: HexCoord, toHex: HexCoord, allowsOverrun: boolean = true) {
+        super();
         this.attackingUnit = attackingUnit;
         this.fromHex = fromHex;
         this.toHex = toHex;

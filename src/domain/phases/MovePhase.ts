@@ -20,7 +20,7 @@ export interface UnitMover {
     getTerrain(coord: HexCoord): Terrain;
 }
 
-export class MovePhase implements Phase {
+export class MovePhase extends Phase {
     name: string = "Move Units";
     type = PhaseType.MOVE;
 

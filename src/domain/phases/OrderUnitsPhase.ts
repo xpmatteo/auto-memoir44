@@ -15,13 +15,14 @@ interface UnitsOrderer {
     getUnitSections(unit: Unit): Section[];
 }
 
-export class OrderUnitsPhase implements Phase {
+export class OrderUnitsPhase extends Phase {
     name: string = "Order Units";
     type = PhaseType.ORDER;
     private readonly sections: Section[];
     private readonly howManyUnits: number;
 
     constructor(sections: Section[], howManyUnits: number) {
+        super();
         this.sections = sections;
         this.howManyUnits = howManyUnits;
     }

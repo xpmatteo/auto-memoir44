@@ -24,7 +24,7 @@ export interface UnitBattler {
     activeCard: CommandCard | null;
 }
 
-export class BattlePhase implements Phase {
+export class BattlePhase extends Phase {
     name = "Battle";
     type = PhaseType.BATTLE;
 

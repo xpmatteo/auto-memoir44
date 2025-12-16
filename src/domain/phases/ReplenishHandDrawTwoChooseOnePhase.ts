@@ -5,7 +5,7 @@ import {GameState} from "../GameState";
 import {Move, ReplenishHandChooseCardMove} from "../moves/Move";
 import {Phase, PhaseType} from "./Phase";
 
-export class ReplenishHandDrawTwoChooseOnePhase implements Phase {
+export class ReplenishHandDrawTwoChooseOnePhase extends Phase {
     name: string = "Replenish hand (draw 2, choose 1)";
     type = PhaseType.REPLENISH_HAND;
 

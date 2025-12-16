@@ -12,13 +12,14 @@ interface UnitsOrderer {
     isUnitOrdered(unit: Unit): boolean;
 }
 
-export class OrderUnitsByPredicatePhase implements Phase {
+export class OrderUnitsByPredicatePhase extends Phase {
     readonly name: string = "Order Units";
     readonly type = PhaseType.ORDER;
     private readonly maxUnits: number;
     private readonly eligibilityPredicate: (unit: Unit) => boolean;
 
     constructor(maxUnits: number, eligibilityPredicate: (unit: Unit) => boolean) {
+        super();
         this.maxUnits = maxUnits;
         this.eligibilityPredicate = eligibilityPredicate;
     }

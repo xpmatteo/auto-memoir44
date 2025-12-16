@@ -11,7 +11,7 @@ import {calculateDiceCount} from "../../rules/combat";
 import {BattleMove} from "../moves/BattleMove";
 import {UnitBattler} from "./BattlePhase";
 
-export class ArmorOverrunPhase implements Phase {
+export class ArmorOverrunPhase extends Phase {
     readonly name = "Armor Overrun";
     readonly type = PhaseType.BATTLE;
 
@@ -19,6 +19,7 @@ export class ArmorOverrunPhase implements Phase {
     readonly armorPosition: HexCoord;
 
     constructor(armorUnit: Unit, armorPosition: HexCoord) {
+        super();
         this.armorUnit = armorUnit;
         this.armorPosition = armorPosition;
     }

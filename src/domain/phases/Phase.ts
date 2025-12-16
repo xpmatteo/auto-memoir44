@@ -17,13 +17,13 @@ export const PhaseType = {
 export type PhaseType = typeof PhaseType[keyof typeof PhaseType];
 
 // A Phase defines which moves are available to the current player at any given time
-export interface Phase {
-    readonly name: string;
-    readonly type: PhaseType;
+export abstract class Phase {
+    abstract readonly name: string;
+    abstract readonly type: PhaseType;
     // If true, temporarily switches the active player to the opponent
     // Used for scenarios like flag results where the owning player chooses retreat hex
     readonly temporaryPlayerSwitch?: boolean;
 
-    legalMoves(gameState: GameState): Array<Move>;
+    abstract legalMoves(gameState: GameState): Array<Move>;
 }
 

@@ -7,7 +7,7 @@ import {Position} from "../Player";
 import {CardLocation} from "../cards/CommandCard";
 import {Phase, PhaseType} from "./Phase";
 
-export class PlayCardPhase implements Phase {
+export class PlayCardPhase extends Phase {
     name: string = "Play Card";
     type = PhaseType.PLAY_CARD;
 

@@ -13,7 +13,7 @@ interface TargetSelector {
     getEnemyUnits(): Array<SituatedUnit>;
 }
 
-export class SelectTargetPhase implements Phase {
+export class SelectTargetPhase extends Phase {
     name: string = "Select Targets";
     type = PhaseType.TARGET_SELECTION;
     private readonly maxTargets: number;
@@ -21,6 +21,7 @@ export class SelectTargetPhase implements Phase {
     private readonly starsCountAsHits: boolean;
 
     constructor(maxTargets: number, dicePerTarget: number, starsCountAsHits: boolean = true) {
+        super();
         this.maxTargets = maxTargets;
         this.dicePerTarget = dicePerTarget;
         this.starsCountAsHits = starsCountAsHits;
