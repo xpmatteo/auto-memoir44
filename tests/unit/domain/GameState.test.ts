@@ -756,6 +756,10 @@ describe("GameState", () => {
             legalMoves(_gameState: GameState): Array<Move> {
                 return [];
             }
+
+            onBeingPoppedUp(_gameState: GameState): void {
+                // do nothing
+            }
         }
 
         // Mock phase without temporary player switch
@@ -767,6 +771,10 @@ describe("GameState", () => {
 
             legalMoves(_gameState: GameState): Array<Move> {
                 return [];
+            }
+
+            onBeingPoppedUp(_gameState: GameState): void {
+                // do nothing
             }
         }
 

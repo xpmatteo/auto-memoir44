@@ -12,6 +12,7 @@ export const PhaseType = {
     RETREAT: "retreat",
     REPLENISH_HAND: "replenish_hand",
     TARGET_SELECTION: "target_selection",
+    AUTO_COMBAT: "auto_combat",
 } as const;
 
 export type PhaseType = typeof PhaseType[keyof typeof PhaseType];

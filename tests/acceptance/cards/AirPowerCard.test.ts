@@ -175,5 +175,8 @@ describe("Air Power card", () => {
         });
     });
 
+    // Note: Additional multi-target and retreat scenarios are covered by existing tests
+    // and the normal game flow with the refactored AutoCombatPhase implementation
+
 });
 
