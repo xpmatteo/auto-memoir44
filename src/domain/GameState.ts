@@ -354,6 +354,7 @@ export class GameState {
     // Moves that must end a phase will call this.
     popPhase() {
         const { turnEnded } = this.turnCoordinator.popPhase();
+        this.activePhase.onBeingPoppedUp(this);
 
         // Clear turn state for all units when turn ends
         if (turnEnded) {

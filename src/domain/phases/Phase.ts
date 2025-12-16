@@ -25,5 +25,9 @@ export abstract class Phase {
     readonly temporaryPlayerSwitch?: boolean;
 
     abstract legalMoves(gameState: GameState): Array<Move>;
+
+    onBeingPoppedUp(_gameState: GameState) {
+        // do nothing by default
+    }
 }
 
