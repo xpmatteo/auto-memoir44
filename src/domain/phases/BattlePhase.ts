@@ -28,6 +28,12 @@ export interface UnitBattler {
 export class BattlePhase extends Phase {
     name = "Battle";
     type = PhaseType.BATTLE;
+    private readonly battlesPerTurn: number;
+
+    constructor(battlesPerTurn: number = 1) {
+        super();
+        this.battlesPerTurn = battlesPerTurn;
+    }
 
     legalMoves(gameState: GameState): Array<Move> {
         return this.doLegalMoves(gameState);
@@ -48,8 +54,8 @@ export class BattlePhase extends Phase {
                 continue;
             }
 
-            // Skip units that have already attacked this turn
-            if (fromUnit.unitState.battlesThisTurn > 0) {
+            // Skip units that have reached their battle limit for this turn
+            if (fromUnit.unitState.battlesThisTurn >= this.battlesPerTurn) {
                 continue;
             }
 
