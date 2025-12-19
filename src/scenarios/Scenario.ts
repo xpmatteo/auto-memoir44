@@ -3,7 +3,7 @@
 
 import {GameState} from "../domain/GameState";
 import {HexCoord} from "../utils/hex";
-import {Armor, Infantry} from "../domain/Unit";
+import {Armor, Artillery, Infantry} from "../domain/Unit";
 import {Side} from "../domain/Player";
 import {
     hillTerrain,
@@ -139,6 +139,10 @@ export function parseAndSetupUnits(gameState: GameState, unitSetup: string[]): v
                 gameState.placeUnit(coord, new Armor(Side.ALLIES));
             } else if (unit === "ar") {
                 gameState.placeUnit(coord, new Armor(Side.AXIS));
+            } else if (unit === "RT") {
+                gameState.placeUnit(coord, new Artillery(Side.ALLIES));
+            } else if (unit === "rt") {
+                gameState.placeUnit(coord, new Artillery(Side.AXIS));
             } else {
                 throw new Error(
                     `Unknown hex specification pattern "${chunk}" at line ${lineIndex}, column ${chunkIndex} (${coord.q},${coord.r})`

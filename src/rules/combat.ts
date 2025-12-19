@@ -21,6 +21,9 @@ function reduction(attacker: Unit, reducer: DiceReducer) {
     if (attacker.type == UnitType.ARMOR) {
         return reducer.armorBattleInReduction;
     }
+    if (attacker.type == UnitType.ARTILLERY) {
+        return 0; // artillery ignores terrain and fortification dice reductions
+    }
     return 0;
 }
 
@@ -86,8 +89,12 @@ export function resolveHits(diceResults: DiceResult[], targetUnit: Unit, starsCo
             if (result === RESULT_ARMOR || result === RESULT_GRENADE) {
                 hits++;
             }
+        } else if (targetUnit.type === UnitType.ARTILLERY) {
+            if (result === RESULT_INFANTRY || result === RESULT_GRENADE) {
+                hits++;
+            }
         } else {
-            throw new Error("Artillery not implemented");
+            throw new Error(`Unknown unit type: ${targetUnit.type}`);
         }
     }
 

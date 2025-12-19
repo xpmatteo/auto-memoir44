@@ -6,6 +6,7 @@ import {Side} from "./Player";
 export const UnitType = {
     INFANTRY: "infantry",
     ARMOR: "armor",
+    ARTILLERY: "artillery",
 } as const;
 
 export type UnitType = typeof UnitType[keyof typeof UnitType];
@@ -126,5 +127,29 @@ export class Armor extends Unit {
 
     movementSkipsBattle(_distance: number): boolean {
         return false; // armor never skips battle based on movement distance
+    }
+}
+
+export class Artillery extends Unit {
+    readonly type = UnitType.ARTILLERY;
+    static readonly defaultStrength = 2;
+
+    constructor(owner: Side, strength?: number) {
+        super(strength ?? Artillery.defaultStrength, owner);
+    }
+
+    baseBattleDice(distance: number): number {
+        if (distance <= 2) return 3;
+        if (distance <= 4) return 2;
+        if (distance <= 6) return 1;
+        return 0;
+    }
+
+    maxMovementDistance(): number {
+        return 1;
+    }
+
+    movementSkipsBattle(distance: number): boolean {
+        return distance > 0; // artillery skips battle if it moved at all
     }
 }

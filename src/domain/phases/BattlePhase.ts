@@ -71,25 +71,28 @@ export class BattlePhase extends Phase {
                     continue;
                 }
 
-                // Otherwise, can battle enemies at distance 1-3
-                if (distance <= 3) {
-                    // Check line of sight
-                    const isBlocked = (hexCoord: HexCoord): boolean => {
-                        // Check if there's a unit at this hex
-                        const unitAtHex = allUnits.find(({coord}) =>
-                            coord.q === hexCoord.q && coord.r === hexCoord.r
-                        );
-                        if (unitAtHex) {
-                            return true;
+                // Check if unit can battle at this distance (based on unit-specific range)
+                if (fromUnit.unit.baseBattleDice(distance) > 0) {
+                    // Artillery ignores line of sight
+                    if (fromUnit.unit.type !== 'artillery') {
+                        // Check line of sight
+                        const isBlocked = (hexCoord: HexCoord): boolean => {
+                            // Check if there's a unit at this hex
+                            const unitAtHex = allUnits.find(({coord}) =>
+                                coord.q === hexCoord.q && coord.r === hexCoord.r
+                            );
+                            if (unitAtHex) {
+                                return true;
+                            }
+
+                            // Check if terrain blocks LOS
+                            const terrainAtHex = unitBattler.getTerrain(hexCoord);
+                            return terrainAtHex.blocksLineOfSight;
+                        };
+
+                        if (!hasLineOfSight(toUnit.coord, fromUnit.coord, isBlocked)) {
+                            continue;
                         }
-
-                        // Check if terrain blocks LOS
-                        const terrainAtHex = unitBattler.getTerrain(hexCoord);
-                        return terrainAtHex.blocksLineOfSight;
-                    };
-
-                    if (!hasLineOfSight(toUnit.coord, fromUnit.coord, isBlocked)) {
-                        continue;
                     }
 
                     const defenderFortification = unitBattler.getFortification(toUnit.coord);

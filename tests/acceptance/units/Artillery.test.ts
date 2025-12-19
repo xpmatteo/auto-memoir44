@@ -10,7 +10,7 @@ import {getUnitAt, setupGameForCommandCardTests} from "../../helpers/testHelpers
 import {MoveUnitMove} from "../../../src/domain/moves/MoveUnitMove";
 import {HexCoord} from "../../../src/utils/hex";
 
-describe.skip("Artillery", () => {
+describe("Artillery", () => {
         const unitSetup = [
             "   0   1   2   3   4   5   6   7   8   9  10  11  12",
             ".RT.    .in. in .in. in .in. in ....    ....    ....",
@@ -46,10 +46,14 @@ describe.skip("Artillery", () => {
 
     test("it moves by one hex only", () => {
         gameState.executeMove(new OrderUnitMove(artillery.unit));
+        gameState.executeMove(new ConfirmOrdersMove());
 
-        expect(gameState.legalMoves().map(m => m.toString())).toEqual([
-            "EndMovementsMove",
-            "MoveUnitMove(unit-1/Allies, 0, 1)",
+        const moves = gameState.legalMoves().map(m => m.toString()).sort();
+        expect(moves).toEqual([
+            "EndMovements",
+            "Move from (0,0) to (0,0)",
+            "Move from (0,0) to (0,1)",
+            "Move from (0,0) to (1,0)",
         ]);
     });
 
@@ -61,7 +65,7 @@ describe.skip("Artillery", () => {
 
         // cannot battle
         expect(gameState.legalMoves().map(m => m.toString())).toEqual([
-            "EndBattles",
+            "ReplenishHandMove(Assault Left)",
         ]);
     });
 
