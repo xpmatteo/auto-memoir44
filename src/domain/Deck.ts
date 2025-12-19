@@ -24,6 +24,7 @@ import {MoveOut} from "./cards/MoveOut";
 import {ArmorAssault} from "./cards/ArmorAssault";
 import {AirPower} from "./cards/AirPower";
 import {Barrage} from "./cards/Barrage";
+import {DigIn} from "./cards/DigIn";
 
 export class Deck {
     private locations: Map<CardLocation, CommandCard[]>;
@@ -207,6 +208,7 @@ export class Deck {
             [CloseAssault, 1],
             [AirPower, 1],
             [Barrage, 1],
+            [DigIn, 1],
         ], rng);
     }
 

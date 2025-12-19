@@ -356,9 +356,7 @@ export class GameState {
     // popPhase ends the current phase and starts the next phase, or the next player turn.
     // Moves that must end a phase will call this.
     popPhase() {
-        console.log(`Popping phase ${this.activePhase.name}`);
         const { turnEnded } = this.turnCoordinator.popPhase();
-        console.log(`New active phase ${this.activePhase.name}`);
 
         // Process any deferred tasks that were queued
         this.processDeferredTasks();
@@ -370,7 +368,6 @@ export class GameState {
     }
 
     pushPhase(phase: Phase) {
-        console.log(`Pushing phase ${phase.name}`);
         this.turnCoordinator.pushPhase(phase);
     }
 

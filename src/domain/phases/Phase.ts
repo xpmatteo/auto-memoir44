@@ -7,6 +7,7 @@ import {Move} from "../moves/Move";
 export const PhaseType = {
     PLAY_CARD: "play_card",
     ORDER: "order",
+    DIG_IN_ORDER: "dig_in_order",
     MOVE: "move",
     BATTLE: "battle",
     RETREAT: "retreat",
