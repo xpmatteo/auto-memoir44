@@ -22,7 +22,7 @@ function reduction(attacker: Unit, reducer: DiceReducer) {
         return reducer.armorBattleInReduction;
     }
     if (attacker.type == UnitType.ARTILLERY) {
-        return 0; // artillery ignores terrain and fortification dice reductions
+        return 0;
     }
     return 0;
 }
@@ -60,7 +60,6 @@ export function calculateDiceCount(
     // Apply max reduction (non-cumulative with terrain)
     baseDice -= Math.max(terrainReduction, fortificationReduction);
 
-
     return Math.max(0, baseDice);
 }
 
@@ -76,25 +75,14 @@ export function resolveHits(diceResults: DiceResult[], targetUnit: Unit, starsCo
     let hits = 0;
 
     for (const result of diceResults) {
-        if (starsCountAsHits && result === RESULT_STAR) {
+        if (result === RESULT_STAR && starsCountAsHits) {
             hits++;
-            continue;
-        }
-
-        if (targetUnit.type === UnitType.INFANTRY) {
-            if (result === RESULT_INFANTRY || result === RESULT_GRENADE) {
-                hits++;
-            }
-        } else if (targetUnit.type === UnitType.ARMOR) {
-            if (result === RESULT_ARMOR || result === RESULT_GRENADE) {
-                hits++;
-            }
-        } else if (targetUnit.type === UnitType.ARTILLERY) {
-            if (result === RESULT_INFANTRY || result === RESULT_GRENADE) {
-                hits++;
-            }
-        } else {
-            throw new Error(`Unknown unit type: ${targetUnit.type}`);
+        } else if (result === RESULT_GRENADE) {
+            hits++;
+        } else if (result === RESULT_INFANTRY && targetUnit.type === UnitType.INFANTRY) {
+            hits++;
+        } else if (result === RESULT_ARMOR && targetUnit.type === UnitType.ARMOR) {
+            hits++;
         }
     }
 

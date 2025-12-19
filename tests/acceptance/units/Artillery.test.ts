@@ -83,4 +83,31 @@ describe("Artillery", () => {
             "Battle(Artillery/Allies/unit-1, Infantry/Axis/unit-6, 1)",
         ]);
     });
+
+    test('ignores terrain and fortifications', () => {
+        const unitSetup = [
+            "   0   1   2   3   4   5   6   7   8   9  10  11  12",
+            ".RT.    Win.Tin .inS    ....    ....    ....    ....",
+            "~~....    ....    ....    ....    ....    ....    ~~",
+            "....    ....    ....    ....    ....    ....    ....",
+            "~~....    ....    ....    ....    ....    ....    ~~",
+            "....    ....    ....    ....    ....    ....    ....",
+            "~~....    ....    ....    ....    ....    ....    ~~",
+            "....    ....    ....    ....    ....    ....    ....",
+            "~~....    ....    ....    ....    ....    ....    ~~",
+            "....    ....    ....    ....    ....    ....    ....",
+        ];
+        gameState = setupGameForCommandCardTests(unitSetup, AssaultLeft, Side.ALLIES);
+        artillery = getUnitAt(gameState, 0, 0)!;
+        gameState.executeMove(new OrderUnitMove(artillery.unit));
+        gameState.executeMove(new ConfirmOrdersMove());
+        gameState.executeMove(new EndMovementsMove());
+
+        expect(gameState.legalMoves().map(m => m.toString())).toEqual([
+            "EndBattles",
+            "Battle(Artillery/Allies/unit-1, Infantry/Axis/unit-2, 3)",
+            "Battle(Artillery/Allies/unit-1, Infantry/Axis/unit-3, 2)",
+            "Battle(Artillery/Allies/unit-1, Infantry/Axis/unit-4, 2)",
+        ]);
+    });
 });

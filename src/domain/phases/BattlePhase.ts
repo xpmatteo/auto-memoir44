@@ -13,6 +13,7 @@ import {Fortification} from "../fortifications/Fortification";
 import {BattleMove} from "../moves/BattleMove";
 import {SituatedUnit} from "../SituatedUnit";
 import {CommandCard} from "../cards/CommandCard";
+import {UnitType} from "../Unit";
 
 // Declare which methods from GameState we actually need to do our job
 export interface UnitBattler {
@@ -74,7 +75,7 @@ export class BattlePhase extends Phase {
                 // Check if unit can battle at this distance (based on unit-specific range)
                 if (fromUnit.unit.baseBattleDice(distance) > 0) {
                     // Artillery ignores line of sight
-                    if (fromUnit.unit.type !== 'artillery') {
+                    if (fromUnit.unit.type !== UnitType.ARTILLERY) {
                         // Check line of sight
                         const isBlocked = (hexCoord: HexCoord): boolean => {
                             // Check if there's a unit at this hex
