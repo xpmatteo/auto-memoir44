@@ -3,31 +3,28 @@ import {ReplenishHandDrawTwoChooseOnePhase} from "../../../src/domain/phases/Rep
 import {GameState} from "../../../src/domain/GameState";
 import {Deck} from "../../../src/domain/Deck";
 import {TestCard} from "../domain/Deck.test";
-import {ReplenishHandChooseCardMove} from "../../../src/domain/moves/Move";
 import {CardLocation} from "../../../src/domain/cards/CommandCard";
 import {PlayCardPhase} from "../../../src/domain/phases/PlayCardPhase";
 
 describe("ReplenishHandDrawTwoChooseOnePhase", () => {
+    const card1 = new TestCard("Card 1", "path1.png");
+    const card2 = new TestCard("Card 2", "path2.png");
+    const card3 = new TestCard("Card 3", "path3.png");
+
     test("returns two moves, one for each of the top 2 cards", () => {
-        const card1 = new TestCard("Card 1", "path1.png");
-        const card2 = new TestCard("Card 2", "path2.png");
-        const card3 = new TestCard("Card 3", "path3.png");
         const deck = new Deck([card1, card2, card3]);
         const gameState = new GameState(deck);
         const phase = new ReplenishHandDrawTwoChooseOnePhase();
 
         const moves = phase.legalMoves(gameState);
 
-        expect(moves).toHaveLength(2);
-        expect(moves[0]).toEqual(new ReplenishHandChooseCardMove(card1, card2));
-        expect(moves[1]).toEqual(new ReplenishHandChooseCardMove(card2, card1));
+        expect(moves.map(m => m.toString())).toEqual([
+            "ReplenishHandChooseCardMove(Card 1, Card 2)",
+            "ReplenishHandChooseCardMove(Card 2, Card 1)",
+        ]);
     });
 
     test("choosing first card draws it to hand and discards the second", () => {
-        const card1 = new TestCard("Card 1", "path1.png");
-        const card2 = new TestCard("Card 2", "path2.png");
-        const card3 = new TestCard("Card 3", "path3.png");
-
         const deck = new Deck([card1, card2, card3]);
         const gameState = new GameState(deck);
 
@@ -54,10 +51,6 @@ describe("ReplenishHandDrawTwoChooseOnePhase", () => {
     });
 
     test("choosing second card draws it to hand and discards the first", () => {
-        const card1 = new TestCard("Card 1", "path1.png");
-        const card2 = new TestCard("Card 2", "path2.png");
-        const card3 = new TestCard("Card 3", "path3.png");
-
         const deck = new Deck([card1, card2, card3]);
         const gameState = new GameState(deck);
 
@@ -111,7 +104,7 @@ describe("ReplenishHandDrawTwoChooseOnePhase", () => {
         const moves = phase.legalMoves(gameState);
 
         // Collect all buttons from all moves (this is what MoveButtons component does)
-        const allButtons: Array<{label: string}> = [];
+        const allButtons: Array<{ label: string }> = [];
         moves.forEach(move => {
             const buttons = move.uiButton();
             allButtons.push(...buttons);

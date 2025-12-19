@@ -18,6 +18,7 @@ import {
 } from "../../../src/domain/Dice";
 import {ConfirmTargetsMove} from "../../../src/domain/moves/ConfirmTargetsMove";
 import {getUnitAt, setupGameForCommandCardTests} from "../../helpers/testHelpers";
+import {PhaseType} from "../../../src/domain/phases/Phase";
 
 describe("Barrage card", () => {
     const dice = new ProgrammableDice();
@@ -116,6 +117,19 @@ describe("Barrage card", () => {
             test('Mix of results', () => {
                 // 2 hits (infantry + grenade), 1 miss (armor), 1 miss (star)
                 expectResultingStrength(enemy1, [RESULT_INFANTRY, RESULT_GRENADE, RESULT_ARMOR, RESULT_STAR], 2);
+            });
+
+            test.skip('multiple retreat paths possible', () => {
+                gameState.executeMove(new SelectTargetMove(enemy1));
+
+                dice.setNextRolls([RESULT_FLAG, RESULT_STAR, RESULT_STAR, RESULT_STAR]);
+                gameState.executeMove(new ConfirmTargetsMove(4, false));
+
+                expect(gameState.activePhase.type).toBe(PhaseType.RETREAT);
+                expect(gameState.legalMoves().map(m => m.toString())).toEqual([
+                    "RetreatMove(unit-3 from (1,2) to (1,1))",
+                    "RetreatMove(unit-5 from (1,2) to (2,1))",
+                ]);
             });
         });
     });

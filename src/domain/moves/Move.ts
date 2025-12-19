@@ -193,6 +193,10 @@ export class ReplenishHandChooseCardMove extends Move {
             },
         }];
     }
+
+    toString(): string {
+        return `ReplenishHandChooseCardMove(${this.chosenCard.name}, ${this.rejectedCard.name})`;
+    }
 }
 
 export class RetreatMove extends Move {

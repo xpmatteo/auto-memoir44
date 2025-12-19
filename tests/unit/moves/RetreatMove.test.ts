@@ -19,7 +19,7 @@ describe("RetreatMove", () => {
         popPhaseCalled = false;
         mockRetreater = {
             moveUnit: (from: HexCoord, to: HexCoord) => {
-                moveUnitCalls.push({ from, to });
+                moveUnitCalls.push({from, to});
             },
             popPhase: () => {
                 popPhaseCalled = true;
@@ -35,7 +35,7 @@ describe("RetreatMove", () => {
         new RetreatMove(unit, from, to).executeRetreat(mockRetreater);
 
         expect(moveUnitCalls).toHaveLength(1);
-        expect(moveUnitCalls[0]).toEqual({ from, to });
+        expect(moveUnitCalls[0]).toEqual({from, to});
         expect(popPhaseCalled).toBe(true);
     });
 
@@ -77,21 +77,12 @@ describe("RetreatPhase", () => {
 
     it("should return RetreatMove for each available hex", () => {
         const phase = new RetreatPhase(unit, currentPos, availableHexes);
+
         const moves = phase.legalMoves({} as any); // Phase doesn't use gameState
 
-        expect(moves).toHaveLength(2);
-        expect(moves[0]).toBeInstanceOf(RetreatMove);
-        expect(moves[1]).toBeInstanceOf(RetreatMove);
-
-        const move0 = moves[0] as RetreatMove;
-        const move1 = moves[1] as RetreatMove;
-
-        expect(move0.unit).toBe(unit);
-        expect(move0.from).toEqual(currentPos);
-        expect(move0.to).toEqual(availableHexes[0]);
-
-        expect(move1.unit).toBe(unit);
-        expect(move1.from).toEqual(currentPos);
-        expect(move1.to).toEqual(availableHexes[1]);
+        expect(moves.map(m => m.toString())).toEqual([
+            "RetreatMove(unit-5 from (5,3) to (5,2))",
+            "RetreatMove(unit-5 from (5,3) to (6,2))",
+        ]);
     });
 });
