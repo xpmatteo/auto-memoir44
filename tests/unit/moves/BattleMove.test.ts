@@ -407,7 +407,6 @@ describe("BattleMove integration", () => {
             readonly name = "Dummy Phase";
             readonly type = PhaseType.BATTLE;
             legalMoves() { return []; }
-            onBeingPoppedUp() { /* do nothing */ }
         }();
         gameState.pushPhase(dummyPhase);
 
@@ -441,7 +440,6 @@ describe("BattleMove integration", () => {
             readonly name = "Dummy Phase";
             readonly type = PhaseType.BATTLE;
             legalMoves() { return []; }
-            onBeingPoppedUp() { /* do nothing */ }
         }();
         gameState.pushPhase(dummyPhase);
 
