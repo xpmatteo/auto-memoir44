@@ -206,7 +206,7 @@ export class Deck {
             [Firefight, 1],
             [CloseAssault, 1],
             [AirPower, 1],
-            [Barrage, 100],
+            [Barrage, 1],
         ], rng);
     }
 

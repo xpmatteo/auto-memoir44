@@ -18,6 +18,8 @@ import {
 } from "../../../src/domain/Dice";
 import {ConfirmTargetsMove} from "../../../src/domain/moves/ConfirmTargetsMove";
 import {getUnitAt, setupGameForCommandCardTests} from "../../helpers/testHelpers";
+import {PhaseType} from "../../../src/domain/phases/Phase";
+import {RetreatMove} from "../../../src/domain/moves/Move";
 
 describe("Air Power card", () => {
     const dice = new ProgrammableDice();
@@ -147,6 +149,32 @@ describe("Air Power card", () => {
             test('Terrain protection is ignored', () => {
                 expectResultingStrength(enemyInWoods, [RESULT_GRENADE, RESULT_GRENADE], 2);
             });
+
+            test('interleave battle and retreats', () => {
+                gameState.executeMove(new SelectTargetMove(enemy1));
+                gameState.executeMove(new SelectTargetMove(enemy2));
+
+                dice.setNextRolls([RESULT_FLAG, RESULT_STAR]);
+                gameState.executeMove(new ConfirmTargetsMove(2));
+
+                // First deferred combat task executes and pushes a retreat phase
+                expect(gameState.activePhase.type).toBe(PhaseType.RETREAT);
+                const legalMoves = gameState.legalMoves();
+                expect(legalMoves.map(m => m.toString())).toEqual([
+                    `RetreatMove(${enemy1.unit.id} from (1,2) to (1,1))`,
+                    `RetreatMove(${enemy1.unit.id} from (1,2) to (2,1))`,
+                ]);
+
+                // First deferred combat task executes and pushes another retreat phase
+                dice.setNextRolls([RESULT_FLAG, RESULT_STAR]);
+                gameState.executeMove(new RetreatMove(enemy1.unit, enemy1.coord, enemy1.coord.southeast()));
+                const legalMoves1 = gameState.legalMoves();
+                expect(legalMoves1.map(m => m.toString())).toEqual([
+                    `RetreatMove(${enemy2.unit.id} from (2,2) to (2,1))`,
+                    `RetreatMove(${enemy2.unit.id} from (2,2) to (3,1))`,
+                ]);
+            });
+
         });
     });
 
