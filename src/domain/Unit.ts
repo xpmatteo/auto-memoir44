@@ -78,7 +78,7 @@ export abstract class Unit {
     }
 
     toString(): string {
-        return `${this.constructor.name}/${this.side}`;
+        return `${this.constructor.name}/${this.side}/${this.id}`;
     }
 
     abstract baseBattleDice(distance: number): number;

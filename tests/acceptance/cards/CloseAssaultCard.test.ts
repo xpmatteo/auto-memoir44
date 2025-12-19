@@ -52,8 +52,8 @@ describe("Close Assault card", () => {
 
         expect(gameState.legalMoves().map(m => m.toString())).toEqual([
             "EndBattles",
-            "Battle(Infantry/Allies, Infantry/Axis, 4)",
-            "Battle(Infantry/Allies, Infantry/Axis, 4)",
+            "Battle(Infantry/Allies/unit-4, Infantry/Axis/unit-1, 4)",
+            "Battle(Infantry/Allies/unit-5, Infantry/Axis/unit-1, 4)",
         ]);
     });
 

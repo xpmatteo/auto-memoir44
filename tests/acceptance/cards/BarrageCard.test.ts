@@ -53,13 +53,13 @@ describe("Barrage card", () => {
             test('Should be able to select any enemy unit', () => {
                 expect(gameState.legalMoves().map(m => m.toString())).toEqual([
                     "ConfirmTargetsMove(4 dice, starsCountAsHits=false)",
-                    "SelectTargetMove(Infantry/Axis[(8,0)])",
-                    "SelectTargetMove(Infantry/Axis[(9,0)])",
-                    "SelectTargetMove(Infantry/Axis[(1,2)])",
-                    "SelectTargetMove(Infantry/Axis[(2,2)])",
-                    "SelectTargetMove(Infantry/Axis[(3,2)])",
-                    "SelectTargetMove(Infantry/Axis[(4,2)])",
-                    "SelectTargetMove(Infantry/Axis[(5,2)])",
+                    "SelectTargetMove(Infantry/Axis/unit-1[(8,0)])",
+                    "SelectTargetMove(Infantry/Axis/unit-2[(9,0)])",
+                    "SelectTargetMove(Infantry/Axis/unit-3[(1,2)])",
+                    "SelectTargetMove(Infantry/Axis/unit-4[(2,2)])",
+                    "SelectTargetMove(Infantry/Axis/unit-5[(3,2)])",
+                    "SelectTargetMove(Infantry/Axis/unit-6[(4,2)])",
+                    "SelectTargetMove(Infantry/Axis/unit-7[(5,2)])",
                 ]);
             });
 
@@ -67,7 +67,7 @@ describe("Barrage card", () => {
                 gameState.executeMove(new SelectTargetMove(enemy1));
                 expect(gameState.legalMoves().map(m => m.toString())).toEqual([
                     "ConfirmTargetsMove(4 dice, starsCountAsHits=false)",
-                    "UnSelectTargetMove(Infantry/Axis[(1,2)])",
+                    "UnSelectTargetMove(Infantry/Axis/unit-3[(1,2)])",
                 ]);
             });
         });
@@ -155,8 +155,8 @@ describe("Barrage card", () => {
 
             expect(gameState.legalMoves().map(m => m.toString())).toEqual([
                 "ConfirmTargetsMove(4 dice, starsCountAsHits=false)",
-                "SelectTargetMove(Infantry/Allies[(-2,8)])",
-                "SelectTargetMove(Infantry/Allies[(-1,8)])",
+                "SelectTargetMove(Infantry/Allies/unit-1[(-2,8)])",
+                "SelectTargetMove(Infantry/Allies/unit-2[(-1,8)])",
             ]);
         });
     });

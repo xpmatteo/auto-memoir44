@@ -105,8 +105,8 @@ describe("Armor Assault card", () => {
         const battleMoves = gameState.legalMoves();
         expect(battleMoves.map(m => m.toString())).toEqual([
             "EndBattles",
-            "Battle(Armor/Allies, Infantry/Axis, 3)",
-            "Battle(Armor/Allies, Infantry/Axis, 4)",
+            "Battle(Armor/Allies/unit-3, Infantry/Axis/unit-1, 3)",
+            "Battle(Armor/Allies/unit-4, Infantry/Axis/unit-1, 4)",
         ]);
     });
 

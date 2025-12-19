@@ -35,7 +35,7 @@ describe('Line of sight', () => {
                 "~~....    ....    ....    ....    ....    ....    ~~",
                 "....    ....    ....    .IN.    Win.    ....    ....",
             ],
-            expected: ["Battle(Infantry/Allies, Infantry/Axis, 1)"],
+            expected: ["Battle(Infantry/Allies/unit-1, Infantry/Axis/unit-2, 1)"],
         },
         {
             name: 'Blocked by terrain',
@@ -68,7 +68,7 @@ describe('Line of sight', () => {
                 "....    ....    .in. IN .IN.    ....    ....    ....",
             ],
             // only one unit will battle, the other's LOS is blocked
-            expected: ["Battle(Infantry/Allies, Infantry/Axis, 3)"],
+            expected: ["Battle(Infantry/Allies/unit-7, Infantry/Axis/unit-6, 3)"],
         },
         {
             name: 'Blocked by enemy units',
@@ -85,7 +85,7 @@ describe('Line of sight', () => {
                 "....    ....    .in. in .... IN ....    ....    ....",
             ],
             // can target only one unit, the other's LOS is blocked
-            expected: ["Battle(Infantry/Allies, Infantry/Axis, 2)"],
+            expected: ["Battle(Infantry/Allies/unit-11, Infantry/Axis/unit-10, 2)"],
         },
         {
             name: 'LOS across hex edge with obstacles on one side only, below',
@@ -102,8 +102,8 @@ describe('Line of sight', () => {
                 "....    ....    ....    ....    ....    ....    ....",
             ],
             expected: [
-                "Battle(Infantry/Allies, Infantry/Axis, 2)",
-                "Battle(Infantry/Allies, Infantry/Axis, 2)",
+                "Battle(Infantry/Allies/unit-13, Infantry/Axis/unit-12, 2)",
+                "Battle(Infantry/Allies/unit-13, Infantry/Axis/unit-14, 2)",
             ],
         },
         {
@@ -121,8 +121,8 @@ describe('Line of sight', () => {
                 "....    ....    ....    ....    ....    ....    ....",
             ],
             expected: [
-                "Battle(Infantry/Allies, Infantry/Axis, 2)",
-                "Battle(Infantry/Allies, Infantry/Axis, 2)",
+                "Battle(Infantry/Allies/unit-16, Infantry/Axis/unit-15, 2)",
+                "Battle(Infantry/Allies/unit-16, Infantry/Axis/unit-17, 2)",
             ],
         },
         {
@@ -140,8 +140,8 @@ describe('Line of sight', () => {
                 "....    ....    ....    ....    ....    ....    ....",
             ],
             expected: [
-                "Battle(Infantry/Allies, Infantry/Axis, 2)",
-                "Battle(Infantry/Allies, Infantry/Axis, 2)",
+                "Battle(Infantry/Allies/unit-19, Infantry/Axis/unit-18, 2)",
+                "Battle(Infantry/Allies/unit-19, Infantry/Axis/unit-20, 2)",
             ],
         },
         {
@@ -159,8 +159,8 @@ describe('Line of sight', () => {
                 "....    ....    ....    ....    ....    ....    ....",
             ],
             expected: [
-                "Battle(Infantry/Allies, Infantry/Axis, 2)",
-                "Battle(Infantry/Allies, Infantry/Axis, 2)",
+                "Battle(Infantry/Allies/unit-22, Infantry/Axis/unit-21, 2)",
+                "Battle(Infantry/Allies/unit-22, Infantry/Axis/unit-23, 2)",
             ],
         },
         {

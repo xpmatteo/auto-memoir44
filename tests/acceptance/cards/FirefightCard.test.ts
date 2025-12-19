@@ -53,7 +53,7 @@ describe("Firefight card", () => {
 
         expect(gameState.legalMoves().map(m => m.toString())).toEqual([
             "EndBattles",
-            "Battle(Armor/Allies, Infantry/Axis, 4)",
+            "Battle(Armor/Allies/unit-1, Infantry/Axis/unit-2, 4)",
         ]);
     });
 
