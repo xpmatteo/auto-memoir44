@@ -119,16 +119,18 @@ describe("Barrage card", () => {
                 expectResultingStrength(enemy1, [RESULT_INFANTRY, RESULT_GRENADE, RESULT_ARMOR, RESULT_STAR], 2);
             });
 
-            test.skip('multiple retreat paths possible', () => {
+            test('multiple retreat paths possible', () => {
                 gameState.executeMove(new SelectTargetMove(enemy1));
 
                 dice.setNextRolls([RESULT_FLAG, RESULT_STAR, RESULT_STAR, RESULT_STAR]);
                 gameState.executeMove(new ConfirmTargetsMove(4, false));
 
                 expect(gameState.activePhase.type).toBe(PhaseType.RETREAT);
-                expect(gameState.legalMoves().map(m => m.toString())).toEqual([
-                    "RetreatMove(unit-3 from (1,2) to (1,1))",
-                    "RetreatMove(unit-5 from (1,2) to (2,1))",
+                const legalMoves = gameState.legalMoves();
+                expect(legalMoves).toHaveLength(2);
+                expect(legalMoves.map(m => m.toString())).toEqual([
+                    `RetreatMove(${enemy1.unit.id} from (1,2) to (1,1))`,
+                    `RetreatMove(${enemy1.unit.id} from (1,2) to (2,1))`,
                 ]);
             });
         });

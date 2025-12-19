@@ -20,6 +20,7 @@ import {FortificationMap} from "./FortificationMap";
 import {ScoreTracker} from "./ScoreTracker";
 import {TurnCoordinator} from "./TurnCoordinator";
 import {SituatedUnit} from "./SituatedUnit";
+import {DeferredTask} from "./DeferredTask";
 
 export class GameState {
     private readonly deck: Deck;
@@ -31,6 +32,7 @@ export class GameState {
     private readonly scoreTracker: ScoreTracker;
     private readonly terrainMap: TerrainMap;
     private readonly fortificationMap: FortificationMap;
+    private readonly deferredTasks: DeferredTask[];
 
     constructor(
         deck: Deck,
@@ -45,6 +47,7 @@ export class GameState {
         this.terrainMap = new TerrainMap();
         this.fortificationMap = new FortificationMap();
         this.activeCardId = null;
+        this.deferredTasks = [];
     }
 
     // -- getters used in the UI
@@ -356,8 +359,9 @@ export class GameState {
         console.log(`Popping phase ${this.activePhase.name}`);
         const { turnEnded } = this.turnCoordinator.popPhase();
         console.log(`New active phase ${this.activePhase.name}`);
-        this.activePhase.onBeingPoppedUp(this);
-        console.log(`After onBeingPoppedUp ${this.activePhase.name}`);
+
+        // Process any deferred tasks that were queued
+        this.processDeferredTasks();
 
         // Clear turn state for all units when turn ends
         if (turnEnded) {
@@ -380,6 +384,23 @@ export class GameState {
 
     replacePhase(phase: Phase) {
         this.turnCoordinator.replacePhase(phase);
+    }
+
+    queueTask(task: DeferredTask) {
+        this.deferredTasks.push(task);
+    }
+
+    private processDeferredTasks() {
+        while (this.deferredTasks.length > 0) {
+            const task = this.deferredTasks.shift()!; // Always remove the task
+            const result = task.execute(this);
+
+            if (result.type === 'paused') {
+                // Task pushed a phase for user input, stop processing more tasks
+                return;
+            }
+            // If result.type === 'complete', continue to next task
+        }
     }
 
     peekCards(n: number): Array<CommandCard> {

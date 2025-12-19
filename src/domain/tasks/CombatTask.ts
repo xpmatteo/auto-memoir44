@@ -1,22 +1,18 @@
-// ABOUTME: Phase that automatically executes combat for a single target when popped up
+// ABOUTME: Deferred task that executes combat for a single target
 // ABOUTME: Used by AirPower and Barrage cards to sequence multiple combats with potential retreats
 
+import {DeferredTask, TaskResult} from "../DeferredTask";
 import {GameState} from "../GameState";
-import {Move} from "../moves/Move";
-import {Phase, PhaseType} from "./Phase";
 import {HexCoord} from "../../utils/hex";
 import {Unit} from "../Unit";
 import {resolveHits} from "../../rules/combat";
 import {RESULT_FLAG} from "../Dice";
 import {handleFlags} from "../../rules/flags";
 import {retreatPaths} from "../../rules/retreatPaths";
-import {RetreatPhase} from "./RetreatPhase";
+import {RetreatPhase} from "../phases/RetreatPhase";
 import {Position} from "../Player";
 
-export class AutoCombatPhase extends Phase {
-    readonly name: string = "Auto Combat";
-    readonly type = PhaseType.AUTO_COMBAT;
-
+export class CombatTask implements DeferredTask {
     private readonly targetHex: HexCoord;
     private readonly dicePerTarget: number;
     private readonly starsCountAsHits: boolean;
@@ -26,25 +22,17 @@ export class AutoCombatPhase extends Phase {
         dicePerTarget: number,
         starsCountAsHits: boolean
     ) {
-        super();
         this.targetHex = targetHex;
         this.dicePerTarget = dicePerTarget;
         this.starsCountAsHits = starsCountAsHits;
     }
 
-    legalMoves(_gameState: GameState): Array<Move> {
-        // This phase should never be active long enough to call legalMoves
-        // because it pops itself immediately in onBeingPoppedUp()
-        return [];
-    }
-
-    onBeingPoppedUp(gameState: GameState): void {
-        // Check if target still exists (may have been eliminated by previous AutoCombatPhase)
+    execute(gameState: GameState): TaskResult {
+        // Check if target still exists (may have been eliminated by previous CombatTask)
         const targetUnit = gameState.getUnitAt(this.targetHex);
         if (!targetUnit) {
-            // Target no longer exists, skip combat and pop ourselves
-            gameState.popPhase();
-            return;
+            // Target no longer exists, skip combat
+            return { type: 'complete' };
         }
 
         // Roll dice
@@ -64,9 +52,7 @@ export class AutoCombatPhase extends Phase {
         if (newStrength <= 0) {
             // Unit is eliminated
             this.eliminateUnit(gameState, this.targetHex, targetUnit);
-            // Pop ourselves and continue to next AutoCombatPhase
-            gameState.popPhase();
-            return;
+            return { type: 'complete' };
         }
 
         // Handle flag results (retreat)
@@ -83,9 +69,7 @@ export class AutoCombatPhase extends Phase {
             gameState.setUnitCurrentStrength(targetUnit, newStrengthAfterFlagResult);
             if (newStrengthAfterFlagResult <= 0) {
                 this.eliminateUnit(gameState, this.targetHex, targetUnit);
-                // Pop ourselves and continue
-                gameState.popPhase();
-                return;
+                return { type: 'complete' };
             }
 
             // Only handle retreat if there are valid retreat hexes
@@ -102,12 +86,13 @@ export class AutoCombatPhase extends Phase {
                     undefined,
                     false       // No overrun
                 ));
+                // Task is done, but we pushed a phase, so pause task processing
+                return { type: 'paused' };
             }
             // If flagResult.retreats.length === 0, all paths blocked and damage already applied
         }
 
-        // Pop ourselves out of the way (RetreatPhase will be on top if we pushed it)
-        gameState.popPhase();
+        return { type: 'complete' };
     }
 
     private eliminateUnit(gameState: GameState, coord: HexCoord, targetUnit: Unit): void {
