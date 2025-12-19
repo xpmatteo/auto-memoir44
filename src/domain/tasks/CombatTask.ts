@@ -100,4 +100,8 @@ export class CombatTask implements DeferredTask {
         const attackerPlayerIndex = gameState.activePlayer.position === Position.BOTTOM ? 0 : 1;
         gameState.addToMedalTable(targetUnit, attackerPlayerIndex as 0 | 1);
     }
+
+    clone(): CombatTask {
+        return new CombatTask(this.targetHex, this.dicePerTarget, this.starsCountAsHits);
+    }
 }
