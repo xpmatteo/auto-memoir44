@@ -513,6 +513,9 @@ export class GameState {
         // Clone fortification map (fortifications are mutable, need deep clone)
         (cloned as any).fortificationMap = this.fortificationMap.clone();
 
+        // Clone deferred tasks array (tasks are queued and consumed, need independent array)
+        (cloned as any).deferredTasks = this.deferredTasks.map(task => task.clone());
+
         return cloned;
     }
 

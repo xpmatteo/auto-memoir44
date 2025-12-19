@@ -13,4 +13,9 @@ export interface DeferredTask {
      * @returns TaskResult indicating whether to continue processing tasks or pause
      */
     execute(gameState: GameState): TaskResult;
+
+    /**
+     * Create a deep clone of this task for GameState cloning
+     */
+    clone(): DeferredTask;
 }
