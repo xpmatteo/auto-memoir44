@@ -11,7 +11,7 @@ import {Side} from "./Player";
  * Events describe what happened in user-facing language
  */
 export class GameEvent {
-    constructor(readonly description: string) {}
+    constructor(readonly description: string, readonly side: Side) {}
 }
 
 /**
@@ -19,7 +19,7 @@ export class GameEvent {
  */
 export class CardPlayedEvent extends GameEvent {
     constructor(cardName: string, playerSide: Side) {
-        super(`${playerSide} player played "${cardName}"`);
+        super(`${playerSide} player played "${cardName}"`, playerSide);
     }
 }
 
@@ -28,11 +28,10 @@ export class CardPlayedEvent extends GameEvent {
  */
 export class UnitMovedEvent extends GameEvent {
     constructor(unit: Unit, from: HexCoord, to: HexCoord) {
-        if (from.q === to.q && from.r === to.r) {
-            super(`${unit.type} at ${from} stayed in place`);
-        } else {
-            super(`${unit.type} moved from ${from} to ${to}`);
-        }
+        const description = (from.q === to.q && from.r === to.r)
+            ? `${unit.type} at ${from} stayed in place`
+            : `${unit.type} moved from ${from} to ${to}`;
+        super(description, unit.side);
     }
 }
 
@@ -64,7 +63,7 @@ export class BattleEvent extends GameEvent {
             outcomeDesc = "No effect";
         }
 
-        super(`${battleDesc}. ${outcomeDesc}.`);
+        super(`${battleDesc}. ${outcomeDesc}.`, attacker.side);
     }
 }
 
@@ -79,11 +78,10 @@ export type BattleOutcome =
  */
 export class UnitRetreatedEvent extends GameEvent {
     constructor(unit: Unit, from: HexCoord, to: HexCoord) {
-        if (from.q === to.q && from.r === to.r) {
-            super(`${unit.type} at ${from} cannot retreat (no valid paths)`);
-        } else {
-            super(`${unit.type} retreated from ${from} to ${to}`);
-        }
+        const description = (from.q === to.q && from.r === to.r)
+            ? `${unit.type} at ${from} cannot retreat (no valid paths)`
+            : `${unit.type} retreated from ${from} to ${to}`;
+        super(description, unit.side);
     }
 }
 
@@ -92,7 +90,7 @@ export class UnitRetreatedEvent extends GameEvent {
  */
 export class TookGroundEvent extends GameEvent {
     constructor(unit: Unit, from: HexCoord, to: HexCoord) {
-        super(`${unit.type} advanced from ${from} to ${to}`);
+        super(`${unit.type} advanced from ${from} to ${to}`, unit.side);
     }
 }
 
@@ -101,7 +99,7 @@ export class TookGroundEvent extends GameEvent {
  */
 export class MedalEarnedEvent extends GameEvent {
     constructor(earningSide: Side, eliminatedUnit: Unit) {
-        super(`${earningSide} earned a medal (eliminated ${eliminatedUnit.type})`);
+        super(`${earningSide} earned a medal (eliminated ${eliminatedUnit.type})`, earningSide);
     }
 }
 
@@ -109,8 +107,8 @@ export class MedalEarnedEvent extends GameEvent {
  * Fortification was applied to a hex
  */
 export class FortificationAppliedEvent extends GameEvent {
-    constructor(fortificationType: string, position: HexCoord) {
-        super(`${fortificationType} placed at ${position}`);
+    constructor(fortificationType: string, position: HexCoord, side: Side) {
+        super(`${fortificationType} placed at ${position}`, side);
     }
 }
 
@@ -119,7 +117,7 @@ export class FortificationAppliedEvent extends GameEvent {
  */
 export class GameWonEvent extends GameEvent {
     constructor(winningSide: Side, medals: number) {
-        super(`${winningSide} won the game with ${medals} medals!`);
+        super(`${winningSide} won the game with ${medals} medals!`, winningSide);
     }
 }
 
@@ -127,7 +125,7 @@ export class GameWonEvent extends GameEvent {
  * Phase ended (for debugging)
  */
 export class PhaseEndedEvent extends GameEvent {
-    constructor(phaseName: string) {
-        super(`${phaseName} phase ended`);
+    constructor(phaseName: string, side: Side) {
+        super(`${phaseName} phase ended`, side);
     }
 }

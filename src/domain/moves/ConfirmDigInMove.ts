@@ -23,7 +23,7 @@ export class ConfirmDigInMove extends Move {
             const existing = gameState.getFortification(coord);
             if (existing === noFortification) {
                 gameState.setFortification(coord, fortification);
-                events.push(new FortificationAppliedEvent(fortification.name, coord));
+                events.push(new FortificationAppliedEvent(fortification.name, coord, gameState.activePlayer.side));
             }
         }
 

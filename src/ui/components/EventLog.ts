@@ -2,7 +2,7 @@
 // ABOUTME: HTML-based UI positioned to the right of the game canvas
 
 import {GameState} from "../../domain/GameState";
-import {GameEvent, BattleEvent, UnitMovedEvent, MedalEarnedEvent, CardPlayedEvent, GameWonEvent} from "../../domain/GameEvent";
+import {GameEvent} from "../../domain/GameEvent";
 
 export class EventLog {
     private container: HTMLDivElement;
@@ -47,17 +47,11 @@ export class EventLog {
         const div = document.createElement("div");
         div.className = "event-entry";
 
-        // Add event-type-specific classes for color coding
-        if (event instanceof BattleEvent) {
-            div.classList.add("event-battle");
-        } else if (event instanceof MedalEarnedEvent) {
-            div.classList.add("event-medal");
-        } else if (event instanceof UnitMovedEvent) {
-            div.classList.add("event-move");
-        } else if (event instanceof CardPlayedEvent) {
-            div.classList.add("event-card");
-        } else if (event instanceof GameWonEvent) {
-            div.classList.add("event-game-over");
+        // Add side-specific classes for color coding
+        if (event.side === "Allies") {
+            div.classList.add("event-allies");
+        } else if (event.side === "Axis") {
+            div.classList.add("event-axis");
         }
 
         div.textContent = event.description;
