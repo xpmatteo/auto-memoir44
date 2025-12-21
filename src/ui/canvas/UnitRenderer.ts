@@ -14,7 +14,13 @@ const UNIT_IMAGE_CACHE = new Map<string, HTMLImageElement>();
  */
 export function getUnitImagePath(unit: Unit): string {
     const prefix = unit.side === Side.ALLIES ? "us" : "ger";
-    const type = unit.type === UnitType.INFANTRY ? "inf" : "arm";
+    let type: string;
+    switch (unit.type) {
+        case UnitType.INFANTRY: type = 'inf'; break;
+        case UnitType.ARMOR: type = 'arm'; break;
+        case UnitType.ARTILLERY: type = 'art'; break;
+        default: throw new Error(`Unknown unit type: ${unit.type}`);
+    }
     return `/images/units/${prefix}_${type}.png`;
 }
 

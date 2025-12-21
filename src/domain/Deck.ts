@@ -25,6 +25,7 @@ import {ArmorAssault} from "./cards/ArmorAssault";
 import {AirPower} from "./cards/AirPower";
 import {Barrage} from "./cards/Barrage";
 import {DigIn} from "./cards/DigIn";
+import {ArtilleryBombard} from "./cards/ArtilleryBombard";
 
 export class Deck {
     private locations: Map<CardLocation, CommandCard[]>;
@@ -169,11 +170,9 @@ export class Deck {
 
         Their Finest Hour (1)
 
-        Artillery Bombard (1)
         Behind Enemy Lines (1)
 
         Counter-Attack (2)
-        Dig-In (1)
 
         Infantry Assault (2)
         Medics & Mechanics (1)
@@ -209,6 +208,7 @@ export class Deck {
             [AirPower, 1],
             [Barrage, 1],
             [DigIn, 1],
+            [ArtilleryBombard, 100],
         ], rng);
     }
 
