@@ -31,10 +31,12 @@ export class GeneralOrderUnitsPhase extends Phase {
     readonly name: string = "Order Units";
     readonly type = PhaseType.ORDER;
     private readonly slots: OrderSlot[];
+    private readonly confirmMove: Move;
 
-    constructor(slots: OrderSlot[]) {
+    constructor(slots: OrderSlot[], confirmMove?: Move) {
         super();
         this.slots = slots;
+        this.confirmMove = confirmMove ?? new ConfirmOrdersMove();
     }
 
     legalMoves(gameState: GameState): Array<Move> {
@@ -67,7 +69,7 @@ export class GeneralOrderUnitsPhase extends Phase {
             }
         }
 
-        return [new ConfirmOrdersMove(), ...moves];
+        return [this.confirmMove, ...moves];
     }
 
     /**

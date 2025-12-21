@@ -5,11 +5,12 @@ import {GameState} from "../GameState";
 import {ReplenishHandPhase} from "../phases/ReplenishHandPhase";
 import {BattlePhase} from "../phases/BattlePhase";
 import {MovePhase} from "../phases/MovePhase";
-import {OrderUnitsByPredicatePhase} from "../phases/OrderUnitsByPredicatePhase";
-import {DigInOrderPhase} from "../phases/DigInOrderPhase";
-import {Unit, UnitType} from "../Unit";
+import {GeneralOrderUnitsPhase} from "../phases/GeneralOrderUnitsPhase";
+import {UnitType} from "../Unit";
 import {CommandCard} from "./CommandCard";
 import {noFortification} from "../fortifications/Fortification";
+import {SituatedUnit} from "../SituatedUnit";
+import {ConfirmDigInMove} from "../moves/ConfirmDigInMove";
 
 export class DigIn extends CommandCard {
     readonly name = "Dig In";
@@ -28,30 +29,22 @@ export class DigIn extends CommandCard {
             // Normal mode: Dig In with infantry (even if all are fortified)
             gameState.replacePhase(new ReplenishHandPhase());
 
-            // NO Move or Battle phases - units cannot move after digging in
-
-            // Predicate: Infantry not on fortified hexes
             // Note: If ALL infantry are fortified, this predicate will exclude all units.
             // The phase will only have ConfirmDigInMove available, which will do nothing.
-            const predicate = (unit: Unit, gs: GameState): boolean => {
-                if (unit.type !== UnitType.INFANTRY) return false;
+            const predicate = (su: SituatedUnit) =>
+                su.unit.type === UnitType.INFANTRY &&
+                gameState.getFortification(su.coord) === noFortification;
 
-                // Find unit's position
-                const allUnits = gs.getAllUnitsWithPositions();
-                const unitWithPos = allUnits.find(({unit: u}) => u.id === unit.id);
-                if (!unitWithPos) return false;
-
-                const fort = gs.getFortification(unitWithPos.coord);
-                return fort === noFortification;
-            };
-
-            gameState.pushPhase(new DigInOrderPhase(this.howManyUnits, predicate));
+            gameState.pushPhase(new GeneralOrderUnitsPhase(
+                [{ predicate, maxCount: this.howManyUnits }],
+                new ConfirmDigInMove()
+            ));
         } else {
             // Fallback mode: Standard turn with 1 unit of any type
             gameState.replacePhase(new ReplenishHandPhase());
             gameState.pushPhase(new BattlePhase());
             gameState.pushPhase(new MovePhase());
-            gameState.pushPhase(new OrderUnitsByPredicatePhase(1, () => true));
+            gameState.pushPhase(new GeneralOrderUnitsPhase([{ predicate: () => true, maxCount: 1 }]));
         }
     }
 }
