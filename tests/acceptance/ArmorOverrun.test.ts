@@ -6,7 +6,7 @@ import {GameState} from '../../src/domain/GameState';
 import {Deck} from '../../src/domain/Deck';
 import {Armor, Infantry} from '../../src/domain/Unit';
 import {Side} from '../../src/domain/Player';
-import {HexCoord} from '../../src/utils/hex';
+import {hexOf} from '../../src/utils/hex';
 import {BattleMove} from '../../src/domain/moves/BattleMove';
 import {TakeGroundMove} from '../../src/domain/moves/TakeGroundMove';
 import {RetreatMove} from '../../src/domain/moves/Move';
@@ -23,9 +23,9 @@ describe('Armor Overrun', () => {
         const enemy1 = new Infantry(Side.AXIS, 3);
         const enemy2 = new Infantry(Side.AXIS, 3);
 
-        const armorCoord = new HexCoord(5, 5);
-        const enemy1Coord = new HexCoord(6, 5); // Adjacent to armor
-        const enemy2Coord = new HexCoord(7, 5); // Adjacent to enemy1's position
+        const armorCoord = hexOf(5, 5);
+        const enemy1Coord = hexOf(6, 5); // Adjacent to armor
+        const enemy2Coord = hexOf(7, 5); // Adjacent to enemy1's position
 
         gameState.placeUnit(armorCoord, armor);
         gameState.placeUnit(enemy1Coord, enemy1);
@@ -71,10 +71,10 @@ describe('Armor Overrun', () => {
         const enemy2 = new Infantry(Side.AXIS, 3);  // Distance 1 from (4,5)
         const enemy3 = new Infantry(Side.AXIS, 3);  // Distance 2 from (4,5)
 
-        const armorCoord = new HexCoord(5, 5);
-        const enemy1Coord = new HexCoord(4, 5);  // Adjacent to armor
-        const enemy2Coord = new HexCoord(3, 5);  // Adjacent to enemy1Coord
-        const enemy3Coord = new HexCoord(2, 5);  // 2 away from enemy1Coord
+        const armorCoord = hexOf(5, 5);
+        const enemy1Coord = hexOf(4, 5);  // Adjacent to armor
+        const enemy2Coord = hexOf(3, 5);  // Adjacent to enemy1Coord
+        const enemy3Coord = hexOf(2, 5);  // 2 away from enemy1Coord
 
         gameState.placeUnit(armorCoord, armor);
         gameState.placeUnit(enemy1Coord, enemy1);
@@ -114,10 +114,10 @@ describe('Armor Overrun', () => {
         const enemy2 = new Infantry(Side.AXIS, 3);
         const enemy3 = new Infantry(Side.AXIS, 3);  // Third enemy to test no further overrun
 
-        const armorCoord = new HexCoord(5, 5);
-        const enemy1Coord = new HexCoord(6, 5);
-        const enemy2Coord = new HexCoord(7, 5);
-        const enemy3Coord = new HexCoord(8, 5);
+        const armorCoord = hexOf(5, 5);
+        const enemy1Coord = hexOf(6, 5);
+        const enemy2Coord = hexOf(7, 5);
+        const enemy3Coord = hexOf(8, 5);
 
         gameState.placeUnit(armorCoord, armor);
         gameState.placeUnit(enemy1Coord, enemy1);
@@ -163,9 +163,9 @@ describe('Armor Overrun', () => {
         const enemy1 = new Infantry(Side.AXIS, 3);
         const enemy2 = new Infantry(Side.AXIS, 3);
 
-        const infantryCoord = new HexCoord(5, 5);
-        const enemy1Coord = new HexCoord(6, 5);
-        const enemy2Coord = new HexCoord(7, 5);
+        const infantryCoord = hexOf(5, 5);
+        const enemy1Coord = hexOf(6, 5);
+        const enemy2Coord = hexOf(7, 5);
 
         gameState.placeUnit(infantryCoord, infantry);
         gameState.placeUnit(enemy1Coord, enemy1);
@@ -198,10 +198,10 @@ describe('Armor Overrun', () => {
         const enemy2 = new Infantry(Side.AXIS, 4);  // 4 strength - won't be eliminated by 1 hit
         const enemy3 = new Infantry(Side.AXIS, 4);
 
-        const armorCoord = new HexCoord(5, 5);
-        const enemy1Coord = new HexCoord(6, 5);
-        const enemy2Coord = new HexCoord(7, 5);
-        const enemy3Coord = new HexCoord(8, 5);
+        const armorCoord = hexOf(5, 5);
+        const enemy1Coord = hexOf(6, 5);
+        const enemy2Coord = hexOf(7, 5);
+        const enemy3Coord = hexOf(8, 5);
 
         gameState.placeUnit(armorCoord, armor);
         gameState.placeUnit(enemy1Coord, enemy1);
@@ -253,9 +253,9 @@ describe('Armor Overrun', () => {
         const enemy1 = new Infantry(Side.AXIS, 3);
         const enemy2 = new Infantry(Side.AXIS, 4);
 
-        const armorCoord = new HexCoord(5, 5);
-        const enemy1Coord = new HexCoord(6, 5);
-        const enemy2Coord = new HexCoord(7, 5);
+        const armorCoord = hexOf(5, 5);
+        const enemy1Coord = hexOf(6, 5);
+        const enemy2Coord = hexOf(7, 5);
 
         gameState.placeUnit(armorCoord, armor);
         gameState.placeUnit(enemy1Coord, enemy1);

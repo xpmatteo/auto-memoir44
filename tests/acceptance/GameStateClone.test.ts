@@ -7,7 +7,7 @@ import {Deck} from "../../src/domain/Deck";
 import {AssaultLeft, CardLocation} from "../../src/domain/cards/CommandCard";
 import {PlayCardMove} from "../../src/domain/moves/Move";
 import {Infantry} from "../../src/domain/Unit";
-import {HexCoord} from "../../src/utils/hex";
+import {hexOf} from "../../src/utils/hex";
 import {Side} from "../../src/domain/Player";
 
 describe("GameState cloning for AI simulation", () => {
@@ -59,7 +59,7 @@ describe("GameState cloning for AI simulation", () => {
     it("Clone preserves unit positions", () => {
         const gameState = createTestGameState();
         const unit = new Infantry(Side.ALLIES);
-        const coord = new HexCoord(0, 0);
+        const coord = hexOf(0, 0);
         gameState.placeUnit(coord, unit);
 
         const simulation = gameState.clone();
@@ -72,7 +72,7 @@ describe("GameState cloning for AI simulation", () => {
     it("Modifying clone unit state doesn't affect original", () => {
         const gameState = createTestGameState();
         const unit = new Infantry(Side.ALLIES);
-        const coord = new HexCoord(0, 0);
+        const coord = hexOf(0, 0);
         gameState.placeUnit(coord, unit);
 
         const simulation = gameState.clone();
@@ -90,7 +90,7 @@ describe("GameState cloning for AI simulation", () => {
     it("Modifying clone unit strength doesn't affect original", () => {
         const gameState = createTestGameState();
         const unit = new Infantry(Side.ALLIES, 4);
-        const coord = new HexCoord(0, 0);
+        const coord = hexOf(0, 0);
         gameState.placeUnit(coord, unit);
 
         const simulation = gameState.clone();
@@ -108,8 +108,8 @@ describe("GameState cloning for AI simulation", () => {
     it("Moving units on clone doesn't affect original", () => {
         const gameState = createTestGameState();
         const unit = new Infantry(Side.ALLIES);
-        const from = new HexCoord(0, 0);
-        const to = new HexCoord(1, 0);
+        const from = hexOf(0, 0);
+        const to = hexOf(1, 0);
         gameState.placeUnit(from, unit);
 
         const simulation = gameState.clone();
@@ -129,7 +129,7 @@ describe("GameState cloning for AI simulation", () => {
     it("Adding medals to clone doesn't affect original", () => {
         const gameState = createTestGameState();
         const unit = new Infantry(Side.ALLIES);
-        const coord = new HexCoord(0, 0);
+        const coord = hexOf(0, 0);
         gameState.placeUnit(coord, unit);
 
         const simulation = gameState.clone();

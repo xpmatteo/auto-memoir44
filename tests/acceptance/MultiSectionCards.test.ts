@@ -7,7 +7,7 @@ import {Side} from "../../src/domain/Player";
 import {Deck} from "../../src/domain/Deck";
 import {Infantry} from "../../src/domain/Unit";
 import {CardLocation, PincerMove, ReconInForce} from "../../src/domain/cards/CommandCard";
-import {HexCoord} from "../../src/utils/hex";
+import {hexOf} from "../../src/utils/hex";
 import {ConfirmOrdersMove, OrderUnitMove, PlayCardMove, UnOrderMove} from "../../src/domain/moves/Move";
 import {toStringAndSort} from "../helpers/testHelpers";
 
@@ -28,20 +28,20 @@ describe("Multi-Section Command Cards", () => {
     const rightEnemyUnit = new Infantry(Side.AXIS);
 
     function placeUnits(gameState: GameState) {
-        gameState.placeUnit(new HexCoord(1, 1), leftUnit1);
-        gameState.placeUnit(new HexCoord(2, 1), leftUnit2);
-        gameState.placeUnit(new HexCoord(3, 1), leftCenterUnit);
-        gameState.placeUnit(new HexCoord(0, 0), leftEnemyUnit);
+        gameState.placeUnit(hexOf(1, 1), leftUnit1);
+        gameState.placeUnit(hexOf(2, 1), leftUnit2);
+        gameState.placeUnit(hexOf(3, 1), leftCenterUnit);
+        gameState.placeUnit(hexOf(0, 0), leftEnemyUnit);
 
-        gameState.placeUnit(new HexCoord(4, 1), centerUnit1);
-        gameState.placeUnit(new HexCoord(5, 1), centerUnit2);
-        gameState.placeUnit(new HexCoord(6, 1), centerUnit3);
-        gameState.placeUnit(new HexCoord(5, 0), centerEnemyUnit);
+        gameState.placeUnit(hexOf(4, 1), centerUnit1);
+        gameState.placeUnit(hexOf(5, 1), centerUnit2);
+        gameState.placeUnit(hexOf(6, 1), centerUnit3);
+        gameState.placeUnit(hexOf(5, 0), centerEnemyUnit);
 
-        gameState.placeUnit(new HexCoord(8, 1), centerRightUnit);
-        gameState.placeUnit(new HexCoord(9, 1), rightUnit2);
-        gameState.placeUnit(new HexCoord(10, 1), rightUnit3);
-        gameState.placeUnit(new HexCoord(12, 0), rightEnemyUnit);
+        gameState.placeUnit(hexOf(8, 1), centerRightUnit);
+        gameState.placeUnit(hexOf(9, 1), rightUnit2);
+        gameState.placeUnit(hexOf(10, 1), rightUnit3);
+        gameState.placeUnit(hexOf(12, 0), rightEnemyUnit);
     }
 
     describe("Pincer Move card", () => {

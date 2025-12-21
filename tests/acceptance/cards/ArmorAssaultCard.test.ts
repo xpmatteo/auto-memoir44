@@ -3,7 +3,7 @@
 
 import {expect, test, describe} from "vitest";
 import {ConfirmOrdersMove, OrderUnitMove, EndMovementsMove} from "../../../src/domain/moves/Move";
-import {HexCoord} from "../../../src/utils/hex";
+import {hexOf} from "../../../src/utils/hex";
 import {ArmorAssault} from "../../../src/domain/cards/ArmorAssault";
 import {getUnitAt, setupGameForCommandCardTests} from "../../helpers/testHelpers";
 
@@ -72,7 +72,7 @@ describe("Armor Assault card", () => {
                 "....    ....    ....    ....    ....    ....    ....",
             ];
             const gameState = setupGameForCommandCardTests(unitSetup, ArmorAssault);
-            gameState.executeMove(new OrderUnitMove(gameState.getUnitAt(new HexCoord(1, 6))!));
+            gameState.executeMove(new OrderUnitMove(gameState.getUnitAt(hexOf(1, 6))!));
 
             expect(gameState.legalMoves().map(m => m.toString())).toEqual([
                 "ConfirmOrdersMove",

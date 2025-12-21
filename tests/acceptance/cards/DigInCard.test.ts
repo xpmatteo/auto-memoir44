@@ -3,7 +3,7 @@
 
 import {describe, expect, test} from "vitest";
 import {OrderUnitMove} from "../../../src/domain/moves/Move";
-import {HexCoord} from "../../../src/utils/hex";
+import {hexOf} from "../../../src/utils/hex";
 import {DigIn} from "../../../src/domain/cards/DigIn";
 import {setupGameForCommandCardTests} from "../../helpers/testHelpers";
 import {noFortification, sandbagAllies, sandbagAxis} from "../../../src/domain/fortifications/Fortification";
@@ -122,7 +122,7 @@ describe("Dig In card", () => {
             ];
             const gameState = setupGameForCommandCardTests(unitSetup, DigIn, Side.AXIS);
 
-            const unitHex = new HexCoord(6, 1);
+            const unitHex = hexOf(6, 1);
             gameState.executeMove(new OrderUnitMove(gameState.getUnitAt(unitHex)!));
             gameState.executeMove(new ConfirmDigInMove());
 
@@ -146,7 +146,7 @@ describe("Dig In card", () => {
             const gameState = setupGameForCommandCardTests(unitSetup, DigIn);
 
             // Pre-place sandbag on unit-1's hex
-            gameState.setFortification(new HexCoord(1, 6), sandbagAllies);
+            gameState.setFortification(hexOf(1, 6), sandbagAllies);
 
             const legalMoves = gameState.legalMoves().map(m => m.toString()).sort();
             // unit-1 should NOT be in legal moves
@@ -172,7 +172,7 @@ describe("Dig In card", () => {
             ];
             const gameState = setupGameForCommandCardTests(unitSetup, DigIn);
 
-            gameState.executeMove(new OrderUnitMove(gameState.getUnitAt(new HexCoord(-1, 6))!));
+            gameState.executeMove(new OrderUnitMove(gameState.getUnitAt(hexOf(-1, 6))!));
             gameState.executeMove(new ConfirmDigInMove());
 
             // Should transition directly to ReplenishHandPhase (draw card)
@@ -224,7 +224,7 @@ describe("Dig In card", () => {
             ];
             const gameState = setupGameForCommandCardTests(unitSetup, DigIn);
 
-            const armorHex = new HexCoord(-1, 6);
+            const armorHex = hexOf(-1, 6);
             gameState.executeMove(new OrderUnitMove(gameState.getUnitAt(armorHex)!));
             gameState.executeMove(gameState.legalMoves().find(m => m.toString() === "ConfirmOrdersMove")!);
 

@@ -11,7 +11,7 @@ import {Deck} from "../../../src/domain/Deck";
 import {Dice} from "../../../src/domain/Dice";
 import {Infantry} from "../../../src/domain/Unit";
 import {Side} from "../../../src/domain/Player";
-import {HexCoord} from "../../../src/utils/hex";
+import {hexOf} from "../../../src/utils/hex";
 
 // Helper to create a minimal GameState for testing in PLAY_CARD phase
 function createTestGameState(): GameState {
@@ -45,10 +45,10 @@ function createTestGameStateInOrderPhase(): GameState {
     const gameState = createTestGameState();
     // Place more units than the card limit (ProbeCenter orders 2) in center section
     // This ensures there are always unordered units available
-    gameState.placeUnit(new HexCoord(6, 7), new Infantry(Side.ALLIES));
-    gameState.placeUnit(new HexCoord(6, 8), new Infantry(Side.ALLIES));
-    gameState.placeUnit(new HexCoord(5, 7), new Infantry(Side.ALLIES));
-    gameState.placeUnit(new HexCoord(7, 7), new Infantry(Side.ALLIES));
+    gameState.placeUnit(hexOf(6, 7), new Infantry(Side.ALLIES));
+    gameState.placeUnit(hexOf(6, 8), new Infantry(Side.ALLIES));
+    gameState.placeUnit(hexOf(5, 7), new Infantry(Side.ALLIES));
+    gameState.placeUnit(hexOf(7, 7), new Infantry(Side.ALLIES));
 
     // Draw cards and play one to enter ORDER phase
     gameState.drawCards(1, gameState.activePlayerHand);

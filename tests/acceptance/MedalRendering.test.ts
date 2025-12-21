@@ -6,7 +6,7 @@ import {GameState} from "../../src/domain/GameState";
 import {Deck} from "../../src/domain/Deck";
 import {Infantry} from "../../src/domain/Unit";
 import {Side} from "../../src/domain/Player";
-import {HexCoord} from "../../src/utils/hex";
+import {hexOf} from "../../src/utils/hex";
 import {diceReturningAlways, RESULT_GRENADE, RESULT_INFANTRY} from "../../src/domain/Dice";
 import {BattleMove} from "../../src/domain/moves/BattleMove";
 
@@ -21,8 +21,8 @@ describe("Medal Circle Rendering", () => {
             const attacker = new Infantry(Side.ALLIES, 4);
             const target = new Infantry(Side.AXIS, 2);
 
-            gameState.placeUnit(new HexCoord(0, 0), attacker);
-            gameState.placeUnit(new HexCoord(1, 0), target);
+            gameState.placeUnit(hexOf(0, 0), attacker);
+            gameState.placeUnit(hexOf(1, 0), target);
 
             // Execute battle to eliminate target
             const move = new BattleMove(attacker, target, 2);
@@ -52,10 +52,10 @@ describe("Medal Circle Rendering", () => {
             const target2 = new Infantry(Side.AXIS, 2);
             const target3 = new Infantry(Side.AXIS, 2);
 
-            gameState.placeUnit(new HexCoord(0, 0), attacker);
-            gameState.placeUnit(new HexCoord(1, 0), target1);
-            gameState.placeUnit(new HexCoord(2, 0), target2);
-            gameState.placeUnit(new HexCoord(3, 0), target3);
+            gameState.placeUnit(hexOf(0, 0), attacker);
+            gameState.placeUnit(hexOf(1, 0), target1);
+            gameState.placeUnit(hexOf(2, 0), target2);
+            gameState.placeUnit(hexOf(3, 0), target3);
 
             // Eliminate units in sequence
             new BattleMove(attacker, target1, 2).execute(gameState);
@@ -86,9 +86,9 @@ describe("Medal Circle Rendering", () => {
             // Create 8 targets
             for (let i = 0; i < 8; i++) {
                 targets.push(new Infantry(Side.AXIS, 2));
-                gameState.placeUnit(new HexCoord(i + 1, 0), targets[i]);
+                gameState.placeUnit(hexOf(i + 1, 0), targets[i]);
             }
-            gameState.placeUnit(new HexCoord(0, 0), attacker);
+            gameState.placeUnit(hexOf(0, 0), attacker);
 
             // Eliminate all 8 units
             for (const target of targets) {

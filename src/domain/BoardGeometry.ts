@@ -1,7 +1,7 @@
 // ABOUTME: Board geometry for the 13×9 Memoir '44 hex grid
 // ABOUTME: Validates hex positions and determines section assignments
 
-import {HexCoord} from "../utils/hex";
+import {HexCoord, hexOf} from "../utils/hex";
 import {Position} from "./Player";
 import {Section} from "./Section";
 
@@ -34,7 +34,7 @@ export class BoardGeometry {
             const numCols = r % 2 === 0 ? 13 : 12;
 
             for (let q = colStart; q < colStart + numCols; q++) {
-                const hex = new HexCoord(q, r);
+                const hex = hexOf(q, r);
                 const key = this.hexKey(hex);
                 this.validHexes.set(key, hex);
 
@@ -50,14 +50,14 @@ export class BoardGeometry {
         }
 
         // add extra hexes that straddle the center and either the left or right sections
-        this.centerHexes.add(this.hexKey(new HexCoord(3, 1)));
-        this.centerHexes.add(this.hexKey(new HexCoord(2, 3)));
-        this.centerHexes.add(this.hexKey(new HexCoord(1, 5)));
-        this.centerHexes.add(this.hexKey(new HexCoord(0, 7)));
-        this.centerHexes.add(this.hexKey(new HexCoord(8, 1)));
-        this.centerHexes.add(this.hexKey(new HexCoord(7, 3)));
-        this.centerHexes.add(this.hexKey(new HexCoord(6, 5)));
-        this.centerHexes.add(this.hexKey(new HexCoord(5, 7)));
+        this.centerHexes.add(this.hexKey(hexOf(3, 1)));
+        this.centerHexes.add(this.hexKey(hexOf(2, 3)));
+        this.centerHexes.add(this.hexKey(hexOf(1, 5)));
+        this.centerHexes.add(this.hexKey(hexOf(0, 7)));
+        this.centerHexes.add(this.hexKey(hexOf(8, 1)));
+        this.centerHexes.add(this.hexKey(hexOf(7, 3)));
+        this.centerHexes.add(this.hexKey(hexOf(6, 5)));
+        this.centerHexes.add(this.hexKey(hexOf(5, 7)));
     }
 
     /**

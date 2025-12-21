@@ -8,7 +8,7 @@ import {CardLocation, ProbeCenter} from "../../src/domain/cards/CommandCard";
 import {ConfirmOrdersMove, PlayCardMove, OrderUnitMove} from "../../src/domain/moves/Move";
 import {Infantry} from "../../src/domain/Unit";
 import {Side} from "../../src/domain/Player";
-import {HexCoord} from "../../src/utils/hex";
+import {hexOf} from "../../src/utils/hex";
 import {MovePhase} from "../../src/domain/phases/MovePhase";
 import {woodsTerrain, hedgerowsTerrain, hillTerrain, TownTerrain} from "../../src/domain/terrain/Terrain";
 import {MoveUnitMove} from "../../src/domain/moves/MoveUnitMove";
@@ -21,7 +21,7 @@ describe("Moving units", () => {
         gameState.drawCards(3, CardLocation.BOTTOM_PLAYER_HAND);
 
         const unit = new Infantry(Side.ALLIES);
-        const startPos = new HexCoord(5, 5);
+        const startPos = hexOf(5, 5);
         gameState.placeUnit(startPos, unit);
 
         // Play card and order the unit
@@ -34,11 +34,11 @@ describe("Moving units", () => {
         expect(gameState.activePhase.name).toBe("Move Units");
 
         // Assert: Can move 1 hex east
-        const oneHexEast = new HexCoord(6, 5);
+        const oneHexEast = hexOf(6, 5);
         expect(gameState.legalMoves()).toContainEqual(new MoveUnitMove(startPos, oneHexEast));
 
         // Assert: Can move 2 hexes east
-        const twoHexesEast = new HexCoord(7, 5);
+        const twoHexesEast = hexOf(7, 5);
         expect(gameState.legalMoves()).toContainEqual(new MoveUnitMove(startPos, twoHexesEast));
     });
 
@@ -49,8 +49,8 @@ describe("Moving units", () => {
         gameState.drawCards(3, CardLocation.BOTTOM_PLAYER_HAND);
 
         const unit = new Infantry(Side.ALLIES);
-        const startPos = new HexCoord(5, 5);
-        const endPos = new HexCoord(6, 5);
+        const startPos = hexOf(5, 5);
+        const endPos = hexOf(6, 5);
         gameState.placeUnit(startPos, unit);
 
         // Play card and order the unit
@@ -79,9 +79,9 @@ describe("Moving units", () => {
 
         const unit1 = new Infantry(Side.ALLIES);
         const unit2 = new Infantry(Side.ALLIES);
-        const startPos = new HexCoord(5, 5);
-        const blockingPos = new HexCoord(6, 5); // Adjacent to unit1
-        const beyondBlocker = new HexCoord(7, 5); // 2 hexes away, blocked by unit2
+        const startPos = hexOf(5, 5);
+        const blockingPos = hexOf(6, 5); // Adjacent to unit1
+        const beyondBlocker = hexOf(7, 5); // 2 hexes away, blocked by unit2
 
         gameState.placeUnit(startPos, unit1);
         gameState.placeUnit(blockingPos, unit2);
@@ -109,9 +109,9 @@ describe("Moving units", () => {
 
         const unit1 = new Infantry(Side.ALLIES);
         const unit2 = new Infantry(Side.ALLIES);
-        const pos1 = new HexCoord(5, 5);
-        const pos2 = new HexCoord(8, 8);
-        const newPos = new HexCoord(6, 5);
+        const pos1 = hexOf(5, 5);
+        const pos2 = hexOf(8, 8);
+        const newPos = hexOf(6, 5);
 
         gameState.placeUnit(pos1, unit1);
         gameState.placeUnit(pos2, unit2);
@@ -138,7 +138,7 @@ describe("Moving units", () => {
         expect(gameState.activePhase.name).toBe("Move Units");
 
         // Act: Now move unit2
-        const newPos2 = new HexCoord(7, 8);
+        const newPos2 = hexOf(7, 8);
         gameState.executeMove(new MoveUnitMove(pos2, newPos2));
 
         // Assert: Phase auto-advances
@@ -153,8 +153,8 @@ describe("Moving units", () => {
 
         const unit1 = new Infantry(Side.ALLIES);
         const unit2 = new Infantry(Side.ALLIES);
-        const startPos1 = new HexCoord(1, 4);
-        const startPos2 = new HexCoord(1, 6);
+        const startPos1 = hexOf(1, 4);
+        const startPos2 = hexOf(1, 6);
         gameState.placeUnit(startPos1, unit1);
         gameState.placeUnit(startPos2, unit2);
 
@@ -166,7 +166,7 @@ describe("Moving units", () => {
         gameState.executeMove(new ConfirmOrdersMove());
 
         // Act: Move unit1 2 hexes
-        const endPos1 = new HexCoord(3, 4); // 2 hexes away
+        const endPos1 = hexOf(3, 4); // 2 hexes away
         gameState.executeMove(new MoveUnitMove(startPos1, endPos1));
 
         // Assert: After moving 2 hexes, unit1 should be marked to skip battle
@@ -176,7 +176,7 @@ describe("Moving units", () => {
         expect(gameState.activePhase).toBeInstanceOf(MovePhase);
 
         // Act: Move unit2 1 hex
-        const endPos2 = new HexCoord(2, 6); // 1 hex away
+        const endPos2 = hexOf(2, 6); // 1 hex away
         gameState.executeMove(new MoveUnitMove(startPos2, endPos2));
         expect(gameState.unitSkipsBattle(unit2)).toBe(false);
 
@@ -191,8 +191,8 @@ describe("Moving units", () => {
 
         // Setup: unit at (5,5), woods at (6,5)
         const unit = new Infantry(Side.ALLIES);
-        gameState.placeUnit(new HexCoord(5, 5), unit);
-        gameState.setTerrain(new HexCoord(6, 5), woodsTerrain);
+        gameState.placeUnit(hexOf(5, 5), unit);
+        gameState.setTerrain(hexOf(6, 5), woodsTerrain);
         gameState.finishSetup();
 
         // Play card and order unit
@@ -224,8 +224,8 @@ describe("Moving units", () => {
 
         // Setup: unit at (5,5), hedgerows at (6,5) blocking path to (7,5)
         const unit = new Infantry(Side.ALLIES);
-        gameState.placeUnit(new HexCoord(5, 5), unit);
-        gameState.setTerrain(new HexCoord(6, 5), hedgerowsTerrain);
+        gameState.placeUnit(hexOf(5, 5), unit);
+        gameState.setTerrain(hexOf(6, 5), hedgerowsTerrain);
         gameState.finishSetup();
 
         // Play card and order unit
@@ -260,8 +260,8 @@ describe("Moving units", () => {
             gameState.drawCards(3, CardLocation.BOTTOM_PLAYER_HAND);
 
             const unit = new Infantry(Side.ALLIES);
-            gameState.placeUnit(new HexCoord(5, 5), unit);
-            gameState.setTerrain(new HexCoord(6, 5), terrain);
+            gameState.placeUnit(hexOf(5, 5), unit);
+            gameState.setTerrain(hexOf(6, 5), terrain);
             gameState.finishSetup();
 
             // Play card and order unit
@@ -286,8 +286,8 @@ describe("Moving units", () => {
         gameState.drawCards(3, CardLocation.BOTTOM_PLAYER_HAND);
 
         const unit = new Infantry(Side.ALLIES);
-        gameState.placeUnit(new HexCoord(5, 5), unit);
-        gameState.setTerrain(new HexCoord(6, 5), hillTerrain);
+        gameState.placeUnit(hexOf(5, 5), unit);
+        gameState.setTerrain(hexOf(6, 5), hillTerrain);
         gameState.finishSetup();
 
         // Play card and order unit

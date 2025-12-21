@@ -8,14 +8,14 @@ import {Infantry} from "../../src/domain/Unit";
 import {Side} from "../../src/domain/Player";
 import {ProbeLeft, CardLocation} from "../../src/domain/cards/CommandCard";
 import {Move, PlayCardMove, OrderUnitMove, UnOrderMove} from "../../src/domain/moves/Move";
-import {HexCoord} from "../../src/utils/hex";
+import {hexOf} from "../../src/utils/hex";
 
 describe("Canvas Interactions", () => {
     describe("Clicking units to toggle orders", () => {
 
         const card = new ProbeLeft();
         const unit = new Infantry(Side.ALLIES);
-        const unitCoord = new HexCoord(-4, 8); // Left section
+        const unitCoord = hexOf(-4, 8); // Left section
 
         let gameState: GameState;
         let orderMove: Move;

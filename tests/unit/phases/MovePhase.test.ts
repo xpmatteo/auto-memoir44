@@ -6,7 +6,7 @@ import {MovePhase} from "../../../src/domain/phases/MovePhase";
 import {EndMovementsMove, Move} from "../../../src/domain/moves/Move";
 import {Infantry, Armor, Unit, UnitState} from "../../../src/domain/Unit";
 import {Side} from "../../../src/domain/Player";
-import {HexCoord} from "../../../src/utils/hex";
+import {HexCoord, hexOf} from "../../../src/utils/hex";
 import {clearTerrain, Terrain, woodsTerrain, hedgerowsTerrain, hillTerrain, TownTerrain} from "../../../src/domain/terrain/Terrain";
 import {MoveUnitMove} from "../../../src/domain/moves/MoveUnitMove";
 
@@ -85,7 +85,7 @@ describe("MovePhase", () => {
         return aKey.localeCompare(bKey);
     });
 
-    const startPos = new HexCoord(5, 5);
+    const startPos = hexOf(5, 5);
 
     const cases: TestCase[] = [
         // Basic Functionality
@@ -154,14 +154,14 @@ describe("MovePhase", () => {
             name: "Generates moves for multiple ordered units",
             unitMover: new FakeUnitMover()
                 .setOrderedUnits([
-                    {coord: new HexCoord(5, 5), unit: unit1},
-                    {coord: new HexCoord(8, 8), unit: unit2}
+                    {coord: hexOf(5, 5), unit: unit1},
+                    {coord: hexOf(8, 8), unit: unit2}
                 ])
                 .setMovedUnits([])
                 .setOccupiedCoords([]),
             expected: (() => {
-                const pos1 = new HexCoord(5, 5);
-                const pos2 = new HexCoord(8, 8);
+                const pos1 = hexOf(5, 5);
+                const pos2 = hexOf(8, 8);
                 const moves = [
                     // Unit 1 no-op move
                     new MoveUnitMove(pos1, pos1),
@@ -209,7 +209,7 @@ describe("MovePhase", () => {
             unitMover: new FakeUnitMover()
                 .setOrderedUnits([{coord: startPos, unit: unit1}])
                 .setMovedUnits([])
-                .setOccupiedCoords([new HexCoord(6, 5)]), // East hex occupied
+                .setOccupiedCoords([hexOf(6, 5)]), // East hex occupied
             expected: sortMoves([
                 // no-op move - stay in place
                 new MoveUnitMove(startPos, startPos),
@@ -242,7 +242,7 @@ describe("MovePhase", () => {
             unitMover: new FakeUnitMover()
                 .setOrderedUnits([{coord: startPos, unit: unit1}])
                 .setMovedUnits([])
-                .setOccupiedCoords([new HexCoord(6, 5)]), // Blocking hex to the east
+                .setOccupiedCoords([hexOf(6, 5)]), // Blocking hex to the east
             expected: sortMoves([
                 // no-op move - stay in place
                 new MoveUnitMove(startPos, startPos),
@@ -275,11 +275,11 @@ describe("MovePhase", () => {
         {
             name: "Does not generate moves to off-board hexes",
             unitMover: new FakeUnitMover()
-                .setOrderedUnits([{coord: new HexCoord(0, 7), unit: unit1}])
+                .setOrderedUnits([{coord: hexOf(0, 7), unit: unit1}])
                 .setMovedUnits([])
                 .setOccupiedCoords([]),
             expected: (() => {
-                const edgePos = new HexCoord(0, 7);
+                const edgePos = hexOf(0, 7);
                 const moves = [
                     // no-op move - stay in place
                     new MoveUnitMove(edgePos, edgePos),

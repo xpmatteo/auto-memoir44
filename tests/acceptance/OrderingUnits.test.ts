@@ -8,7 +8,7 @@ import {Deck} from "../../src/domain/Deck";
 import {Infantry} from "../../src/domain/Unit";
 import {AssaultLeft} from "../../src/domain/cards/CommandCard";
 import {CardLocation} from "../../src/domain/cards/CommandCard";
-import {HexCoord} from "../../src/utils/hex";
+import {hexOf} from "../../src/utils/hex";
 
 describe("Ordering Units with Command Cards", () => {
     describe("Assault Left card", () => {
@@ -22,20 +22,20 @@ describe("Ordering Units with Command Cards", () => {
             // Bottom player's left section
             const leftUnit1 = new Infantry(Side.ALLIES);
             const leftUnit2 = new Infantry(Side.ALLIES);
-            gameState.placeUnit(new HexCoord(-2, 7), leftUnit1);
-            gameState.placeUnit(new HexCoord(-1, 7), leftUnit2);
+            gameState.placeUnit(hexOf(-2, 7), leftUnit1);
+            gameState.placeUnit(hexOf(-1, 7), leftUnit2);
 
             // This hex is both left and right
             const straddlingUnit = new Infantry(Side.ALLIES);
-            gameState.placeUnit(new HexCoord(0, 7), straddlingUnit);
+            gameState.placeUnit(hexOf(0, 7), straddlingUnit);
 
             // Center section
             const centerUnit = new Infantry(Side.ALLIES);
-            gameState.placeUnit(new HexCoord(2, 7), centerUnit);
+            gameState.placeUnit(hexOf(2, 7), centerUnit);
 
             // Right section: q = 9-12
             const rightUnit = new Infantry(Side.ALLIES);
-            gameState.placeUnit(new HexCoord(7, 7), rightUnit);
+            gameState.placeUnit(hexOf(7, 7), rightUnit);
 
             // Initially, no units should be ordered
             expect(gameState.getOrderedUnits()).toEqual([]);
@@ -58,16 +58,16 @@ describe("Ordering Units with Command Cards", () => {
             // Top player's left section is FLIPPED: screen-right
             const leftUnit1 = new Infantry(Side.AXIS);
             const leftUnit2 = new Infantry(Side.AXIS);
-            gameState.placeUnit(new HexCoord(9, 1), leftUnit1);
-            gameState.placeUnit(new HexCoord(10, 1), leftUnit2);
+            gameState.placeUnit(hexOf(9, 1), leftUnit1);
+            gameState.placeUnit(hexOf(10, 1), leftUnit2);
 
             // Center section
             const centerUnit = new Infantry(Side.AXIS);
-            gameState.placeUnit(new HexCoord(6, 1), centerUnit);
+            gameState.placeUnit(hexOf(6, 1), centerUnit);
 
             // Right section for top player: screen-left
             const rightUnit = new Infantry(Side.AXIS);
-            gameState.placeUnit(new HexCoord(2, 1), rightUnit);
+            gameState.placeUnit(hexOf(2, 1), rightUnit);
 
             // Initially, no units should be ordered
             expect(gameState.getOrderedUnits()).toEqual([]);
@@ -87,11 +87,11 @@ describe("Ordering Units with Command Cards", () => {
 
             // Place friendly unit in left section
             const friendlyUnit = new Infantry(Side.ALLIES);
-            gameState.placeUnit(new HexCoord(-1, 7), friendlyUnit);
+            gameState.placeUnit(hexOf(-1, 7), friendlyUnit);
 
             // Place enemy unit in left section (same q range)
             const enemyUnit = new Infantry(Side.AXIS);
-            gameState.placeUnit(new HexCoord(1, 1), enemyUnit);
+            gameState.placeUnit(hexOf(1, 1), enemyUnit);
 
             card.onCardPlayed(gameState);
 

@@ -3,7 +3,7 @@
 
 import {GameState} from "../domain/GameState";
 import {UIState, BattleTarget} from "../ui/UIState";
-import {HexCoord} from "../utils/hex";
+import {HexCoord, hexOf} from "../utils/hex";
 import {BOARD_GEOMETRY} from "../domain/BoardGeometry";
 import {PhaseType} from "../domain/phases/Phase";
 import {
@@ -181,7 +181,7 @@ export class ConsoleAPI {
 
             movesByUnit.forEach((moves, key) => {
                 const [q, r] = key.split(',').map(Number);
-                const unit = this.gameState.getUnitAt(new HexCoord(q, r));
+                const unit = this.gameState.getUnitAt(hexOf(q, r));
                 const destinations = moves.map(m => `(${m.to.q}, ${m.to.r})`).join(', ');
                 console.log(`  %cgame.clickHex(${q}, ${r})%c  // Select ${unit?.type} - can move to: ${destinations}`,
                     'color: #FF9800; font-family: monospace', 'color: inherit');
@@ -273,7 +273,7 @@ export class ConsoleAPI {
      * Click on a hex - phase-aware behavior
      */
     clickHex(q: number, r: number): CommandResult {
-        const hexCoord = new HexCoord(q, r);
+        const hexCoord = hexOf(q, r);
 
         // Validate hex is on board
         if (!this.validateHex(hexCoord)) {

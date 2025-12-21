@@ -2,18 +2,17 @@
 // ABOUTME: Tests distance calculations and coordinate transformations (ported from doc/hexlib.test.js)
 
 import {expect, test, describe} from "vitest";
-import {hasLineOfSight, hexDistance} from "../../../src/utils/hex";
-import {HexCoord} from "../../../src/utils/hex";
+import {hasLineOfSight, hexDistance, HexCoord, hexOf} from "../../../src/utils/hex";
 
 test('hex distance', () => {
-    expect(hexDistance(new HexCoord(0, 0), new HexCoord(0, 0))).toEqual(0);
-    expect(hexDistance(new HexCoord(0, 0), new HexCoord(0, 1))).toEqual(1);
-    expect(hexDistance(new HexCoord(1, 0), new HexCoord(4, 2))).toEqual(5);
+    expect(hexDistance(hexOf(0, 0), hexOf(0, 0))).toEqual(0);
+    expect(hexDistance(hexOf(0, 0), hexOf(0, 1))).toEqual(1);
+    expect(hexDistance(hexOf(1, 0), hexOf(4, 2))).toEqual(5);
 });
 
 describe('hex coordinates', () => {
     test('from hex to key to hex ', () => {
-        const hex = new HexCoord(1, 2);
+        const hex = hexOf(1, 2);
         const key = hex.key();
         const newHex = HexCoord.from(key);
 
@@ -21,7 +20,7 @@ describe('hex coordinates', () => {
     });
 
     test('with negative q ', () => {
-        const hex = new HexCoord(-1, 2);
+        const hex = hexOf(-1, 2);
         const key = hex.key();
         const newHex = HexCoord.from(key);
 
@@ -29,12 +28,6 @@ describe('hex coordinates', () => {
     });
 
 });
-
-
-function hexOf(q:number, r:number) {
-    return new HexCoord(q, r);
-}
-
 describe('line of sight', () => {
     [
         {from: hexOf(0,0), to: hexOf(0,1), withObstaclesAt: [], expected: true },

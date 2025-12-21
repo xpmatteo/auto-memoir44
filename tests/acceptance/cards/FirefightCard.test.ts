@@ -3,7 +3,7 @@
 
 import {expect, test, describe} from "vitest";
 import {ConfirmOrdersMove, OrderUnitMove} from "../../../src/domain/moves/Move";
-import {HexCoord} from "../../../src/utils/hex";
+import {hexOf} from "../../../src/utils/hex";
 import {Firefight} from "../../../src/domain/cards/Firefight";
 import {setupGameForCommandCardTests} from "../../helpers/testHelpers";
 
@@ -48,7 +48,7 @@ describe("Firefight card", () => {
             "....    ....    ....    ....    ....    ....    ....",
         ];
         const gameState = setupGameForCommandCardTests(unitSetup, Firefight);
-        gameState.executeMove(new OrderUnitMove(gameState.getUnitAt(new HexCoord(2, 5))!));
+        gameState.executeMove(new OrderUnitMove(gameState.getUnitAt(hexOf(2, 5))!));
         gameState.executeMove(new ConfirmOrdersMove());
 
         expect(gameState.legalMoves().map(m => m.toString())).toEqual([
@@ -73,7 +73,7 @@ describe("Firefight card", () => {
         ];
         const gameState = setupGameForCommandCardTests(unitSetup, Firefight);
 
-        gameState.executeMove(new OrderUnitMove(gameState.getUnitAt(new HexCoord(2, 5))!));
+        gameState.executeMove(new OrderUnitMove(gameState.getUnitAt(hexOf(2, 5))!));
         gameState.executeMove(new ConfirmOrdersMove());
 
         expect(gameState.legalMoves().map(m => m.toString())).toEqual([

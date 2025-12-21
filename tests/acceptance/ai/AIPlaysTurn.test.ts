@@ -13,7 +13,7 @@ import type {Move} from "../../../src/domain/moves/Move";
 import type {AIPlayer} from "../../../src/ai/AIPlayer";
 import {RandomAIPlayer} from "../../../src/ai/AIPlayer";
 import {Infantry} from "../../../src/domain/Unit";
-import {HexCoord} from "../../../src/utils/hex";
+import {hexOf} from "../../../src/utils/hex";
 import {PhaseType} from "../../../src/domain/phases/Phase";
 
 // Helper function for tests (bypasses setTimeout for synchronous execution)
@@ -153,8 +153,8 @@ test("AI completes ORDER phase by ordering available units", () => {
 
     // Setup: Place some units in CENTER section for TOP player (AXIS)
     // TOP player's center is q=6
-    gameState.placeUnit(new HexCoord(6, 1), new Infantry(Side.AXIS));
-    gameState.placeUnit(new HexCoord(6, 2), new Infantry(Side.AXIS));
+    gameState.placeUnit(hexOf(6, 1), new Infantry(Side.AXIS));
+    gameState.placeUnit(hexOf(6, 2), new Infantry(Side.AXIS));
 
     gameState.drawCards(3, CardLocation.BOTTOM_PLAYER_HAND);
     gameState.drawCards(3, CardLocation.TOP_PLAYER_HAND);

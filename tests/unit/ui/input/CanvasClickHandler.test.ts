@@ -10,7 +10,7 @@ import { Side } from "../../../../src/domain/Player";
 import { ProbeLeft, CardLocation } from "../../../../src/domain/cards/CommandCard";
 import { PlayCardMove, ConfirmOrdersMove } from "../../../../src/domain/moves/Move";
 import type { GridConfig } from "../../../../src/utils/hex";
-import { HexCoord } from "../../../../src/utils/hex";
+import { hexOf } from "../../../../src/utils/hex";
 import { uiState } from "../../../../src/ui/UIState";
 import * as hexUtils from "../../../../src/utils/hex";
 
@@ -34,7 +34,7 @@ describe("CanvasClickHandler", () => {
     gameState.drawCards(1, CardLocation.BOTTOM_PLAYER_HAND);
 
     const unit = new Infantry(Side.ALLIES);
-    const unitCoord = new HexCoord(-4, 8); // Left section
+    const unitCoord = hexOf(-4, 8); // Left section
     gameState.placeUnit(unitCoord, unit);
     gameState.executeMove(new PlayCardMove(card));
 
@@ -102,7 +102,7 @@ describe("CanvasClickHandler", () => {
     const { gameState } = setupGameWithUnit();
     // Place a unit in center section that cannot be ordered with ProbeLeft
     const centerUnit = new Infantry(Side.ALLIES);
-    gameState.placeUnit(new HexCoord(3, 8), centerUnit);
+    gameState.placeUnit(hexOf(3, 8), centerUnit);
 
     const canvas = document.createElement("canvas");
     const updateCallback = vi.fn();
@@ -147,7 +147,7 @@ describe("CanvasClickHandler", () => {
       gameState.drawCards(1, CardLocation.BOTTOM_PLAYER_HAND);
 
       const unit = new Infantry(Side.ALLIES);
-      const unitCoord = new HexCoord(-4, 8); // Left section
+      const unitCoord = hexOf(-4, 8); // Left section
       gameState.placeUnit(unitCoord, unit);
 
       // Play card and order the unit

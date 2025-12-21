@@ -6,7 +6,7 @@ import {GameState} from "../../../src/domain/GameState";
 import {Side, Position} from "../../../src/domain/Player";
 import {Deck} from "../../../src/domain/Deck";
 import {Infantry} from "../../../src/domain/Unit";
-import {HexCoord} from "../../../src/utils/hex";
+import {hexOf} from "../../../src/utils/hex";
 import {CardLocation} from "../../../src/domain/cards/CommandCard";
 import {
     PlayCardMove,
@@ -97,7 +97,7 @@ describe("GameState", () => {
             const gameState = new GameState(deck);
 
             const unit = new Infantry(Side.ALLIES);
-            const coord = new HexCoord(5, 3);
+            const coord = hexOf(5, 3);
 
             gameState.placeUnit(coord, unit);
 
@@ -110,7 +110,7 @@ describe("GameState", () => {
 
             const unit1 = new Infantry(Side.ALLIES);
             const unit2 = new Infantry(Side.AXIS);
-            const coord = new HexCoord(5, 3);
+            const coord = hexOf(5, 3);
 
             gameState.placeUnit(coord, unit1);
 
@@ -125,7 +125,7 @@ describe("GameState", () => {
             const deck = Deck.createStandardDeck();
             const gameState = new GameState(deck);
 
-            const coord = new HexCoord(5, 3);
+            const coord = hexOf(5, 3);
 
             expect(gameState.getUnitAt(coord)).toBeUndefined();
         });
@@ -135,7 +135,7 @@ describe("GameState", () => {
             const gameState = new GameState(deck);
 
             const unit = new Infantry(Side.ALLIES);
-            const coord = new HexCoord(5, 3);
+            const coord = hexOf(5, 3);
 
             gameState.placeUnit(coord, unit);
 
@@ -148,8 +148,8 @@ describe("GameState", () => {
 
             const unit1 = new Infantry(Side.ALLIES);
             const unit2 = new Infantry(Side.AXIS);
-            const coord1 = new HexCoord(5, 3);
-            const coord2 = new HexCoord(6, 4);
+            const coord1 = hexOf(5, 3);
+            const coord2 = hexOf(6, 4);
 
             gameState.placeUnit(coord1, unit1);
             gameState.placeUnit(coord2, unit2);
@@ -165,8 +165,8 @@ describe("GameState", () => {
             const gameState = new GameState(deck);
 
             const unit = new Infantry(Side.ALLIES);
-            const from = new HexCoord(5, 3);
-            const to = new HexCoord(6, 3);
+            const from = hexOf(5, 3);
+            const to = hexOf(6, 3);
 
             gameState.placeUnit(from, unit);
             gameState.moveUnit(from, to);
@@ -179,8 +179,8 @@ describe("GameState", () => {
             const deck = Deck.createStandardDeck();
             const gameState = new GameState(deck);
 
-            const from = new HexCoord(5, 3);
-            const to = new HexCoord(6, 3);
+            const from = hexOf(5, 3);
+            const to = hexOf(6, 3);
 
             expect(() => gameState.moveUnit(from, to)).toThrow(
                 "No unit at (5, 3) to move"
@@ -193,8 +193,8 @@ describe("GameState", () => {
 
             const unit1 = new Infantry(Side.ALLIES);
             const unit2 = new Infantry(Side.AXIS);
-            const from = new HexCoord(5, 3);
-            const to = new HexCoord(6, 3);
+            const from = hexOf(5, 3);
+            const to = hexOf(6, 3);
 
             gameState.placeUnit(from, unit1);
             gameState.placeUnit(to, unit2);
@@ -211,7 +211,7 @@ describe("GameState", () => {
             const gameState = new GameState(deck);
 
             const unit = new Infantry(Side.ALLIES);
-            const coord = new HexCoord(5, 3);
+            const coord = hexOf(5, 3);
 
             gameState.placeUnit(coord, unit);
             gameState.removeUnit(coord);
@@ -223,7 +223,7 @@ describe("GameState", () => {
             const deck = Deck.createStandardDeck();
             const gameState = new GameState(deck);
 
-            const coord = new HexCoord(5, 3);
+            const coord = hexOf(5, 3);
 
             gameState.removeUnit(coord);
 
@@ -245,8 +245,8 @@ describe("GameState", () => {
 
             const unit1 = new Infantry(Side.ALLIES);
             const unit2 = new Infantry(Side.AXIS);
-            const coord1 = new HexCoord(5, 3);
-            const coord2 = new HexCoord(6, 4);
+            const coord1 = hexOf(5, 3);
+            const coord2 = hexOf(6, 4);
 
             gameState.placeUnit(coord1, unit1);
             gameState.placeUnit(coord2, unit2);
@@ -264,8 +264,8 @@ describe("GameState", () => {
 
             const unit1 = new Infantry(Side.ALLIES);
             const unit2 = new Infantry(Side.AXIS);
-            const coord1 = new HexCoord(5, 3);
-            const coord2 = new HexCoord(6, 4);
+            const coord1 = hexOf(5, 3);
+            const coord2 = hexOf(6, 4);
 
             gameState.placeUnit(coord1, unit1);
             gameState.placeUnit(coord2, unit2);
@@ -292,8 +292,8 @@ describe("GameState", () => {
 
             const unit1 = new Infantry(Side.ALLIES);
             const unit2 = new Infantry(Side.AXIS);
-            const coord1 = new HexCoord(5, 3);
-            const coord2 = new HexCoord(6, 4);
+            const coord1 = hexOf(5, 3);
+            const coord2 = hexOf(6, 4);
 
             gameState.placeUnit(coord1, unit1);
             gameState.placeUnit(coord2, unit2);
@@ -334,8 +334,8 @@ describe("GameState", () => {
 
             const unit1 = new Infantry(Side.ALLIES);
             const unit2 = new Infantry(Side.AXIS);
-            const coord1 = new HexCoord(5, 3);
-            const coord2 = new HexCoord(6, 4);
+            const coord1 = hexOf(5, 3);
+            const coord2 = hexOf(6, 4);
 
             gameState.placeUnit(coord1, unit1);
             gameState.placeUnit(coord2, unit2);
@@ -360,7 +360,7 @@ describe("GameState", () => {
             const gameState = new GameState(deck);
 
             const unit = new Infantry(Side.ALLIES);
-            const coord = new HexCoord(5, 3);
+            const coord = hexOf(5, 3);
 
             gameState.placeUnit(coord, unit);
 
@@ -432,20 +432,20 @@ describe("GameState", () => {
             const unit3 = new Infantry(Side.AXIS, 4);
 
             // Place units
-            gameState.placeUnit(new HexCoord(0, 0), unit1);
-            gameState.placeUnit(new HexCoord(1, 0), unit2);
-            gameState.placeUnit(new HexCoord(8, 8), unit3);
+            gameState.placeUnit(hexOf(0, 0), unit1);
+            gameState.placeUnit(hexOf(1, 0), unit2);
+            gameState.placeUnit(hexOf(8, 8), unit3);
 
             expect(gameState.getAllUnitsWithPositions()).toHaveLength(3);
 
             // Move unit1
-            gameState.moveUnit(new HexCoord(0, 0), new HexCoord(0, 1));
+            gameState.moveUnit(hexOf(0, 0), hexOf(0, 1));
 
-            expect(gameState.getUnitAt(new HexCoord(0, 0))).toBeUndefined();
-            expect(gameState.getUnitAt(new HexCoord(0, 1))).toBe(unit1);
+            expect(gameState.getUnitAt(hexOf(0, 0))).toBeUndefined();
+            expect(gameState.getUnitAt(hexOf(0, 1))).toBe(unit1);
 
             // Remove unit2
-            gameState.removeUnit(new HexCoord(1, 0));
+            gameState.removeUnit(hexOf(1, 0));
 
             expect(gameState.getAllUnitsWithPositions()).toHaveLength(2);
         });
@@ -482,7 +482,7 @@ describe("GameState", () => {
             const gameState = new GameState(deck);
             let axisUnit = new Infantry(Side.AXIS);
             let alliesUnit = new Infantry(Side.ALLIES);
-            gameState.placeUnit(new HexCoord(0, 0), axisUnit);
+            gameState.placeUnit(hexOf(0, 0), axisUnit);
 
             expect(gameState.positionOf(axisUnit)).toBe(Position.TOP);
             expect(gameState.positionOf(alliesUnit)).toBe(Position.BOTTOM);
@@ -494,7 +494,7 @@ describe("GameState", () => {
             gameState.reverseBoard();
             let axisUnit = new Infantry(Side.AXIS);
             let alliesUnit = new Infantry(Side.ALLIES);
-            gameState.placeUnit(new HexCoord(0, 0), axisUnit);
+            gameState.placeUnit(hexOf(0, 0), axisUnit);
 
             expect(gameState.positionOf(axisUnit)).toBe(Position.BOTTOM);
             expect(gameState.positionOf(alliesUnit)).toBe(Position.TOP);
@@ -610,7 +610,7 @@ describe("GameState", () => {
 
             // Set up: place a unit
             const unit = new Infantry(Side.ALLIES);
-            const coord = new HexCoord(5, 3);
+            const coord = hexOf(5, 3);
             gameState.placeUnit(coord, unit);
 
             // Play a card and order a unit
@@ -676,8 +676,8 @@ describe("GameState", () => {
             const deck = Deck.createStandardDeck();
             const gameState = new GameState(deck);
             const unit = new Infantry(Side.ALLIES);
-            const from = new HexCoord(5, 3);
-            const to = new HexCoord(6, 3);
+            const from = hexOf(5, 3);
+            const to = hexOf(6, 3);
 
             gameState.placeUnit(from, unit);
             const move = new MoveUnitMove(from, to);
@@ -692,8 +692,8 @@ describe("GameState", () => {
             const deck = Deck.createStandardDeck();
             const gameState = new GameState(deck);
             const unit = new Infantry(Side.ALLIES);
-            const from = new HexCoord(5, 3);
-            const to = new HexCoord(6, 3);
+            const from = hexOf(5, 3);
+            const to = hexOf(6, 3);
 
             gameState.placeUnit(from, unit);
             expect(gameState.isUnitMoved(unit)).toBe(false);
@@ -707,8 +707,8 @@ describe("GameState", () => {
         it("should throw error when trying to move unit that is not at from coordinate", () => {
             const deck = Deck.createStandardDeck();
             const gameState = new GameState(deck);
-            const from = new HexCoord(5, 3);
-            const to = new HexCoord(6, 3);
+            const from = hexOf(5, 3);
+            const to = hexOf(6, 3);
 
             const move = new MoveUnitMove(from, to);
 
@@ -720,29 +720,29 @@ describe("GameState", () => {
         it("should freeze terrain map", () => {
             const deck = Deck.createStandardDeck();
             const gameState = new GameState(deck);
-            gameState.setTerrain(new HexCoord(5, 5), woodsTerrain);
+            gameState.setTerrain(hexOf(5, 5), woodsTerrain);
 
             gameState.finishSetup();
 
             // Attempting to modify terrain after finishSetup should throw
             expect(() => {
-                gameState.setTerrain(new HexCoord(6, 6), hillTerrain);
+                gameState.setTerrain(hexOf(6, 6), hillTerrain);
             }).toThrow();
         });
 
         it("should allow cloned GameState to share frozen terrain map with original", () => {
             const deck = Deck.createStandardDeck();
             const gameState = new GameState(deck);
-            gameState.setTerrain(new HexCoord(5, 5), woodsTerrain);
+            gameState.setTerrain(hexOf(5, 5), woodsTerrain);
             gameState.finishSetup();
 
             const cloned = gameState.clone();
 
             // Both should have the same terrain
-            expect(cloned.getTerrain(new HexCoord(5, 5))).toBe(woodsTerrain);
+            expect(cloned.getTerrain(hexOf(5, 5))).toBe(woodsTerrain);
 
             // Both should reference the same terrain instance (shared, not cloned)
-            expect(cloned.getTerrain(new HexCoord(5, 5))).toBe(gameState.getTerrain(new HexCoord(5, 5)));
+            expect(cloned.getTerrain(hexOf(5, 5))).toBe(gameState.getTerrain(hexOf(5, 5)));
         });
     });
 

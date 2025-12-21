@@ -3,7 +3,7 @@
 
 import {expect, test, describe} from "vitest";
 import {ConfirmOrdersMove, OrderUnitMove} from "../../../src/domain/moves/Move";
-import {HexCoord} from "../../../src/utils/hex";
+import {hexOf} from "../../../src/utils/hex";
 import {CloseAssault} from "../../../src/domain/cards/CloseAssault";
 import {setupGameForCommandCardTests} from "../../helpers/testHelpers";
 
@@ -45,8 +45,8 @@ describe("Close Assault card", () => {
             "....    ....    ....    ....    ....    ....    ....",
         ];
         const gameState = setupGameForCommandCardTests(unitSetup, CloseAssault);
-        gameState.executeMove(new OrderUnitMove(gameState.getUnitAt(new HexCoord(3, 6))!));
-        gameState.executeMove(new OrderUnitMove(gameState.getUnitAt(new HexCoord(4, 6))!));
+        gameState.executeMove(new OrderUnitMove(gameState.getUnitAt(hexOf(3, 6))!));
+        gameState.executeMove(new OrderUnitMove(gameState.getUnitAt(hexOf(4, 6))!));
 
         gameState.executeMove(new ConfirmOrdersMove());
 
@@ -72,8 +72,8 @@ describe("Close Assault card", () => {
         ];
         const gameState = setupGameForCommandCardTests(unitSetup, CloseAssault);
 
-        gameState.executeMove(new OrderUnitMove(gameState.getUnitAt(new HexCoord(3, 6))!));
-        gameState.executeMove(new OrderUnitMove(gameState.getUnitAt(new HexCoord(4, 6))!));
+        gameState.executeMove(new OrderUnitMove(gameState.getUnitAt(hexOf(3, 6))!));
+        gameState.executeMove(new OrderUnitMove(gameState.getUnitAt(hexOf(4, 6))!));
         gameState.executeMove(new ConfirmOrdersMove());
 
         expect(gameState.legalMoves().map(m => m.toString())).toEqual([

@@ -7,7 +7,7 @@ import {Side} from "../../src/domain/Player";
 import {Deck} from "../../src/domain/Deck";
 import {Armor, Infantry} from "../../src/domain/Unit";
 import {CardLocation} from "../../src/domain/cards/CommandCard";
-import {HexCoord, hexDistance} from "../../src/utils/hex";
+import {hexDistance, hexOf} from "../../src/utils/hex";
 import {ConfirmOrdersMove, OrderUnitMove, PlayCardMove, UnOrderMove} from "../../src/domain/moves/Move";
 import {toStringAndSort} from "../helpers/testHelpers";
 import {CloseAssault} from "../../src/domain/cards/CloseAssault";
@@ -30,22 +30,22 @@ describe("Flexible Ordering Command Cards", () => {
 
     function placeUnitsAcrossBoard(gameState: GameState) {
         // Left section
-        gameState.placeUnit(new HexCoord(1, 1), leftInf1);
-        gameState.placeUnit(new HexCoord(2, 1), leftInf2);
+        gameState.placeUnit(hexOf(1, 1), leftInf1);
+        gameState.placeUnit(hexOf(2, 1), leftInf2);
 
         // Center section
-        gameState.placeUnit(new HexCoord(5, 1), centerInf1);
-        gameState.placeUnit(new HexCoord(6, 1), centerInf2);
-        gameState.placeUnit(new HexCoord(4, 1), centerArmor);
+        gameState.placeUnit(hexOf(5, 1), centerInf1);
+        gameState.placeUnit(hexOf(6, 1), centerInf2);
+        gameState.placeUnit(hexOf(4, 1), centerArmor);
 
         // Right section
-        gameState.placeUnit(new HexCoord(9, 1), rightInf1);
-        gameState.placeUnit(new HexCoord(10, 1), rightInf2);
-        gameState.placeUnit(new HexCoord(11, 1), rightArmor);
+        gameState.placeUnit(hexOf(9, 1), rightInf1);
+        gameState.placeUnit(hexOf(10, 1), rightInf2);
+        gameState.placeUnit(hexOf(11, 1), rightArmor);
 
         // Enemy units
-        gameState.placeUnit(new HexCoord(5, 0), enemyInf);
-        gameState.placeUnit(new HexCoord(6, 0), enemyArmor);
+        gameState.placeUnit(hexOf(5, 0), enemyInf);
+        gameState.placeUnit(hexOf(6, 0), enemyArmor);
     }
 
     describe("Direct from HQ card", () => {
@@ -191,8 +191,8 @@ describe("Flexible Ordering Command Cards", () => {
             gameState.drawCards(1, CardLocation.BOTTOM_PLAYER_HAND);
 
             // Only place 2 infantry units
-            gameState.placeUnit(new HexCoord(1, 1), leftInf1);
-            gameState.placeUnit(new HexCoord(5, 1), centerArmor);
+            gameState.placeUnit(hexOf(1, 1), leftInf1);
+            gameState.placeUnit(hexOf(5, 1), centerArmor);
 
             gameState.executeMove(new PlayCardMove(card));
 
@@ -214,15 +214,15 @@ describe("Flexible Ordering Command Cards", () => {
             gameState.drawCards(1, CardLocation.BOTTOM_PLAYER_HAND);
 
             // Place friendly units in back row (not adjacent to enemies)
-            gameState.placeUnit(new HexCoord(1, 2), leftInf1);
-            gameState.placeUnit(new HexCoord(5, 2), centerInf1);
-            gameState.placeUnit(new HexCoord(9, 2), rightInf1);
+            gameState.placeUnit(hexOf(1, 2), leftInf1);
+            gameState.placeUnit(hexOf(5, 2), centerInf1);
+            gameState.placeUnit(hexOf(9, 2), rightInf1);
 
             // Place friendly unit in close combat with enemy
-            gameState.placeUnit(new HexCoord(3, 1), leftInf2);
+            gameState.placeUnit(hexOf(3, 1), leftInf2);
 
             // Place enemy unit adjacent to leftInf2
-            gameState.placeUnit(new HexCoord(4, 1), enemyInf);
+            gameState.placeUnit(hexOf(4, 1), enemyInf);
 
             // Play the card
             gameState.executeMove(new PlayCardMove(card));
@@ -244,15 +244,15 @@ describe("Flexible Ordering Command Cards", () => {
             gameState.drawCards(1, CardLocation.BOTTOM_PLAYER_HAND);
 
             // Place friendly units adjacent to enemies (close combat)
-            gameState.placeUnit(new HexCoord(5, 2), centerInf1);
-            gameState.placeUnit(new HexCoord(6, 2), centerInf2);
+            gameState.placeUnit(hexOf(5, 2), centerInf1);
+            gameState.placeUnit(hexOf(6, 2), centerInf2);
 
             // Place enemy units adjacent to friendlies
-            gameState.placeUnit(new HexCoord(5, 1), enemyInf);  // Adjacent to centerInf1
-            gameState.placeUnit(new HexCoord(6, 3), enemyArmor); // Adjacent to centerInf2
+            gameState.placeUnit(hexOf(5, 1), enemyInf);  // Adjacent to centerInf1
+            gameState.placeUnit(hexOf(6, 3), enemyArmor); // Adjacent to centerInf2
 
             // Place one friendly unit far from enemies
-            gameState.placeUnit(new HexCoord(9, 5), rightInf1);
+            gameState.placeUnit(hexOf(9, 5), rightInf1);
 
             gameState.executeMove(new PlayCardMove(card));
 
@@ -271,14 +271,14 @@ describe("Flexible Ordering Command Cards", () => {
 
             // Place 5 friendly units, all far from enemies
             const inf3 = new Infantry(Side.ALLIES);
-            gameState.placeUnit(new HexCoord(1, 5), leftInf1);
-            gameState.placeUnit(new HexCoord(2, 5), leftInf2);
-            gameState.placeUnit(new HexCoord(5, 5), centerInf1);
-            gameState.placeUnit(new HexCoord(6, 5), centerInf2);
-            gameState.placeUnit(new HexCoord(9, 5), inf3);
+            gameState.placeUnit(hexOf(1, 5), leftInf1);
+            gameState.placeUnit(hexOf(2, 5), leftInf2);
+            gameState.placeUnit(hexOf(5, 5), centerInf1);
+            gameState.placeUnit(hexOf(6, 5), centerInf2);
+            gameState.placeUnit(hexOf(9, 5), inf3);
 
             // Place enemy far away (not adjacent to any friendly)
-            gameState.placeUnit(new HexCoord(5, 0), enemyInf);
+            gameState.placeUnit(hexOf(5, 0), enemyInf);
 
             gameState.executeMove(new PlayCardMove(card));
 
@@ -314,12 +314,12 @@ describe("Flexible Ordering Command Cards", () => {
             gameState.drawCards(1, CardLocation.BOTTOM_PLAYER_HAND);
 
             // Place mixed unit types, all far from enemies
-            gameState.placeUnit(new HexCoord(1, 5), leftInf1);
-            gameState.placeUnit(new HexCoord(5, 5), centerArmor);
-            gameState.placeUnit(new HexCoord(9, 5), rightInf1);
+            gameState.placeUnit(hexOf(1, 5), leftInf1);
+            gameState.placeUnit(hexOf(5, 5), centerArmor);
+            gameState.placeUnit(hexOf(9, 5), rightInf1);
 
             // Place enemy far away
-            gameState.placeUnit(new HexCoord(5, 0), enemyInf);
+            gameState.placeUnit(hexOf(5, 0), enemyInf);
 
             gameState.executeMove(new PlayCardMove(card));
 
@@ -338,12 +338,12 @@ describe("Flexible Ordering Command Cards", () => {
             gameState.drawCards(1, CardLocation.BOTTOM_PLAYER_HAND);
 
             // Place all friendly units adjacent to enemies
-            gameState.placeUnit(new HexCoord(5, 2), centerInf1);
-            gameState.placeUnit(new HexCoord(6, 2), centerInf2);
+            gameState.placeUnit(hexOf(5, 2), centerInf1);
+            gameState.placeUnit(hexOf(6, 2), centerInf2);
 
             // Place enemy units adjacent to all friendlies
-            gameState.placeUnit(new HexCoord(5, 1), enemyInf);
-            gameState.placeUnit(new HexCoord(6, 3), enemyArmor);
+            gameState.placeUnit(hexOf(5, 1), enemyInf);
+            gameState.placeUnit(hexOf(6, 3), enemyArmor);
 
             gameState.executeMove(new PlayCardMove(card));
 
@@ -359,13 +359,13 @@ describe("Flexible Ordering Command Cards", () => {
             gameState.drawCards(1, CardLocation.BOTTOM_PLAYER_HAND);
 
             // Place friendly unit in center
-            gameState.placeUnit(new HexCoord(5, 4), centerInf1);
+            gameState.placeUnit(hexOf(5, 4), centerInf1);
 
             // Place enemy in one of the six adjacent hexes (northeast)
-            gameState.placeUnit(new HexCoord(6, 3), enemyInf);
+            gameState.placeUnit(hexOf(6, 3), enemyInf);
 
             // Place friendly unit far away
-            gameState.placeUnit(new HexCoord(9, 5), rightInf1);
+            gameState.placeUnit(hexOf(9, 5), rightInf1);
 
             gameState.executeMove(new PlayCardMove(card));
 
@@ -387,7 +387,7 @@ describe("Flexible Ordering Command Cards", () => {
             gameState.drawCards(1, CardLocation.BOTTOM_PLAYER_HAND);
 
             // Place enemy unit
-            const enemyInfPos = new HexCoord(5, 1);
+            const enemyInfPos = hexOf(5, 1);
             gameState.placeUnit(enemyInfPos, enemyInf);
 
             // Place friendly infantry adjacent to enemy (to the south)
@@ -399,7 +399,7 @@ describe("Flexible Ordering Command Cards", () => {
             gameState.placeUnit(centerArmorPos, centerArmor);
 
             // Place friendly infantry NOT adjacent to enemy
-            const rightInf1Pos = new HexCoord(9, 5);
+            const rightInf1Pos = hexOf(9, 5);
             gameState.placeUnit(rightInf1Pos, rightInf1);
 
             // Guard assertions: verify adjacency is as expected
@@ -426,14 +426,14 @@ describe("Flexible Ordering Command Cards", () => {
             gameState.drawCards(1, CardLocation.BOTTOM_PLAYER_HAND);
 
             // Place friendly units far from enemies
-            gameState.placeUnit(new HexCoord(1, 5), leftInf1);
-            gameState.placeUnit(new HexCoord(2, 5), leftInf2);
+            gameState.placeUnit(hexOf(1, 5), leftInf1);
+            gameState.placeUnit(hexOf(2, 5), leftInf2);
 
             // Place friendly unit adjacent to enemy (close combat)
-            gameState.placeUnit(new HexCoord(5, 2), centerInf1);
+            gameState.placeUnit(hexOf(5, 2), centerInf1);
 
             // Place enemy unit adjacent to centerInf1
-            gameState.placeUnit(new HexCoord(5, 1), enemyInf);
+            gameState.placeUnit(hexOf(5, 1), enemyInf);
 
             gameState.executeMove(new PlayCardMove(card));
 
@@ -455,7 +455,7 @@ describe("Flexible Ordering Command Cards", () => {
             const armor2 = new Armor(Side.ALLIES);
 
             // Place first enemy
-            const enemy1Pos = new HexCoord(5, 1);
+            const enemy1Pos = hexOf(5, 1);
             gameState.placeUnit(enemy1Pos, enemyInf);
 
             // Place 3 friendlies adjacent to first enemy
@@ -467,7 +467,7 @@ describe("Flexible Ordering Command Cards", () => {
             gameState.placeUnit(pos3, centerInf1);
 
             // Place second enemy
-            const enemy2Pos = new HexCoord(7, 1);
+            const enemy2Pos = hexOf(7, 1);
             gameState.placeUnit(enemy2Pos, enemyArmor);
 
             // Place 2 more friendlies adjacent to second enemy
@@ -517,7 +517,7 @@ describe("Flexible Ordering Command Cards", () => {
             gameState.drawCards(1, CardLocation.BOTTOM_PLAYER_HAND);
 
             // Place enemy unit
-            const enemyPos = new HexCoord(5, 1);
+            const enemyPos = hexOf(5, 1);
             gameState.placeUnit(enemyPos, enemyInf);
 
             // Place mixed unit types, all adjacent to enemy
@@ -546,11 +546,11 @@ describe("Flexible Ordering Command Cards", () => {
             gameState.drawCards(1, CardLocation.BOTTOM_PLAYER_HAND);
 
             // Place all friendly units far from enemies
-            gameState.placeUnit(new HexCoord(1, 5), leftInf1);
-            gameState.placeUnit(new HexCoord(2, 5), leftInf2);
+            gameState.placeUnit(hexOf(1, 5), leftInf1);
+            gameState.placeUnit(hexOf(2, 5), leftInf2);
 
             // Place enemy far away
-            gameState.placeUnit(new HexCoord(10, 0), enemyInf);
+            gameState.placeUnit(hexOf(10, 0), enemyInf);
 
             gameState.executeMove(new PlayCardMove(card));
 
@@ -566,13 +566,13 @@ describe("Flexible Ordering Command Cards", () => {
             gameState.drawCards(1, CardLocation.BOTTOM_PLAYER_HAND);
 
             // Place friendly unit in center
-            gameState.placeUnit(new HexCoord(5, 4), centerInf1);
+            gameState.placeUnit(hexOf(5, 4), centerInf1);
 
             // Place enemy in one of the six adjacent hexes (northeast)
-            gameState.placeUnit(new HexCoord(6, 3), enemyInf);
+            gameState.placeUnit(hexOf(6, 3), enemyInf);
 
             // Place friendly unit far away
-            gameState.placeUnit(new HexCoord(9, 5), rightInf1);
+            gameState.placeUnit(hexOf(9, 5), rightInf1);
 
             gameState.executeMove(new PlayCardMove(card));
 

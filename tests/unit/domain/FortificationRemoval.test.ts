@@ -4,7 +4,7 @@
 import {describe, expect, test} from 'vitest';
 import {GameState} from '../../../src/domain/GameState';
 import {Deck} from '../../../src/domain/Deck';
-import {HexCoord} from '../../../src/utils/hex';
+import {hexOf} from '../../../src/utils/hex';
 import {Infantry} from '../../../src/domain/Unit';
 import {Side} from '../../../src/domain/Player';
 import {sandbagAllies, hedgehog, noFortification} from '../../../src/domain/fortifications/Fortification';
@@ -32,8 +32,8 @@ describe('Fortification removal on unit movement', () => {
     test.each(cases)('$name', ({fortification, shouldRemove}) => {
         const gameState = new GameState(new Deck([]));
         const unit = new Infantry(Side.ALLIES);
-        const from = new HexCoord(0, 0);
-        const to = new HexCoord(1, 0);
+        const from = hexOf(0, 0);
+        const to = hexOf(1, 0);
 
         // Setup: place unit and fortification
         gameState.placeUnit(from, unit);
@@ -58,7 +58,7 @@ describe('Fortification persistence when unit does not move', () => {
     test('sandbag persists when unit stays in place', () => {
         const gameState = new GameState(new Deck([]));
         const unit = new Infantry(Side.ALLIES);
-        const coord = new HexCoord(0, 0);
+        const coord = hexOf(0, 0);
 
         gameState.placeUnit(coord, unit);
         gameState.setFortification(coord, sandbagAllies);
@@ -74,7 +74,7 @@ describe('Fortification persistence when unit does not move', () => {
     test('hedgehog persists when unit stays in place', () => {
         const gameState = new GameState(new Deck([]));
         const unit = new Infantry(Side.ALLIES);
-        const coord = new HexCoord(0, 0);
+        const coord = hexOf(0, 0);
 
         gameState.placeUnit(coord, unit);
         gameState.setFortification(coord, hedgehog);
@@ -90,7 +90,7 @@ describe('Fortification persistence when unit does not move', () => {
 describe('Fortification in hex without unit', () => {
     test('sandbag can exist in empty hex', () => {
         const gameState = new GameState(new Deck([]));
-        const coord = new HexCoord(0, 0);
+        const coord = hexOf(0, 0);
 
         // Place fortification in empty hex
         gameState.setFortification(coord, sandbagAllies);
@@ -101,7 +101,7 @@ describe('Fortification in hex without unit', () => {
 
     test('hedgehog can exist in empty hex', () => {
         const gameState = new GameState(new Deck([]));
-        const coord = new HexCoord(0, 0);
+        const coord = hexOf(0, 0);
 
         // Place fortification in empty hex
         gameState.setFortification(coord, hedgehog);
@@ -115,8 +115,8 @@ describe('Unit moving into hex with fortification', () => {
     test('unit can move into hex with sandbag', () => {
         const gameState = new GameState(new Deck([]));
         const unit = new Infantry(Side.ALLIES);
-        const from = new HexCoord(0, 0);
-        const to = new HexCoord(1, 0);
+        const from = hexOf(0, 0);
+        const to = hexOf(1, 0);
 
         // Setup: place fortification at destination
         gameState.placeUnit(from, unit);
@@ -134,8 +134,8 @@ describe('Unit moving into hex with fortification', () => {
     test('unit can move into hex with hedgehog', () => {
         const gameState = new GameState(new Deck([]));
         const unit = new Infantry(Side.ALLIES);
-        const from = new HexCoord(0, 0);
-        const to = new HexCoord(1, 0);
+        const from = hexOf(0, 0);
+        const to = hexOf(1, 0);
 
         // Setup: place fortification at destination
         gameState.placeUnit(from, unit);

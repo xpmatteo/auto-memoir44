@@ -6,7 +6,7 @@ import {GameState} from "../../src/domain/GameState";
 import {Deck} from "../../src/domain/Deck";
 import {Infantry} from "../../src/domain/Unit";
 import {Side} from "../../src/domain/Player";
-import {HexCoord} from "../../src/utils/hex";
+import {hexOf} from "../../src/utils/hex";
 import {diceReturningAlways, RESULT_INFANTRY, RESULT_FLAG} from "../../src/domain/Dice";
 import {BattleMove} from "../../src/domain/moves/BattleMove";
 import {PhaseType} from "../../src/domain/phases/Phase";
@@ -23,8 +23,8 @@ function setupCloseCombat(diceResults: any[], attackerStrength: number, targetSt
     const target = new Infantry(Side.AXIS, targetStrength);
 
     // Place units adjacent to each other (close combat)
-    const attackerCoord = new HexCoord(4, 4);
-    const targetCoord = new HexCoord(5, 4); // Adjacent hex
+    const attackerCoord = hexOf(4, 4);
+    const targetCoord = hexOf(5, 4); // Adjacent hex
 
     gameState.placeUnit(attackerCoord, attacker);
     gameState.placeUnit(targetCoord, target);
@@ -114,7 +114,7 @@ describe("Take Ground", () => {
 
         // Block one northern neighbor to force single retreat path
         // Target at (5,4) has northern neighbors: (5,3) and (6,3)
-        const blockerCoord = new HexCoord(5, 3);
+        const blockerCoord = hexOf(5, 3);
         const blocker = new Infantry(Side.AXIS, 1);
         gameState.placeUnit(blockerCoord, blocker);
 
@@ -123,7 +123,7 @@ describe("Take Ground", () => {
         battleMove.execute(gameState);
 
         // Assert: target has retreated
-        const expectedRetreatCoord = new HexCoord(6, 3);
+        const expectedRetreatCoord = hexOf(6, 3);
         expect(gameState.getUnitAt(targetCoord)).toBeUndefined();
         expect(gameState.getUnitAt(expectedRetreatCoord)).toBe(target);
 
@@ -191,8 +191,8 @@ describe("Take Ground", () => {
         const target = new Infantry(Side.AXIS, 2);
 
         // Place units 2 hexes apart (NOT close combat)
-        const attackerCoord = new HexCoord(4, 4);
-        const targetCoord = new HexCoord(6, 4); // 2 hexes away
+        const attackerCoord = hexOf(4, 4);
+        const targetCoord = hexOf(6, 4); // 2 hexes away
 
         gameState.placeUnit(attackerCoord, attacker);
         gameState.placeUnit(targetCoord, target);

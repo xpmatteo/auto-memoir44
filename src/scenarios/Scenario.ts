@@ -2,7 +2,7 @@
 // ABOUTME: Scenarios implement createGameState() to create fully initialized game state
 
 import {GameState} from "../domain/GameState";
-import {HexCoord} from "../utils/hex";
+import {hexOf} from "../utils/hex";
 import {Armor, Artillery, Infantry} from "../domain/Unit";
 import {Side} from "../domain/Player";
 import {
@@ -115,7 +115,7 @@ export function parseAndSetupUnits(gameState: GameState, unitSetup: string[]): v
         for (let chunkIndex = 0; chunkIndex < chunks.length; chunkIndex++) {
             const chunk = chunks[chunkIndex];
             const q = colStart + chunkIndex;
-            const coord = new HexCoord(q, r);
+            const coord = hexOf(q, r);
 
             // Check for terrain markers (first character)
             const firstChar = chunk.charAt(0);

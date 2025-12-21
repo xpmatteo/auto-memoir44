@@ -12,7 +12,7 @@ import {Dice} from "../../../src/domain/Dice";
 import {RandomAIPlayer} from "../../../src/ai/AIPlayer";
 import type {Move} from "../../../src/domain/moves/Move";
 import {Infantry} from "../../../src/domain/Unit";
-import {HexCoord} from "../../../src/utils/hex";
+import {hexOf} from "../../../src/utils/hex";
 
 // Helper function to play full AI turn synchronously
 function playFullAITurn(gameState: GameState, aiPlayer: RandomAIPlayer): Move[] {
@@ -57,9 +57,9 @@ describe("AI Smart Card Selection", () => {
 
         // Setup board: 1 unit in LEFT, 2 units in CENTER, 0 units in RIGHT (TOP player's perspective)
         // TOP player (AXIS) is at top, so their LEFT is screen-RIGHT (q >= 7)
-        gameState.placeUnit(new HexCoord(9, 1), new Infantry(Side.AXIS)); // TOP's left section
-        gameState.placeUnit(new HexCoord(6, 1), new Infantry(Side.AXIS)); // TOP's center
-        gameState.placeUnit(new HexCoord(6, 2), new Infantry(Side.AXIS)); // TOP's center
+        gameState.placeUnit(hexOf(9, 1), new Infantry(Side.AXIS)); // TOP's left section
+        gameState.placeUnit(hexOf(6, 1), new Infantry(Side.AXIS)); // TOP's center
+        gameState.placeUnit(hexOf(6, 2), new Infantry(Side.AXIS)); // TOP's center
 
         // Draw cards: BOTTOM gets 1, TOP gets 3
         // With our deck composition, TOP will get: ProbeLeft, ProbeCenter, ProbeRight (in shuffled order)
@@ -111,9 +111,9 @@ describe("AI Smart Card Selection", () => {
         const gameState1 = new GameState(deck1, new Dice(() => rng1.random()));
 
         // All sections have 1 unit (all cards tie at ordering 1 unit)
-        gameState1.placeUnit(new HexCoord(9, 1), new Infantry(Side.AXIS)); // TOP's left
-        gameState1.placeUnit(new HexCoord(6, 1), new Infantry(Side.AXIS)); // TOP's center
-        gameState1.placeUnit(new HexCoord(2, 1), new Infantry(Side.AXIS)); // TOP's right
+        gameState1.placeUnit(hexOf(9, 1), new Infantry(Side.AXIS)); // TOP's left
+        gameState1.placeUnit(hexOf(6, 1), new Infantry(Side.AXIS)); // TOP's center
+        gameState1.placeUnit(hexOf(2, 1), new Infantry(Side.AXIS)); // TOP's right
 
         gameState1.drawCards(1, CardLocation.BOTTOM_PLAYER_HAND);
         gameState1.drawCards(3, CardLocation.TOP_PLAYER_HAND);
@@ -141,9 +141,9 @@ describe("AI Smart Card Selection", () => {
         ]);
         const gameState2 = new GameState(deck2, new Dice(() => rng2.random()));
 
-        gameState2.placeUnit(new HexCoord(9, 1), new Infantry(Side.AXIS));
-        gameState2.placeUnit(new HexCoord(6, 1), new Infantry(Side.AXIS));
-        gameState2.placeUnit(new HexCoord(2, 1), new Infantry(Side.AXIS));
+        gameState2.placeUnit(hexOf(9, 1), new Infantry(Side.AXIS));
+        gameState2.placeUnit(hexOf(6, 1), new Infantry(Side.AXIS));
+        gameState2.placeUnit(hexOf(2, 1), new Infantry(Side.AXIS));
 
         gameState2.drawCards(1, CardLocation.BOTTOM_PLAYER_HAND);
         gameState2.drawCards(3, CardLocation.TOP_PLAYER_HAND);
@@ -177,10 +177,10 @@ describe("AI Smart Card Selection", () => {
         const gameState = new GameState(deck, new Dice(() => rng.random()));
 
         // CENTER has 4 units
-        gameState.placeUnit(new HexCoord(6, 1), new Infantry(Side.AXIS));
-        gameState.placeUnit(new HexCoord(6, 2), new Infantry(Side.AXIS));
-        gameState.placeUnit(new HexCoord(6, 3), new Infantry(Side.AXIS));
-        gameState.placeUnit(new HexCoord(6, 4), new Infantry(Side.AXIS));
+        gameState.placeUnit(hexOf(6, 1), new Infantry(Side.AXIS));
+        gameState.placeUnit(hexOf(6, 2), new Infantry(Side.AXIS));
+        gameState.placeUnit(hexOf(6, 3), new Infantry(Side.AXIS));
+        gameState.placeUnit(hexOf(6, 4), new Infantry(Side.AXIS));
 
         // AssaultCenter: orders min(4, 1000) = 4  <-- MOST
         // AttackCenter: orders min(4, 3) = 3

@@ -6,7 +6,7 @@ import {GameState} from "../../../src/domain/GameState";
 import {Deck} from "../../../src/domain/Deck";
 import {Infantry} from "../../../src/domain/Unit";
 import {Side} from "../../../src/domain/Player";
-import {HexCoord} from "../../../src/utils/hex";
+import {hexOf} from "../../../src/utils/hex";
 import {diceReturningAlways, DiceResult, RESULT_INFANTRY, RESULT_FLAG} from "../../../src/domain/Dice";
 import {BattleMove} from "../../../src/domain/moves/BattleMove";
 import {RetreatMove} from "../../../src/domain/moves/Move";
@@ -24,8 +24,8 @@ function setupBattle(diceResults: DiceResult[], attackerStrength: number, target
 
     const attacker = new Infantry(Side.ALLIES, attackerStrength);
     const target = new Infantry(Side.AXIS, targetStrength);
-    const attackerCoord = new HexCoord(4, 4);
-    const targetCoord = new HexCoord(5, 4);
+    const attackerCoord = hexOf(4, 4);
+    const targetCoord = hexOf(5, 4);
 
     gameState.placeUnit(attackerCoord, attacker);
     gameState.placeUnit(targetCoord, target);
@@ -89,7 +89,7 @@ describe("BattleMove integration", () => {
 
         // Block one of the two northern neighbors to force single retreat path
         // Target at (5,4) has northern neighbors: (5,3) northwest and (6,3) northeast
-        const blockerCoord = new HexCoord(5, 3); // Block northwest
+        const blockerCoord = hexOf(5, 3); // Block northwest
         const blocker = new Infantry(Side.AXIS, 1);
         gameState.placeUnit(blockerCoord, blocker);
 
@@ -98,7 +98,7 @@ describe("BattleMove integration", () => {
 
         // Assert: unit moved to the only available retreat hex
         expect(gameState.getUnitAt(targetCoord)).toBeUndefined();
-        const expectedRetreatCoord = new HexCoord(6, 3); // Northeast neighbor
+        const expectedRetreatCoord = hexOf(6, 3); // Northeast neighbor
         expect(gameState.getUnitAt(expectedRetreatCoord)).toBe(target);
 
         // Assert: no damage taken (successful retreat)
@@ -122,11 +122,11 @@ describe("BattleMove integration", () => {
         );
 
         // Verify it's close combat (setupBattle puts them at distance 1)
-        expect(attackerCoord).toEqual(new HexCoord(4, 4));
-        expect(targetCoord).toEqual(new HexCoord(5, 4));
+        expect(attackerCoord).toEqual(hexOf(4, 4));
+        expect(targetCoord).toEqual(hexOf(5, 4));
 
         // Block one of the two northern neighbors to force single retreat path
-        const blockerCoord = new HexCoord(5, 3); // Block northwest
+        const blockerCoord = hexOf(5, 3); // Block northwest
         gameState.placeUnit(blockerCoord, new Infantry(Side.AXIS, 1));
 
         const move = new BattleMove(attacker, target, 1);
@@ -134,7 +134,7 @@ describe("BattleMove integration", () => {
 
         // Assert: unit automatically moved to the only available retreat hex
         expect(gameState.getUnitAt(targetCoord)).toBeUndefined();
-        const expectedRetreatCoord = new HexCoord(6, 3); // Northeast neighbor
+        const expectedRetreatCoord = hexOf(6, 3); // Northeast neighbor
         expect(gameState.getUnitAt(expectedRetreatCoord)).toBe(target);
 
         // Assert: TakeGroundPhase was pushed for the vacated hex
@@ -164,8 +164,8 @@ describe("BattleMove integration", () => {
         // Target at (5,4) has northern neighbors: (5,3) and (6,3)
         const blocker1 = new Infantry(Side.AXIS, 1);
         const blocker2 = new Infantry(Side.AXIS, 1);
-        gameState.placeUnit(new HexCoord(5, 3), blocker1);
-        gameState.placeUnit(new HexCoord(6, 3), blocker2);
+        gameState.placeUnit(hexOf(5, 3), blocker1);
+        gameState.placeUnit(hexOf(6, 3), blocker2);
 
         const move = new BattleMove(attacker, target, 1);
         move.execute(gameState);
@@ -218,8 +218,8 @@ describe("BattleMove integration", () => {
         );
 
         // Block all retreat paths
-        gameState.placeUnit(new HexCoord(5, 3), new Infantry(Side.AXIS, 1));
-        gameState.placeUnit(new HexCoord(6, 3), new Infantry(Side.AXIS, 1));
+        gameState.placeUnit(hexOf(5, 3), new Infantry(Side.AXIS, 1));
+        gameState.placeUnit(hexOf(6, 3), new Infantry(Side.AXIS, 1));
 
         const move = new BattleMove(attacker, target, 1);
         move.execute(gameState);
@@ -243,7 +243,7 @@ describe("BattleMove integration", () => {
         );
 
         // Block one retreat path to force single retreat
-        gameState.placeUnit(new HexCoord(5, 3), new Infantry(Side.AXIS, 1));
+        gameState.placeUnit(hexOf(5, 3), new Infantry(Side.AXIS, 1));
 
         const move = new BattleMove(attacker, target, 2);
         move.execute(gameState);
@@ -253,7 +253,7 @@ describe("BattleMove integration", () => {
 
         // Assert: retreated from flag
         expect(gameState.getUnitAt(targetCoord)).toBeUndefined();
-        expect(gameState.getUnitAt(new HexCoord(6, 3))).toBe(target);
+        expect(gameState.getUnitAt(hexOf(6, 3))).toBe(target);
 
         // Assert: attack counted
         expect(gameState.getUnitBattlesThisTurn(attacker)).toBe(1);
@@ -282,9 +282,9 @@ describe("BattleMove integration", () => {
         // Assert: 3 retreat options at distance 2
         // Target at (5,4) -> distance 2 north gives: (5,2), (6,2), (7,2)
         expect(retreatPhase.availableRetreatHexes.length).toBe(3);
-        expect(retreatPhase.availableRetreatHexes).toContainEqual(new HexCoord(5, 2));
-        expect(retreatPhase.availableRetreatHexes).toContainEqual(new HexCoord(6, 2));
-        expect(retreatPhase.availableRetreatHexes).toContainEqual(new HexCoord(7, 2));
+        expect(retreatPhase.availableRetreatHexes).toContainEqual(hexOf(5, 2));
+        expect(retreatPhase.availableRetreatHexes).toContainEqual(hexOf(6, 2));
+        expect(retreatPhase.availableRetreatHexes).toContainEqual(hexOf(7, 2));
 
         // Assert: no damage taken (retreat available)
         expect(gameState.getUnitCurrentStrength(target)).toBe(4);
@@ -303,8 +303,8 @@ describe("BattleMove integration", () => {
         );
 
         // Block all retreat paths
-        gameState.placeUnit(new HexCoord(5, 3), new Infantry(Side.AXIS, 1));
-        gameState.placeUnit(new HexCoord(6, 3), new Infantry(Side.AXIS, 1));
+        gameState.placeUnit(hexOf(5, 3), new Infantry(Side.AXIS, 1));
+        gameState.placeUnit(hexOf(6, 3), new Infantry(Side.AXIS, 1));
 
         const move = new BattleMove(attacker, target, 1);
         move.execute(gameState);
@@ -345,8 +345,8 @@ describe("BattleMove integration", () => {
         // Assert: 3 options - stay at current position OR retreat to 2 northern neighbors
         expect(retreatPhase.availableRetreatHexes.length).toBe(3);
         expect(retreatPhase.availableRetreatHexes).toContainEqual(targetCoord); // Can stay
-        expect(retreatPhase.availableRetreatHexes).toContainEqual(new HexCoord(5, 3)); // Northwest
-        expect(retreatPhase.availableRetreatHexes).toContainEqual(new HexCoord(6, 3)); // Northeast
+        expect(retreatPhase.availableRetreatHexes).toContainEqual(hexOf(5, 3)); // Northwest
+        expect(retreatPhase.availableRetreatHexes).toContainEqual(hexOf(6, 3)); // Northeast
 
         // Assert: no damage taken yet
         expect(gameState.getUnitCurrentStrength(target)).toBe(4);

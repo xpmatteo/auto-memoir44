@@ -1,7 +1,7 @@
 // ABOUTME: Hex grid overlay rendering with coordinates
 // ABOUTME: Draws pointy-top hexagon grid on canvas with optional coordinate labels
 
-import {GridConfig, HexCoord} from "../../utils/hex.js";
+import {GridConfig, HexCoord, hexOf} from "../../utils/hex.js";
 import {hexToPixel} from "../../utils/hex.js";
 import {isHexInSection, Section} from "../../domain/Section.js";
 import {Position} from "../../domain/Player.js";
@@ -66,7 +66,7 @@ export function drawGrid(context: CanvasRenderingContext2D, grid: GridConfig) {
             if (showCoords) {
                 // Get section(s) for this hex from bottom player's perspective
                 const sections = [];
-                const coord = new HexCoord(q, r);
+                const coord = hexOf(q, r);
                 if (isHexInSection(coord, Section.LEFT, Position.BOTTOM)) sections.push("L");
                 if (isHexInSection(coord, Section.CENTER, Position.BOTTOM)) sections.push("C");
                 if (isHexInSection(coord, Section.RIGHT, Position.BOTTOM)) sections.push("R");

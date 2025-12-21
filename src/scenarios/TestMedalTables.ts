@@ -6,7 +6,7 @@ import {createStandardGameState} from "./Scenario.js";
 import type {GameState} from "../domain/GameState.js";
 import {Infantry} from "../domain/Unit.js";
 import {Side} from "../domain/Player.js";
-import {HexCoord} from "../utils/hex.js";
+import {hexOf} from "../utils/hex.js";
 import {CardLocation} from "../domain/cards/CommandCard";
 import {SeededRNG} from "../adapters/RNG.js";
 
@@ -18,8 +18,8 @@ export class TestMedalTablesScenario implements Scenario {
         gameState.drawCards(3, CardLocation.TOP_PLAYER_HAND);
 
         // Place a few active units on the board for context
-        gameState.placeUnit(new HexCoord(3, 4), new Infantry(Side.ALLIES, 4));
-        gameState.placeUnit(new HexCoord(9, 4), new Infantry(Side.AXIS, 4));
+        gameState.placeUnit(hexOf(3, 4), new Infantry(Side.ALLIES, 4));
+        gameState.placeUnit(hexOf(9, 4), new Infantry(Side.AXIS, 4));
 
         // Bottom player (index 0)
         // These will be rendered in the BOTTOM medal circles (left side)

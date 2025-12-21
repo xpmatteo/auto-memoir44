@@ -8,7 +8,7 @@ import {CardLocation, ProbeCenter} from "../../src/domain/cards/CommandCard";
 import {ConfirmOrdersMove, PlayCardMove, OrderUnitMove} from "../../src/domain/moves/Move";
 import {Infantry, Armor} from "../../src/domain/Unit";
 import {Side} from "../../src/domain/Player";
-import {HexCoord} from "../../src/utils/hex";
+import {hexOf} from "../../src/utils/hex";
 import {hedgerowsTerrain} from "../../src/domain/terrain/Terrain";
 import {MoveUnitMove} from "../../src/domain/moves/MoveUnitMove";
 
@@ -20,7 +20,7 @@ describe("Hedgerows movement restrictions", () => {
         gameState.drawCards(3, CardLocation.BOTTOM_PLAYER_HAND);
 
         const infantry = new Infantry(Side.ALLIES);
-        const startPos = new HexCoord(5, 5);
+        const startPos = hexOf(5, 5);
 
         // Place infantry on hedgerows terrain
         gameState.placeUnit(startPos, infantry);
@@ -38,11 +38,11 @@ describe("Hedgerows movement restrictions", () => {
         const legalMoves = gameState.legalMoves();
 
         // Assert: CAN move 1 hex east (adjacent)
-        const oneHexEast = new HexCoord(6, 5);
+        const oneHexEast = hexOf(6, 5);
         expect(legalMoves).toContainEqual(new MoveUnitMove(startPos, oneHexEast));
 
         // Assert: CANNOT move 2 hexes east (distance 2 - normally allowed for infantry)
-        const twoHexesEast = new HexCoord(7, 5);
+        const twoHexesEast = hexOf(7, 5);
         expect(legalMoves).not.toContainEqual(new MoveUnitMove(startPos, twoHexesEast));
 
         // Assert: No-op move is still allowed
@@ -56,7 +56,7 @@ describe("Hedgerows movement restrictions", () => {
         gameState.drawCards(3, CardLocation.BOTTOM_PLAYER_HAND);
 
         const armor = new Armor(Side.ALLIES);
-        const startPos = new HexCoord(5, 5);
+        const startPos = hexOf(5, 5);
 
         // Place armor on hedgerows terrain
         gameState.placeUnit(startPos, armor);
@@ -74,15 +74,15 @@ describe("Hedgerows movement restrictions", () => {
         const legalMoves = gameState.legalMoves();
 
         // Assert: CAN move 1 hex east (adjacent)
-        const oneHexEast = new HexCoord(6, 5);
+        const oneHexEast = hexOf(6, 5);
         expect(legalMoves).toContainEqual(new MoveUnitMove(startPos, oneHexEast));
 
         // Assert: CANNOT move 2 hexes east (normally allowed for armor)
-        const twoHexesEast = new HexCoord(7, 5);
+        const twoHexesEast = hexOf(7, 5);
         expect(legalMoves).not.toContainEqual(new MoveUnitMove(startPos, twoHexesEast));
 
         // Assert: CANNOT move 3 hexes east (normally allowed for armor)
-        const threeHexesEast = new HexCoord(8, 5);
+        const threeHexesEast = hexOf(8, 5);
         expect(legalMoves).not.toContainEqual(new MoveUnitMove(startPos, threeHexesEast));
 
         // Assert: No-op move is still allowed
@@ -96,8 +96,8 @@ describe("Hedgerows movement restrictions", () => {
         gameState.drawCards(3, CardLocation.BOTTOM_PLAYER_HAND);
 
         const infantry = new Infantry(Side.ALLIES);
-        const startPos = new HexCoord(5, 5);
-        const hedgerowsPos = new HexCoord(7, 5); // Distance 2 from start
+        const startPos = hexOf(5, 5);
+        const hedgerowsPos = hexOf(7, 5); // Distance 2 from start
 
         // Place infantry on clear terrain, hedgerows at distance 2
         gameState.placeUnit(startPos, infantry);
@@ -125,8 +125,8 @@ describe("Hedgerows movement restrictions", () => {
         gameState.drawCards(3, CardLocation.BOTTOM_PLAYER_HAND);
 
         const infantry = new Infantry(Side.ALLIES);
-        const startPos = new HexCoord(5, 5);
-        const hedgerowsPos = new HexCoord(6, 5); // Adjacent to start
+        const startPos = hexOf(5, 5);
+        const hedgerowsPos = hexOf(6, 5); // Adjacent to start
 
         // Place infantry on clear terrain, hedgerows at adjacent hex
         gameState.placeUnit(startPos, infantry);
@@ -154,7 +154,7 @@ describe("Hedgerows movement restrictions", () => {
         gameState.drawCards(3, CardLocation.BOTTOM_PLAYER_HAND);
 
         const infantry = new Infantry(Side.ALLIES);
-        const startPos = new HexCoord(5, 5);
+        const startPos = hexOf(5, 5);
 
         // Place infantry on hedgerows terrain
         gameState.placeUnit(startPos, infantry);
@@ -182,8 +182,8 @@ describe("Hedgerows movement restrictions", () => {
         gameState.drawCards(3, CardLocation.BOTTOM_PLAYER_HAND);
 
         const infantry = new Infantry(Side.ALLIES);
-        const startPos = new HexCoord(5, 5);
-        const adjacentHedgerows = new HexCoord(6, 5);
+        const startPos = hexOf(5, 5);
+        const adjacentHedgerows = hexOf(6, 5);
 
         // Place infantry on hedgerows terrain, adjacent hex is also hedgerows
         gameState.placeUnit(startPos, infantry);

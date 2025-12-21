@@ -4,7 +4,7 @@
 import {describe, expect, test} from 'vitest';
 import {FortificationMap} from '../../../src/domain/FortificationMap';
 import {sandbagAllies, sandbagAxis, noFortification} from '../../../src/domain/fortifications/Fortification';
-import {HexCoord} from '../../../src/utils/hex';
+import {HexCoord, hexOf} from '../../../src/utils/hex';
 
 interface FortificationMapCase {
     name: string;
@@ -17,10 +17,10 @@ describe('FortificationMap', () => {
         {
             name: 'set and get fortification',
             setup: (map) => {
-                map.set(new HexCoord(0, 0), sandbagAllies);
+                map.set(hexOf(0, 0), sandbagAllies);
             },
             test: (map) => {
-                const fort = map.get(new HexCoord(0, 0));
+                const fort = map.get(hexOf(0, 0));
                 expect(fort).toBe(sandbagAllies);
             },
         },
@@ -30,51 +30,51 @@ describe('FortificationMap', () => {
                 // No setup needed
             },
             test: (map) => {
-                expect(map.get(new HexCoord(0, 0))).toBe(noFortification);
+                expect(map.get(hexOf(0, 0))).toBe(noFortification);
             },
         },
         {
             name: 'remove fortification',
             setup: (map) => {
-                map.set(new HexCoord(0, 0), sandbagAllies);
-                map.remove(new HexCoord(0, 0));
+                map.set(hexOf(0, 0), sandbagAllies);
+                map.remove(hexOf(0, 0));
             },
             test: (map) => {
-                expect(map.get(new HexCoord(0, 0))).toBe(noFortification);
+                expect(map.get(hexOf(0, 0))).toBe(noFortification);
             },
         },
         {
             name: 'can set multiple fortifications',
             setup: (map) => {
-                map.set(new HexCoord(0, 0), sandbagAllies);
-                map.set(new HexCoord(1, 1), sandbagAxis);
+                map.set(hexOf(0, 0), sandbagAllies);
+                map.set(hexOf(1, 1), sandbagAxis);
             },
             test: (map) => {
-                expect(map.get(new HexCoord(0, 0))).toBe(sandbagAllies);
-                expect(map.get(new HexCoord(1, 1))).toBe(sandbagAxis);
+                expect(map.get(hexOf(0, 0))).toBe(sandbagAllies);
+                expect(map.get(hexOf(1, 1))).toBe(sandbagAxis);
             },
         },
         {
             name: 'clone preserves fortifications',
             setup: (map) => {
-                map.set(new HexCoord(0, 0), sandbagAllies);
+                map.set(hexOf(0, 0), sandbagAllies);
             },
             test: (map) => {
                 const cloned = map.clone();
-                expect(cloned.get(new HexCoord(0, 0))).toBe(sandbagAllies);
+                expect(cloned.get(hexOf(0, 0))).toBe(sandbagAllies);
             },
         },
         {
             name: 'clone creates independent copy',
             setup: (map) => {
-                map.set(new HexCoord(0, 0), sandbagAllies);
+                map.set(hexOf(0, 0), sandbagAllies);
             },
             test: (map) => {
                 const cloned = map.clone();
-                map.remove(new HexCoord(0, 0));
+                map.remove(hexOf(0, 0));
                 // Original removed (returns noFortification), but clone should still have it
-                expect(map.get(new HexCoord(0, 0))).toBe(noFortification);
-                expect(cloned.get(new HexCoord(0, 0))).toBe(sandbagAllies);
+                expect(map.get(hexOf(0, 0))).toBe(noFortification);
+                expect(cloned.get(hexOf(0, 0))).toBe(sandbagAllies);
             },
         },
     ];
@@ -89,8 +89,8 @@ describe('FortificationMap', () => {
 describe('FortificationMap.forEach', () => {
     test('iterates over all fortifications', () => {
         const map = new FortificationMap();
-        map.set(new HexCoord(0, 0), sandbagAllies);
-        map.set(new HexCoord(1, 1), sandbagAxis);
+        map.set(hexOf(0, 0), sandbagAllies);
+        map.set(hexOf(1, 1), sandbagAxis);
 
         const forts: Array<{hex: HexCoord, fort: any}> = [];
         map.forEach((fort, hex) => {

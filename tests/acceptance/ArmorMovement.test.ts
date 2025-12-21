@@ -8,7 +8,7 @@ import {CardLocation, ProbeCenter} from "../../src/domain/cards/CommandCard";
 import {ConfirmOrdersMove, PlayCardMove, OrderUnitMove} from "../../src/domain/moves/Move";
 import {Infantry, Armor} from "../../src/domain/Unit";
 import {Side} from "../../src/domain/Player";
-import {HexCoord} from "../../src/utils/hex";
+import {hexOf} from "../../src/utils/hex";
 import {woodsTerrain} from "../../src/domain/terrain/Terrain";
 import {MoveUnitMove} from "../../src/domain/moves/MoveUnitMove";
 import {BattleMove} from "../../src/domain/moves/BattleMove";
@@ -21,7 +21,7 @@ describe("Armor movement", () => {
         gameState.drawCards(3, CardLocation.BOTTOM_PLAYER_HAND);
 
         const armor = new Armor(Side.ALLIES);
-        const startPos = new HexCoord(5, 5);
+        const startPos = hexOf(5, 5);
         gameState.placeUnit(startPos, armor);
 
         // Play card and order the armor unit
@@ -34,15 +34,15 @@ describe("Armor movement", () => {
         expect(gameState.activePhase.name).toBe("Move Units");
 
         // Assert: Can move 1 hex east
-        const oneHexEast = new HexCoord(6, 5);
+        const oneHexEast = hexOf(6, 5);
         expect(gameState.legalMoves()).toContainEqual(new MoveUnitMove(startPos, oneHexEast));
 
         // Assert: Can move 2 hexes east
-        const twoHexesEast = new HexCoord(7, 5);
+        const twoHexesEast = hexOf(7, 5);
         expect(gameState.legalMoves()).toContainEqual(new MoveUnitMove(startPos, twoHexesEast));
 
         // Assert: Can move 3 hexes east
-        const threeHexesEast = new HexCoord(8, 5);
+        const threeHexesEast = hexOf(8, 5);
         expect(gameState.legalMoves()).toContainEqual(new MoveUnitMove(startPos, threeHexesEast));
 
         // Act: Execute a 3-hex move
@@ -61,8 +61,8 @@ describe("Armor movement", () => {
 
         const armor = new Armor(Side.ALLIES);
         const enemy = new Infantry(Side.AXIS);
-        const armorStart = new HexCoord(5, 5);
-        const enemyPos = new HexCoord(9, 5);
+        const armorStart = hexOf(5, 5);
+        const enemyPos = hexOf(9, 5);
 
         gameState.placeUnit(armorStart, armor);
         gameState.placeUnit(enemyPos, enemy);
@@ -74,7 +74,7 @@ describe("Armor movement", () => {
         gameState.executeMove(new ConfirmOrdersMove());
 
         // Act: Move armor 3 hexes closer to enemy
-        const armorEnd = new HexCoord(8, 5); // 3 hexes from start, 1 hex from enemy
+        const armorEnd = hexOf(8, 5); // 3 hexes from start, 1 hex from enemy
         gameState.executeMove(new MoveUnitMove(armorStart, armorEnd));
 
         // Assert: Phase auto-advanced to BattlePhase
@@ -101,8 +101,8 @@ describe("Armor movement", () => {
 
         const armor = new Armor(Side.ALLIES);
         const enemy = new Infantry(Side.AXIS);
-        const armorStart = new HexCoord(5, 5);
-        const enemyPos = new HexCoord(8, 5);
+        const armorStart = hexOf(5, 5);
+        const enemyPos = hexOf(8, 5);
 
         gameState.placeUnit(armorStart, armor);
         gameState.placeUnit(enemyPos, enemy);
@@ -114,7 +114,7 @@ describe("Armor movement", () => {
         gameState.executeMove(new ConfirmOrdersMove());
 
         // Act: Move armor 2 hexes
-        const armorEnd = new HexCoord(7, 5); // 2 hexes from start, 1 hex from enemy
+        const armorEnd = hexOf(7, 5); // 2 hexes from start, 1 hex from enemy
         gameState.executeMove(new MoveUnitMove(armorStart, armorEnd));
 
         // Assert: Phase auto-advanced to BattlePhase
@@ -141,8 +141,8 @@ describe("Armor movement", () => {
 
         const infantry = new Infantry(Side.ALLIES);
         const enemy = new Infantry(Side.AXIS);
-        const infantryStart = new HexCoord(5, 5);
-        const enemyPos = new HexCoord(8, 5);
+        const infantryStart = hexOf(5, 5);
+        const enemyPos = hexOf(8, 5);
 
         gameState.placeUnit(infantryStart, infantry);
         gameState.placeUnit(enemyPos, enemy);
@@ -154,7 +154,7 @@ describe("Armor movement", () => {
         gameState.executeMove(new ConfirmOrdersMove());
 
         // Act: Move infantry 2 hexes
-        const infantryEnd = new HexCoord(7, 5); // 2 hexes from start, 1 hex from enemy
+        const infantryEnd = hexOf(7, 5); // 2 hexes from start, 1 hex from enemy
         gameState.executeMove(new MoveUnitMove(infantryStart, infantryEnd));
 
         // Assert: Phase auto-advanced to BattlePhase
@@ -181,9 +181,9 @@ describe("Armor movement", () => {
 
         const armor = new Armor(Side.ALLIES);
         const enemy = new Infantry(Side.AXIS);
-        const armorStart = new HexCoord(5, 5);
-        const woodsPos = new HexCoord(6, 5);
-        const enemyPos = new HexCoord(7, 5);
+        const armorStart = hexOf(5, 5);
+        const woodsPos = hexOf(6, 5);
+        const enemyPos = hexOf(7, 5);
 
         gameState.placeUnit(armorStart, armor);
         gameState.placeUnit(enemyPos, enemy);
@@ -221,8 +221,8 @@ describe("Armor movement", () => {
         gameState.drawCards(3, CardLocation.BOTTOM_PLAYER_HAND);
 
         const armor = new Armor(Side.ALLIES);
-        const armorStart = new HexCoord(5, 5);
-        const woodsPos = new HexCoord(6, 5); // 1 hex east
+        const armorStart = hexOf(5, 5);
+        const woodsPos = hexOf(6, 5); // 1 hex east
 
         gameState.placeUnit(armorStart, armor);
         gameState.setTerrain(woodsPos, woodsTerrain);

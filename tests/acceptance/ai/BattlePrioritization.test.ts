@@ -9,7 +9,7 @@ import {SeededRNG} from "../../../src/adapters/RNG";
 import {Dice} from "../../../src/domain/Dice";
 import {RandomAIPlayer} from "../../../src/ai/AIPlayer";
 import {Armor, Infantry} from "../../../src/domain/Unit";
-import {HexCoord} from "../../../src/utils/hex";
+import {hexOf} from "../../../src/utils/hex";
 import {Side} from "../../../src/domain/Player";
 import {BattlePhase} from "../../../src/domain/phases/BattlePhase";
 
@@ -25,14 +25,14 @@ test("AI prioritizes unit with fewer target options", () => {
     // Setup AXIS units (TOP player)
     const unitWithOneTarget = new Infantry(Side.AXIS, 1);
     const unitWithTwoTargets = new Infantry(Side.AXIS, 2);
-    gameState.placeUnit(new HexCoord(5, 2), unitWithOneTarget);
-    gameState.placeUnit(new HexCoord(7, 2), unitWithTwoTargets);
+    gameState.placeUnit(hexOf(5, 2), unitWithOneTarget);
+    gameState.placeUnit(hexOf(7, 2), unitWithTwoTargets);
 
     // Setup ALLIES targets
     const target1 = new Infantry(Side.ALLIES, 11); // Only reachable by unitWithOneTarget
     const target2 = new Infantry(Side.ALLIES, 12); // Reachable by both units
-    gameState.placeUnit(new HexCoord(5, 4), target1); // Distance 2 from unitWithOneTarget
-    gameState.placeUnit(new HexCoord(7, 4), target2); // Distance 2 from unitWithTwoTargets
+    gameState.placeUnit(hexOf(5, 4), target1); // Distance 2 from unitWithOneTarget
+    gameState.placeUnit(hexOf(7, 4), target2); // Distance 2 from unitWithTwoTargets
 
     // Order both units and set active player to TOP
     gameState.orderUnit(unitWithOneTarget);
@@ -63,13 +63,13 @@ test("AI breaks ties by choosing weakest target", () => {
 
     // Setup AXIS unit
     const attacker = new Infantry(Side.AXIS, 1);
-    gameState.placeUnit(new HexCoord(6, 2), attacker);
+    gameState.placeUnit(hexOf(6, 2), attacker);
 
     // Setup ALLIES targets with different strengths
     const strongTarget = new Infantry(Side.ALLIES, 11);
     const weakTarget = new Infantry(Side.ALLIES, 12);
-    gameState.placeUnit(new HexCoord(5, 4), strongTarget);
-    gameState.placeUnit(new HexCoord(7, 4), weakTarget);
+    gameState.placeUnit(hexOf(5, 4), strongTarget);
+    gameState.placeUnit(hexOf(7, 4), weakTarget);
 
     // Damage the weak target to reduce its strength
     gameState.setUnitCurrentStrength(weakTarget, 2); // Reduce from 4 to 2
@@ -99,14 +99,14 @@ test("AI breaks ties by choosing most threatened target", () => {
     // Setup AXIS units
     const attacker1 = new Armor(Side.AXIS, 1); // Armor rolls more dice at range
     const attacker2 = new Armor(Side.AXIS, 2);
-    gameState.placeUnit(new HexCoord(5, 2), attacker1);
-    gameState.placeUnit(new HexCoord(7, 2), attacker2);
+    gameState.placeUnit(hexOf(5, 2), attacker1);
+    gameState.placeUnit(hexOf(7, 2), attacker2);
 
     // Setup ALLIES targets
     const target1 = new Infantry(Side.ALLIES, 11); // Threatened by both attackers
     const target2 = new Infantry(Side.ALLIES, 12); // Only threatened by one attacker
-    gameState.placeUnit(new HexCoord(6, 4), target1); // Distance 2 from both
-    gameState.placeUnit(new HexCoord(9, 3), target2); // Distance 2 from attacker2 only
+    gameState.placeUnit(hexOf(6, 4), target1); // Distance 2 from both
+    gameState.placeUnit(hexOf(9, 3), target2); // Distance 2 from attacker2 only
 
     // Order both units and set active player to TOP
     gameState.orderUnit(attacker1);

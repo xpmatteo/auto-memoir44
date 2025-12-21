@@ -6,7 +6,7 @@ import {GameState} from "../../../src/domain/GameState";
 import {Deck} from "../../../src/domain/Deck";
 import {Infantry, Armor} from "../../../src/domain/Unit";
 import {Side} from "../../../src/domain/Player";
-import {HexCoord} from "../../../src/utils/hex";
+import {hexOf} from "../../../src/utils/hex";
 import {woodsTerrain} from "../../../src/domain/terrain/Terrain";
 import {MoveUnitMove} from "../../../src/domain/moves/MoveUnitMove";
 
@@ -16,8 +16,8 @@ describe("MoveUnitMove battle restrictions", () => {
         const gameState = new GameState(deck);
         const unit = new Infantry(Side.ALLIES);
 
-        const from = new HexCoord(1, 4);
-        const to = new HexCoord(3, 4); // 2 hexes away
+        const from = hexOf(1, 4);
+        const to = hexOf(3, 4); // 2 hexes away
 
         gameState.placeUnit(from, unit);
 
@@ -38,8 +38,8 @@ describe("MoveUnitMove battle restrictions", () => {
         const gameState = new GameState(deck);
         const unit = new Infantry(Side.ALLIES);
 
-        const from = new HexCoord(1, 4);
-        const to = new HexCoord(2, 4); // 1 hex away
+        const from = hexOf(1, 4);
+        const to = hexOf(2, 4); // 1 hex away
 
         gameState.placeUnit(from, unit);
 
@@ -57,8 +57,8 @@ describe("MoveUnitMove battle restrictions", () => {
         const gameState = new GameState(deck);
         const unit = new Infantry(Side.ALLIES);
 
-        const from = new HexCoord(0, 0);
-        const to = new HexCoord(0, 2); // 2 hexes away vertically
+        const from = hexOf(0, 0);
+        const to = hexOf(0, 2); // 2 hexes away vertically
 
         gameState.placeUnit(from, unit);
 
@@ -74,8 +74,8 @@ describe("MoveUnitMove battle restrictions", () => {
         const gameState = new GameState(deck);
         const unit = new Infantry(Side.ALLIES);
 
-        const from = new HexCoord(1, 4);
-        const to = new HexCoord(2, 4); // 1 hex away
+        const from = hexOf(1, 4);
+        const to = hexOf(2, 4); // 1 hex away
 
         gameState.placeUnit(from, unit);
         gameState.setTerrain(to, woodsTerrain);
@@ -95,8 +95,8 @@ describe("MoveUnitMove battle restrictions", () => {
         const gameState = new GameState(deck);
         const armor = new Armor(Side.ALLIES);
 
-        const from = new HexCoord(1, 4);
-        const to = new HexCoord(3, 4); // 2 hexes away
+        const from = hexOf(1, 4);
+        const to = hexOf(3, 4); // 2 hexes away
 
         gameState.placeUnit(from, armor);
 
@@ -117,8 +117,8 @@ describe("MoveUnitMove battle restrictions", () => {
         const gameState = new GameState(deck);
         const armor = new Armor(Side.ALLIES);
 
-        const from = new HexCoord(1, 4);
-        const to = new HexCoord(4, 4); // 3 hexes away
+        const from = hexOf(1, 4);
+        const to = hexOf(4, 4); // 3 hexes away
 
         gameState.placeUnit(from, armor);
 
@@ -136,8 +136,8 @@ describe("MoveUnitMove battle restrictions", () => {
         const gameState = new GameState(deck);
         const armor = new Armor(Side.ALLIES);
 
-        const from = new HexCoord(1, 4);
-        const to = new HexCoord(2, 4); // 1 hex away into woods
+        const from = hexOf(1, 4);
+        const to = hexOf(2, 4); // 1 hex away into woods
 
         gameState.placeUnit(from, armor);
         gameState.setTerrain(to, woodsTerrain);
@@ -156,8 +156,8 @@ describe("MoveUnitMove battle restrictions", () => {
         const gameState = new GameState(deck);
         const infantry = new Infantry(Side.ALLIES);
 
-        const from = new HexCoord(1, 4);
-        const to = new HexCoord(3, 4); // 2 hexes away
+        const from = hexOf(1, 4);
+        const to = hexOf(3, 4); // 2 hexes away
 
         gameState.placeUnit(from, infantry);
 
@@ -175,8 +175,8 @@ describe("MoveUnitMove battle restrictions", () => {
         const gameState = new GameState(deck);
         const unit = new Infantry(Side.ALLIES);
 
-        const from = new HexCoord(1, 4);
-        const to = new HexCoord(2, 4); // 1 hexes away
+        const from = hexOf(1, 4);
+        const to = hexOf(2, 4); // 1 hexes away
 
         gameState.placeUnit(from, unit);
 
@@ -195,8 +195,8 @@ describe("MoveUnitMove battle restrictions", () => {
         const gameState = new GameState(deck);
         const unit = new Infantry(Side.ALLIES);
 
-        const from = new HexCoord(1, 4);
-        const to = new HexCoord(3, 4); // 2 hexes away
+        const from = hexOf(1, 4);
+        const to = hexOf(3, 4); // 2 hexes away
 
         gameState.placeUnit(from, unit);
 

@@ -264,11 +264,11 @@ Instead of manually calculating adjacent hex coordinates, use the direction meth
 
 ```typescript
 // ❌ BAD: Manual coordinate calculation (error-prone)
-const enemyPos = new HexCoord(5, 1);
-const adjacentUnit = new HexCoord(6, 2); // Might not actually be adjacent!
+const enemyPos = hexOf(5, 1);
+const adjacentUnit = hexOf(6, 2); // Might not actually be adjacent!
 
 // ✅ GOOD: Use direction methods
-const enemyPos = new HexCoord(5, 1);
+const enemyPos = hexOf(5, 1);
 const adjacentUnit = enemyPos.southeast(); // Guaranteed to be adjacent
 ```
 
@@ -286,7 +286,7 @@ When your test assumes certain hex relationships (adjacency, distance, etc.), ad
 ```typescript
 it("should allow ordering units adjacent to enemies", () => {
     // Arrange
-    const enemyPos = new HexCoord(5, 1);
+    const enemyPos = hexOf(5, 1);
     gameState.placeUnit(enemyPos, enemyUnit);
 
     const friendlyPos = enemyPos.east();

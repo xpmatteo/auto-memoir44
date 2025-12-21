@@ -25,27 +25,27 @@ export class HexCoord {
 
     // 6 axial directions (pointy-top, "q,r" layout)
     east(): HexCoord {
-        return new HexCoord(this.q + 1, this.r);
+        return hexOf(this.q + 1, this.r);
     }
 
     west(): HexCoord {
-        return new HexCoord(this.q - 1, this.r);
+        return hexOf(this.q - 1, this.r);
     }
 
     northeast(): HexCoord {
-        return new HexCoord(this.q + 1, this.r - 1);
+        return hexOf(this.q + 1, this.r - 1);
     }
 
     northwest(): HexCoord {
-        return new HexCoord(this.q, this.r - 1);
+        return hexOf(this.q, this.r - 1);
     }
 
     southeast(): HexCoord {
-        return new HexCoord(this.q, this.r + 1);
+        return hexOf(this.q, this.r + 1);
     }
 
     southwest(): HexCoord {
-        return new HexCoord(this.q - 1, this.r + 1);
+        return hexOf(this.q - 1, this.r + 1);
     }
 
     toString(): string {
@@ -58,7 +58,7 @@ export class HexCoord {
     }
 
     static from(key: HexCoordKey) {
-        return new HexCoord(key % KEY_BUILDER - KEY_BUILDER/2, Math.trunc(key / KEY_BUILDER));
+        return hexOf(key % KEY_BUILDER - KEY_BUILDER/2, Math.trunc(key / KEY_BUILDER));
     }
 
     isNorthOf(otherHex: HexCoord) {
@@ -86,6 +86,10 @@ export type CanvasCoord = {
     x: number;
     y: number;
 };
+
+export function hexOf(q: number, r: number): HexCoord {
+    return new HexCoord(q, r);
+}
 
 /**
  * Convert mouse event coordinates to canvas pixel coordinates,
@@ -140,7 +144,7 @@ export function hexDistance(from: HexCoord, to: HexCoord): number {
 }
 
 function hexSubtract(a: HexCoord, b: HexCoord) {
-    return new HexCoord(a.q - b.q, a.r - b.r);
+    return hexOf(a.q - b.q, a.r - b.r);
 }
 
 function hexRound(fracq: number, fracr: number): HexCoord {
@@ -156,7 +160,7 @@ function hexRound(fracq: number, fracr: number): HexCoord {
     } else if (r_diff > s_diff) {
         r = -q - s;
     }
-    return new HexCoord(q, r);
+    return hexOf(q, r);
 }
 
 /**

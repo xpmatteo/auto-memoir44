@@ -8,7 +8,7 @@ import {Side} from "../../../src/domain/Player";
 import {SituatedUnit} from "../../../src/domain/SituatedUnit";
 import {getUnitAt, setupGameForCommandCardTests} from "../../helpers/testHelpers";
 import {MoveUnitMove} from "../../../src/domain/moves/MoveUnitMove";
-import {HexCoord} from "../../../src/utils/hex";
+import {hexOf} from "../../../src/utils/hex";
 
 describe("Artillery", () => {
         const unitSetup = [
@@ -60,7 +60,7 @@ describe("Artillery", () => {
     test("if it moves, it does not battle", () => {
         gameState.executeMove(new OrderUnitMove(artillery.unit));
         gameState.executeMove(new ConfirmOrdersMove());
-        gameState.executeMove(new MoveUnitMove(new HexCoord(0, 0), new HexCoord(1, 0)));
+        gameState.executeMove(new MoveUnitMove(hexOf(0, 0), hexOf(1, 0)));
         gameState.executeMove(new EndMovementsMove());
 
         // cannot battle

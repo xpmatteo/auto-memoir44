@@ -2,7 +2,7 @@
 // ABOUTME: Combines unit data, position, terrain, and mutable state
 
 import {Armor, Infantry, Unit, UnitState} from "./Unit";
-import {HexCoord} from "../utils/hex";
+import {HexCoord, hexOf} from "../utils/hex";
 import {clearTerrain, Terrain} from "./terrain/Terrain";
 import {Side} from "./Player";
 
@@ -28,7 +28,7 @@ export class SituatedUnit {
 
 export class SituatedUnitBuilder {
     private unit: Unit = new Infantry(Side.ALLIES);
-    private coord: HexCoord = new HexCoord(0, 0);
+    private coord: HexCoord = hexOf(0, 0);
     private terrain: Terrain = clearTerrain;
     private unitState: UnitState = new UnitState(Infantry.defaultStrength);
 
@@ -49,7 +49,7 @@ export class SituatedUnitBuilder {
     }
 
     at(q: number, r: number): this {
-        this.coord = new HexCoord(q, r);
+        this.coord = hexOf(q, r);
         return this;
     }
 

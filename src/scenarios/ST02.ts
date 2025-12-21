@@ -4,7 +4,7 @@
 import type {GameState} from "../domain/GameState";
 import {parseAndSetupUnits, Scenario, createStandardGameState} from "./Scenario";
 import {CardLocation} from "../domain/cards/CommandCard";
-import {HexCoord} from "../utils/hex";
+import {HexCoord, hexOf} from "../utils/hex";
 import {Infantry} from "../domain/Unit";
 import {Side} from "../domain/Player";
 import {SeededRNG} from "../adapters/RNG";
@@ -85,7 +85,7 @@ export class ST02Scenario implements Scenario {
             const numCols = r % 2 === 0 ? 13 : 12;
 
             for (let q = colStart; q < colStart + numCols; q++) {
-                const hex = new HexCoord(q, r);
+                const hex = hexOf(q, r);
                 candidates.push(hex);
             }
         }

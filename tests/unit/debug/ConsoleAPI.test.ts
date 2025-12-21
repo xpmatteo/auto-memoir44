@@ -6,7 +6,7 @@ import {ConsoleAPI} from '../../../src/debug/ConsoleAPI';
 import {GameState} from '../../../src/domain/GameState';
 import {UIState} from '../../../src/ui/UIState';
 import {Deck} from '../../../src/domain/Deck';
-import {HexCoord} from '../../../src/utils/hex';
+import {hexOf} from '../../../src/utils/hex';
 import {Infantry} from '../../../src/domain/Unit';
 import {Side} from '../../../src/domain/Player';
 import {PlayCardPhase} from '../../../src/domain/phases/PlayCardPhase';
@@ -82,7 +82,7 @@ describe('ConsoleAPI', () => {
         test('orders a unit during ORDER phase', async () => {
             // Setup: Place a unit and set up ORDER phase
             const unit = new Infantry(Side.ALLIES, 4);
-            const coord = new HexCoord(5, 3);
+            const coord = hexOf(5, 3);
             gameState.placeUnit(coord, unit);
             gameState.replacePhase(
                 new OrderUnitsPhase([Section.LEFT, Section.CENTER, Section.RIGHT], 10)
@@ -99,7 +99,7 @@ describe('ConsoleAPI', () => {
         test('selects unit for movement during MOVE phase', async () => {
             // Setup: Place and order a unit, then enter MOVE phase
             const unit = new Infantry(Side.ALLIES, 4);
-            const coord = new HexCoord(5, 3);
+            const coord = hexOf(5, 3);
             gameState.placeUnit(coord, unit);
             gameState.orderUnit(unit);
             gameState.replacePhase(new MovePhase());
@@ -116,7 +116,7 @@ describe('ConsoleAPI', () => {
         test('deselects unit when clicking on it again during MOVE phase', async () => {
             // Setup: Place and order a unit, enter MOVE phase, select it
             const unit = new Infantry(Side.ALLIES, 4);
-            const coord = new HexCoord(5, 3);
+            const coord = hexOf(5, 3);
             gameState.placeUnit(coord, unit);
             gameState.orderUnit(unit);
             gameState.replacePhase(new MovePhase());
@@ -246,7 +246,7 @@ describe('ConsoleAPI', () => {
 
             // Test clickHex (ordering a unit)
             const unit = new Infantry(Side.ALLIES, 4);
-            gameState.placeUnit(new HexCoord(5, 3), unit);
+            gameState.placeUnit(hexOf(5, 3), unit);
             gameState.replacePhase(
                 new OrderUnitsPhase([Section.LEFT, Section.CENTER, Section.RIGHT], 10)
             );

@@ -3,7 +3,7 @@
 
 import {beforeEach, describe, expect, it} from "vitest";
 import {Infantry} from "../../../src/domain/Unit";
-import {HexCoord} from "../../../src/utils/hex";
+import {HexCoord, hexOf} from "../../../src/utils/hex";
 import {Side} from "../../../src/domain/Player";
 import {RetreatMove} from "../../../src/domain/moves/Move";
 import {RetreatPhase} from "../../../src/domain/phases/RetreatPhase";
@@ -29,8 +29,8 @@ describe("RetreatMove", () => {
     });
 
     it("should call moveUnit and popPhase when retreating to different hex", () => {
-        const from = new HexCoord(5, 3);
-        const to = new HexCoord(5, 2);
+        const from = hexOf(5, 3);
+        const to = hexOf(5, 2);
 
         new RetreatMove(unit, from, to).executeRetreat(mockRetreater);
 
@@ -40,7 +40,7 @@ describe("RetreatMove", () => {
     });
 
     it("should not call moveUnit when staying in place (ignoring flag)", () => {
-        const coord = new HexCoord(5, 3);
+        const coord = hexOf(5, 3);
 
         new RetreatMove(unit, coord, coord).executeRetreat(mockRetreater);
 
@@ -49,11 +49,11 @@ describe("RetreatMove", () => {
     });
 
     it("should always call popPhase regardless of movement", () => {
-        new RetreatMove(unit, new HexCoord(5, 3), new HexCoord(5, 2)).executeRetreat(mockRetreater);
+        new RetreatMove(unit, hexOf(5, 3), hexOf(5, 2)).executeRetreat(mockRetreater);
         expect(popPhaseCalled).toBe(true);
 
         popPhaseCalled = false;
-        new RetreatMove(unit, new HexCoord(5, 3), new HexCoord(5, 3)).executeRetreat(mockRetreater);
+        new RetreatMove(unit, hexOf(5, 3), hexOf(5, 3)).executeRetreat(mockRetreater);
         expect(popPhaseCalled).toBe(true);
     });
 });
@@ -65,8 +65,8 @@ describe("RetreatPhase", () => {
 
     beforeEach(() => {
         unit = new Infantry(Side.AXIS);
-        currentPos = new HexCoord(5, 3);
-        availableHexes = [new HexCoord(5, 2), new HexCoord(6, 2)];
+        currentPos = hexOf(5, 3);
+        availableHexes = [hexOf(5, 2), hexOf(6, 2)];
     });
 
     it("should have temporaryPlayerSwitch enabled", () => {

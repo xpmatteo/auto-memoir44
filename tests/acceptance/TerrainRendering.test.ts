@@ -4,7 +4,7 @@
 import {describe, expect, it} from "vitest";
 import {GameState} from "../../src/domain/GameState";
 import {Deck} from "../../src/domain/Deck";
-import {HexCoord} from "../../src/utils/hex";
+import {HexCoord, hexOf} from "../../src/utils/hex";
 import {hillTerrain, woodsTerrain, town1Terrain, clearTerrain} from "../../src/domain/terrain/Terrain";
 import {ST02Scenario} from "../../src/scenarios/ST02";
 import {SeededRNG} from "../../src/adapters/RNG";
@@ -15,27 +15,27 @@ describe("Terrain Rendering", () => {
             const deck = Deck.createStandardDeck();
             const gameState = new GameState(deck);
 
-            gameState.setTerrain(new HexCoord(3, 4), hillTerrain);
-            gameState.setTerrain(new HexCoord(-2, 5), woodsTerrain);
+            gameState.setTerrain(hexOf(3, 4), hillTerrain);
+            gameState.setTerrain(hexOf(-2, 5), woodsTerrain);
 
-            expect(gameState.getTerrain(new HexCoord(3, 4))).toBe(hillTerrain);
-            expect(gameState.getTerrain(new HexCoord(-2, 5))).toBe(woodsTerrain);
+            expect(gameState.getTerrain(hexOf(3, 4))).toBe(hillTerrain);
+            expect(gameState.getTerrain(hexOf(-2, 5))).toBe(woodsTerrain);
         });
 
         it("returns clearTerrain for hexes without terrain", () => {
             const deck = Deck.createStandardDeck();
             const gameState = new GameState(deck);
 
-            expect(gameState.getTerrain(new HexCoord(0, 0))).toBe(clearTerrain);
+            expect(gameState.getTerrain(hexOf(0, 0))).toBe(clearTerrain);
         });
 
         it("iterates through all terrain using forAllTerrain", () => {
             const deck = Deck.createStandardDeck();
             const gameState = new GameState(deck);
 
-            gameState.setTerrain(new HexCoord(1, 2), hillTerrain);
-            gameState.setTerrain(new HexCoord(3, 4), woodsTerrain);
-            gameState.setTerrain(new HexCoord(5, 6), town1Terrain);
+            gameState.setTerrain(hexOf(1, 2), hillTerrain);
+            gameState.setTerrain(hexOf(3, 4), woodsTerrain);
+            gameState.setTerrain(hexOf(5, 6), town1Terrain);
 
             const foundTerrain: Array<{hex: HexCoord; terrain: any}> = [];
             gameState.forAllTerrain((terrain, hex) => {
@@ -73,7 +73,7 @@ describe("Terrain Rendering", () => {
             const scenario = new ST02Scenario();
             const gameState = scenario.createGameState(rng);
 
-            expect(gameState.getTerrain(new HexCoord(-1, 5))).toBe(hillTerrain);
+            expect(gameState.getTerrain(hexOf(-1, 5))).toBe(hillTerrain);
         });
 
         it("places woodsTerrain at HexCoord(3, 0)", () => {
@@ -81,7 +81,7 @@ describe("Terrain Rendering", () => {
             const scenario = new ST02Scenario();
             const gameState = scenario.createGameState(rng);
 
-            expect(gameState.getTerrain(new HexCoord(3, 0))).toBe(woodsTerrain);
+            expect(gameState.getTerrain(hexOf(3, 0))).toBe(woodsTerrain);
         });
     });
 });

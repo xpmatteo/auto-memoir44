@@ -6,7 +6,7 @@ import {GameState} from "../../../src/domain/GameState";
 import {Deck} from "../../../src/domain/Deck";
 import {AssaultLeft, CardLocation} from "../../../src/domain/cards/CommandCard";
 import {Infantry} from "../../../src/domain/Unit";
-import {HexCoord} from "../../../src/utils/hex";
+import {hexOf} from "../../../src/utils/hex";
 import {Side} from "../../../src/domain/Player";
 import {Dice} from "../../../src/domain/Dice";
 import {PlayCardMove} from "../../../src/domain/moves/Move";
@@ -106,27 +106,27 @@ describe("GameState.clone()", () => {
         it("should clone unitPositions map independently", () => {
             const gameState = createTestGameState();
             const unit = new Infantry(Side.ALLIES);
-            const coord = new HexCoord(0, 0);
+            const coord = hexOf(0, 0);
             gameState.placeUnit(coord, unit);
 
             const cloned = gameState.clone();
 
             // Move unit on clone
-            cloned.moveUnit(coord, new HexCoord(1, 0));
+            cloned.moveUnit(coord, hexOf(1, 0));
 
             // Original should be unchanged
             expect(gameState.getUnitAt(coord)).toBe(unit);
-            expect(gameState.getUnitAt(new HexCoord(1, 0))).toBeUndefined();
+            expect(gameState.getUnitAt(hexOf(1, 0))).toBeUndefined();
 
             // Clone should have changed
             expect(cloned.getUnitAt(coord)).toBeUndefined();
-            expect(cloned.getUnitAt(new HexCoord(1, 0))).toBe(unit);
+            expect(cloned.getUnitAt(hexOf(1, 0))).toBe(unit);
         });
 
         it("should clone units map independently", () => {
             const gameState = createTestGameState();
             const unit = new Infantry(Side.ALLIES);
-            gameState.placeUnit(new HexCoord(0, 0), unit);
+            gameState.placeUnit(hexOf(0, 0), unit);
 
             const cloned = gameState.clone();
 
@@ -143,7 +143,7 @@ describe("GameState.clone()", () => {
         it("should deep clone unitStates map", () => {
             const gameState = createTestGameState();
             const unit = new Infantry(Side.ALLIES, 4);
-            gameState.placeUnit(new HexCoord(0, 0), unit);
+            gameState.placeUnit(hexOf(0, 0), unit);
 
             const cloned = gameState.clone();
 
@@ -163,7 +163,7 @@ describe("GameState.clone()", () => {
         it("should deep clone all unit state properties", () => {
             const gameState = createTestGameState();
             const unit = new Infantry(Side.ALLIES, 4);
-            gameState.placeUnit(new HexCoord(0, 0), unit);
+            gameState.placeUnit(hexOf(0, 0), unit);
 
             // Set all properties
             gameState.toggleUnitOrdered(unit);
@@ -187,7 +187,7 @@ describe("GameState.clone()", () => {
         it("should clone medal tables independently", () => {
             const gameState = createTestGameState();
             const unit = new Infantry(Side.ALLIES);
-            gameState.placeUnit(new HexCoord(0, 0), unit);
+            gameState.placeUnit(hexOf(0, 0), unit);
 
             const cloned = gameState.clone();
 
@@ -206,8 +206,8 @@ describe("GameState.clone()", () => {
             const gameState = createTestGameState();
             const unit1 = new Infantry(Side.ALLIES);
             const unit2 = new Infantry(Side.AXIS);
-            gameState.placeUnit(new HexCoord(0, 0), unit1);
-            gameState.placeUnit(new HexCoord(1, 0), unit2);
+            gameState.placeUnit(hexOf(0, 0), unit1);
+            gameState.placeUnit(hexOf(1, 0), unit2);
 
             gameState.addToMedalTable(unit1, 0);
             gameState.addToMedalTable(unit2, 1);
@@ -234,13 +234,13 @@ describe("GameState.clone()", () => {
             const gameState = createTestGameState();
 
             // Queue a task on the original
-            const task = new CombatTask(new HexCoord(5, 5), 3, true);
+            const task = new CombatTask(hexOf(5, 5), 3, true);
             gameState.queueTask(task);
 
             const cloned = gameState.clone();
 
             // Queue a different task on the clone
-            const task2 = new CombatTask(new HexCoord(6, 6), 2, false);
+            const task2 = new CombatTask(hexOf(6, 6), 2, false);
             cloned.queueTask(task2);
 
             // Original should still have only one task
