@@ -29,7 +29,12 @@ export class MoveUnitMove extends Move {
         gameState.markUnitMoved(unit);
 
         // Mark unit to skip battle if unit's movement rules dictate it
-        if (unit.movementSkipsBattle(distance)) {
+        // (allow active card to override)
+        const activeCard = gameState.activeCard;
+        const skipsBattle = activeCard
+            ? activeCard.fixUnitMovementSkipsBattle(unit, distance)
+            : unit.movementSkipsBattle(distance);
+        if (skipsBattle) {
             gameState.markUnitSkipsBattle(unit);
         }
 
