@@ -10,6 +10,7 @@ import {HexCoord, hexDistance} from "../../utils/hex";
 import {Position} from "../Player";
 import {Move} from "./Move";
 import {sandbagAllies, sandbagAxis} from "../fortifications/Fortification";
+import {GameEvent, BattleEvent, BattleOutcome, MedalEarnedEvent} from "../GameEvent";
 
 export class BattleMove extends Move {
     readonly fromUnit: Unit;
@@ -25,7 +26,9 @@ export class BattleMove extends Move {
         this.popsPhaseAfterExecution = popsPhaseAfterExecution;
     }
 
-    execute(gameState: GameState): void {
+    execute(gameState: GameState): GameEvent[] {
+        const events: GameEvent[] = [];
+
         // Pop phase if requested (used for armor overrun - only one attack allowed)
         if (this.popsPhaseAfterExecution) {
             gameState.popPhase();
@@ -56,7 +59,11 @@ export class BattleMove extends Move {
         gameState.setUnitCurrentStrength(this.toUnit, newStrength);
 
         if (newStrength <= 0) {
-            // Unit is eliminated - find its position and remove it
+            // Unit is eliminated
+            const outcome: BattleOutcome = { type: 'eliminated' };
+            events.push(new BattleEvent(this.fromUnit, attackerHex, this.toUnit, targetHex, diceResults, outcome));
+            events.push(new MedalEarnedEvent(gameState.activePlayer.side, this.toUnit));
+
             this.eliminateUnit(gameState, targetHex);
 
             // If close combat, offer take ground option
@@ -68,7 +75,7 @@ export class BattleMove extends Move {
                     !this.popsPhaseAfterExecution  // If from overrun, don't allow another overrun
                 ));
             }
-            return;
+            return events;
         }
 
         // Handle flag results (retreat)
@@ -85,6 +92,11 @@ export class BattleMove extends Move {
             const newStrengthAfterFlagResult = newStrength - flagResult.damage;
             gameState.setUnitCurrentStrength(this.toUnit, newStrengthAfterFlagResult);
             if (newStrengthAfterFlagResult <= 0) {
+                // Eliminated by retreat damage
+                const outcome: BattleOutcome = { type: 'eliminated' };
+                events.push(new BattleEvent(this.fromUnit, attackerHex, this.toUnit, targetHex, diceResults, outcome));
+                events.push(new MedalEarnedEvent(gameState.activePlayer.side, this.toUnit));
+
                 this.eliminateUnit(gameState, targetHex);
 
                 // If close combat, offer take ground option
@@ -96,12 +108,15 @@ export class BattleMove extends Move {
                         !this.popsPhaseAfterExecution  // If from overrun, don't allow another overrun
                     ));
                 }
-                return;
+                return events;
             }
 
             // Only handle retreat if there are valid retreat hexes
             if (flagResult.retreats.length === 1) {
                 // Only one retreat path - automatically move unit
+                const outcome: BattleOutcome = { type: 'retreat', flagCount };
+                events.push(new BattleEvent(this.fromUnit, attackerHex, this.toUnit, targetHex, diceResults, outcome));
+
                 gameState.moveUnit(targetHex, flagResult.retreats[0]);
 
                 // If close combat, offer take ground option
@@ -115,6 +130,9 @@ export class BattleMove extends Move {
                 }
             } else if (flagResult.retreats.length > 1) {
                 // Multiple retreat paths - push RetreatPhase so owner can choose
+                const outcome: BattleOutcome = { type: 'retreat', flagCount };
+                events.push(new BattleEvent(this.fromUnit, attackerHex, this.toUnit, targetHex, diceResults, outcome));
+
                 // If close combat, pass attacker info so TakeGroundPhase can be pushed after retreat
                 gameState.pushPhase(new RetreatPhase(
                     this.toUnit,
@@ -124,9 +142,29 @@ export class BattleMove extends Move {
                     isCloseCombat ? attackerHex : undefined,
                     this.popsPhaseAfterExecution  // Pass overrun flag so retreat knows not to trigger another overrun
                 ));
+            } else {
+                // flagResult.retreats.length === 0, all paths blocked and damage already applied
+                if (hits > 0 || flagResult.damage > 0) {
+                    const totalDamage = hits + flagResult.damage;
+                    const outcome: BattleOutcome = { type: 'damage', damage: totalDamage };
+                    events.push(new BattleEvent(this.fromUnit, attackerHex, this.toUnit, targetHex, diceResults, outcome));
+                } else {
+                    const outcome: BattleOutcome = { type: 'no_effect' };
+                    events.push(new BattleEvent(this.fromUnit, attackerHex, this.toUnit, targetHex, diceResults, outcome));
+                }
             }
-            // If flagResult.retreats.length === 0, all paths blocked and damage already applied
+        } else {
+            // No flags - just damage or no effect
+            if (hits > 0) {
+                const outcome: BattleOutcome = { type: 'damage', damage: hits };
+                events.push(new BattleEvent(this.fromUnit, attackerHex, this.toUnit, targetHex, diceResults, outcome));
+            } else {
+                const outcome: BattleOutcome = { type: 'no_effect' };
+                events.push(new BattleEvent(this.fromUnit, attackerHex, this.toUnit, targetHex, diceResults, outcome));
+            }
         }
+
+        return events;
     }
 
     private findUnitHex(gameState: GameState, unitId: string) {

@@ -4,6 +4,7 @@
 import {GameState} from "../GameState";
 import {Move} from "./Move";
 import {CombatTask} from "../tasks/CombatTask";
+import {GameEvent} from "../GameEvent";
 
 export class ConfirmTargetsMove extends Move {
     private readonly dicePerTarget: number;
@@ -15,7 +16,7 @@ export class ConfirmTargetsMove extends Move {
         this.starsCountAsHits = starsCountAsHits;
     }
 
-    execute(gameState: GameState): void {
+    execute(gameState: GameState): GameEvent[] {
         const allUnits = gameState.getAllUnits();
         const targetedUnits = allUnits.filter(su => su.unitState.isTargeted);
 
@@ -31,6 +32,7 @@ export class ConfirmTargetsMove extends Move {
 
         // Pop the SelectTargetPhase - this will automatically trigger processDeferredTasks()
         gameState.popPhase();
+        return [];
     }
 
     uiButton(): Array<{label: string, callback: (gameState: GameState) => void}> {

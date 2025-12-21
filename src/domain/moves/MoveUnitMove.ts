@@ -1,6 +1,7 @@
 import {HexCoord, hexDistance} from "../../utils/hex";
 import {GameState} from "../GameState";
 import {Move} from "./Move";
+import {GameEvent, UnitMovedEvent} from "../GameEvent";
 
 export class MoveUnitMove extends Move {
     readonly from: HexCoord;
@@ -14,7 +15,7 @@ export class MoveUnitMove extends Move {
         this.autoAdvance = autoAdvance;
     }
 
-    execute(gameState: GameState): void {
+    execute(gameState: GameState): GameEvent[] {
         const unit = gameState.getUnitAt(this.from);
         if (!unit) {
             throw new Error(`No unit found at (${this.from.q}, ${this.from.r})`);
@@ -52,6 +53,8 @@ export class MoveUnitMove extends Move {
                 }
             }
         }
+
+        return [new UnitMovedEvent(unit, this.from, this.to)];
     }
 
     toString(): string {

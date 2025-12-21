@@ -5,9 +5,12 @@ import {Move} from "./Move";
 import {GameState} from "../GameState";
 import {sandbagAllies, sandbagAxis, noFortification} from "../fortifications/Fortification";
 import {Side} from "../Player";
+import {GameEvent, FortificationAppliedEvent} from "../GameEvent";
 
 export class ConfirmDigInMove extends Move {
-    execute(gameState: GameState): void {
+    execute(gameState: GameState): GameEvent[] {
+        const events: GameEvent[] = [];
+
         // Apply sandbags to all ordered units
         const orderedUnits = gameState.getOrderedUnitsWithPositions();
         const fortification = gameState.activePlayer.side === Side.ALLIES
@@ -20,11 +23,14 @@ export class ConfirmDigInMove extends Move {
             const existing = gameState.getFortification(coord);
             if (existing === noFortification) {
                 gameState.setFortification(coord, fortification);
+                events.push(new FortificationAppliedEvent(fortification.name, coord));
             }
         }
 
         // Pop the DigInOrderPhase
         gameState.popPhase();
+
+        return events;
     }
 
     uiButton() {

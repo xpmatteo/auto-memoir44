@@ -3,10 +3,12 @@
 
 import {Move} from "./Move";
 import {GameState} from "../GameState";
+import {GameEvent} from "../GameEvent";
 
 export class DeclineTakeGroundMove extends Move {
-    execute(gameState: GameState): void {
+    execute(gameState: GameState): GameEvent[] {
         gameState.popPhase();
+        return [];
     }
 
     uiButton() {

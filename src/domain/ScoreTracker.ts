@@ -44,11 +44,11 @@ export class ScoreTracker {
     checkVictory(players: [Player, Player]): GameVictoryMove | null {
         // Check bottom player (index 0)
         if (this.medalTables[0].length >= this.prerequisiteNumberOfMedals) {
-            return new GameVictoryMove(players[0].side);
+            return new GameVictoryMove(players[0].side, this.medalTables[0].length);
         }
         // Check top player (index 1)
         if (this.medalTables[1].length >= this.prerequisiteNumberOfMedals) {
-            return new GameVictoryMove(players[1].side);
+            return new GameVictoryMove(players[1].side, this.medalTables[1].length);
         }
         return null;
     }

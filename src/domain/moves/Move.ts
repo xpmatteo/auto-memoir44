@@ -6,6 +6,7 @@ import {GameState} from "../GameState";
 import {Unit} from "../Unit";
 import {HexCoord} from "../../utils/hex";
 import {Side} from "../Player";
+import {GameEvent, CardPlayedEvent, UnitRetreatedEvent, GameWonEvent} from "../GameEvent";
 
 interface UiButton {
     label: string,
@@ -19,7 +20,7 @@ export interface UnitRetreater {
 }
 
 export abstract class Move {
-    abstract execute(gameState: GameState): void;
+    abstract execute(gameState: GameState): GameEvent[];
 
     uiButton(): UiButton[] {
         return [];
@@ -34,8 +35,9 @@ export class PlayCardMove extends Move {
         this.card = card
     }
 
-    execute(gameState: GameState): void {
+    execute(gameState: GameState): GameEvent[] {
         this.card.onCardPlayed(gameState);
+        return [new CardPlayedEvent(this.card.name, gameState.activePlayer.side)];
     }
 }
 
@@ -47,8 +49,9 @@ export class OrderUnitMove extends Move {
         this.unit = unit;
     }
 
-    execute(gameState: GameState): void {
+    execute(gameState: GameState): GameEvent[] {
         gameState.orderUnit(this.unit);
+        return [];
     }
 
     toString(): string {
@@ -64,8 +67,9 @@ export class UnOrderMove extends Move {
         this.unit = unit;
     }
 
-    execute(gameState: GameState): void {
+    execute(gameState: GameState): GameEvent[] {
         gameState.unOrderUnit(this.unit);
+        return [];
     }
 
     toString(): string {
@@ -75,8 +79,9 @@ export class UnOrderMove extends Move {
 }
 
 export class ConfirmOrdersMove extends Move {
-    execute(gameState: GameState): void {
+    execute(gameState: GameState): GameEvent[] {
         gameState.popPhase();
+        return [];
     }
 
     uiButton(): UiButton[] {
@@ -95,8 +100,9 @@ export class ConfirmOrdersMove extends Move {
 }
 
 export class EndMovementsMove extends Move {
-    execute(gameState: GameState): void {
+    execute(gameState: GameState): GameEvent[] {
         gameState.popPhase();
+        return [];
     }
 
     uiButton(): UiButton[] {
@@ -114,8 +120,9 @@ export class EndMovementsMove extends Move {
 }
 
 export class EndBattlesMove extends Move {
-    execute(gameState: GameState): void {
+    execute(gameState: GameState): GameEvent[] {
         gameState.popPhase();
+        return [];
     }
 
     uiButton(): UiButton[] {
@@ -140,10 +147,11 @@ export class ReplenishHandMove extends Move {
         this.card = card;
     }
 
-    execute(gameState: GameState): void {
+    execute(gameState: GameState): GameEvent[] {
         gameState.discardActiveCard();
         gameState.drawSpecificCard(this.card.id, gameState.activePlayerHand);
         gameState.popPhase();
+        return [];
     }
 
     uiButton(): UiButton[] {
@@ -171,7 +179,7 @@ export class ReplenishHandChooseCardMove extends Move {
         this.rejectedCard = rejectedCard;
     }
 
-    execute(gameState: GameState): void {
+    execute(gameState: GameState): GameEvent[] {
         // Draw the chosen card to the active player's hand
         gameState.drawSpecificCard(this.chosenCard.id, gameState.activePlayerHand);
 
@@ -183,6 +191,7 @@ export class ReplenishHandChooseCardMove extends Move {
 
         // End the replenish hand phase
         gameState.popPhase();
+        return [];
     }
 
     uiButton(): UiButton[] {
@@ -224,7 +233,7 @@ export class RetreatMove extends Move {
         this.isFromOverrun = isFromOverrun;
     }
 
-    execute(gameState: GameState): void {
+    execute(gameState: GameState): GameEvent[] {
         this.executeRetreat(gameState);
 
         // If this was a close combat retreat AND the hex was actually vacated, push TakeGroundPhase
@@ -237,6 +246,8 @@ export class RetreatMove extends Move {
                 !this.isFromOverrun  // If from overrun, don't allow another overrun
             );
         }
+
+        return [new UnitRetreatedEvent(this.unit, this.from, this.to)];
     }
 
     executeRetreat(retreater: UnitRetreater): void {
@@ -254,14 +265,17 @@ export class RetreatMove extends Move {
 
 export class GameVictoryMove extends Move {
     readonly winningPlayerSide: Side;
+    readonly medals: number;
 
-    constructor(winningPlayerSide: Side) {
+    constructor(winningPlayerSide: Side, medals: number) {
         super();
         this.winningPlayerSide = winningPlayerSide;
+        this.medals = medals;
     }
 
-    execute(_gameState: GameState): void {
+    execute(_gameState: GameState): GameEvent[] {
         // No-op: game is over, no state changes needed
+        return [new GameWonEvent(this.winningPlayerSide, this.medals)];
     }
 
     uiButton(): UiButton[] {

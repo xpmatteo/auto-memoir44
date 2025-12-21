@@ -208,7 +208,7 @@ export class Deck {
             [AirPower, 1],
             [Barrage, 1],
             [DigIn, 1],
-            [ArtilleryBombard, 100],
+            [ArtilleryBombard, 1],
         ], rng);
     }
 

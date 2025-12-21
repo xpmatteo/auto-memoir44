@@ -30,7 +30,7 @@ describe("GameVictoryMove", () => {
         ];
 
         test.each(cases)('$name', ({ side, expectedLabel }) => {
-            const move = new GameVictoryMove(side);
+            const move = new GameVictoryMove(side, 6);
 
             expect(move.winningPlayerSide).toBe(side);
 
@@ -52,7 +52,7 @@ describe("GameVictoryMove", () => {
                 medalCount1: gameState.getMedalTable(1).length,
             };
 
-            const move = new GameVictoryMove(Side.ALLIES);
+            const move = new GameVictoryMove(Side.ALLIES, 6);
             move.execute(gameState);
 
             // Verify state hasn't changed
@@ -64,15 +64,15 @@ describe("GameVictoryMove", () => {
 
     describe("uiButton", () => {
         it("should return exactly one button", () => {
-            const move = new GameVictoryMove(Side.ALLIES);
+            const move = new GameVictoryMove(Side.ALLIES, 6);
             const buttons = move.uiButton();
 
             expect(buttons).toHaveLength(1);
         });
 
         it("should include the winning side in the button label", () => {
-            const alliesMove = new GameVictoryMove(Side.ALLIES);
-            const axisMove = new GameVictoryMove(Side.AXIS);
+            const alliesMove = new GameVictoryMove(Side.ALLIES, 6);
+            const axisMove = new GameVictoryMove(Side.AXIS, 6);
 
             const alliesButtons = alliesMove.uiButton();
             const axisButtons = axisMove.uiButton();
@@ -82,7 +82,7 @@ describe("GameVictoryMove", () => {
         });
 
         it("should have a callback that triggers page reload", () => {
-            const move = new GameVictoryMove(Side.ALLIES);
+            const move = new GameVictoryMove(Side.ALLIES, 6);
             const buttons = move.uiButton();
 
             expect(buttons[0].callback).toBeDefined();
@@ -90,7 +90,7 @@ describe("GameVictoryMove", () => {
         });
 
         it("should call window.location.reload when callback is executed", () => {
-            const move = new GameVictoryMove(Side.ALLIES);
+            const move = new GameVictoryMove(Side.ALLIES, 6);
             const buttons = move.uiButton();
 
             // Mock window.location.reload

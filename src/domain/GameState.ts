@@ -18,6 +18,7 @@ import {Board} from "./Board";
 import {Fortification} from "./fortifications/Fortification";
 import {FortificationMap} from "./FortificationMap";
 import {ScoreTracker} from "./ScoreTracker";
+import {GameEvent} from "./GameEvent";
 import {TurnCoordinator} from "./TurnCoordinator";
 import {SituatedUnit} from "./SituatedUnit";
 import {DeferredTask} from "./DeferredTask";
@@ -159,9 +160,14 @@ export class GameState {
 
     /**
      * Applies a move and updates state
+     * Returns array of events describing what happened
      */
-    executeMove(move: Move): void {
-        move.execute(this);
+    executeMove(move: Move): GameEvent[] {
+        const events = move.execute(this);
+        events.forEach(event => {
+            console.log(`[Event] ${event.description}`);
+        });
+        return events;
     }
 
     // -- Commands used when setting up the game

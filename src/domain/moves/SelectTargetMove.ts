@@ -4,6 +4,7 @@
 import {GameState} from "../GameState";
 import {Move} from "./Move";
 import {SituatedUnit} from "../SituatedUnit";
+import {GameEvent} from "../GameEvent";
 
 export class SelectTargetMove extends Move {
     readonly unit: SituatedUnit;
@@ -13,8 +14,9 @@ export class SelectTargetMove extends Move {
         this.unit = unit;
     }
 
-    execute(gameState: GameState): void {
+    execute(gameState: GameState): GameEvent[] {
         gameState.targetUnit(this.unit.unit);
+        return [];
     }
 
     toString(): string {
@@ -30,8 +32,9 @@ export class UnSelectTargetMove extends Move {
         this.unit = unit;
     }
 
-    execute(gameState: GameState): void {
+    execute(gameState: GameState): GameEvent[] {
         gameState.untargetUnit(this.unit.unit);
+        return [];
     }
 
     toString(): string {

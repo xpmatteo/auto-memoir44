@@ -5,6 +5,7 @@ import {Move} from "./Move";
 import {GameState} from "../GameState";
 import {Unit, UnitType} from "../Unit";
 import {HexCoord, hexDistance} from "../../utils/hex";
+import {GameEvent, TookGroundEvent} from "../GameEvent";
 
 export class TakeGroundMove extends Move {
     readonly unit: Unit;
@@ -20,7 +21,7 @@ export class TakeGroundMove extends Move {
         this.allowsOverrun = allowsOverrun;
     }
 
-    execute(gameState: GameState): void {
+    execute(gameState: GameState): GameEvent[] {
         // Move the unit first
         gameState.moveUnit(this.fromHex, this.toHex);
 
@@ -32,6 +33,8 @@ export class TakeGroundMove extends Move {
         if (this.shouldTriggerArmorOverrun(gameState)) {
             gameState.pushArmorOverrunPhase(this.unit, this.toHex);
         }
+
+        return [new TookGroundEvent(this.unit, this.fromHex, this.toHex)];
     }
 
     private shouldTriggerArmorOverrun(gameState: GameState): boolean {
