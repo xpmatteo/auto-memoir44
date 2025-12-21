@@ -31,7 +31,7 @@ export class HexCoord {
     // use only in this file: everywhere else use the hexOf function,
     // to preserve the Flyweight pattern
     static create(q: number, r: number): HexCoord {
-        return hexOf(q, r);
+        return new HexCoord(q, r);
     }
 
     // 6 axial directions (pointy-top, "q,r" layout)

@@ -52,7 +52,7 @@ class FakeUnitMover {
     }
 
     getUnitAt(coord: HexCoord): Unit | undefined {
-        return this.occupiedCoords.some(c => c.q === coord.q && c.r === coord.r)
+        return this.occupiedCoords.some(c => c === coord)
             ? this.units[0]?.unit // Return some unit if occupied
             : undefined;
     }

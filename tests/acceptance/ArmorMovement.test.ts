@@ -238,7 +238,7 @@ describe("Armor movement", () => {
         const legalMoves = gameState.legalMoves();
         const moveToWoods = legalMoves.find(m =>
             m instanceof MoveUnitMove &&
-            m.to.q === 6 && m.to.r === 5
+            m.to === hexOf(6, 5)
         );
         expect(moveToWoods).toBeDefined();
 
@@ -246,7 +246,7 @@ describe("Armor movement", () => {
         // (8,5) is 3 hexes east, but path goes through woods which stops movement
         const threeHexesThroughWoods = legalMoves.find(m =>
             m instanceof MoveUnitMove &&
-            m.to.q === 8 && m.to.r === 5
+            m.to === hexOf(8, 5)
         );
         expect(threeHexesThroughWoods).toBeUndefined();
 

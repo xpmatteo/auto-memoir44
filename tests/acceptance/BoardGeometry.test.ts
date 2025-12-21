@@ -144,21 +144,25 @@ describe("BoardGeometry", () => {
             expect(neighbors.length).toBe(6);
 
             // Check that all 6 directions are present
-            const neighborSet = new Set(neighbors.map(n => `${n.q},${n.r}`));
-            expect(neighborSet.has("1,4")).toBe(true);   // East
-            expect(neighborSet.has("1,3")).toBe(true);   // Northeast
-            expect(neighborSet.has("0,3")).toBe(true);   // Northwest
-            expect(neighborSet.has("-1,4")).toBe(true);  // West
-            expect(neighborSet.has("-1,5")).toBe(true);  // Southwest
-            expect(neighborSet.has("0,5")).toBe(true);   // Southeast
+            const expectedNeighbors = [
+                hexOf(1, 4),   // East
+                hexOf(1, 3),   // Northeast
+                hexOf(0, 3),   // Northwest
+                hexOf(-1, 4),  // West
+                hexOf(-1, 5),  // Southwest
+                hexOf(0, 5),   // Southeast
+            ];
+            for (const expected of expectedNeighbors) {
+                expect(neighbors).toContain(expected);
+            }
         });
 
         it("Returns only on-board neighbors for edge hexes", () => {
             // Bottom-left corner (q=-4, r=8)
             const bottomLeftNeighbors = BOARD_GEOMETRY.getValidNeighbors(hexOf(-4, 8));
             expect(bottomLeftNeighbors.length).toBe(2);
-            expect(bottomLeftNeighbors.some(n => n.q === -3 && n.r === 8)).toBe(true); // East
-            expect(bottomLeftNeighbors.some(n => n.q === -3 && n.r === 7)).toBe(true); // Northeast
+            expect(bottomLeftNeighbors).toContain(hexOf(-3, 8)); // East
+            expect(bottomLeftNeighbors).toContain(hexOf(-3, 7)); // Northeast
 
             // Top-right corner (q=12, r=0)
             const topRightNeighbors = BOARD_GEOMETRY.getValidNeighbors(hexOf(12, 0));

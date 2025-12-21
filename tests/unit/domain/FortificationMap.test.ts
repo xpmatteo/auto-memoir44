@@ -98,7 +98,7 @@ describe('FortificationMap.forEach', () => {
         });
 
         expect(forts).toHaveLength(2);
-        expect(forts.some(f => f.hex.q === 0 && f.hex.r === 0 && f.fort === sandbagAllies)).toBe(true);
-        expect(forts.some(f => f.hex.q === 1 && f.hex.r === 1 && f.fort === sandbagAxis)).toBe(true);
+        expect(forts.some(f => f.hex === hexOf(0, 0) && f.fort === sandbagAllies)).toBe(true);
+        expect(forts.some(f => f.hex === hexOf(1, 1) && f.fort === sandbagAxis)).toBe(true);
     });
 });

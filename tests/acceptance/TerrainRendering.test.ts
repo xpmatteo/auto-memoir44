@@ -43,9 +43,9 @@ describe("Terrain Rendering", () => {
             });
 
             expect(foundTerrain.length).toBe(3);
-            expect(foundTerrain.some(t => t.hex.q === 1 && t.hex.r === 2)).toBe(true);
-            expect(foundTerrain.some(t => t.hex.q === 3 && t.hex.r === 4)).toBe(true);
-            expect(foundTerrain.some(t => t.hex.q === 5 && t.hex.r === 6)).toBe(true);
+            expect(foundTerrain.some(t => t.hex === hexOf(1, 2))).toBe(true);
+            expect(foundTerrain.some(t => t.hex === hexOf(3, 4))).toBe(true);
+            expect(foundTerrain.some(t => t.hex === hexOf(5, 6))).toBe(true);
         });
     });
 

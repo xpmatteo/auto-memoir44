@@ -205,14 +205,14 @@ describe("Moving units", () => {
         const moves = gameState.legalMoves();
         const moveToWoods = moves.find(m =>
             m instanceof MoveUnitMove &&
-            m.to.q === 6 && m.to.r === 5
+            m.to === hexOf(6, 5)
         );
         expect(moveToWoods).toBeDefined();
 
         // Should NOT be able to move THROUGH woods to (7,5)
         const moveThroughWoods = moves.find(m =>
             m instanceof MoveUnitMove &&
-            m.to.q === 7 && m.to.r === 5
+            m.to === hexOf(7, 5)
         );
         expect(moveThroughWoods).toBeUndefined();
     });
@@ -238,12 +238,12 @@ describe("Moving units", () => {
 
         // Can move to hedgerows
         expect(moves.some(m =>
-            m instanceof MoveUnitMove && m.to.q === 6 && m.to.r === 5
+            m instanceof MoveUnitMove && m.to === hexOf(6, 5)
         )).toBe(true);
 
         // Cannot reach hex beyond hedgerows via that path
         expect(moves.some(m =>
-            m instanceof MoveUnitMove && m.to.q === 7 && m.to.r === 5
+            m instanceof MoveUnitMove && m.to === hexOf(7, 5)
         )).toBe(false);
     });
 
@@ -274,7 +274,7 @@ describe("Moving units", () => {
 
             // Should NOT be able to move through stop-terrain
             const moveThroughTerrain = moves.find(m =>
-                m instanceof MoveUnitMove && m.to.q === 7 && m.to.r === 5
+                m instanceof MoveUnitMove && m.to === hexOf(7, 5)
             );
             expect(moveThroughTerrain, `${name} should block movement`).toBeUndefined();
         }
@@ -300,7 +300,7 @@ describe("Moving units", () => {
 
         // SHOULD be able to move through hill to reach (7,5)
         const moveThroughHill = moves.find(m =>
-            m instanceof MoveUnitMove && m.to.q === 7 && m.to.r === 5
+            m instanceof MoveUnitMove && m.to === hexOf(7, 5)
         );
         expect(moveThroughHill).toBeDefined();
     });
