@@ -10,6 +10,7 @@ import {BOARD_GEOMETRY} from "../BoardGeometry";
 import {Terrain} from "../terrain/Terrain";
 import {MoveUnitMove} from "../moves/MoveUnitMove";
 import {SituatedUnit} from "../SituatedUnit";
+import {CommandCard} from "../cards/CommandCard";
 
 // Declare which methods from GameState we actually need to do our job
 export interface UnitMover {
@@ -18,6 +19,8 @@ export interface UnitMover {
     getUnitAt(coord: HexCoord): Unit | undefined;
 
     getTerrain(coord: HexCoord): Terrain;
+
+    get activeCard(): CommandCard | null;
 }
 
 export class MovePhase extends Phase {
@@ -31,6 +34,7 @@ export class MovePhase extends Phase {
     doLegalMoves(unitMover: UnitMover): Array<Move> {
         const allUnits = unitMover.getAllUnits();
         const moves: Array<Move> = [];
+        const activeCard = unitMover.activeCard;
 
         for (const {coord, unit, unitState, terrain} of allUnits) {
             // Only consider ordered units that have not moved
@@ -42,7 +46,8 @@ export class MovePhase extends Phase {
             moves.push(new MoveUnitMove(coord, coord));
 
             // Use unit-specific movement range (infantry: 2, armor: 3)
-            let maxDistance = unit.maxMovementDistance();
+            // Allow active card to override the max movement distance
+            let maxDistance = activeCard ? activeCard.fixUnitMaxMovement(unit) : unit.maxMovementDistance();
 
             // If unit is in terrain requiring adjacent movement, limit to 1 hex
             if (terrain.requiresAdjacentMovement) {

@@ -11,6 +11,7 @@ import {BattlePhase} from "../phases/BattlePhase";
 import {ReplenishHandPhase} from "../phases/ReplenishHandPhase";
 import {ReplenishHandDrawTwoChooseOnePhase} from "../phases/ReplenishHandDrawTwoChooseOnePhase";
 import {BattleMove} from "../moves/BattleMove";
+import {Unit} from "../Unit";
 
 export const CardLocation = {
     DECK: "Deck",
@@ -55,6 +56,16 @@ export abstract class CommandCard {
     fixBattleMoves(moves: BattleMove[], _gameState: GameState): BattleMove[] {
         // Base implementation: do nothing, return moves as-is
         return moves;
+    }
+
+    fixUnitMaxMovement(unit: Unit): number {
+        // Base implementation: do nothing, return default
+        return unit.maxMovementDistance();
+    }
+
+    fixUnitMovementSkipsBattle(unit: Unit, distance: number): boolean {
+        // Base implementation: do nothing, return default
+        return unit.movementSkipsBattle(distance);
     }
 }
 

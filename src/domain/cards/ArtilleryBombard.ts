@@ -5,15 +5,14 @@ import {GameState} from "../GameState";
 import {ReplenishHandPhase} from "../phases/ReplenishHandPhase";
 import {BattlePhase} from "../phases/BattlePhase";
 import {MovePhase} from "../phases/MovePhase";
-import {UnitType} from "../Unit";
+import {Unit, UnitType} from "../Unit";
 import {OrderUnitsPhase} from "../phases/OrderUnitsPhase";
-import {BattleMove} from "../moves/BattleMove";
 import {CommandCard} from "./CommandCard";
 
 export class ArtilleryBombard extends CommandCard {
     readonly name = "Artillery Bombard";
     readonly imagePath = "images/cards/a1_artillery_bombard.png";
-    readonly howManyUnits = 1000;
+    readonly howManyUnits = 0;
 
     onCardPlayed(gameState: GameState): void {
         gameState.setCurrentCard(this.id);
@@ -28,7 +27,7 @@ export class ArtilleryBombard extends CommandCard {
             gameState.pushPhase(new MovePhase());
             gameState.pushPhase(new OrderUnitsPhase([{
                 predicate: su => su.unit.type === UnitType.ARTILLERY,
-                maxCount: this.howManyUnits
+                maxCount: 1000, // all
             }]));
         } else {
             // Fallback: if no armor units, allow ordering any 1 unit
@@ -36,15 +35,16 @@ export class ArtilleryBombard extends CommandCard {
             gameState.pushPhase(new MovePhase());
             gameState.pushPhase(new OrderUnitsPhase([{
                 predicate: () => true,
-                maxCount: 1
+                maxCount: 1,
             }]));
         }
     }
 
-    fixBattleMoves(moves: BattleMove[], gameState: GameState): BattleMove[] {
-        // Allow both ranged and close combat, but increase dice by 1 for close combat
-        return moves.map(move =>
-            move.isCloseCombat(gameState) ? move.increaseDice(1) : move
-        );
+    fixUnitMaxMovement(unit: Unit): number {
+        // Artillery moves up to 3 hexes
+        if (unit.type === UnitType.ARTILLERY) {
+            return 3;
+        }
+        return unit.maxMovementDistance();
     }
 }

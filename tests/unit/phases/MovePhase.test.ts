@@ -9,11 +9,13 @@ import {Side} from "../../../src/domain/Player";
 import {HexCoord, hexOf} from "../../../src/utils/hex";
 import {clearTerrain, Terrain, woodsTerrain, hedgerowsTerrain, hillTerrain, TownTerrain} from "../../../src/domain/terrain/Terrain";
 import {MoveUnitMove} from "../../../src/domain/moves/MoveUnitMove";
+import {CommandCard, ProbeCenter} from "../../../src/domain/cards/CommandCard";
 
 class FakeUnitMover {
     units = [] as Array<{ coord: HexCoord; unit: Unit; unitState: UnitState; terrain: Terrain }>;
     occupiedCoords = [] as HexCoord[];
     terrains = new Map<string, Terrain>();  // Terrain storage
+    private _activeCard: CommandCard | null = new ProbeCenter();  // Default card for testing
 
     setOrderedUnits(units: Array<{ coord: HexCoord; unit: Unit }>): FakeUnitMover {
         this.units = units.map(({coord, unit}) => ({
@@ -60,6 +62,10 @@ class FakeUnitMover {
     getTerrain(coord: HexCoord): Terrain {
         const key = `${coord.q},${coord.r}`;
         return this.terrains.get(key) || clearTerrain;
+    }
+
+    get activeCard(): CommandCard | null {
+        return this._activeCard;
     }
 }
 
