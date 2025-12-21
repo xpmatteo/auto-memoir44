@@ -34,6 +34,7 @@ export class GameState {
     private readonly terrainMap: TerrainMap;
     private readonly fortificationMap: FortificationMap;
     private readonly deferredTasks: DeferredTask[];
+    private gameEvents: GameEvent[] = []; // Store events for UI display
 
     constructor(
         deck: Deck,
@@ -64,6 +65,10 @@ export class GameState {
 
     get activePlayerHand(): CardLocation {
         return this.turnCoordinator.getActivePlayerIndex() === 0 ? CardLocation.BOTTOM_PLAYER_HAND : CardLocation.TOP_PLAYER_HAND;
+    }
+
+    get activePlayerHandSize(): number {
+        return this.deck.getCardsInLocation(this.activePlayerHand).length;
     }
 
     get sideTop() {
@@ -166,8 +171,29 @@ export class GameState {
         const events = move.execute(this);
         events.forEach(event => {
             console.log(`[Event] ${event.description}`);
+            this.gameEvents.push(event);
         });
+
+        // Limit stored events to last 100 to prevent unbounded memory growth
+        if (this.gameEvents.length > 100) {
+            this.gameEvents = this.gameEvents.slice(-100);
+        }
+
         return events;
+    }
+
+    /**
+     * Get all stored game events
+     */
+    getEvents(): GameEvent[] {
+        return this.gameEvents;
+    }
+
+    /**
+     * Get the most recent N events
+     */
+    getRecentEvents(count: number): GameEvent[] {
+        return this.gameEvents.slice(-count);
     }
 
     // -- Commands used when setting up the game
@@ -543,5 +569,9 @@ export class GameState {
         let temp = this.players[0];
         this.players[0] = this.players[1];
         this.players[1] = temp;
+    }
+
+    reshuffle() {
+        this.deck.shuffle();
     }
 }

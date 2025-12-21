@@ -42,11 +42,13 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
 }
 
 .board-wrapper {
     position: relative;
     display: inline-block;
+    flex-shrink: 0;
 }
 
 .board-canvas {
@@ -112,4 +114,84 @@ body {
 .move-button:active {
     transform: translateY(1px);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Event Log Styles */
+#event-log {
+    width: 350px;
+    max-height: 1417px; /* Match board height */
+    background: rgba(0, 0, 0, 0.6);
+    border: 2px solid #1f2937;
+    border-radius: 8px;
+    overflow-y: auto;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.event-entry {
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border-left: 3px solid #3b82f6;
+    border-radius: 4px;
+    color: #e5e7eb;
+    font-size: 13px;
+    line-height: 1.4;
+    word-wrap: break-word;
+}
+
+.event-placeholder {
+    padding: 20px;
+    text-align: center;
+    color: #9ca3af;
+    font-style: italic;
+    font-size: 14px;
+}
+
+/* Color-coded event types */
+.event-battle {
+    border-left-color: #ef4444;
+    background: rgba(239, 68, 68, 0.08);
+}
+
+.event-medal {
+    border-left-color: #fbbf24;
+    background: rgba(251, 191, 36, 0.08);
+}
+
+.event-move {
+    border-left-color: #3b82f6;
+    background: rgba(59, 130, 246, 0.08);
+}
+
+.event-card {
+    border-left-color: #8b5cf6;
+    background: rgba(139, 92, 246, 0.08);
+}
+
+.event-game-over {
+    border-left-color: #10b981;
+    background: rgba(16, 185, 129, 0.08);
+    font-weight: 600;
+}
+
+/* Custom scrollbar for event log */
+#event-log::-webkit-scrollbar {
+    width: 8px;
+}
+
+#event-log::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+}
+
+#event-log::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+}
+
+#event-log::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
 }

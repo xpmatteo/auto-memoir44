@@ -31,6 +31,7 @@ import {loadScenario, getDefaultScenario} from "./scenarios/index.js";
 import {HandDisplay} from "./ui/components/HandDisplay.js";
 import {CurrentCardDisplay} from "./ui/components/CurrentCardDisplay.js";
 import {MoveButtons} from "./ui/components/MoveButtons.js";
+import {EventLog} from "./ui/components/EventLog.js";
 import {GameState} from "./domain/GameState.js";
 import {CanvasClickHandler} from "./ui/input/CanvasClickHandler.js";
 import {uiState} from "./ui/UIState.js";
@@ -130,11 +131,15 @@ async function start() {
     // Create move buttons component
     const moveButtons = new MoveButtons(gameState);
 
-    // Create a container for the current card display and the board
+    // Create event log component
+    const eventLog = new EventLog(gameState);
+
+    // Create a container for the current card display, board, and event log
     const gameBoardContainer = document.createElement("div");
     gameBoardContainer.id = "game-board-container";
     gameBoardContainer.appendChild(currentCardDisplay.getElement());
     gameBoardContainer.appendChild(wrapper);
+    gameBoardContainer.appendChild(eventLog.getElement());
 
     // Mount move buttons before the game board (at top)
     moveButtons.mount(app);
@@ -292,6 +297,7 @@ async function start() {
         handDisplay.render();
         currentCardDisplay.render();
         moveButtons.render();
+        eventLog.render();
         await renderCanvas();
         checkForStuckState();
     };
