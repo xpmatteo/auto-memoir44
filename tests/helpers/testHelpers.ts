@@ -10,6 +10,7 @@ import {resetUnitIdCounter} from "../../src/domain/Unit";
 import {CardLocation} from "../../src/domain/cards/CommandCard";
 import {parseAndSetupUnits} from "../../src/scenarios/Scenario";
 import {SituatedUnit} from "../../src/domain/SituatedUnit";
+import {hexOf} from "../../src/utils/hex";
 
 /**
  * Create a GameState with a standard deck and default dice for testing
@@ -50,7 +51,8 @@ export function setupGameForCommandCardTests(
 
 export function getUnitAt(gameState: GameState, q: number, r: number): SituatedUnit {
     const allUnits = gameState.getAllUnits();
-    const found = allUnits.find(su => su.coord.q === q && su.coord.r === r);
+    const targetHex = hexOf(q, r);
+    const found = allUnits.find(su => su.coord === targetHex);
     if (!found) {
         throw new Error(`No unit at (${q},${r})`);
     }

@@ -41,20 +41,20 @@ export class UIState {
     }
 
     isDestinationValid(hex: HexCoord): boolean {
-        return this.validDestinations.some(dest => dest.q === hex.q && dest.r === hex.r);
+        return this.validDestinations.some(dest => dest === hex);
     }
 
     isBattleTargetValid(hex: HexCoord): boolean {
-        return this.validBattleTargets.some(target => target.coord.q === hex.q && target.coord.r === hex.r);
+        return this.validBattleTargets.some(target => target.coord === hex);
     }
 
     getBattleTargetDice(hex: HexCoord): number | null {
-        const target = this.validBattleTargets.find(t => t.coord.q === hex.q && t.coord.r === hex.r);
+        const target = this.validBattleTargets.find(t => t.coord === hex);
         return target ? target.dice : null;
     }
 
     isRetreatHexValid(hex: HexCoord): boolean {
-        return this.validRetreatHexes.some(retreat => retreat.q === hex.q && retreat.r === hex.r);
+        return this.validRetreatHexes.some(retreat => retreat === hex);
     }
 }
 

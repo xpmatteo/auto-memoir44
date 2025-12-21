@@ -486,8 +486,7 @@ export class ConsoleAPI {
 
         // Check if clicking on the currently selected unit - deselect it
         if (this.uiState.selectedUnit && this.uiState.selectedUnitLocation &&
-            hexCoord.q === this.uiState.selectedUnitLocation.q &&
-            hexCoord.r === this.uiState.selectedUnitLocation.r) {
+            hexCoord === this.uiState.selectedUnitLocation) {
             this.uiState.clearSelection();
             this.renderCallback().catch(err => console.error("Render error:", err));
             return {
@@ -526,8 +525,7 @@ export class ConsoleAPI {
             const validMovesForUnit = legalMoves.filter(
                 (m) =>
                     m instanceof MoveUnitMove &&
-                    m.from.q === hexCoord.q &&
-                    m.from.r === hexCoord.r
+                    m.from === hexCoord
             ) as MoveUnitMove[];
 
             if (validMovesForUnit.length > 0) {
@@ -637,8 +635,7 @@ export class ConsoleAPI {
         const legalMoves = this.gameState.legalMoves();
         const retreatMove = legalMoves.find(
             m => m instanceof RetreatMove &&
-                 m.to.q === hexCoord.q &&
-                 m.to.r === hexCoord.r
+                 m.to === hexCoord
         ) as RetreatMove | undefined;
 
         if (retreatMove) {
@@ -663,8 +660,7 @@ export class ConsoleAPI {
         const legalMoves = this.gameState.legalMoves();
         const takeGroundMove = legalMoves.find(
             m => m instanceof TakeGroundMove &&
-                 m.toHex.q === hexCoord.q &&
-                 m.toHex.r === hexCoord.r
+                 m.toHex === hexCoord
         ) as TakeGroundMove | undefined;
 
         if (takeGroundMove) {

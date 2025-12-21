@@ -114,8 +114,7 @@ export class CanvasClickHandler {
             const validMovesForUnit = legalMoves.filter(
                 (m) =>
                     m instanceof MoveUnitMove &&
-                    m.from.q === hexCoord.q &&
-                    m.from.r === hexCoord.r
+                    m.from === hexCoord
             ) as MoveUnitMove[];
 
             if (validMovesForUnit.length > 0) {
@@ -210,8 +209,7 @@ export class CanvasClickHandler {
         const legalMoves = this.gameState.legalMoves();
         const retreatMove = legalMoves.find(
             m => m instanceof RetreatMove &&
-                 m.to.q === hexCoord.q &&
-                 m.to.r === hexCoord.r
+                 m.to === hexCoord
         ) as RetreatMove | undefined;
 
         if (retreatMove) {
@@ -230,8 +228,7 @@ export class CanvasClickHandler {
         const legalMoves = this.gameState.legalMoves();
         const takeGroundMove = legalMoves.find(
             m => m instanceof TakeGroundMove &&
-                 m.toHex.q === hexCoord.q &&
-                 m.toHex.r === hexCoord.r
+                 m.toHex === hexCoord
         ) as TakeGroundMove | undefined;
 
         if (takeGroundMove) {
@@ -257,8 +254,7 @@ export class CanvasClickHandler {
         // Check if this is a select or unselect move
         const selectMove = legalMoves.find(
             m => (m instanceof SelectTargetMove || m instanceof UnSelectTargetMove) &&
-                 m.unit.coord.q === hexCoord.q &&
-                 m.unit.coord.r === hexCoord.r
+                 m.unit.coord === hexCoord
         );
 
         if (selectMove) {

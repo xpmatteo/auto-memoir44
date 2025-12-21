@@ -80,7 +80,7 @@ export class BattlePhase extends Phase {
                         const isBlocked = (hexCoord: HexCoord): boolean => {
                             // Check if there's a unit at this hex
                             const unitAtHex = allUnits.find(({coord}) =>
-                                coord.q === hexCoord.q && coord.r === hexCoord.r
+                                coord === hexCoord
                             );
                             if (unitAtHex) {
                                 return true;
