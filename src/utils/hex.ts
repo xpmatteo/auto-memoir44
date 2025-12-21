@@ -19,6 +19,11 @@ export type GridConfig = {
 
 const KEY_BUILDER = 1024;
 
+function key(q: number, r: number): HexCoordKey {
+    // adding KEY_BUILDER/2 to account for negative q
+    return (q + KEY_BUILDER / 2 + r * KEY_BUILDER) as HexCoordKey;
+}
+
 export class HexCoord {
     constructor(public q: number, public r: number) {
     }
@@ -53,12 +58,11 @@ export class HexCoord {
     }
 
     key(): HexCoordKey {
-        // adding KEY_BUILDER/2 to account for negative q
-        return (this.q + KEY_BUILDER/2 + this.r * KEY_BUILDER) as HexCoordKey;
+        return key(this.q, this.r);
     }
 
     static from(key: HexCoordKey) {
-        return hexOf(key % KEY_BUILDER - KEY_BUILDER/2, Math.trunc(key / KEY_BUILDER));
+        return hexOf(key % KEY_BUILDER - KEY_BUILDER / 2, Math.trunc(key / KEY_BUILDER));
     }
 
     isNorthOf(otherHex: HexCoord) {
@@ -73,11 +77,11 @@ export class HexCoord {
         return this.q - otherHex.q === -2 && this.r - otherHex.r === 1;
     }
 
-    northernNeighbors() : [HexCoord, HexCoord] {
+    northernNeighbors(): [HexCoord, HexCoord] {
         return [this.northwest(), this.northeast()];
     }
 
-    southernNeighbors() : [HexCoord, HexCoord] {
+    southernNeighbors(): [HexCoord, HexCoord] {
         return [this.southwest(), this.southeast()];
     }
 }
@@ -87,8 +91,14 @@ export type CanvasCoord = {
     y: number;
 };
 
+const ALL_HEXES: HexCoord[] = [];
+
 export function hexOf(q: number, r: number): HexCoord {
-    return new HexCoord(q, r);
+    const theKey = key(q, r);
+    if (!ALL_HEXES[theKey]) {
+        ALL_HEXES[theKey] = new HexCoord(q, r);
+    }
+    return ALL_HEXES[theKey];
 }
 
 /**
