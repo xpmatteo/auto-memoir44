@@ -228,6 +228,11 @@ export class GameState {
         return this.board.getFriendlyUnits(this.activePlayer.side);
     }
 
+    getFriendlySituatedUnits(): Array<SituatedUnit> {
+        const allUnits = this.getAllUnits();
+        return allUnits.filter(su => su.unit.side === this.activePlayer.side);
+    }
+
     getEnemyUnits(): Array<SituatedUnit> {
         const allUnits = this.getAllUnits();
         return allUnits.filter(su => su.unit.side !== this.activePlayer.side);
