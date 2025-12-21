@@ -10,9 +10,10 @@ import {hexOf} from '../../../src/utils/hex';
 import {Infantry} from '../../../src/domain/Unit';
 import {Side} from '../../../src/domain/Player';
 import {PlayCardPhase} from '../../../src/domain/phases/PlayCardPhase';
-import {OrderUnitsPhase} from '../../../src/domain/phases/OrderUnitsPhase';
+import {GeneralOrderUnitsPhase} from '../../../src/domain/phases/GeneralOrderUnitsPhase';
 import {MovePhase} from '../../../src/domain/phases/MovePhase';
-import {Section} from '../../../src/domain/Section';
+import {Section, isHexInSection} from '../../../src/domain/Section';
+import {SituatedUnit} from '../../../src/domain/SituatedUnit';
 
 describe('ConsoleAPI', () => {
     let gameState: GameState;
@@ -70,7 +71,12 @@ describe('ConsoleAPI', () => {
             test.each(cases)('$name', async ({q, r, wantSuccess, wantMessageContains}) => {
                 // Set up ORDER phase for this test
                 gameState.replacePhase(
-                    new OrderUnitsPhase([Section.LEFT, Section.CENTER, Section.RIGHT], 10)
+                    new GeneralOrderUnitsPhase(
+                    [Section.LEFT, Section.CENTER, Section.RIGHT].map(section => ({
+                        predicate: (su: SituatedUnit) => isHexInSection(su.coord, section, gameState.activePlayer.position),
+                        maxCount: 10
+                    }))
+                )
                 );
 
                 const result = await consoleAPI.clickHex(q, r);
@@ -85,7 +91,12 @@ describe('ConsoleAPI', () => {
             const coord = hexOf(5, 3);
             gameState.placeUnit(coord, unit);
             gameState.replacePhase(
-                new OrderUnitsPhase([Section.LEFT, Section.CENTER, Section.RIGHT], 10)
+                new GeneralOrderUnitsPhase(
+                    [Section.LEFT, Section.CENTER, Section.RIGHT].map(section => ({
+                        predicate: (su: SituatedUnit) => isHexInSection(su.coord, section, gameState.activePlayer.position),
+                        maxCount: 10
+                    }))
+                )
             );
 
             const result = await consoleAPI.clickHex(5, 3);
@@ -165,7 +176,12 @@ describe('ConsoleAPI', () => {
         test('returns error when not in PlayCard phase', async () => {
             // Change to a different phase
             gameState.replacePhase(
-                new OrderUnitsPhase([Section.LEFT, Section.CENTER, Section.RIGHT], 10)
+                new GeneralOrderUnitsPhase(
+                    [Section.LEFT, Section.CENTER, Section.RIGHT].map(section => ({
+                        predicate: (su: SituatedUnit) => isHexInSection(su.coord, section, gameState.activePlayer.position),
+                        maxCount: 10
+                    }))
+                )
             );
 
             const result = await consoleAPI.playCard('any-card-id');
@@ -180,7 +196,12 @@ describe('ConsoleAPI', () => {
         test('presses Confirm Orders button', async () => {
             // Setup: Enter ORDER phase
             gameState.replacePhase(
-                new OrderUnitsPhase([Section.LEFT, Section.CENTER, Section.RIGHT], 10)
+                new GeneralOrderUnitsPhase(
+                    [Section.LEFT, Section.CENTER, Section.RIGHT].map(section => ({
+                        predicate: (su: SituatedUnit) => isHexInSection(su.coord, section, gameState.activePlayer.position),
+                        maxCount: 10
+                    }))
+                )
             );
 
             const result = await consoleAPI.pressButton('Confirm Orders');
@@ -224,7 +245,12 @@ describe('ConsoleAPI', () => {
 
         test('button press is case insensitive', async () => {
             gameState.replacePhase(
-                new OrderUnitsPhase([Section.LEFT, Section.CENTER, Section.RIGHT], 10)
+                new GeneralOrderUnitsPhase(
+                    [Section.LEFT, Section.CENTER, Section.RIGHT].map(section => ({
+                        predicate: (su: SituatedUnit) => isHexInSection(su.coord, section, gameState.activePlayer.position),
+                        maxCount: 10
+                    }))
+                )
             );
 
             const result = await consoleAPI.pressButton('confirm orders');
@@ -248,7 +274,12 @@ describe('ConsoleAPI', () => {
             const unit = new Infantry(Side.ALLIES, 4);
             gameState.placeUnit(hexOf(5, 3), unit);
             gameState.replacePhase(
-                new OrderUnitsPhase([Section.LEFT, Section.CENTER, Section.RIGHT], 10)
+                new GeneralOrderUnitsPhase(
+                    [Section.LEFT, Section.CENTER, Section.RIGHT].map(section => ({
+                        predicate: (su: SituatedUnit) => isHexInSection(su.coord, section, gameState.activePlayer.position),
+                        maxCount: 10
+                    }))
+                )
             );
             await consoleAPI.clickHex(5, 3);
             expect(renderCallCount).toBeGreaterThan(renderCountAfterCard);

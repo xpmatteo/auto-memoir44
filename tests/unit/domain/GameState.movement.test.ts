@@ -8,8 +8,9 @@ import {Infantry} from "../../../src/domain/Unit";
 import {Side} from "../../../src/domain/Player";
 import {hexOf} from "../../../src/utils/hex";
 import {CardLocation} from "../../../src/domain/cards/CommandCard";
-import {OrderUnitsPhase} from "../../../src/domain/phases/OrderUnitsPhase";
-import {Section} from "../../../src/domain/Section";
+import {GeneralOrderUnitsPhase} from "../../../src/domain/phases/GeneralOrderUnitsPhase";
+import {Section, isHexInSection} from "../../../src/domain/Section";
+import {SituatedUnit} from "../../../src/domain/SituatedUnit";
 
 describe("GameState movement tracking", () => {
     it("should mark a unit as moved", () => {
@@ -50,7 +51,12 @@ describe("GameState movement tracking", () => {
 
         // Set up and complete turn
         gameState.setCurrentCard(card.id);
-        gameState.replacePhase(new OrderUnitsPhase([Section.CENTER], 1));
+        const playerPosition = gameState.activePlayer.position;
+        const slots = [Section.CENTER].map(section => ({
+            predicate: (su: SituatedUnit) => isHexInSection(su.coord, section, playerPosition),
+            maxCount: 1
+        }));
+        gameState.replacePhase(new GeneralOrderUnitsPhase(slots));
         gameState.popPhase();
 
         expect(gameState.isUnitMoved(unit)).toBe(false);
@@ -113,7 +119,12 @@ describe("GameState battle restriction tracking", () => {
 
         // Set up and complete turn
         gameState.setCurrentCard(card.id);
-        gameState.replacePhase(new OrderUnitsPhase([Section.CENTER], 1));
+        const playerPosition = gameState.activePlayer.position;
+        const slots = [Section.CENTER].map(section => ({
+            predicate: (su: SituatedUnit) => isHexInSection(su.coord, section, playerPosition),
+            maxCount: 1
+        }));
+        gameState.replacePhase(new GeneralOrderUnitsPhase(slots));
         gameState.popPhase();
 
         expect(gameState.unitSkipsBattle(unit)).toBe(false);

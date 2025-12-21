@@ -2,9 +2,10 @@
 // ABOUTME: Cards can be in Deck, DiscardPile, or either player's hand
 
 import {GameState} from "../GameState";
-import {Section} from "../Section";
+import {isHexInSection, Section} from "../Section";
+import {SituatedUnit} from "../SituatedUnit";
 
-import {OrderUnitsPhase} from "../phases/OrderUnitsPhase";
+import {GeneralOrderUnitsPhase} from "../phases/GeneralOrderUnitsPhase";
 import {MovePhase} from "../phases/MovePhase";
 import {BattlePhase} from "../phases/BattlePhase";
 import {ReplenishHandPhase} from "../phases/ReplenishHandPhase";
@@ -44,7 +45,11 @@ export abstract class CommandCard {
         gameState.replacePhase(new ReplenishHandPhase());
         gameState.pushPhase(new BattlePhase());
         gameState.pushPhase(new MovePhase());
-        gameState.pushPhase(new OrderUnitsPhase(this.sections, this.howManyUnits));
+
+        gameState.pushPhase(new GeneralOrderUnitsPhase(this.sections.map(section => ({
+            predicate: (su: SituatedUnit) => isHexInSection(su.coord, section, gameState.activePlayer.position),
+            maxCount: this.howManyUnits
+        }))));
     }
 
     fixBattleMoves(moves: BattleMove[], _gameState: GameState): BattleMove[] {
@@ -140,7 +145,11 @@ function onReconCardPlayed(card: CommandCard, gameState: GameState): void {
     gameState.replacePhase(new ReplenishHandDrawTwoChooseOnePhase());
     gameState.pushPhase(new BattlePhase());
     gameState.pushPhase(new MovePhase());
-    gameState.pushPhase(new OrderUnitsPhase(card.sections, card.howManyUnits));
+
+    gameState.pushPhase(new GeneralOrderUnitsPhase(card.sections.map(section => ({
+        predicate: (su: SituatedUnit) => isHexInSection(su.coord, section, gameState.activePlayer.position),
+        maxCount: card.howManyUnits
+    }))));
 }
 
 export class ReconCenter extends CommandCard {

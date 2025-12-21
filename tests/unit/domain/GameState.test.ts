@@ -17,8 +17,9 @@ import {
     EndBattlesMove,
     Move
 } from "../../../src/domain/moves/Move";
-import {OrderUnitsPhase} from "../../../src/domain/phases/OrderUnitsPhase";
-import {Section} from "../../../src/domain/Section";
+import {GeneralOrderUnitsPhase} from "../../../src/domain/phases/GeneralOrderUnitsPhase";
+import {Section, isHexInSection} from "../../../src/domain/Section";
+import {SituatedUnit} from "../../../src/domain/SituatedUnit";
 import {clearTerrain, hillTerrain, woodsTerrain} from "../../../src/domain/terrain/Terrain";
 import {Phase, PhaseType} from "../../../src/domain/phases/Phase";
 import {MoveUnitMove} from "../../../src/domain/moves/MoveUnitMove";
@@ -510,8 +511,13 @@ describe("GameState", () => {
 
             // Set up a card and push extra phases
             gameState.setCurrentCard(card.id);
-            gameState.replacePhase(new OrderUnitsPhase([Section.CENTER], 1));
-            gameState.pushPhase(new OrderUnitsPhase([Section.CENTER], 1));
+            const playerPosition = gameState.activePlayer.position;
+            const slots = [Section.CENTER].map(section => ({
+                predicate: (su: SituatedUnit) => isHexInSection(su.coord, section, playerPosition),
+                maxCount: 1
+            }));
+            gameState.replacePhase(new GeneralOrderUnitsPhase(slots));
+            gameState.pushPhase(new GeneralOrderUnitsPhase(slots));
 
             const initialPlayer = gameState.activePlayer.position;
 
