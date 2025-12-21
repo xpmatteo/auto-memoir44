@@ -2,8 +2,8 @@ import {GameState} from "../GameState";
 import {ReplenishHandPhase} from "../phases/ReplenishHandPhase";
 import {BattlePhase} from "../phases/BattlePhase";
 import {MovePhase} from "../phases/MovePhase";
-import {OrderUnitsByPredicatePhase} from "../phases/OrderUnitsByPredicatePhase";
-import {Unit, UnitType} from "../Unit";
+import {GeneralOrderUnitsPhase} from "../phases/GeneralOrderUnitsPhase";
+import {UnitType} from "../Unit";
 import {CommandCard} from "./CommandCard";
 
 export class MoveOut extends CommandCard {
@@ -22,17 +22,17 @@ export class MoveOut extends CommandCard {
         const hasInfantryUnits = friendlyUnits.some(unit => unit.type === UnitType.INFANTRY);
 
         if (hasInfantryUnits) {
-            // Predicate: unit must be Infantry
-            const predicate = (unit: Unit): boolean => {
-                return unit.type === UnitType.INFANTRY;
-            };
-            gameState.pushPhase(new OrderUnitsByPredicatePhase(this.howManyUnits, predicate));
+            // Order up to 4 infantry units
+            gameState.pushPhase(new GeneralOrderUnitsPhase([{
+                predicate: su => su.unit.type === UnitType.INFANTRY,
+                maxCount: this.howManyUnits
+            }]));
         } else {
             // Fallback: if no infantry units, allow ordering any 1 unit
-            const predicate = (_unit: Unit): boolean => {
-                return true; // Any unit is eligible
-            };
-            gameState.pushPhase(new OrderUnitsByPredicatePhase(1, predicate));
+            gameState.pushPhase(new GeneralOrderUnitsPhase([{
+                predicate: () => true,
+                maxCount: 1
+            }]));
         }
     }
 }

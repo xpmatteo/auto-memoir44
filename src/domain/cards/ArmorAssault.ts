@@ -5,8 +5,8 @@ import {GameState} from "../GameState";
 import {ReplenishHandPhase} from "../phases/ReplenishHandPhase";
 import {BattlePhase} from "../phases/BattlePhase";
 import {MovePhase} from "../phases/MovePhase";
-import {Unit, UnitType} from "../Unit";
-import {OrderUnitsByPredicatePhase} from "../phases/OrderUnitsByPredicatePhase";
+import {UnitType} from "../Unit";
+import {GeneralOrderUnitsPhase} from "../phases/GeneralOrderUnitsPhase";
 import {BattleMove} from "../moves/BattleMove";
 import {CommandCard} from "./CommandCard";
 
@@ -26,17 +26,17 @@ export class ArmorAssault extends CommandCard {
         const hasArmorUnits = friendlyUnits.some(unit => unit.type === UnitType.ARMOR);
 
         if (hasArmorUnits) {
-            // Predicate: unit must be Armor
-            const predicate = (unit: Unit): boolean => {
-                return unit.type === UnitType.ARMOR;
-            };
-            gameState.pushPhase(new OrderUnitsByPredicatePhase(this.howManyUnits, predicate));
+            // Order up to 4 armor units
+            gameState.pushPhase(new GeneralOrderUnitsPhase([{
+                predicate: su => su.unit.type === UnitType.ARMOR,
+                maxCount: this.howManyUnits
+            }]));
         } else {
             // Fallback: if no armor units, allow ordering any 1 unit
-            const predicate = (_unit: Unit): boolean => {
-                return true; // Any unit is eligible
-            };
-            gameState.pushPhase(new OrderUnitsByPredicatePhase(1, predicate));
+            gameState.pushPhase(new GeneralOrderUnitsPhase([{
+                predicate: () => true,
+                maxCount: 1
+            }]));
         }
     }
 

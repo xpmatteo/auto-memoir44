@@ -1,5 +1,5 @@
 // ABOUTME: Phase for ordering units for Dig In card
-// ABOUTME: Similar to OrderUnitsByPredicatePhase but uses ConfirmDigInMove and checks fortifications
+// ABOUTME: Similar to GeneralOrderUnitsPhase but uses ConfirmDigInMove and checks fortifications
 
 import {Unit} from "../Unit";
 import {GameState} from "../GameState";

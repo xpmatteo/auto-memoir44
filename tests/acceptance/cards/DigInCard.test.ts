@@ -15,7 +15,7 @@ describe("Dig In card", () => {
 
     describe("Normal mode - has eligible infantry", () => {
 
-        test('Can order up to 4 infantry units', () => {
+        test('Can order more than 3 infantry units', () => {
             const unitSetup = [
                 "   0   1   2   3   4   5   6   7   8   9  10  11  12",
                 "....    ....    ....    ....    ....    ....    ....",
@@ -29,15 +29,47 @@ describe("Dig In card", () => {
                 "....    ....    ....    ....    ....    ....    ....",
             ];
             const gameState = setupGameForCommandCardTests(unitSetup, DigIn);
+            gameState.executeMove(new OrderUnitMove(gameState.getUnitAt(hexOf(-1, 6))!));
+            gameState.executeMove(new OrderUnitMove(gameState.getUnitAt(hexOf(0, 6))!));
+            gameState.executeMove(new OrderUnitMove(gameState.getUnitAt(hexOf(1, 6))!));
 
             const legalMoves = gameState.legalMoves().map(m => m.toString()).sort();
             expect(legalMoves).toEqual([
                 "ConfirmDigInMove",
-                "OrderUnitMove(unit-2/Allies)",
-                "OrderUnitMove(unit-3/Allies)",
-                "OrderUnitMove(unit-4/Allies)",
+                "UnOrderMove(unit-2/Allies)",
+                "UnOrderMove(unit-3/Allies)",
+                "UnOrderMove(unit-4/Allies)",
                 "OrderUnitMove(unit-5/Allies)",
                 "OrderUnitMove(unit-6/Allies)",
+            ].sort());
+        });
+
+        test('Can nax four infantry units', () => {
+            const unitSetup = [
+                "   0   1   2   3   4   5   6   7   8   9  10  11  12",
+                "....    ....    ....    ....    ....    ....    ....",
+                "~~....    ....    ....    ....    ....    ....    ~~",
+                "....    ....    ....    ....    ....    ....    ....",
+                "~~....    ....    ....    ....    ....    ....    ~~",
+                "....    ....    ....    ....    ....    ....    ....",
+                "~~....    ....    ....    .ar.    ....    ....    ~~",
+                "....    .IN. IN .IN. IN .IN. AR ....    ....    ....",
+                "~~....    ....    ....    ....    ....    ....    ~~",
+                "....    ....    ....    ....    ....    ....    ....",
+            ];
+            const gameState = setupGameForCommandCardTests(unitSetup, DigIn);
+            gameState.executeMove(new OrderUnitMove(gameState.getUnitAt(hexOf(-1, 6))!));
+            gameState.executeMove(new OrderUnitMove(gameState.getUnitAt(hexOf(0, 6))!));
+            gameState.executeMove(new OrderUnitMove(gameState.getUnitAt(hexOf(1, 6))!));
+            gameState.executeMove(new OrderUnitMove(gameState.getUnitAt(hexOf(2, 6))!));
+
+            const legalMoves = gameState.legalMoves().map(m => m.toString()).sort();
+            expect(legalMoves).toEqual([
+                "ConfirmDigInMove",
+                "UnOrderMove(unit-2/Allies)",
+                "UnOrderMove(unit-3/Allies)",
+                "UnOrderMove(unit-4/Allies)",
+                "UnOrderMove(unit-5/Allies)",
             ].sort());
         });
 
