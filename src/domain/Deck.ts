@@ -26,6 +26,7 @@ import {AirPower} from "./cards/AirPower";
 import {Barrage} from "./cards/Barrage";
 import {DigIn} from "./cards/DigIn";
 import {ArtilleryBombard} from "./cards/ArtilleryBombard";
+import {TheirFinestHour} from "./cards/TheirFinestHour";
 
 export class Deck {
     private locations: Map<CardLocation, CommandCard[]>;
@@ -168,8 +169,6 @@ export class Deck {
 
         Ambush (1)
 
-        Their Finest Hour (1)
-
         Behind Enemy Lines (1)
 
         Counter-Attack (2)
@@ -209,6 +208,7 @@ export class Deck {
             [Barrage, 1],
             [DigIn, 1],
             [ArtilleryBombard, 1],
+            [TheirFinestHour, 100],
         ], rng);
     }
 
