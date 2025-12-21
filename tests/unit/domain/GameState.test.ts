@@ -17,7 +17,7 @@ import {
     EndBattlesMove,
     Move
 } from "../../../src/domain/moves/Move";
-import {GeneralOrderUnitsPhase} from "../../../src/domain/phases/GeneralOrderUnitsPhase";
+import {OrderUnitsPhase} from "../../../src/domain/phases/OrderUnitsPhase";
 import {Section, isHexInSection} from "../../../src/domain/Section";
 import {SituatedUnit} from "../../../src/domain/SituatedUnit";
 import {clearTerrain, hillTerrain, woodsTerrain} from "../../../src/domain/terrain/Terrain";
@@ -516,8 +516,8 @@ describe("GameState", () => {
                 predicate: (su: SituatedUnit) => isHexInSection(su.coord, section, playerPosition),
                 maxCount: 1
             }));
-            gameState.replacePhase(new GeneralOrderUnitsPhase(slots));
-            gameState.pushPhase(new GeneralOrderUnitsPhase(slots));
+            gameState.replacePhase(new OrderUnitsPhase(slots));
+            gameState.pushPhase(new OrderUnitsPhase(slots));
 
             const initialPlayer = gameState.activePlayer.position;
 

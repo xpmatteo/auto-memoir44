@@ -2,7 +2,7 @@ import {GameState} from "../GameState";
 import {ReplenishHandPhase} from "../phases/ReplenishHandPhase";
 import {BattlePhase} from "../phases/BattlePhase";
 import {MovePhase} from "../phases/MovePhase";
-import {GeneralOrderUnitsPhase} from "../phases/GeneralOrderUnitsPhase";
+import {OrderUnitsPhase} from "../phases/OrderUnitsPhase";
 import {CommandCard} from "./CommandCard";
 
 export class DirectFromHQ extends CommandCard {
@@ -15,7 +15,7 @@ export class DirectFromHQ extends CommandCard {
         gameState.replacePhase(new ReplenishHandPhase());
         gameState.pushPhase(new BattlePhase());
         gameState.pushPhase(new MovePhase());
-        gameState.pushPhase(new GeneralOrderUnitsPhase([{
+        gameState.pushPhase(new OrderUnitsPhase([{
             predicate: () => true,
             maxCount: this.howManyUnits
         }]));

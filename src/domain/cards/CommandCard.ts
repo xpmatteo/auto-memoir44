@@ -5,7 +5,7 @@ import {GameState} from "../GameState";
 import {isHexInSection, Section} from "../Section";
 import {SituatedUnit} from "../SituatedUnit";
 
-import {GeneralOrderUnitsPhase} from "../phases/GeneralOrderUnitsPhase";
+import {OrderUnitsPhase} from "../phases/OrderUnitsPhase";
 import {MovePhase} from "../phases/MovePhase";
 import {BattlePhase} from "../phases/BattlePhase";
 import {ReplenishHandPhase} from "../phases/ReplenishHandPhase";
@@ -46,7 +46,7 @@ export abstract class CommandCard {
         gameState.pushPhase(new BattlePhase());
         gameState.pushPhase(new MovePhase());
 
-        gameState.pushPhase(new GeneralOrderUnitsPhase(this.sections.map(section => ({
+        gameState.pushPhase(new OrderUnitsPhase(this.sections.map(section => ({
             predicate: (su: SituatedUnit) => isHexInSection(su.coord, section, gameState.activePlayer.position),
             maxCount: this.howManyUnits
         }))));
@@ -146,7 +146,7 @@ function onReconCardPlayed(card: CommandCard, gameState: GameState): void {
     gameState.pushPhase(new BattlePhase());
     gameState.pushPhase(new MovePhase());
 
-    gameState.pushPhase(new GeneralOrderUnitsPhase(card.sections.map(section => ({
+    gameState.pushPhase(new OrderUnitsPhase(card.sections.map(section => ({
         predicate: (su: SituatedUnit) => isHexInSection(su.coord, section, gameState.activePlayer.position),
         maxCount: card.howManyUnits
     }))));

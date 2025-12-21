@@ -27,7 +27,7 @@ export interface UnitsProvider {
     getFriendlySituatedUnits(): SituatedUnit[];
 }
 
-export class GeneralOrderUnitsPhase extends Phase {
+export class OrderUnitsPhase extends Phase {
     readonly name: string = "Order Units";
     readonly type = PhaseType.ORDER;
     private readonly slots: OrderSlot[];

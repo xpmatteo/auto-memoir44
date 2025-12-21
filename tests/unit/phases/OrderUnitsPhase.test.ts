@@ -1,11 +1,11 @@
-// ABOUTME: Unit tests for GeneralOrderUnitsPhase
+// ABOUTME: Unit tests for OrderUnitsPhase
 // ABOUTME: Tests slot-based ordering with constraint propagation for overlapping predicates
 
 import {describe, expect, test} from "vitest";
 import {ConfirmOrdersMove, OrderUnitMove, UnOrderMove} from "../../../src/domain/moves/Move";
 import {Armor, Artillery, Infantry, UnitType} from "../../../src/domain/Unit";
 import {Side} from "../../../src/domain/Player";
-import {GeneralOrderUnitsPhase, OrderSlot, UnitsProvider} from "../../../src/domain/phases/GeneralOrderUnitsPhase";
+import {OrderUnitsPhase, OrderSlot, UnitsProvider} from "../../../src/domain/phases/OrderUnitsPhase";
 import {SituatedUnit, situatedUnit} from "../../../src/domain/SituatedUnit";
 
 function makeProvider(units: SituatedUnit[]): UnitsProvider {
@@ -86,7 +86,7 @@ describe("GeneralOrderUnitsPhase", () => {
                 predicate: () => true,
                 maxCount
             }];
-            const phase = new GeneralOrderUnitsPhase(slots);
+            const phase = new OrderUnitsPhase(slots);
 
             const moves = phase.doLegalMoves(provider);
 
@@ -121,7 +121,7 @@ describe("GeneralOrderUnitsPhase", () => {
                 {predicate: su => su.unit.type === UnitType.INFANTRY, maxCount: 1},
                 {predicate: su => su.unit.type === UnitType.ARMOR, maxCount: 1},
             ];
-            const phase = new GeneralOrderUnitsPhase(slots);
+            const phase = new OrderUnitsPhase(slots);
             const provider = makeProvider(units);
 
             const moves = phase.doLegalMoves(provider);
@@ -145,7 +145,7 @@ describe("GeneralOrderUnitsPhase", () => {
                 {predicate: su => su.unit.type === UnitType.INFANTRY, maxCount: 1},
                 {predicate: su => su.unit.type === UnitType.ARMOR, maxCount: 1},
             ];
-            const phase = new GeneralOrderUnitsPhase(slots);
+            const phase = new OrderUnitsPhase(slots);
             const provider = makeProvider(units);
 
             const moves = phase.doLegalMoves(provider);
@@ -189,7 +189,7 @@ describe("GeneralOrderUnitsPhase", () => {
                 {predicate: su => su.unit.type === UnitType.ARMOR, maxCount: 1},
                 {predicate: () => true, maxCount: 1},  // "any" slot
             ];
-            const phase = new GeneralOrderUnitsPhase(slots);
+            const phase = new OrderUnitsPhase(slots);
             const provider = makeProvider(units);
 
             const moves = phase.doLegalMoves(provider);
@@ -217,7 +217,7 @@ describe("GeneralOrderUnitsPhase", () => {
                 {predicate: su => su.unit.type === UnitType.ARMOR, maxCount: 1},
                 {predicate: () => true, maxCount: 1},  // "any" slot
             ];
-            const phase = new GeneralOrderUnitsPhase(slots);
+            const phase = new OrderUnitsPhase(slots);
             const provider = makeProvider(units);
 
             const moves = phase.doLegalMoves(provider);
@@ -242,7 +242,7 @@ describe("GeneralOrderUnitsPhase", () => {
                 {predicate: su => su.unit.type === UnitType.INFANTRY, maxCount: 1},
                 {predicate: () => true, maxCount: 1},  // "any" slot
             ];
-            const phase = new GeneralOrderUnitsPhase(slots);
+            const phase = new OrderUnitsPhase(slots);
             const provider = makeProvider(units);
 
             const moves = phase.doLegalMoves(provider);
@@ -269,7 +269,7 @@ describe("GeneralOrderUnitsPhase", () => {
                 {predicate: su => su.unit.type === UnitType.ARMOR, maxCount: 1},
                 {predicate: () => true, maxCount: 1},  // artillery takes this
             ];
-            const phase = new GeneralOrderUnitsPhase(slots);
+            const phase = new OrderUnitsPhase(slots);
             const provider = makeProvider(units);
 
             const moves = phase.doLegalMoves(provider);
@@ -293,7 +293,7 @@ describe("GeneralOrderUnitsPhase", () => {
             const su = situatedUnit().withUnit(infantry).at(0, 0).build();
             const provider = makeProvider([su]);
 
-            const phase = new GeneralOrderUnitsPhase([]);
+            const phase = new OrderUnitsPhase([]);
 
             const moves = phase.doLegalMoves(provider);
 
@@ -305,7 +305,7 @@ describe("GeneralOrderUnitsPhase", () => {
             const slots: OrderSlot[] = [
                 {predicate: () => true, maxCount: 2}
             ];
-            const phase = new GeneralOrderUnitsPhase(slots);
+            const phase = new OrderUnitsPhase(slots);
             const provider = makeProvider([]);
 
             const moves = phase.doLegalMoves(provider);
@@ -324,7 +324,7 @@ describe("GeneralOrderUnitsPhase", () => {
                 // Predicate that never matches
                 {predicate: su => su.unit.type === UnitType.ARMOR, maxCount: 2}
             ];
-            const phase = new GeneralOrderUnitsPhase(slots);
+            const phase = new OrderUnitsPhase(slots);
 
             const moves = phase.doLegalMoves(provider);
 

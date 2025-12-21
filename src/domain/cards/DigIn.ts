@@ -5,7 +5,7 @@ import {GameState} from "../GameState";
 import {ReplenishHandPhase} from "../phases/ReplenishHandPhase";
 import {BattlePhase} from "../phases/BattlePhase";
 import {MovePhase} from "../phases/MovePhase";
-import {GeneralOrderUnitsPhase} from "../phases/GeneralOrderUnitsPhase";
+import {OrderUnitsPhase} from "../phases/OrderUnitsPhase";
 import {UnitType} from "../Unit";
 import {CommandCard} from "./CommandCard";
 import {noFortification} from "../fortifications/Fortification";
@@ -35,7 +35,7 @@ export class DigIn extends CommandCard {
                 su.unit.type === UnitType.INFANTRY &&
                 gameState.getFortification(su.coord) === noFortification;
 
-            gameState.pushPhase(new GeneralOrderUnitsPhase(
+            gameState.pushPhase(new OrderUnitsPhase(
                 [{ predicate, maxCount: this.howManyUnits }],
                 new ConfirmDigInMove()
             ));
@@ -44,7 +44,7 @@ export class DigIn extends CommandCard {
             gameState.replacePhase(new ReplenishHandPhase());
             gameState.pushPhase(new BattlePhase());
             gameState.pushPhase(new MovePhase());
-            gameState.pushPhase(new GeneralOrderUnitsPhase([{ predicate: () => true, maxCount: 1 }]));
+            gameState.pushPhase(new OrderUnitsPhase([{ predicate: () => true, maxCount: 1 }]));
         }
     }
 }

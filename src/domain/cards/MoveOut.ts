@@ -2,7 +2,7 @@ import {GameState} from "../GameState";
 import {ReplenishHandPhase} from "../phases/ReplenishHandPhase";
 import {BattlePhase} from "../phases/BattlePhase";
 import {MovePhase} from "../phases/MovePhase";
-import {GeneralOrderUnitsPhase} from "../phases/GeneralOrderUnitsPhase";
+import {OrderUnitsPhase} from "../phases/OrderUnitsPhase";
 import {UnitType} from "../Unit";
 import {CommandCard} from "./CommandCard";
 
@@ -23,13 +23,13 @@ export class MoveOut extends CommandCard {
 
         if (hasInfantryUnits) {
             // Order up to 4 infantry units
-            gameState.pushPhase(new GeneralOrderUnitsPhase([{
+            gameState.pushPhase(new OrderUnitsPhase([{
                 predicate: su => su.unit.type === UnitType.INFANTRY,
                 maxCount: this.howManyUnits
             }]));
         } else {
             // Fallback: if no infantry units, allow ordering any 1 unit
-            gameState.pushPhase(new GeneralOrderUnitsPhase([{
+            gameState.pushPhase(new OrderUnitsPhase([{
                 predicate: () => true,
                 maxCount: 1
             }]));

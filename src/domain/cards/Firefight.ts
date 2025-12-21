@@ -2,7 +2,7 @@ import {GameState} from "../GameState";
 import {ReplenishHandPhase} from "../phases/ReplenishHandPhase";
 import {BattlePhase} from "../phases/BattlePhase";
 import {hexDistance} from "../../utils/hex";
-import {GeneralOrderUnitsPhase} from "../phases/GeneralOrderUnitsPhase";
+import {OrderUnitsPhase} from "../phases/OrderUnitsPhase";
 import {BattleMove} from "../moves/BattleMove";
 import {CommandCard} from "./CommandCard";
 
@@ -21,7 +21,7 @@ export class Firefight extends CommandCard {
         const enemyPositions = enemyUnits.map(su => su.coord);
 
         // Predicate: unit must NOT be adjacent to any enemy
-        gameState.pushPhase(new GeneralOrderUnitsPhase([{
+        gameState.pushPhase(new OrderUnitsPhase([{
             predicate: su => {
                 // Check if any enemy is adjacent (distance 1)
                 for (const enemyCoord of enemyPositions) {

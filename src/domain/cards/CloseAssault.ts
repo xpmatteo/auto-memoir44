@@ -3,7 +3,7 @@ import {ReplenishHandPhase} from "../phases/ReplenishHandPhase";
 import {BattlePhase} from "../phases/BattlePhase";
 import {hexDistance} from "../../utils/hex";
 import {UnitType} from "../Unit";
-import {GeneralOrderUnitsPhase} from "../phases/GeneralOrderUnitsPhase";
+import {OrderUnitsPhase} from "../phases/OrderUnitsPhase";
 import {BattleMove} from "../moves/BattleMove";
 import {CommandCard} from "./CommandCard";
 
@@ -22,7 +22,7 @@ export class CloseAssault extends CommandCard {
         const enemyPositions = enemyUnits.map(su => su.coord);
 
         // Predicate: unit must be Infantry or Armor AND adjacent to an enemy
-        gameState.pushPhase(new GeneralOrderUnitsPhase([{
+        gameState.pushPhase(new OrderUnitsPhase([{
             predicate: su => {
                 // Must be Infantry or Armor
                 if (su.unit.type !== UnitType.INFANTRY && su.unit.type !== UnitType.ARMOR) {
