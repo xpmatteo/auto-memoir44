@@ -134,16 +134,23 @@ async function start() {
     // Create event log component
     const eventLog = new EventLog(gameState);
 
-    // Create a container for the current card display, board, and event log
+    // Create a container for the current card display and board only
     const gameBoardContainer = document.createElement("div");
     gameBoardContainer.id = "game-board-container";
     gameBoardContainer.appendChild(currentCardDisplay.getElement());
     gameBoardContainer.appendChild(wrapper);
-    gameBoardContainer.appendChild(eventLog.getElement());
 
-    // Mount move buttons before the game board (at top)
-    moveButtons.mount(app);
-    app.appendChild(gameBoardContainer);
+    // Create main game area (left column) containing buttons, board, and hand
+    const mainGameArea = document.createElement("div");
+    mainGameArea.id = "main-game-area";
+
+    // Mount move buttons into main game area
+    moveButtons.mount(mainGameArea);
+    mainGameArea.appendChild(gameBoardContainer);
+
+    // Add main game area and event log as siblings in app (CSS Grid columns)
+    app.appendChild(mainGameArea);
+    app.appendChild(eventLog.getElement());
 
     // Create and mount hand display
     const handDisplay = new HandDisplay(gameState);
@@ -331,7 +338,7 @@ async function start() {
     (window as any).game = consoleAPI;
     console.log('🎮 Game console API available. Type game.status() for commands.');
 
-    app.appendChild(handDisplay.getElement());
+    mainGameArea.appendChild(handDisplay.getElement());
 
     applyResponsiveSizing(canvas);
     window.addEventListener("resize", () => applyResponsiveSizing(canvas));

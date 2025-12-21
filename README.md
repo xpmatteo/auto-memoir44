@@ -16,6 +16,9 @@ REFACTOR
 - use Flyweight with HexCoord
 - rename Bottom = South, Top = North for consistency
 
+- Their finest hour: +1 dice on overrun too
+- should infantry advance and then battle again with bombard?
+- 
 
 RULES
 - terrain

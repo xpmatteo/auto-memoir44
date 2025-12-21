@@ -15,13 +15,15 @@ body {
     min-height: 100vh;
 }
 
+/*
+ * Page Layout: CSS Grid with 2 columns
+ * - Left column: main game area (buttons, board+card, hand)
+ * - Right column: event log (independent, doesn't affect main layout)
+ */
 #app {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    align-items: center;
-    justify-content: center;
-    width: 100vw;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 20px;
     min-height: 100vh;
     padding: 12px;
     background: radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.07), transparent 45%),
@@ -29,12 +31,20 @@ body {
     #0b0c10;
 }
 
+/* Main game area: flex column with buttons at top, board in middle, hand at bottom */
+#main-game-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+/* Board container: current card display + board wrapper side by side */
 #game-board-container {
     display: flex;
     flex-direction: row;
     gap: 20px;
-    align-items: center;
-    justify-content: center;
+    align-items: flex-start;
 }
 
 #current-card-display {
@@ -42,13 +52,11 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    flex-shrink: 0;
 }
 
 .board-wrapper {
     position: relative;
     display: inline-block;
-    flex-shrink: 0;
 }
 
 .board-canvas {
@@ -116,10 +124,11 @@ body {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
-/* Event Log Styles */
+/* Event Log: right column, independent of main game layout */
 #event-log {
     width: 350px;
-    max-height: 1417px; /* Match board height */
+    height: fit-content;
+    max-height: calc(100vh - 24px); /* Full viewport height minus padding */
     background: rgba(0, 0, 0, 0.6);
     border: 2px solid #1f2937;
     border-radius: 8px;
@@ -128,7 +137,6 @@ body {
     display: flex;
     flex-direction: column;
     gap: 8px;
-    flex-shrink: 0;
 }
 
 .event-entry {
