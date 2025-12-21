@@ -25,7 +25,13 @@ function key(q: number, r: number): HexCoordKey {
 }
 
 export class HexCoord {
-    constructor(public q: number, public r: number) {
+    private constructor(public q: number, public r: number) {
+    }
+
+    // use only in this file: everywhere else use the hexOf function,
+    // to preserve the Flyweight pattern
+    static create(q: number, r: number): HexCoord {
+        return hexOf(q, r);
     }
 
     // 6 axial directions (pointy-top, "q,r" layout)
@@ -93,10 +99,11 @@ export type CanvasCoord = {
 
 const ALL_HEXES: HexCoord[] = [];
 
+// Implement the Flyweight pattern.  As a result, instances of HexCoord can be compared safely by reference
 export function hexOf(q: number, r: number): HexCoord {
     const theKey = key(q, r);
     if (!ALL_HEXES[theKey]) {
-        ALL_HEXES[theKey] = new HexCoord(q, r);
+        ALL_HEXES[theKey] = HexCoord.create(q, r);
     }
     return ALL_HEXES[theKey];
 }

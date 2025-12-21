@@ -504,10 +504,8 @@ export class ConsoleAPI {
                 const moveToExecute = legalMoves.find(
                     (m) =>
                         m instanceof MoveUnitMove &&
-                        m.from.q === selectedUnitLocation.q &&
-                        m.from.r === selectedUnitLocation.r &&
-                        m.to.q === hexCoord.q &&
-                        m.to.r === hexCoord.r
+                        m.from === selectedUnitLocation &&
+                        m.to === hexCoord
                 ) as MoveUnitMove | undefined;
 
                 if (moveToExecute) {

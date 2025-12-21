@@ -81,8 +81,7 @@ export class CanvasClickHandler {
 
         // Check if clicking on the currently selected unit - deselect it
         if (uiState.selectedUnit && uiState.selectedUnitLocation &&
-            hexCoord.q === uiState.selectedUnitLocation.q &&
-            hexCoord.r === uiState.selectedUnitLocation.r) {
+            hexCoord === uiState.selectedUnitLocation) {
             uiState.clearSelection();
             this.onUpdate();
             return;
@@ -97,10 +96,8 @@ export class CanvasClickHandler {
                 const moveToExecute = legalMoves.find(
                     (m) =>
                         m instanceof MoveUnitMove &&
-                        m.from.q === selectedUnitLocation.q &&
-                        m.from.r === selectedUnitLocation.r &&
-                        m.to.q === hexCoord.q &&
-                        m.to.r === hexCoord.r
+                        m.from === selectedUnitLocation &&
+                        m.to === hexCoord
                 ) as MoveUnitMove | undefined;
 
                 if (moveToExecute) {
