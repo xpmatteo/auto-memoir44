@@ -26,8 +26,14 @@ export interface UnitBattler {
 }
 
 export class BattlePhase extends Phase {
-    name = "Battle";
-    type = PhaseType.BATTLE;
+    readonly name = "Battle";
+    readonly type = PhaseType.BATTLE;
+    readonly howManyBattles: number;
+
+    constructor(howManyBattles: number = 1) {
+        super();
+        this.howManyBattles = howManyBattles;
+    }
 
     legalMoves(gameState: GameState): Array<Move> {
         return this.doLegalMoves(gameState);
@@ -48,8 +54,8 @@ export class BattlePhase extends Phase {
                 continue;
             }
 
-            // Skip units that have already attacked this turn
-            if (fromUnit.unitState.battlesThisTurn > 0) {
+            // Skip units that have finished their attacks this turn
+            if (fromUnit.unitState.battlesThisTurn >= this.howManyBattles) {
                 continue;
             }
 
