@@ -3,16 +3,22 @@
 
 import {describe, expect, it, test} from "vitest";
 import {Deck} from "../../../src/domain/Deck";
-import {CardLocation, CommandCard} from "../../../src/domain/cards/CommandCard";
+import {CardLocation} from "../../../src/domain/cards/CommandCard";
+import {SectionCard} from "../../../src/domain/cards/SectionCards";
 import {Section} from "../../../src/domain/Section";
+import {GameState} from "../../../src/domain/GameState";
 
 // Test helper card class
-export class TestCard extends CommandCard {
+export class TestCard extends SectionCard {
     readonly sections = [Section.CENTER];
     readonly howManyUnits = 1;
 
     constructor(public readonly name: string, public readonly imagePath: string) {
         super();
+    }
+
+    onCardPlayed(_gameState: GameState): void {
+        // No-op for testing
     }
 }
 

@@ -6,7 +6,8 @@ import {GameState} from "../../src/domain/GameState";
 import {Deck} from "../../src/domain/Deck";
 import {Infantry} from "../../src/domain/Unit";
 import {Side} from "../../src/domain/Player";
-import {ProbeLeft, CardLocation} from "../../src/domain/cards/CommandCard";
+import {CardLocation} from "../../src/domain/cards/CommandCard";
+import {ProbeLeft} from "../../src/domain/cards/SectionCards";
 import {Move, PlayCardMove, OrderUnitMove, UnOrderMove} from "../../src/domain/moves/Move";
 import {hexOf} from "../../src/utils/hex";
 

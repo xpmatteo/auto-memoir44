@@ -9,7 +9,8 @@ import {Side} from "../../../src/domain/Player";
 import {HexCoord, hexOf} from "../../../src/utils/hex";
 import {clearTerrain, Terrain, woodsTerrain, hedgerowsTerrain, hillTerrain, TownTerrain} from "../../../src/domain/terrain/Terrain";
 import {MoveUnitMove} from "../../../src/domain/moves/MoveUnitMove";
-import {CommandCard, ProbeCenter} from "../../../src/domain/cards/CommandCard";
+import {CommandCard} from "../../../src/domain/cards/CommandCard";
+import {ProbeCenter} from "../../../src/domain/cards/SectionCards";
 
 class FakeUnitMover {
     units = [] as Array<{ coord: HexCoord; unit: Unit; unitState: UnitState; terrain: Terrain }>;

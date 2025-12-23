@@ -6,8 +6,8 @@ import {GameState} from "../../src/domain/GameState";
 import {Side} from "../../src/domain/Player";
 import {Deck} from "../../src/domain/Deck";
 import {Infantry} from "../../src/domain/Unit";
-import {AssaultLeft} from "../../src/domain/cards/CommandCard";
 import {CardLocation} from "../../src/domain/cards/CommandCard";
+import {AssaultLeft} from "../../src/domain/cards/SectionCards";
 import {hexOf} from "../../src/utils/hex";
 
 describe("Ordering Units with Command Cards", () => {

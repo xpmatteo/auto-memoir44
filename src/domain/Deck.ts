@@ -4,6 +4,9 @@
 import {
     CommandCard,
     CardLocation,
+} from "./cards/CommandCard";
+
+import {
     AssaultCenter,
     AssaultLeft,
     AssaultRight,
@@ -16,7 +19,7 @@ import {
     ReconCenter,
     ReconLeft,
     ReconRight, PincerMove, ReconInForce, GeneralAdvance,
-} from "./cards/CommandCard";
+} from "./cards/SectionCards";
 import {CloseAssault} from "./cards/CloseAssault";
 import {Firefight} from "./cards/Firefight";
 import {DirectFromHQ} from "./cards/DirectFromHQ";

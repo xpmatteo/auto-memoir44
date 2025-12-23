@@ -2,7 +2,7 @@
 
 import {expect, test, describe, beforeEach} from "vitest";
 import {GameState} from "../../../src/domain/GameState";
-import {AssaultLeft, } from "../../../src/domain/cards/CommandCard";
+import {AssaultLeft} from "../../../src/domain/cards/SectionCards";
 import {ConfirmOrdersMove, OrderUnitMove, EndMovementsMove} from "../../../src/domain/moves/Move";
 import {Side} from "../../../src/domain/Player";
 import {SituatedUnit} from "../../../src/domain/SituatedUnit";

@@ -6,6 +6,7 @@ import {ConfirmOrdersMove, EndBattlesMove, EndMovementsMove, OrderUnitMove, Play
 import {SeededRNG} from "../adapters/RNG";
 import type {GameState} from "../domain/GameState";
 import type {CommandCard} from "../domain/cards/CommandCard";
+import {SectionCard} from "../domain/cards/SectionCards";
 import {PhaseType} from "../domain/phases/Phase";
 import {BattlePhase} from "../domain/phases/BattlePhase";
 import {scoreMoveByDice} from "./scoreMoveByDice";
@@ -130,8 +131,12 @@ export class RandomAIPlayer implements AIPlayer {
     /**
      * Calculate how many units a card would order
      * Returns min(total units across all sections, card's unit limit)
+     * Returns 0 for non-section cards
      */
     private calculateOrderableUnits(gameState: GameState, card: CommandCard): number {
+        if (!(card instanceof SectionCard)) {
+            return 0;
+        }
         let totalOrderable = 0;
         for (const section of card.sections) {
             const friendlyUnits = gameState.getFriendlyUnitsInSection(section);

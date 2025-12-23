@@ -4,7 +4,8 @@
 import {expect, test, describe} from "vitest";
 import {GameState} from "../../../src/domain/GameState";
 import {Deck} from "../../../src/domain/Deck";
-import {CardLocation, ProbeCenter} from "../../../src/domain/cards/CommandCard";
+import {CardLocation} from "../../../src/domain/cards/CommandCard";
+import {ProbeCenter} from "../../../src/domain/cards/SectionCards";
 import {Position} from "../../../src/domain/Player";
 import {SeededRNG} from "../../../src/adapters/RNG";
 import {Dice} from "../../../src/domain/Dice";
