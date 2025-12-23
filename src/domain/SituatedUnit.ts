@@ -23,6 +23,10 @@ export class SituatedUnit {
         this.terrain = terrain;
         this.unitState = unitState;
     }
+
+    toString() {
+        return `${this.unit} at ${this.coord}`;
+    }
 }
 
 

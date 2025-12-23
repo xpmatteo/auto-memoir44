@@ -3,13 +3,23 @@
 
 import {describe, expect, test} from "vitest";
 import {situatedUnit, SituatedUnit} from '../../../../src/domain/SituatedUnit';
-import {Infantry} from '../../../../src/domain/Unit';
+import {Artillery, Infantry} from '../../../../src/domain/Unit';
 import {CommandCard} from "../../../../src/domain/cards/CommandCard";
 import {HexCoord, hexOf} from "../../../../src/utils/hex";
-import {AssaultLeft, AttackLeft, GeneralAdvance, PincerMove, ProbeLeft, ReconInForce, ReconLeft} from "../../../../src/domain/cards/SectionCards";
+import {
+    AssaultLeft,
+    AttackLeft,
+    GeneralAdvance,
+    PincerMove,
+    ProbeLeft,
+    ReconInForce,
+    ReconLeft
+} from "../../../../src/domain/cards/SectionCards";
 import {GameState} from "../../../../src/domain/GameState";
 import {OrderUnitsPhase} from "../../../../src/domain/phases/OrderUnitsPhase";
 import {Deck} from "../../../../src/domain/Deck";
+import {ArtilleryBombard} from "../../../../src/domain/cards/ArtilleryBombard";
+import {Side} from "../../../../src/domain/Player";
 
 interface TestCase {
     name: string
@@ -39,11 +49,13 @@ const infantryCenter2 = createUnit(Infantry, centerHex2);
 const infantryCenterRight = createUnit(Infantry, centerRightHex);
 const infantryRight1 = createUnit(Infantry, rightHex1);
 const infantryRight2 = createUnit(Infantry, rightHex2);
+const artillery1 = createUnit(Artillery, hexOf(4, 2));
+const artillery2 = createUnit(Artillery, hexOf(4, 3));
 
 function createUnit(unitClass: any, hex: HexCoord) {
     return situatedUnit()
         .at(hex.q, hex.r)
-        .withUnit(new unitClass())
+        .withUnit(new unitClass(Side.ALLIES))
         .build();
 }
 
@@ -226,13 +238,27 @@ const cases: TestCase[] = [
         ],
         expectedCombinations: [[infantryLeft1],]
     },
+    {
+        name: "ArtilleryBombard orders all artillery",
+        card: new ArtilleryBombard(),
+        units: [
+            infantryLeft1,
+            artillery1,
+            artillery2,
+        ],
+        expectedCombinations: [[artillery1, artillery2],]
+    },
 ];
 
 describe('OrderableSets', () => {
     test.each(cases)('$name', ({ card, units, expectedCombinations }) => {
-        // Create a GameState and play the card to set up the OrderUnitsPhase
-        const deck = new Deck([card]);
-        const gameState = new GameState(deck);
+        // Create a GameState and place the units in it
+        const gameState = new GameState(new Deck([card]));
+        for (const su of units) {
+            gameState.placeUnit(su.coord, su.unit);
+        }
+
+        // Play the card to set up the OrderUnitsPhase
         card.onCardPlayed(gameState);
 
         // The active phase should be OrderUnitsPhase
@@ -240,9 +266,11 @@ describe('OrderableSets', () => {
         expect(orderPhase).toBeInstanceOf(OrderUnitsPhase);
 
         // Call getOrderableSets on the phase
-        const actual = orderPhase.getOrderableSets(units);
-        const actualArrays = setOfSetsToSortedArrays(actual);
-        const expectedArrays = expectedCombinations.sort((a, b) => {
+        const actual = orderPhase.getOrderableSets(gameState.getFriendlySituatedUnits());
+        const actualArrays = setOfSetsToStringArrays(actual);
+        const expectedArrays = expectedCombinations.map(combo =>
+            combo.map(su => su.toString()).sort()
+        ).sort((a, b) => {
             if (a.length !== b.length) return a.length - b.length;
             return JSON.stringify(a) > JSON.stringify(b) ? 1 : -1;
         });
@@ -250,10 +278,10 @@ describe('OrderableSets', () => {
     })
 })
 
-// Helper function to convert Set<Set<T>> to sorted Array<Array<T>> for comparison
-function setOfSetsToSortedArrays<T>(setOfSets: Set<Set<T>>): Array<Array<T>> {
+// Helper function to convert Set<Set<SituatedUnit>> to sorted Array<Array<string>> for comparison
+function setOfSetsToStringArrays(setOfSets: Set<Set<SituatedUnit>>): Array<Array<string>> {
     return Array.from(setOfSets)
-        .map(innerSet => Array.from(innerSet))
+        .map(innerSet => Array.from(innerSet).map(su => su.toString()).sort())
         .sort((a, b) => {
             // Sort by length first, then by string representation for consistency
             if (a.length !== b.length) return a.length - b.length;
