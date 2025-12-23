@@ -5,6 +5,7 @@ import {GameState} from "../GameState";
 import {BattleMove} from "../moves/BattleMove";
 import {Unit} from "../Unit";
 import {SituatedUnit} from "../SituatedUnit";
+import {Position} from "../Player";
 
 export const CardLocation = {
     DECK: "Deck",
@@ -49,7 +50,7 @@ export abstract class CommandCard {
         return unit.movementSkipsBattle(distance);
     }
 
-    getOrderableSets(_units: SituatedUnit[]): Set<Set<SituatedUnit>> {
+    getOrderableSets(_units: SituatedUnit[], _position: Position): Set<Set<SituatedUnit>> {
         return new Set();
     }
 }

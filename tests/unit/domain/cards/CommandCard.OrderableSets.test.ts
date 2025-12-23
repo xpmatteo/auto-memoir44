@@ -7,6 +7,7 @@ import {Infantry} from '../../../../src/domain/Unit';
 import {CommandCard} from "../../../../src/domain/cards/CommandCard";
 import {HexCoord, hexOf} from "../../../../src/utils/hex";
 import {AssaultLeft, AttackLeft, GeneralAdvance, PincerMove, ProbeLeft, ReconInForce, ReconLeft} from "../../../../src/domain/cards/SectionCards";
+import {Position} from "../../../../src/domain/Player";
 
 interface TestCase {
     name: string
@@ -20,6 +21,7 @@ const leftHex1 = hexOf(0, 0);
 const leftHex2 = hexOf(1, 0);
 const leftHex3 = hexOf(2, 0);
 const centerLeftHex = hexOf(3, 1);
+const centerLeftHex2 = hexOf(2, 3);
 const centerHex1 = hexOf(5, 0);
 const centerHex2 = hexOf(6, 0);
 const centerRightHex = hexOf(8, 1);
@@ -28,7 +30,8 @@ const rightHex2 = hexOf(10, 0);
 const infantryLeft1 = createUnit(Infantry, leftHex1);
 const infantryLeft2 = createUnit(Infantry, leftHex2);
 const infantryLeft3 = createUnit(Infantry, leftHex3);
-const infantryCenterLeft = createUnit(Infantry, centerLeftHex);
+const infantryCenterLeft1 = createUnit(Infantry, centerLeftHex);
+const infantryCenterLeft2 = createUnit(Infantry, centerLeftHex2);
 const infantryCenter1 = createUnit(Infantry, centerHex1);
 const infantryCenter2 = createUnit(Infantry, centerHex2);
 const infantryCenterRight = createUnit(Infantry, centerRightHex);
@@ -38,7 +41,7 @@ const infantryRight2 = createUnit(Infantry, rightHex2);
 function createUnit(unitClass: any, hex: HexCoord) {
     return situatedUnit()
         .at(hex.q, hex.r)
-        .withUnit(unitClass())
+        .withUnit(new unitClass())
         .build();
 }
 
@@ -48,22 +51,38 @@ const cases: TestCase[] = [
         card: new ReconLeft(),
         units: [
             infantryLeft1,
-            infantryCenterLeft,
+            infantryCenterLeft1,
         ],
-        expectedCombinations: [[infantryLeft1],[infantryCenterLeft],]
+        expectedCombinations: [[infantryLeft1],[infantryCenterLeft1],]
     },
+
     {
         name: "ProbeLeft orders 2 units left",
         card: new ProbeLeft(),
         units: [
             infantryLeft1,
             infantryLeft2,
-            infantryCenterLeft,
+            infantryCenterLeft1,
         ],
         expectedCombinations: [
             [infantryLeft1, infantryLeft2],
-            [infantryLeft1, infantryCenterLeft],
-            [infantryLeft2, infantryCenterLeft],
+            [infantryLeft1, infantryCenterLeft1],
+            [infantryLeft2, infantryCenterLeft1],
+        ]
+    },
+
+    {
+        name: "ProbeLeft orders 2 units left, with 2 units straddling",
+        card: new ProbeLeft(),
+        units: [
+            infantryLeft1,
+            infantryCenterLeft1,
+            infantryCenterLeft2,
+        ],
+        expectedCombinations: [
+            [infantryLeft1, infantryCenterLeft1],
+            [infantryLeft1, infantryCenterLeft2],
+            [infantryCenterLeft1, infantryCenterLeft2],
         ]
     },
     {
@@ -73,10 +92,10 @@ const cases: TestCase[] = [
             infantryLeft1,
             infantryLeft2,
             infantryLeft3,
-            infantryCenterLeft,
+            infantryCenterLeft1,
         ],
         expectedCombinations: [
-            [infantryLeft1, infantryLeft2, infantryLeft3, infantryCenterLeft],
+            [infantryLeft1, infantryLeft2, infantryLeft3, infantryCenterLeft1],
         ]
     },
     {
@@ -84,13 +103,13 @@ const cases: TestCase[] = [
         card: new ReconInForce(),
         units: [
             infantryLeft1,
-            infantryCenterLeft,
+            infantryCenterLeft1,
             infantryCenter1,
         ],
         expectedCombinations: [
-            [infantryLeft1, infantryCenterLeft],
+            [infantryLeft1, infantryCenterLeft1],
             [infantryLeft1, infantryCenter1],
-            [infantryCenterLeft, infantryCenter1],
+            [infantryCenterLeft1, infantryCenter1],
         ]
     },
 
@@ -99,14 +118,14 @@ const cases: TestCase[] = [
         card: new ReconInForce(),
         units: [
             infantryLeft1,
-            infantryCenterLeft,
+            infantryCenterLeft1,
             infantryCenter1,
             infantryRight1,
         ],
         expectedCombinations: [
-            [infantryLeft1, infantryCenterLeft, infantryRight1],
+            [infantryLeft1, infantryCenterLeft1, infantryRight1],
             [infantryLeft1, infantryCenter1, infantryRight1],
-            [infantryCenterLeft, infantryCenter1, infantryRight1],
+            [infantryCenterLeft1, infantryCenter1, infantryRight1],
         ]
     },
 
@@ -115,18 +134,20 @@ const cases: TestCase[] = [
         card: new ReconInForce(),
         units: [
             infantryLeft1,
-            infantryCenterLeft,
+            infantryCenterLeft1,
             infantryCenter1,
+            infantryCenterRight,
             infantryRight1,
         ],
         expectedCombinations: [
-            [infantryLeft1, infantryCenterLeft, infantryCenterRight],
-            [infantryLeft1, infantryCenterLeft, infantryRight1],
+            [infantryLeft1, infantryCenterLeft1, infantryCenterRight],
+            [infantryLeft1, infantryCenterLeft1, infantryRight1],
             [infantryLeft1, infantryCenter1, infantryCenterRight],
             [infantryLeft1, infantryCenter1, infantryRight1],
-            [infantryCenterLeft, infantryCenter1, infantryCenterRight],
-            [infantryCenterLeft, infantryCenter1, infantryRight1],
-            [infantryCenterLeft, infantryCenterRight, infantryRight1],
+            [infantryLeft1, infantryCenterRight, infantryRight1],
+            [infantryCenterLeft1, infantryCenter1, infantryCenterRight],
+            [infantryCenterLeft1, infantryCenter1, infantryRight1],
+            [infantryCenterLeft1, infantryCenterRight, infantryRight1],
         ]
     },
 
@@ -149,13 +170,13 @@ const cases: TestCase[] = [
             infantryLeft1,
             infantryLeft2,
             infantryLeft3,
-            infantryCenterLeft,
+            infantryCenterLeft1,
         ],
         expectedCombinations: [
             [infantryLeft1, infantryLeft2, infantryLeft3],
-            [infantryLeft1, infantryLeft2, infantryCenterLeft],
-            [infantryLeft1, infantryLeft3, infantryCenterLeft],
-            [infantryLeft2, infantryLeft3, infantryCenterLeft],
+            [infantryLeft1, infantryLeft2, infantryCenterLeft1],
+            [infantryLeft1, infantryLeft3, infantryCenterLeft1],
+            [infantryLeft2, infantryLeft3, infantryCenterLeft1],
         ]
     },
     {
@@ -207,7 +228,7 @@ const cases: TestCase[] = [
 
 describe('OrderableSets', () => {
     test.each(cases)('$name', ({ card, units, expectedCombinations }) => {
-        const actual = card.getOrderableSets(units);
+        const actual = card.getOrderableSets(units, Position.BOTTOM);
         const actualArrays = setOfSetsToSortedArrays(actual);
         const expectedArrays = expectedCombinations.sort((a, b) => {
             if (a.length !== b.length) return a.length - b.length;
