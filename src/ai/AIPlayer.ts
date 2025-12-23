@@ -9,7 +9,7 @@ import type {CommandCard} from "../domain/cards/CommandCard";
 import {SectionCard} from "../domain/cards/SectionCards";
 import {PhaseType} from "../domain/phases/Phase";
 import {BattlePhase} from "../domain/phases/BattlePhase";
-import {scoreMoveByDice} from "./scoreMoveByDice";
+import {evaluatePosition} from "./evaluatePosition";
 import {MoveUnitMove} from "../domain/moves/MoveUnitMove";
 import {BattleMove} from "../domain/moves/BattleMove";
 
@@ -147,17 +147,18 @@ export class RandomAIPlayer implements AIPlayer {
 
     /**
      * Select the best unit movement move based on board position scoring
-     * Moves units closer to enemy units to maximize engagement opportunities
+     * Evaluates the overall position after each potential move
      */
     private selectBestMove(gameState: GameState, moves: MoveUnitMove[]): MoveUnitMove {
-        const clonedState = gameState.clone();
-        clonedState.pushPhase(new BattlePhase());
-
-        // Calculate position score for each move
-        const movesWithScores = moves.map(move => ({
-            move,
-            score: scoreMoveByDice(clonedState, move.from, move.to),
-        }));
+        // Calculate position score for each move by simulating it
+        const movesWithScores = moves.map(move => {
+            // Clone state, push BattlePhase, execute move, then evaluate
+            const clonedState = gameState.clone();
+            clonedState.pushPhase(new BattlePhase());
+            clonedState.executeMove(new MoveUnitMove(move.from, move.to, false));
+            const score = evaluatePosition(clonedState);
+            return { move, score };
+        });
 
         // movesWithScores.sort((a, b) => b.score - a.score);
         // for (const {move, score} of movesWithScores) {

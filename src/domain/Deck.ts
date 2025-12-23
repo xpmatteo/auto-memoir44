@@ -211,7 +211,7 @@ export class Deck {
             [Barrage, 1],
             [DigIn, 1],
             [ArtilleryBombard, 1],
-            [TheirFinestHour, 100],
+            [TheirFinestHour, 1],
         ], rng);
     }
 
