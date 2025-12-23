@@ -7,7 +7,9 @@ import {Infantry} from '../../../../src/domain/Unit';
 import {CommandCard} from "../../../../src/domain/cards/CommandCard";
 import {HexCoord, hexOf} from "../../../../src/utils/hex";
 import {AssaultLeft, AttackLeft, GeneralAdvance, PincerMove, ProbeLeft, ReconInForce, ReconLeft} from "../../../../src/domain/cards/SectionCards";
-import {Position} from "../../../../src/domain/Player";
+import {GameState} from "../../../../src/domain/GameState";
+import {OrderUnitsPhase} from "../../../../src/domain/phases/OrderUnitsPhase";
+import {Deck} from "../../../../src/domain/Deck";
 
 interface TestCase {
     name: string
@@ -228,7 +230,17 @@ const cases: TestCase[] = [
 
 describe('OrderableSets', () => {
     test.each(cases)('$name', ({ card, units, expectedCombinations }) => {
-        const actual = card.getOrderableSets(units, Position.BOTTOM);
+        // Create a GameState and play the card to set up the OrderUnitsPhase
+        const deck = new Deck([card]);
+        const gameState = new GameState(deck);
+        card.onCardPlayed(gameState);
+
+        // The active phase should be OrderUnitsPhase
+        const orderPhase = gameState.activePhase as OrderUnitsPhase;
+        expect(orderPhase).toBeInstanceOf(OrderUnitsPhase);
+
+        // Call getOrderableSets on the phase
+        const actual = orderPhase.getOrderableSets(units);
         const actualArrays = setOfSetsToSortedArrays(actual);
         const expectedArrays = expectedCombinations.sort((a, b) => {
             if (a.length !== b.length) return a.length - b.length;

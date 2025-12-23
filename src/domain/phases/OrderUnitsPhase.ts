@@ -6,6 +6,7 @@ import {GameState} from "../GameState";
 import {ConfirmOrdersMove, Move, OrderUnitMove, UnOrderMove} from "../moves/Move";
 import {Phase, PhaseType} from "./Phase";
 import {SituatedUnit} from "../SituatedUnit";
+import {cartesianProduct, combinations} from "../../utils/combinations";
 
 /**
  * A predicate that determines whether a unit is eligible for a particular ordering slot.
@@ -146,5 +147,46 @@ export class OrderUnitsPhase extends Phase {
         }
 
         return slotCounts;
+    }
+
+    /**
+     * Generate all valid combinations of units that can be ordered given the slots constraints.
+     * Returns a Set of Sets, where each inner Set represents one valid ordering combination.
+     */
+    getOrderableSets(units: SituatedUnit[]): Set<Set<SituatedUnit>> {
+        // For each slot, get units matching the predicate and generate combinations
+        const perSlotCombinations: SituatedUnit[][][] = this.slots.map(slot => {
+            const unitsInSlot = units.filter(su => slot.predicate(su));
+            if (unitsInSlot.length === 0) return [];
+
+            // Determine the combination size for this slot
+            const combinationSize = Math.min(slot.maxCount, unitsInSlot.length);
+            return combinations(unitsInSlot, combinationSize);
+        });
+
+        // Filter out empty slots (no units available)
+        const nonEmptySlotCombinations = perSlotCombinations.filter(combos => combos.length > 0);
+
+        // If no slots have units, return empty set
+        if (nonEmptySlotCombinations.length === 0) {
+            return new Set();
+        }
+
+        // Generate cartesian product of per-slot combinations
+        const cartesianCombinations = cartesianProduct(nonEmptySlotCombinations);
+
+        // Flatten each cartesian product element and filter out duplicates
+        const result = new Set<Set<SituatedUnit>>();
+        for (const combo of cartesianCombinations) {
+            const flatCombo = combo.flat();
+            // Check for duplicate units (can happen when units match multiple slot predicates)
+            const uniqueUnits = new Set(flatCombo);
+            if (uniqueUnits.size === flatCombo.length) {
+                // No duplicates, add to result
+                result.add(new Set(flatCombo));
+            }
+        }
+
+        return result;
     }
 }

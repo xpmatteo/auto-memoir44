@@ -7,8 +7,6 @@ import {MovePhase} from "../phases/MovePhase";
 import {OrderUnitsPhase} from "../phases/OrderUnitsPhase";
 import {SituatedUnit} from "../SituatedUnit";
 import {ReplenishHandDrawTwoChooseOnePhase} from "../phases/ReplenishHandDrawTwoChooseOnePhase";
-import {Position} from "../Player";
-import {cartesianProduct, combinations} from "../../utils/combinations";
 
 export abstract class SectionCard extends CommandCard {
     abstract readonly howManyUnits: number;
@@ -24,43 +22,6 @@ export abstract class SectionCard extends CommandCard {
             predicate: (su: SituatedUnit) => isHexInSection(su.coord, section, gameState.activePlayer.position),
             maxCount: this.howManyUnits
         }))));
-    }
-
-    getOrderableSets(units: SituatedUnit[], position: Position): Set<Set<SituatedUnit>> {
-        // For each section, get units in that section and generate combinations
-        const perSectionCombinations: SituatedUnit[][][] = this.sections.map(section => {
-            const unitsInSection = units.filter(u => isHexInSection(u.coord, section, position));
-            if (unitsInSection.length === 0) return [];
-
-            // Determine the combination size for this section
-            const combinationSize = Math.min(this.howManyUnits, unitsInSection.length);
-            return combinations(unitsInSection, combinationSize);
-        });
-
-        // Filter out empty sections (no units available)
-        const nonEmptySectionCombinations = perSectionCombinations.filter(combos => combos.length > 0);
-
-        // If no sections have units, return empty set
-        if (nonEmptySectionCombinations.length === 0) {
-            return new Set();
-        }
-
-        // Generate cartesian product of per-section combinations
-        const cartesianCombinations = cartesianProduct(nonEmptySectionCombinations);
-
-        // Flatten each cartesian product element and filter out duplicates
-        const result = new Set<Set<SituatedUnit>>();
-        for (const combo of cartesianCombinations) {
-            const flatCombo = combo.flat();
-            // Check for duplicate units (can happen when units straddle sections)
-            const uniqueUnits = new Set(flatCombo);
-            if (uniqueUnits.size === flatCombo.length) {
-                // No duplicates, add to result
-                result.add(new Set(flatCombo));
-            }
-        }
-
-        return result;
     }
 }
 
