@@ -9,9 +9,12 @@ import type {CommandCard} from "../domain/cards/CommandCard";
 import {SectionCard} from "../domain/cards/SectionCards";
 import {PhaseType} from "../domain/phases/Phase";
 import {BattlePhase} from "../domain/phases/BattlePhase";
+import {OrderUnitsPhase} from "../domain/phases/OrderUnitsPhase";
 import {evaluatePosition} from "./evaluatePosition";
 import {MoveUnitMove} from "../domain/moves/MoveUnitMove";
 import {BattleMove} from "../domain/moves/BattleMove";
+import type {Unit} from "../domain/Unit";
+import type {SituatedUnit} from "../domain/SituatedUnit";
 
 /**
  * Interface for AI players that can select moves from legal options
@@ -31,14 +34,25 @@ export interface AIPlayer {
  * Selects cards that order the most units, with random tie-breaking
  * Uses seeded RNG for reproducible behavior
  * Prefers action moves over phase-ending moves to be more active
+ *
+ * Stateful AI: Remembers the target order combination during the orders phase
  */
 export class RandomAIPlayer implements AIPlayer {
     private readonly rng: SeededRNG;
+    private targetOrderSet: Set<Unit> | null = null;
+    private lastPhaseType: PhaseType | null = null;
+
     constructor(rng: SeededRNG) {
         this.rng = rng;
     }
 
     selectMove(gameState: GameState, legalMoves: Move[]): Move {
+        // Detect phase changes and clear target order set
+        if (this.lastPhaseType !== gameState.activePhase.type) {
+            this.targetOrderSet = null;
+            this.lastPhaseType = gameState.activePhase.type;
+        }
+
         if (legalMoves.length === 0) {
             throw new Error("No legal moves available for AI to select");
         }
@@ -52,15 +66,11 @@ export class RandomAIPlayer implements AIPlayer {
         }
 
         if (gameState.activePhase.type === PhaseType.ORDER) {
-            const orderUnitMoves = legalMoves.filter(m => m instanceof OrderUnitMove);
-            if (orderUnitMoves.length > 0) {
-                return this.randomSelect(orderUnitMoves);
+            const orderMove = this.selectOrderMove(gameState, legalMoves);
+            if (orderMove !== null) {
+                return orderMove;
             }
-            // No OrderUnitMove available - select ConfirmOrdersMove to advance phase
-            const confirmMove = legalMoves.find(m => m instanceof ConfirmOrdersMove);
-            if (confirmMove) {
-                return confirmMove;
-            }
+            // Fall through to general logic if no order-specific move found
         }
 
         if (gameState.activePhase.type === PhaseType.MOVE) {
@@ -239,6 +249,124 @@ export class RandomAIPlayer implements AIPlayer {
 
         // Random selection among ties (maintains seeded behavior)
         return this.randomSelect(bestMoves) as BattleMove;
+    }
+
+    /**
+     * Select the best move during the orders phase
+     * Computes the optimal order combination (if not already computed) by simulating
+     * full turns for each possible combination, then orders units in that combination
+     */
+    private selectOrderMove(gameState: GameState, legalMoves: Move[]): Move | null {
+        // Compute target order set if not already done
+        if (this.targetOrderSet === null) {
+            this.targetOrderSet = this.computeBestOrderSet(gameState);
+        }
+
+        // Find an unordered unit in our target set
+        const orderUnitMoves = legalMoves.filter(m => m instanceof OrderUnitMove) as OrderUnitMove[];
+        const targetMoves = orderUnitMoves.filter(move =>
+            this.targetOrderSet!.has(move.unit)
+        );
+
+        if (targetMoves.length > 0) {
+            // Order a unit from our target set
+            return this.randomSelect(targetMoves);
+        }
+
+        // All target units are ordered, confirm
+        const confirmMove = legalMoves.find(m => m instanceof ConfirmOrdersMove);
+        if (confirmMove) {
+            return confirmMove;
+        }
+
+        // No valid order-specific moves found, fall back to general logic
+        return null;
+    }
+
+    /**
+     * Compute the best combination of units to order by simulating full turns
+     * For each possible order combination, simulates: order → confirm → move → evaluate
+     * Returns the Set of Units that yields the best position score
+     */
+    private computeBestOrderSet(gameState: GameState): Set<Unit> {
+        const phase = gameState.activePhase;
+        if (!(phase instanceof OrderUnitsPhase)) {
+            throw new Error("computeBestOrderSet called outside OrderUnitsPhase");
+        }
+
+        const friendlyUnits = gameState.getFriendlySituatedUnits();
+        const orderableSets = phase.getOrderableSets(friendlyUnits);
+
+        if (orderableSets.size === 0) {
+            // No orderable combinations, return empty set
+            return new Set<Unit>();
+        }
+
+        // Evaluate each combination
+        const setsWithScores = Array.from(orderableSets).map(orderSet => ({
+            orderSet,
+            score: this.simulateOrderCombination(gameState, orderSet)
+        }));
+
+        // Find max score
+        const maxScore = Math.max(...setsWithScores.map(s => s.score));
+
+        // Filter to best sets
+        const bestSets = setsWithScores
+            .filter(s => s.score === maxScore)
+            .map(s => s.orderSet);
+
+        // Random tie-breaking (can't use randomSelect because it expects Move[])
+        const index = Math.floor(this.rng.random() * bestSets.length);
+        const chosenSet = bestSets[index];
+
+        // Convert SituatedUnit set to Unit set
+        return new Set(Array.from(chosenSet).map(su => su.unit));
+    }
+
+    /**
+     * Simulate a complete turn with the given order combination
+     * Orders all units, confirms orders, simulates all movements, then evaluates position
+     * Returns the position score after all movements are complete
+     */
+    private simulateOrderCombination(gameState: GameState, orderSet: Set<SituatedUnit>): number {
+        const cloned = gameState.clone();
+
+        // Order all units in the set
+        for (const su of orderSet) {
+            const orderMove = new OrderUnitMove(su.unit);
+            cloned.executeMove(orderMove);
+        }
+
+        // Confirm orders to proceed to next phase
+        cloned.executeMove(new ConfirmOrdersMove());
+
+        // Simulate movement phase
+        while (cloned.activePhase.type === PhaseType.MOVE) {
+            const moves = cloned.legalMoves();
+            const moveUnitMoves = moves.filter(m => m instanceof MoveUnitMove);
+
+            if (moveUnitMoves.length === 0) {
+                // No more moves, end movements
+                const endMove = moves.find(m => m instanceof EndMovementsMove);
+                if (endMove) {
+                    cloned.executeMove(endMove);
+                }
+                break;
+            }
+
+            // Select and execute best move using existing logic
+            const bestMove = this.selectBestMove(cloned, moveUnitMoves as MoveUnitMove[]);
+            cloned.executeMove(bestMove);
+        }
+
+        // Should now be in BattlePhase, evaluate position
+        if (cloned.activePhase.type !== PhaseType.BATTLE) {
+            // Need to push battle phase
+            cloned.pushPhase(new BattlePhase());
+        }
+
+        return evaluatePosition(cloned);
     }
 }
 
