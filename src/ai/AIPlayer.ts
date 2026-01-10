@@ -10,11 +10,12 @@ import {SectionCard} from "../domain/cards/SectionCards";
 import {PhaseType} from "../domain/phases/Phase";
 import {BattlePhase} from "../domain/phases/BattlePhase";
 import {OrderUnitsPhase} from "../domain/phases/OrderUnitsPhase";
-import {evaluatePosition} from "./evaluatePosition";
 import {MoveUnitMove} from "../domain/moves/MoveUnitMove";
 import {BattleMove} from "../domain/moves/BattleMove";
 import type {Unit} from "../domain/Unit";
 import type {SituatedUnit} from "../domain/SituatedUnit";
+import {battleDiceScorer, closeTheGapScorer, combineScorers} from "./scoring";
+import type {WeightedScorer} from "./scoring";
 
 /**
  * Interface for AI players that can select moves from legal options
@@ -41,6 +42,12 @@ export class RandomAIPlayer implements AIPlayer {
     private readonly rng: SeededRNG;
     private targetOrderSet: Set<Unit> | null = null;
     private lastPhaseType: PhaseType | null = null;
+
+    /** Weighted scoring functions for position evaluation */
+    private readonly scorers: WeightedScorer[] = [
+        { name: "battleDice", fn: battleDiceScorer, weight: 1.0 },
+        { name: "closeTheGap", fn: closeTheGapScorer, weight: 1.0 },
+    ];
 
     constructor(rng: SeededRNG) {
         this.rng = rng;
@@ -166,7 +173,7 @@ export class RandomAIPlayer implements AIPlayer {
             const clonedState = gameState.clone();
             clonedState.pushPhase(new BattlePhase());
             clonedState.executeMove(new MoveUnitMove(move.from, move.to, false));
-            const score = evaluatePosition(clonedState);
+            const score = combineScorers(clonedState, this.scorers);
             return { move, score };
         });
 
@@ -366,7 +373,7 @@ export class RandomAIPlayer implements AIPlayer {
             cloned.pushPhase(new BattlePhase());
         }
 
-        return evaluatePosition(cloned);
+        return combineScorers(cloned, this.scorers);
     }
 }
 

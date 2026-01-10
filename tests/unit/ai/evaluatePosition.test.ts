@@ -147,7 +147,7 @@ describe("evaluatePosition", () => {
         // Don't push BattlePhase
 
         expect(() => evaluatePosition(gameState)).toThrow(
-            "evaluatePosition requires gameState to be in BATTLE phase"
+            "battleDiceScorer requires gameState to be in BATTLE phase"
         );
     });
 });
