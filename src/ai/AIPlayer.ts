@@ -16,6 +16,8 @@ import type {Unit} from "../domain/Unit";
 import type {SituatedUnit} from "../domain/SituatedUnit";
 import {battleDiceScorer, closeTheGapScorer, combineScorers} from "./scoring";
 import type {WeightedScorer} from "./scoring";
+import {generatePermutations} from "../utils/permutations";
+import type {HexCoord} from "../utils/hex";
 
 /**
  * Interface for AI players that can select moves from legal options
@@ -42,6 +44,7 @@ export class RandomAIPlayer implements AIPlayer {
     private readonly rng: SeededRNG;
     private targetOrderSet: Set<Unit> | null = null;
     private lastPhaseType: PhaseType | null = null;
+    private optimalUnitOrdering: HexCoord[] | null = null;
 
     /** Weighted scoring functions for position evaluation */
     private readonly scorers: WeightedScorer[] = [
@@ -54,9 +57,10 @@ export class RandomAIPlayer implements AIPlayer {
     }
 
     selectMove(gameState: GameState, legalMoves: Move[]): Move {
-        // Detect phase changes and clear target order set
+        // Detect phase changes and clear state
         if (this.lastPhaseType !== gameState.activePhase.type) {
             this.targetOrderSet = null;
+            this.optimalUnitOrdering = null;
             this.lastPhaseType = gameState.activePhase.type;
         }
 
@@ -83,7 +87,7 @@ export class RandomAIPlayer implements AIPlayer {
         if (gameState.activePhase.type === PhaseType.MOVE) {
             const moveUnitMoves = legalMoves.filter(m => m instanceof MoveUnitMove);
             if (moveUnitMoves.length > 0) {
-                return this.selectBestMove(gameState, moveUnitMoves as MoveUnitMove[]);
+                return this.selectBestMoveWithOrdering(gameState, moveUnitMoves as MoveUnitMove[]);
             }
         }
 
@@ -192,6 +196,34 @@ export class RandomAIPlayer implements AIPlayer {
 
         // Random selection among ties (maintains seeded behavior)
         return this.randomSelect(bestMoves) as MoveUnitMove;
+    }
+
+    /**
+     * Select the best unit movement move considering optimal unit ordering
+     * Computes the optimal ordering of units to move (if not already computed)
+     * Then selects the best move for the next unit in that ordering
+     */
+    private selectBestMoveWithOrdering(gameState: GameState, moves: MoveUnitMove[]): MoveUnitMove {
+        // Compute optimal ordering if not already done
+        if (this.optimalUnitOrdering === null) {
+            this.optimalUnitOrdering = this.computeOptimalUnitOrdering(gameState);
+        }
+
+        // Find the next unit to move according to the optimal ordering
+        for (const unitCoord of this.optimalUnitOrdering) {
+            // Find moves for this unit
+            const unitMoves = moves.filter(move =>
+                move.from.q === unitCoord.q && move.from.r === unitCoord.r
+            );
+
+            if (unitMoves.length > 0) {
+                // Select best move for this unit
+                return this.selectBestMove(gameState, unitMoves);
+            }
+        }
+
+        // Fallback: if no unit from the ordering can move, just pick the best move
+        return this.selectBestMove(gameState, moves);
     }
 
     /**
@@ -370,6 +402,87 @@ export class RandomAIPlayer implements AIPlayer {
         // Should now be in BattlePhase, evaluate position
         if (cloned.activePhase.type !== PhaseType.BATTLE) {
             // Need to push battle phase
+            cloned.pushPhase(new BattlePhase());
+        }
+
+        return combineScorers(cloned, this.scorers);
+    }
+
+    /**
+     * Compute the optimal ordering of units to move in the MOVE phase
+     * Tries all permutations of unit orderings and selects the one that yields the best final score
+     * @returns Array of HexCoords representing the order in which units should be moved
+     */
+    private computeOptimalUnitOrdering(gameState: GameState): HexCoord[] {
+        if (gameState.activePhase.type !== PhaseType.MOVE) {
+            throw new Error("computeOptimalUnitOrdering called outside MOVE phase");
+        }
+
+        // Get all ordered units (units that can potentially move)
+        const orderedUnits = gameState.getOrderedUnitsWithPositions();
+        const unitCoords = orderedUnits.map(u => u.coord);
+
+        // If only 0 or 1 units, no need to optimize ordering
+        if (unitCoords.length <= 1) {
+            return unitCoords;
+        }
+
+        // Generate all permutations of unit orderings
+        const permutations = generatePermutations(unitCoords);
+
+        // Evaluate each permutation by simulating the complete movement sequence
+        const permutationsWithScores = permutations.map(ordering => ({
+            ordering,
+            score: this.simulateUnitOrdering(gameState, ordering)
+        }));
+
+        // Find the maximum score
+        const maxScore = Math.max(...permutationsWithScores.map(p => p.score));
+
+        // Filter to best orderings
+        const bestOrderings = permutationsWithScores
+            .filter(p => p.score === maxScore)
+            .map(p => p.ordering);
+
+        // Random tie-breaking
+        const index = Math.floor(this.rng.random() * bestOrderings.length);
+        return bestOrderings[index];
+    }
+
+    /**
+     * Simulate a complete movement sequence with units moved in a specific order
+     * For each unit in the ordering, greedily selects its best move
+     * Returns the final position score after all movements
+     */
+    private simulateUnitOrdering(gameState: GameState, ordering: HexCoord[]): number {
+        const cloned = gameState.clone();
+
+        // Move each unit in the specified order
+        for (const unitCoord of ordering) {
+            const legalMoves = cloned.legalMoves();
+            const moveUnitMoves = legalMoves.filter(m => m instanceof MoveUnitMove) as MoveUnitMove[];
+
+            // Find moves for this specific unit
+            const unitMoves = moveUnitMoves.filter(move =>
+                move.from.q === unitCoord.q && move.from.r === unitCoord.r
+            );
+
+            if (unitMoves.length > 0) {
+                // Select and execute best move for this unit
+                const bestMove = this.selectBestMove(cloned, unitMoves);
+                cloned.executeMove(bestMove);
+            }
+        }
+
+        // End movements and push battle phase to evaluate final position
+        const movesAfter = cloned.legalMoves();
+        const endMovementsMove = movesAfter.find(m => m instanceof EndMovementsMove);
+        if (endMovementsMove) {
+            cloned.executeMove(endMovementsMove);
+        }
+
+        // Push battle phase if needed
+        if (cloned.activePhase.type !== PhaseType.BATTLE) {
             cloned.pushPhase(new BattlePhase());
         }
 
