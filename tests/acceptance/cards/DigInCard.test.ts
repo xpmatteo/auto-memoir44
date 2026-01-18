@@ -17,7 +17,6 @@ describe("Dig In card", () => {
 
         test('Can order more than 3 infantry units', () => {
             const unitSetup = [
-                "   0   1   2   3   4   5   6   7   8   9  10  11  12",
                 "....    ....    ....    ....    ....    ....    ....",
                 "~~....    ....    ....    ....    ....    ....    ~~",
                 "....    ....    ....    ....    ....    ....    ....",
@@ -46,7 +45,6 @@ describe("Dig In card", () => {
 
         test('Can nax four infantry units', () => {
             const unitSetup = [
-                "   0   1   2   3   4   5   6   7   8   9  10  11  12",
                 "....    ....    ....    ....    ....    ....    ....",
                 "~~....    ....    ....    ....    ....    ....    ~~",
                 "....    ....    ....    ....    ....    ....    ....",
@@ -75,7 +73,6 @@ describe("Dig In card", () => {
 
         test('Infantry only, no armor allowed', () => {
             const unitSetup = [
-                "   0   1   2   3   4   5   6   7   8   9  10  11  12",
                 "....    ....    ....    ....    ....    ....    ....",
                 "~~....    ....    ....    ....    ....    ....    ~~",
                 "....    ....    ....    ....    ....    ....    ....",
@@ -98,7 +95,6 @@ describe("Dig In card", () => {
 
         test('Applies sandbags when Dig In confirmed', () => {
             const unitSetup = [
-                "   0   1   2   3   4   5   6   7   8   9  10  11  12",
                 "....    ....    ....    ....    ....    ....    ....",
                 "~~....    ....    ....    ....    ....    ....    ~~",
                 "....    ....    ....    ....    ....    ....    ....",
@@ -141,7 +137,6 @@ describe("Dig In card", () => {
 
         test('Respects player side for fortification type', () => {
             const unitSetup = [
-                "   0   1   2   3   4   5   6   7   8   9  10  11  12",
                 "....    ....    ....    ....    ....    ....    ....",
                 "~~....    ....    ....    .in.    ....    ....    ~~",
                 "....    ....    ....    ....    ....    ....    ....",
@@ -164,7 +159,6 @@ describe("Dig In card", () => {
 
         test('Cannot select infantry on fortified hexes', () => {
             const unitSetup = [
-                "   0   1   2   3   4   5   6   7   8   9  10  11  12",
                 "....    ....    ....    ....    ....    ....    ....",
                 "~~....    ....    ....    ....    ....    ....    ~~",
                 "....    ....    ....    ....    ....    ....    ....",
@@ -191,7 +185,6 @@ describe("Dig In card", () => {
 
         test('No move or battle phases after confirmation', () => {
             const unitSetup = [
-                "   0   1   2   3   4   5   6   7   8   9  10  11  12",
                 "....    ....    ....    ....    ....    ....    ....",
                 "~~....    ....    ....    ....    ....    ....    ~~",
                 "....    ....    ....    ....    ....    ....    ....",
@@ -219,7 +212,6 @@ describe("Dig In card", () => {
 
         test('Can order 1 unit of any type when no infantry', () => {
             const unitSetup = [
-                "   0   1   2   3   4   5   6   7   8   9  10  11  12",
                 "....    ....    ....    ....    ....    ....    ....",
                 "~~....    ....    ....    ....    ....    ....    ~~",
                 "....    ....    ....    ....    ....    ....    ....",
@@ -243,7 +235,6 @@ describe("Dig In card", () => {
 
         test('Fallback allows move and battle', () => {
             const unitSetup = [
-                "   0   1   2   3   4   5   6   7   8   9  10  11  12",
                 "....    ....    ....    ....    ....    ....    ....",
                 "~~....    ....    ....    ....    ....    ....    ~~",
                 "....    ....    ....    ....    ....    ....    ....",
@@ -269,7 +260,6 @@ describe("Dig In card", () => {
 
         test('Only ConfirmDigIn available when all infantry fortified', () => {
             const unitSetup = [
-                "   0   1   2   3   4   5   6   7   8   9  10  11  12",
                 "....    ....    ....    ....    ....    ....    ....",
                 "~~....    ....    ....    ....    ....    ....    ~~",
                 "....    ....    ....    ....    ....    ....    ....",
@@ -288,7 +278,6 @@ describe("Dig In card", () => {
 
         test('ConfirmDigIn does nothing when no units ordered', () => {
             const unitSetup = [
-                "   0   1   2   3   4   5   6   7   8   9  10  11  12",
                 "....    ....    ....    ....    ....    ....    ....",
                 "~~....    ....    ....    ....    ....    ....    ~~",
                 "....    ....    ....    ....    ....    ....    ....",
@@ -310,7 +299,6 @@ describe("Dig In card", () => {
 
         test('Cannot order armor even if infantry exist but are fortified', () => {
             const unitSetup = [
-                "   0   1   2   3   4   5   6   7   8   9  10  11  12",
                 "....    ....    ....    ....    ....    ....    ....",
                 "~~....    ....    ....    ....    ....    ....    ~~",
                 "....    ....    ....    ....    ....    ....    ....",

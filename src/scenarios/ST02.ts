@@ -10,7 +10,6 @@ import {Side} from "../domain/Player";
 import {SeededRNG} from "../adapters/RNG";
 
 const unitSetup = [
-    "   0   1   2   3   4   5   6   7   8   9  10  11  12",
     ".in. in W...W   W...    ....    W...W   .... in .ar.",
     "~~.in.    W...W   ....    ....W   W...    .in. in ~~",
     ".in.    ....T   W...    ....    ....W   .in.W   T...",

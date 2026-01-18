@@ -11,7 +11,6 @@ describe("Close Assault card", () => {
 
     test('Can only order units adjacent to the enemy', () => {
         const unitSetup = [
-            "   0   1   2   3   4   5   6   7   8   9  10  11  12",
             "....    ....    ....    ....    ....    ....    ....",
             "~~....    ....    ....    ....    ....    ....    ~~",
             "....    ....    ....    ....    ....    ....    ....",
@@ -33,7 +32,6 @@ describe("Close Assault card", () => {
 
     test('Units in CC battle with one extra die', () => {
         const unitSetup = [
-            "   0   1   2   3   4   5   6   7   8   9  10  11  12",
             "....    ....    ....    ....    ....    ....    ....",
             "~~....    ....    ....    ....    ....    ....    ~~",
             "....    ....    ....    ....    ....    ....    ....",
@@ -59,7 +57,6 @@ describe("Close Assault card", () => {
 
     test('Ordered units can no longer battle if the enemy is no longer adjacent', () => {
         const unitSetup = [
-            "   0   1   2   3   4   5   6   7   8   9  10  11  12",
             "....    ....    ....    ....    ....    ....    ....",
             "~~....    ....    ....    ....    ....    ....    ~~",
             "....    ....    ....    ....    ....    ....    ....",

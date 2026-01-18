@@ -12,7 +12,6 @@ describe("Armor Assault card", () => {
 
     test('Can only order armor', () => {
         const unitSetup = [
-            "   0   1   2   3   4   5   6   7   8   9  10  11  12",
             "....    ....    ....    ....    ....    ....    ....",
             "~~....    ....    ....    ....    ....    ....    ~~",
             "....    ....    ....    ....    ....    ....    ....",
@@ -36,7 +35,6 @@ describe("Armor Assault card", () => {
 
         test('All infantry is available', () => {
             const unitSetup = [
-                "   0   1   2   3   4   5   6   7   8   9  10  11  12",
                 "....    ....    ....    ....    ....    ....    ....",
                 "~~....    ....    ....    ....    ....    ....    ~~",
                 "....    ....    ....    ....    ....    ....    ....",
@@ -60,7 +58,6 @@ describe("Armor Assault card", () => {
 
         test('Only one unit can be ordered', () => {
             const unitSetup = [
-                "   0   1   2   3   4   5   6   7   8   9  10  11  12",
                 "....    ....    ....    ....    ....    ....    ....",
                 "~~....    ....    ....    ....    ....    ....    ~~",
                 "....    ....    ....    ....    ....    ....    ....",
@@ -85,7 +82,6 @@ describe("Armor Assault card", () => {
 
     test('Units in CC battle with one extra die', () => {
         const unitSetup = [
-            "   0   1   2   3   4   5   6   7   8   9  10  11  12",
             "....    ....    ....    ....    ....    ....    ....",
             "~~....    ....    ....    ....    ....    ....    ~~",
             "....    ....    ....    ....    ....    ....    ....",

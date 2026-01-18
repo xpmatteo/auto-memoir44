@@ -26,7 +26,6 @@ describe("Air Power card", () => {
 
     describe('Allies', () => {
         const unitSetup = [
-            "   0   1   2   3   4   5   6   7   8   9  10  11  12",
             "....    ....    ....    ....    .insWin ....    ....",
             "~~....    ....    ....    ....    ....    ....    ~~",
             "....    .in. in .in. in .in.    ....    ....    ....",
@@ -181,7 +180,6 @@ describe("Air Power card", () => {
     describe('Axis', () => {
         test('Battles with 1 die per enemy unit', () => {
             const unitSetup = [
-                "   0   1   2   3   4   5   6   7   8   9  10  11  12",
                 "....    ....    ....    ....    ....    ....    ....",
                 "~~....    ....    ....    ....    ....    ....    ~~",
                 "....    ....    ....    ....    ....    ....    ....",
