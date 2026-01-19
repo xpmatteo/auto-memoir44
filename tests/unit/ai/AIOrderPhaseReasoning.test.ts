@@ -8,11 +8,12 @@ import {GameState} from "../../../src/domain/GameState";
 import {Deck} from "../../../src/domain/Deck";
 import {Dice} from "../../../src/domain/Dice";
 import {Infantry} from "../../../src/domain/Unit";
-import {Side} from "../../../src/domain/Player";
+import {Side, Position} from "../../../src/domain/Player";
 import {hexOf, hexDistance} from "../../../src/utils/hex";
 import {ProbeCenter} from "../../../src/domain/cards/SectionCards";
 import {PlayCardMove, OrderUnitMove, ConfirmOrdersMove} from "../../../src/domain/moves/Move";
 import {PhaseType} from "../../../src/domain/phases/Phase";
+import {isHexInSection, Section} from "../../../src/domain/Section";
 
 /**
  * ORDER PHASE AI REASONING
@@ -110,11 +111,11 @@ describe("AI ORDER Phase Reasoning", () => {
     test("AI orders units that yield best position after full turn simulation", () => {
         // Arrange
         // Place 3 units in CENTER section for BOTTOM player
-        // Row 7 CENTER is q values 1-5 (5,7 is specially added to center)
+        // Row 3 CENTER is q values 3-6 (plus straddling hex 2,3)
         // Row 8 CENTER is q values 0-4
-        const unitA = {q: 3, r: 7}; // Closer to enemy at (4,1)
-        const unitB = {q: 4, r: 7}; // Closer to enemy at (4,1)
-        const unitC = {q: 2, r: 8}; // Further back, less able to close the gap
+        const unitA = {q: 3, r: 3}; // Close to enemy at (4,1) - distance 2
+        const unitB = {q: 4, r: 3}; // Close to enemy at (4,1) - distance 2
+        const unitC = {q: 0, r: 8}; // Far back - distance 7, clearly inferior
 
         const enemyPos = {q: 4, r: 1}; // Enemy in top-center
 
@@ -128,12 +129,18 @@ describe("AI ORDER Phase Reasoning", () => {
         const friendlyUnits = gameState.getFriendlySituatedUnits();
         expect(friendlyUnits.length).toBe(3);
 
-        // Guard: verify distances (A and B should be similar distance from enemy)
+        // Guard: verify all friendly units are in CENTER section for BOTTOM player
+        expect(isHexInSection(hexOf(unitA.q, unitA.r), Section.CENTER, Position.BOTTOM)).toBe(true);
+        expect(isHexInSection(hexOf(unitB.q, unitB.r), Section.CENTER, Position.BOTTOM)).toBe(true);
+        expect(isHexInSection(hexOf(unitC.q, unitC.r), Section.CENTER, Position.BOTTOM)).toBe(true);
+
+        // Guard: verify distances - A and B much closer than C
         const distA = hexDistance(hexOf(unitA.q, unitA.r), hexOf(enemyPos.q, enemyPos.r));
         const distB = hexDistance(hexOf(unitB.q, unitB.r), hexOf(enemyPos.q, enemyPos.r));
         const distC = hexDistance(hexOf(unitC.q, unitC.r), hexOf(enemyPos.q, enemyPos.r));
-        expect(distA).toBeLessThanOrEqual(distC); // A should be closer or equal to C
-        expect(distB).toBeLessThanOrEqual(distC); // B should be closer or equal to C
+        expect(distA).toBe(2); // A is 2 hexes from enemy
+        expect(distB).toBe(2); // B is 2 hexes from enemy
+        expect(distC).toBe(7); // C is 7 hexes from enemy - clearly worse
 
         // Verify card can only order 2 units (ProbeCenter)
         const orderMoves = gameState.legalMoves().filter(m => m instanceof OrderUnitMove);
@@ -150,82 +157,68 @@ describe("AI ORDER Phase Reasoning", () => {
 
         // AI should prefer units A and B over C because they have better scoring potential
         // (closer to enemy = higher closeTheGap score after moving)
-        const orderedA = orderedUnits.has(`${unitA.q},${unitA.r}`);
-        const orderedB = orderedUnits.has(`${unitB.q},${unitB.r}`);
         const orderedC = orderedUnits.has(`${unitC.q},${unitC.r}`);
 
-        // At least one of the better-positioned units should be ordered
-        expect(orderedA || orderedB).toBe(true);
-
-        // Log for debugging
-        console.log(`Ordered: A=${orderedA}, B=${orderedB}, C=${orderedC}`);
-        console.log(`Distances - A: ${distA}, B: ${distB}, C: ${distC}`);
+        // The AI should NOT order unit C (the inferior unit further from enemy)
+        // This proves the AI rejected C in favor of the better-positioned A and B
+        expect(orderedC).toBe(false);
     });
 
     /*
-     * TEST: AI evaluates all combinations, not just first
+     * TEST: AI consistently orders 2 units from 4 available across different seeds
      *
-     * The AI must try all possible unit combinations to find the best one.
-     * With 4 units and a card ordering 2, there are C(4,2) = 6 combinations.
+     * Verifies the AI can handle C(4,2) = 6 possible combinations and
+     * always successfully completes the ORDER phase.
      */
-    test("AI evaluates all combinations, not just first", () => {
+    test("AI consistently orders 2 units from 4 available across different seeds", () => {
         // Arrange: 4 units in center section
         // Row 7 CENTER is q values 1-5, Row 8 CENTER is q values 0-4
+        const unitPositions = [
+            {q: 1, r: 7},
+            {q: 2, r: 7},
+            {q: 3, r: 7},
+            {q: 4, r: 7},
+        ];
+
         const gameState = createOrderPhaseGameState(
-            [
-                {q: 1, r: 7},
-                {q: 2, r: 7},
-                {q: 3, r: 7},
-                {q: 4, r: 7},
-            ],
+            unitPositions,
             [{q: 3, r: 1}],
             54321
         );
+
+        // Guard: verify all units are in CENTER section for BOTTOM player
+        for (const pos of unitPositions) {
+            expect(isHexInSection(hexOf(pos.q, pos.r), Section.CENTER, Position.BOTTOM)).toBe(true);
+        }
 
         // Verify we have 4 units that can be ordered
         const orderMoves = gameState.legalMoves().filter(m => m instanceof OrderUnitMove);
         expect(orderMoves.length).toBe(4);
 
-        // Create AI and spy on the internal simulation method
+        // Act: let AI complete ORDER phase
         const rng = new SeededRNG(54321);
         const aiPlayer = new RandomAIPlayer(rng);
-
-        // Use spyOn to count how many times simulateOrderCombination is called
-        // Note: simulateOrderCombination is private, so we spy on the AI's selectMove
-        // and track state changes. Instead, we verify behavior through outcomes.
-
-        // Act: let AI complete ORDER phase
         letAICompleteOrderPhase(gameState, aiPlayer);
 
-        // Assert: AI ordered exactly 2 units (verifies it went through the logic)
+        // Assert: AI ordered exactly 2 units
         const orderedUnits = getOrderedUnits(gameState);
         expect(orderedUnits.size).toBe(2);
 
         // Additional verification: Run multiple times with different seeds
-        // and verify AI doesn't always pick the same combination
-        // (which would indicate it's not evaluating all options)
-        const combinations = new Set<string>();
+        // to verify AI consistently completes ordering
         for (let seed = 1; seed <= 20; seed++) {
             const gs = createOrderPhaseGameState(
-                [
-                    {q: 1, r: 7},
-                    {q: 2, r: 7},
-                    {q: 3, r: 7},
-                    {q: 4, r: 7},
-                ],
+                unitPositions,
                 [{q: 3, r: 1}],
                 seed * 1000
             );
             const ai = new RandomAIPlayer(new SeededRNG(seed * 1000));
             letAICompleteOrderPhase(gs, ai);
             const ordered = getOrderedUnits(gs);
-            combinations.add(Array.from(ordered).sort().join("|"));
-        }
 
-        // With 6 possible combinations and 20 trials, we should see variation
-        // (unless one combination dominates, which is valid AI behavior)
-        console.log(`Observed ${combinations.size} unique combinations out of 6 possible`);
-        expect(combinations.size).toBeGreaterThanOrEqual(1); // At least completed successfully
+            // Each run should successfully order exactly 2 units
+            expect(ordered.size).toBe(2);
+        }
     });
 
     /*
