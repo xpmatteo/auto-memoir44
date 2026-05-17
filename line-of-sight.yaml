@@ -1,0 +1,49 @@
+topic: line of sight through hexside
+phase: BATTLE
+turn: ALLIES
+tests:
+  - name: fire through hexside, only one side blocked
+    map: |
+           0102
+           in4
+      0003 ____ 0103
+            xx  IN4      
+      ____ 0004 ____
+           IN4
+           ____
+    assert_actions_available:
+      - Battle 0004, 0102
+      - Battle 0103, 0102
+      # Unit at 0004 battles
+
+  - name: fire through hexside, both sides blocked
+    map: |
+           0102
+           in4
+      0003 ____ 0103
+      IN4       IN4      
+      ____ 0004 ____
+           IN4
+           ____
+    assert_actions_available:
+      - Battle 0003, 0102
+      - Battle 0103, 0103
+      # Unit at 0004 does not battle
+
+  - name: fire through hexside, both sides blocked in distant hexes
+    map: |
+        0102     0202      0302     0402
+      <      ><        ><        ><  i4  >
+            0103      0203      0303     
+         <  town  ><        ><  wood >
+        0004     0104      0204     0304    
+      <  I4  ><        ><        ><      >    
+
+        0102     0202      0302     0402
+      |       ||        ||        ||  i4  |
+             0103      0203      0303     
+         |   town  ||        ||  wood  |
+        0004      0104      0204     0304    
+      |  I4   ||        ||        ||      |
+    assert_actions_available: []
+      # Unit at 0004 does not battle
