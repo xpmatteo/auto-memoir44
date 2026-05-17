@@ -8,9 +8,7 @@
     "dev": "vite 2>&1 | tee vite.log",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
-    "test": "tsc --noEmit && vitest",
-    "test:ui": "vitest --ui",
-    "test:run": "tsc --noEmit && vitest run",
+    "test": "tsc --noEmit && vitest run --bail 1",
     "typecheck": "tsc --noEmit"
   },
   "keywords": [
