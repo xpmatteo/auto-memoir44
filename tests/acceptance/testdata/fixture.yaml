@@ -15,3 +15,17 @@ tests:
       - Allies Infantry Str 4 @ 0001
       - Allies Armor Str 3 @ 0101
       - Allies Artillery Str 2 @ 0002
+
+  - name: available moves in battle phase
+    turn: Allies
+    phase: Battle
+    map: |2
+         0000      0100      0200      0300
+      |inf     ||        ||        ||        |
+              0001      0101      0201
+           |INF     ||INF     ||        |
+         -102      0002      0202      0302
+      |        ||        ||        ||        |
+    assert_available_moves:
+      - Battle 0001->0000 3 dice
+      - Battle 0101->0000 2 dice
