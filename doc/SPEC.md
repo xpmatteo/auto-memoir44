@@ -34,9 +34,6 @@
 ## Scenario Selection
 - No selection screen. Query parameter `scenario` selects scenario (e.g., `?scenario=ST02` for Sainte-Mère-Église). Defaults may be defined later.
 
-## Victory Conditions
-- Sainte-Mère-Église: first to 4 medals; no objective hexes. Demo scenarios define their own medal targets; none use objective hexes yet.
-
 ## Game State
 - Central `GameState`:
   - `legalMoves()` returns all legal moves for active player.
@@ -56,12 +53,8 @@
 
 ## Acceptance Tests (Black Box)
 - Describe user-observable inputs/outputs (no internal details). Examples:
-  - **Load & Resume**: Input: start `?scenario=ST02`, play a turn, reload page. Expected: state resumes at start of next player’s turn with the same board, hand, and medal counts.
   - **Section Enforcement**: Input: play a Probe Left as BottomPlayer; attempt to order a center unit. Expected: center unit cannot be ordered; left-section units can be ordered/moved/battled per rules.
   - **Sandbag Defense**: Input: unit with sandbags is attacked; attacker rolls flags. Expected: defender may ignore one flag per rules; sandbags removed if defender retreats.
   - **Terrain Combat Modifiers**: Input: attack into forest/city/hedgerow at various ranges. Expected: dice and LOS restrictions match official rules; hits/retreats resolve accordingly.
   - **Victory Check**: Input: eliminate enough enemy figures to reach 4 medals in ST02. Expected: victory declared immediately, no further actions allowed.
 
-## Open Items
-- Confirm Section deck composition (card names/counts).
-- Define demo scenarios and their spotlighted rules/edge cases.
